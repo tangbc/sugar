@@ -9,7 +9,7 @@ define(function(require, exports, module) {
 	// util辅助功能函数库
 	var util = exports.util = require('./util');
 	// jquery
-	var jquery = exports.jquery = require('../jquery/jquery-2.1.4.min');
+	var jquery = exports.jquery = require('../jquery/jquery.min');
 
 	// 多语言转换函数，若未定义则原样返回
 	var LANG = !util.isFunc(WIN && WIN.T) ? function(text) {
