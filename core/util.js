@@ -1,5 +1,5 @@
 /**
- * [工具方法模块]
+ * 框架辅助功能函数库
  */
 define(function(require, util) {
 	var UDF, LANG;
@@ -65,10 +65,7 @@ define(function(require, util) {
 	 * @return {Number}    [数组下标]
 	 */
 	function inArray(ele, arr) {
-		if (isArray(arr)) {
-			return arr.indexOf(ele);
-		}
-		return -1;
+		return isArray(arr) ? arr.indexOf(ele) : -1;
 	}
 
 	/**
@@ -132,7 +129,7 @@ define(function(require, util) {
 	util.isJquery = isJquery;
 
 	// 多语言转换函数，若未定义则原样返回
-	LANG = !isFunc(WIN && WIN.T) ? function(text) {
+	LANG = !isFunc(WIN && WIN.T) ? function() {
 		return util.templateReplace.apply(this, arguments);
 	} : WIN.T;
 
@@ -220,7 +217,7 @@ define(function(require, util) {
 				}
 			}
 		}
-		return UDF;
+		return null;
 	}
 
 	/**
@@ -371,15 +368,16 @@ define(function(require, util) {
 	/**
 	 * getClientHeight 获取页面可视区高度
 	 */
+	var dcm = document.compatMode === 'CSS1Compat';
 	util.getClientHeight = function() {
-		return document.compatMode === 'CSS1Compat' ? docElem.clientHeight : docBody.clientHeight;
+		return dcm ? docElem.clientHeight : docBody.clientHeight;
 	}
 
 	/**
 	 * getClientWidth 获取页面可视区宽度
 	 */
 	util.getClientWidth = function() {
-		return document.compatMode === 'CSS1Compat' ? docElem.clientWidth : docBody.clientWidth;
+		return dcm ? docElem.clientWidth : docBody.clientWidth;
 	}
 
 	/**
@@ -396,7 +394,7 @@ define(function(require, util) {
 	 * removeTags 去掉html标签
 	 */
 	util.removeTags = function(html) {
-		return html.toString().replace(/<[^>]+>/g, '');
+		return String(html).replace(/<[^>]+>/g, '');
 	}
 
 	/**
@@ -404,18 +402,18 @@ define(function(require, util) {
 	 * num: 原始数值 ; zeros: 补0个数
 	 */
 	util.fixZero = function(num, zeros) {
-		var b, v, x = 10, y, ns = num.toString().length;
+		var b, v, x = 10, y, ns = String(num).length;
 		if (!isNumber(zeros) || !isNumber(zeros)) {
 			return num;
 		}
 		y = ns + zeros;
 		b = Math.pow(x, y);
 		v = b + num;
-		return v.toString().substr(1);
+		return String(v).substr(1);
 	}
 
 	/*
-	 * 格式化某段时间, 返回与当前的时间差 2015-05-16 16:14:30
+	 * 格式化时间, 返回与当前的时间差 2015-05-16 16:14:30
 	 */
 	util.prettyDate = function(dateStr) {
 		if (!isString(dateStr)) {

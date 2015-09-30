@@ -12,7 +12,7 @@ define(function(require, exports, module) {
 	var jquery = exports.jquery = require('../jquery/jquery.min');
 
 	// 多语言转换函数，若未定义则原样返回
-	var LANG = !util.isFunc(WIN && WIN.T) ? function(text) {
+	var LANG = !util.isFunc(WIN && WIN.T) ? function() {
 		return util.templateReplace.apply(this, arguments);
 	} : WIN.T;
 
@@ -195,7 +195,6 @@ define(function(require, exports, module) {
 		bind: function(elm, _event, data, callback) {
 			var arglen = arguments.length;
 			var context = this.context || this;
-			var ret;
 
 			if (!util.isJquery(elm)) {
 				return false;
@@ -222,6 +221,7 @@ define(function(require, exports, module) {
 				return false;
 			}
 
+			var ret;
 			elm.bind(_event, data, function(ev) {
 				ret = callback.call(context, ev, this);
 				// 阻止默认事件和冒泡
@@ -267,7 +267,6 @@ define(function(require, exports, module) {
 		proxy: function(elm, _event, selector, data, callback) {
 			var arglen = arguments.length;
 			var context = this.context || this;
-			var ret;
 
 			if (!util.isJquery(elm)) {
 				return false;
@@ -306,6 +305,7 @@ define(function(require, exports, module) {
 				return false;
 			}
 
+			var ret;
 			elm.on(_event, selector, data, function(ev) {
 				ret = callback.call(context, ev, this);
 				// 阻止默认事件和冒泡
@@ -378,23 +378,23 @@ define(function(require, exports, module) {
 				'from'    : sender,
 				// 消息目标模块
 				'to'      : null,
-				// 该消息被传递的次数
+				// 消息被传递的次数
 				'count'   : 0,
 				// 消息名称
 				'name'    : name,
 				// 消息参数
 				'param'   : param,
-				// 接受消息模块的调用方法 on + 首字母大写
+				// 接收消息模块的调用方法 on + 首字母大写
 				'method'  : 'on' + util.ucFirst(name),
-				// 接受消息模块的返回值
+				// 接收消息模块的返回值
 				'returns' : null
 			};
 			return message;
 		},
 
 		/**
-		 * 触发接收消息模块实例的处理方法
-		 * @param  {Object} receiver [接收消息的模块实例]
+		 * 触发接收消息模块的处理方法
+		 * @param  {Object} receiver [接收消息的模块]
 		 * @param  {Mix}    msg      [消息体（内容）]
 		 * @param  {Mix}    returns  [返回给发送者的数据]
 		 * @return {Mix}             [returns]
@@ -421,7 +421,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 通知发送者消息已被全部接收者接收完毕
+		 * 通知发送者消息已被全部接收完毕
 		 * @param  {Mix}      msg      [消息体（内容）]
 		 * @param  {Function} callback [通知发送者的回调函数]
 		 * @param  {Object}   context  [执行环境]
@@ -443,7 +443,7 @@ define(function(require, exports, module) {
 				callback.call(context, msg);
 			}
 
-			// 接着发送队列中的消息
+			// 继续队列中未完成的消息
 			if (this.queue.length) {
 				setTimeout(this._sendQueue, 0);
 			}
@@ -455,10 +455,9 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 发送消息队列中的消息
+		 * 发送消息队列
 		 */
 		_sendQueue: function() {
-			// 取出消息队列最前面的一条发送请求
 			var request = messager.queue.shift();
 			messager.busy = false;
 
@@ -477,8 +476,8 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 冒泡（由下往上）方式发送消息，由子模块发出，所有父模块接收
-		 * @param  {Object}   sender   [发送消息的子模块实例]
+		 * 冒泡（由下往上）方式发送消息，由子模块发出，逐层父模块接收
+		 * @param  {Object}   sender   [发送消息的子模块]
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -507,7 +506,7 @@ define(function(require, exports, module) {
 
 			while (receiver) {
 				returns = this._trigger(receiver, msg);
-				// 接收消息方法返回false不再继续冒泡
+				// 接收消息方法返回false则不再继续冒泡
 				if (returns === false) {
 					break;
 				}
@@ -519,13 +518,13 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 广播（由上往下）方式发送消息，由父模块发出，所有子模块接收
+		 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
 		 */
 		broadcast: function(sender, name, param, callback, context) {
 			var type = 'broadcast';
 			// 是否处于忙碌状态
 			if (this.busy || syncCount) {
-				this.queue.push(['broadcast', sender, name, param, callback, context]);
+				this.queue.push([type, sender, name, param, callback, context]);
 				if (syncCount) {
 					Sync(this._sendQueue, this);
 				}
@@ -545,7 +544,7 @@ define(function(require, exports, module) {
 			while (receivers.length) {
 				receiver = receivers.shift();
 				returns = this._trigger(receiver, msg);
-				// 接收消息方法返回false不再继续广播
+				// 接收消息方法返回false则不再继续广播
 				if (returns === false) {
 					break;
 				}
@@ -556,9 +555,9 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 向指定模块实例发送消息
-		 * @param  {Object}   sender   [发送消息的模块实例]
-		 * @param  {Mix}      receiver [接受消息的模块实例，实例名称或者对象]
+		 * 向指定模块发送消息
+		 * @param  {Object}   sender   [发送消息的模块]
+		 * @param  {Mix}      receiver [接受消息的模块，模块名称或者对象]
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -713,7 +712,7 @@ define(function(require, exports, module) {
 			var request = {
 				// 请求id，与队列中的id对应
 				'id'      : id,
-				// xmlRequest请求对象
+				// xmlRequest对象
 				'xhr'     : null,
 				// 是否已被阻止
 				'isAbort' : false,
@@ -732,7 +731,7 @@ define(function(require, exports, module) {
 			// 存入请求队列
 			this.queue[id] = request;
 
-			// 执行队列请求
+			// 如空闲，发送队列请求
 			if (this.count < this.maxQuery) {
 				setTimeout(this._sendQueue, 0);
 			}
@@ -741,7 +740,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 发送/处理请求队列中的请求
+		 * 发送请求队列
 		 */
 		_sendQueue: function() {
 			var queue = ajax.queue;
@@ -761,7 +760,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 删除当前成功请求，执行下一个请求
+		 * 执行下一个请求
 		 * @param  {Object} request [当前完成的请求对象]
 		 */
 		_next: function(request) {
@@ -802,7 +801,7 @@ define(function(require, exports, module) {
 		 * @param  {Object} data [ajax成功请求的数据]
 		 */
 		_onSuccess: function(data) {
-			// 请求成功，处理下一个请求
+			// 处理下一个请求
 			ajax._next(this);
 
 			var callback = this.callback;
@@ -825,13 +824,13 @@ define(function(require, exports, module) {
 				}
 			}
 			else {
-				error = data || {
+				error = {
+					'data'   : data,
 					'success': false,
 					'message': 'The server returns information is invalid'
 				};
 			}
 
-			// 回调数据
 			callback.call(context, error, result);
 		},
 
@@ -842,7 +841,7 @@ define(function(require, exports, module) {
 		 * @param  {Object} err        [错误对象]
 		 */
 		_onError: function(xhr, textStatus, err) {
-			// 请求失败，处理下一个请求
+			// 处理下一个请求
 			ajax._next(this);
 
 			var callback = this.callback
@@ -862,7 +861,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * GET请求 @todo: 支持允许在body上带参数
+		 * GET请求
 		 * @param  {String}   uri      [请求地址]
 		 * @param  {Json}     param    [请求参数]
 		 * @param  {Function} callback [请求回调]
@@ -884,7 +883,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 加载模板文件
+		 * 加载模板（静态文件）
 		 * @param  {String}   uri      [模板地址]
 		 * @param  {Json}     param    [请求参数]
 		 * @param  {Function} callback [请求回调]
@@ -900,12 +899,12 @@ define(function(require, exports, module) {
 			}
 			context = context || WIN;
 
-			// 模板拉取成功
+			// 模板请求成功
 			function _fnSuccess(text) {
 				callback.call(context, false, text);
 			}
 
-			// 模板拉取失败
+			// 模板请求失败
 			function _fnError(xhr, textStatus, err) {
 				error = {
 					'status' : textStatus,
@@ -972,7 +971,7 @@ define(function(require, exports, module) {
 
 	/**
 	 * MVVM类，封装Vue
-	 * @param  {Object}  element  [Vue实例的挂载点DOM元素]
+	 * @param  {Object}  element  [Vue实例的挂载DOM元素]
 	 * @param  {Object}  options  [Vue实例所使用的实例化选项]
 	 * @param  {Object}  context  [Vue实例方法执行环境]
 	 */
@@ -1092,7 +1091,7 @@ define(function(require, exports, module) {
 		if (callback === 0) {
 			syncCount++;
 		}
-		// 回调计数结束（已完成全部异步请求）
+		// 回调计数结束
 		else if (callback === 1) {
 			syncCount--;
 
@@ -1116,7 +1115,7 @@ define(function(require, exports, module) {
 				}
 			}
 		}
-		// 异步请求，放入回调队列
+		// 回调函数，放入回调队列
 		else if (util.isFunc(callback)) {
 			syncQueue.push([callback, context, args]);
 		}
@@ -1140,7 +1139,7 @@ define(function(require, exports, module) {
 			return {};
 		}
 
-		// 根据"."拆解uri，处理/file/to/ptah.base的情况
+		// 根据"."拆解uri，处理/file/to/path.base的情况
 		var point = uri.lastIndexOf('.');
 		// 模块路径
 		var path = '';
@@ -1165,12 +1164,12 @@ define(function(require, exports, module) {
 	/**
 	 * Module 系统模块基础类，实现所有模块的通用方法
 	 * childArray Array  对应该模块下所有子模块数组字段
-	 * childMap   Object 子模块名称集合映射字段
+	 * childMap   Object 对应该模块下所有子模块映射字段
 	 */
 	var childArray = 'childArray', childMap = 'childMap';
 	var Module = Root.extend({
 		/**
-		 * _collections 子模块映射集合
+		 * _collections 记录模块信息
 		 * @type {Object}
 		 */
 		_collections: {},
@@ -1178,9 +1177,9 @@ define(function(require, exports, module) {
 		/**
 		 * 同步创建一个子模块实例
 		 * @param  {String} name   [子模块名称，同一模块下创建的子模块名称不能重复]
-		 * @param  {Class}  Class  [子模块的类，用于生成实例的构造函数]
+		 * @param  {Class}  Class  [用于生成子模块实例的类]
 		 * @param  {Object} config [<可选>子模块配置参数]
-		 * @return {Object}        [返回子模块实例，失败返回false]
+		 * @return {Object}        [返回创建的子模块实例，失败返回false]
 		 */
 		create: function(name, Class, config) {
 			if (!util.isString(name)) {
@@ -1196,49 +1195,49 @@ define(function(require, exports, module) {
 				return false;
 			}
 
-			var collections = this._collections;
-			// 建立映射表
-			if (!util.has(childArray, collections)) {
+			var cls = this._collections;
+			// 建立关系表
+			if (!util.has(childArray, cls)) {
 				// 子模块缓存列表
-				collections[childArray] = [];
+				cls[childArray] = [];
 				// 子模块命名索引
-				collections[childMap] = {};
+				cls[childMap] = {};
 			}
 
 			// 判断是否已经创建过
-			if (collections[childMap][name]) {
+			if (cls[childMap][name]) {
 				util.error('Module\'s name already exists: ', name);
 				return false;
 			}
 
-			// 生成子模块的实例
-			var childInstance = new Class(config);
+			// 生成子模块实例
+			var instance = new Class(config);
 
 			// 记录子模块信息和父模块的对应关系
-			var childInfo = {
+			var info = {
 				// 子模块实例名称
 				'name' : name,
 				// 子模块实例id
 				'id'   : sysCaches.id++,
-				// 父模块实例id，-1为最父层模块
-				'pid'  : collections.id || -1
+				// 父模块实例id，-1为顶级模块
+				'pid'  : cls.id || -1
 			};
-			childInstance._collections = childInfo;
+			instance._collections = info;
 
 			// 存入系统缓存队列
-			sysCaches[childInfo.id] = childInstance;
+			sysCaches[info.id] = instance;
 			sysCaches.length++;
 
-			// 缓存子模块集合
-			collections[childArray].push(childInstance);
-			collections[childMap][name] = childInstance;
+			// 缓存子模块
+			cls[childArray].push(instance);
+			cls[childMap][name] = instance;
 
-			// 调用模块的初始化方法
-			if (util.isFunc(childInstance.init)) {
-				childInstance.init(config, this);
+			// 调用模块的init方法
+			if (util.isFunc(instance.init)) {
+				instance.init(config, this);
 			}
 
-			return childInstance;
+			return instance;
 		},
 
 		/**
@@ -1246,7 +1245,7 @@ define(function(require, exports, module) {
 		 * @param  {String}   name     [子模块名称，同一模块下创建的子模块名称不能重复]
 		 * @param  {String}   uri      [子模块uri（路径），支持.获取文件特定实例]
 		 * @param  {Object}   config   [<可选>子模块配置参数]
-		 * @param  {Function} callback [<可选>子模块实例创建后的回调函数]
+		 * @param  {Function} callback [<可选>子模块实例创建完成后的回调函数]
 		 */
 		createAsync: function(name, uri, config, callback) {
 			if (!util.isString(name)) {
@@ -1293,7 +1292,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 异步创建子模块集合
+		 * 异步创建多个子模块
 		 * @param   {Object}    modsMap   [子模块名称与路径和配置的映射关系]
 		 * @param   {Function}  callback  [全部子模块创建完后的回调函数]
 		 */
@@ -1346,7 +1345,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 获取当前模块的父模块对象
+		 * 获取当前模块的父模块对象（创建者）
 		 */
 		getParent: function() {
 			var cls = this._collections;
@@ -1355,7 +1354,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 获取指定名称的子模块对象
+		 * 获取当前模块创建的指定名称的子模块对象
 		 * @param  {String} name [子模块名称]
 		 * @return {Object}      [目标对象，子模块不存在返回null]
 		 */
@@ -1376,7 +1375,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 删除指定子模块在当前模块的记录
+		 * 删除当前模块下的指定子模块的记录
 		 * @param  {String}  name [子模块名称]
 		 * @return {Boolean}      [result]
 		 */
@@ -1399,13 +1398,13 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 模块自身销毁函数，只删除缓存队列中的记录和子模块集合
+		 * 模块自身销毁函数，只删除缓存队列中的记录和其子模块集合
 		 * @param  {Mix}  silent [是否向父模块发送销毁消息]
 		 */
 		destroy: function(silent) {
 			var cls = this._collections;
 
-			// 调用销毁前函数，可用于必要的数据保存
+			// 调用销毁前函数，可进行必要的数据保存
 			if (util.isFunc(this.beforeDestroy)) {
 				this.beforeDestroy();
 			}
@@ -1424,14 +1423,14 @@ define(function(require, exports, module) {
 				parent._removeChild(cls.name);
 			}
 
-			// 从缓存队列中销毁相关记录
+			// 从系统缓存队列中销毁相关记录
 			var id = cls.id;
 			if (util.has(id, sysCaches)) {
 				delete sysCaches[id];
 				sysCaches.length--;
 			}
 
-			// 调用销毁后函数，可用于销毁界面和事件
+			// 调用销毁后函数，可进行销毁界面和事件
 			if (util.isFunc(this.afterDestroy)) {
 				this.afterDestroy();
 			}
@@ -1469,7 +1468,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 冒泡（由下往上）方式发送消息，由子模块发出，所有父模块接收
+		 * 冒泡（由下往上）方式发送消息，由子模块发出，逐层父模块接收
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -1500,7 +1499,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 广播（由上往下）方式发送消息，由父模块发出，所有子模块接收
+		 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
 		 */
 		broadcast: function(name, param, callback) {
 			if (!util.isString(name)) {
@@ -1567,11 +1566,11 @@ define(function(require, exports, module) {
 
 
 	/**
-	 * Core 核心模块，用于顶层模块创建
+	 * Core 核心模块，用于顶层模块的创建
 	 */
 	var Core = Module.extend({
 		/**
-		 * 获取最父层模块
+		 * 获取顶级模块
 		 * @param  {String} name [模块实例名称]
 		 * @return {Object}      [模块实例]
 		 */
@@ -1580,7 +1579,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 全局广播发消息，由core模块发出，系统全部实例接受
+		 * 全局广播发消息，由core模块发出，系统全部实例接收
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @return {Boolean}           [result]
@@ -1597,7 +1596,7 @@ define(function(require, exports, module) {
 
 
 	/**
-	 * Container 视图容器类，实现页面容器组件的通用方法
+	 * Container 视图类基础模块，实现视图模块的通用方法
 	 */
 	var Container = Module.extend({
 		/**
@@ -1607,13 +1606,13 @@ define(function(require, exports, module) {
 		 */
 		init: function(config, parent) {
 			this._config = cover(config, {
-				// 视图元素的目标容器
+				// 模块目标容器
 				'target'  : null,
-				// 视图元素的标签
+				// DOM元素的标签
 				'tag'     : 'div',
-				// 视图元素的class
+				// DOM元素的class
 				'class'   : '',
-				// 视图元素的attr
+				// DOM元素的attr
 				'attr'    : null,
 				// 视图布局内容(html结构字符串)
 				'html'    : '',
@@ -1623,7 +1622,7 @@ define(function(require, exports, module) {
 				'tplParam': null,
 				// mvvvm对象模型
 				'vModel'  : null,
-				// 视图渲染完成后的回调函数，默认调用viewReady方法
+				// 视图渲染完成后的回调函数
 				'cbRender': 'viewReady',
 				// 从模板创建子模块后，是否移除节点的模块路径标记
 				'tidyNode': true
@@ -1634,6 +1633,7 @@ define(function(require, exports, module) {
 			this.vm = null;
 			// 模块是否已经创建完成
 			this.$ready = false;
+
 			// 是否从模板拉取布局
 			if (this.getConfig('template')) {
 				this._loadTemplate();
@@ -1653,7 +1653,7 @@ define(function(require, exports, module) {
 			var param = util.extend(c.tplParam, {
 				'ts': util.random()
 			});
-			// 拉取模板
+
 			Sync(0);
 			ajax.load(uri, param, function(err, text) {
 				if (err) {
@@ -1667,7 +1667,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 获取配置选项
+		 * 获取配置参数
 		 * @param  {String} name [description]
 		 */
 		getConfig: function(name) {
@@ -1675,7 +1675,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 设置配置选项
+		 * 设置配置参数
 		 * @param {String} name  [配置字段名]
 		 * @param {Mix}    value [值]
 		 */
@@ -1789,7 +1789,8 @@ define(function(require, exports, module) {
 		 * @return {DOMObject}          [jQuery DOM对象]
 		 */
 		getDOM: function(selector) {
-			return selector && util.isString(selector) ? this._domObject.find(selector) : this._domObject;
+			var domObject = this._domObject;
+			return selector && util.isString(selector) ? domObject.find(selector) : domObject;
 		},
 
 		/**
@@ -1821,7 +1822,7 @@ define(function(require, exports, module) {
 		},
 
 		/**
-		 * 模块销毁后的回调函数，移除视图界面和取消所有事件的绑定
+		 * 模块销毁后的回调函数，移除视图界面和取消所有的事件绑定
 		 */
 		afterDestroy: function() {
 			var domObject = this._domObject;
@@ -1829,6 +1830,7 @@ define(function(require, exports, module) {
 				// 取消所有事件
 				this.unbind(domObject);
 				domObject.find('*').unbind();
+
 				// 销毁DOM对象
 				domObject.remove();
 				domObject = null;
