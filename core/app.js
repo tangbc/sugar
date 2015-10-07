@@ -1,7 +1,7 @@
 /**
  * app.js 框架核心应用模块，基础模块及其拓展的实现
  */
-define(function(require, exports, module) {
+define(function(require, exports) {
 	var UDF, WIN = (function() {return this})();
 
 	// Vue.js MVVM框架
@@ -69,12 +69,12 @@ define(function(require, exports, module) {
 		/**
 		 * 子类对父类的调用
 		 * @param {String} method [调用的父类方法]
-		 * @param {Object} args   [调用参数]
+		 * @param {Array}  args   [调用参数]
 		 */
 		function Super(method, args) {
 			var func = parent[method];
 			if (util.isFunc(func)) {
-				return func.apply(this, args);
+				func.apply(this, args);
 			}
 		}
 
@@ -98,23 +98,19 @@ define(function(require, exports, module) {
 	};
 
 
-	/**
-	 * 模块配置参数合并、覆盖
-	 * @param  {Object} child  [子类模块配置参数]
-	 * @param  {Object} parent [父类模块配置参数]
-	 * @return {Object}        [合并后的配置参数]
-	 */
-	function cover(child, parent) {
-		if (!util.isObject(child)) {
-			child = {};
-		}
-		if (!util.isObject(parent)) {
-			parent = {};
-		}
-		return util.extend(parent, child);
-	}
-	exports.cover = cover;
-
+	// 系统配置参数，在app.init接口定义
+	var CONFIG = {
+		// 配置文件数据
+		'data'    : {},
+		// ajax最大同时请求数
+		'maxQuery': 5,
+		// ajax响应超时时间
+		'timeout' : 10000,
+		// 视图模板文件的子模块标记名称
+		'mName'   : 'm-name',
+		// 视图模块文件的子模块标记路径
+		'mModule' : 'm-module'
+	};
 
 	/**
 	 * 设置/读取配置对象
@@ -128,7 +124,7 @@ define(function(require, exports, module) {
 		if (util.isString(cData)) {
 			value = name;
 			name = cData;
-			cData = appConfig.config;
+			cData = CONFIG.data;
 		}
 
 		var set = (value !== UDF);
@@ -168,9 +164,7 @@ define(function(require, exports, module) {
 			return data[name];
 		}
 	}
-	// 全局系统配置对象
-	appConfig.config = {};
-	// 导出作为全局系统配置函数
+	// 作为全局系统配置函数
 	exports.config = appConfig;
 
 
@@ -657,11 +651,6 @@ define(function(require, exports, module) {
 	 */
 	function Ajax() {
 		/**
-		 * 最大同时请求数
-		 * @type {Number}
-		 */
-		this.maxQuery = 5;
-		/**
 		 * 等待请求的缓存队列
 		 * @type {Object}
 		 */
@@ -732,7 +721,7 @@ define(function(require, exports, module) {
 			this.queue[id] = request;
 
 			// 如空闲，发送队列请求
-			if (this.count < this.maxQuery) {
+			if (this.count < CONFIG.maxQuery) {
 				setTimeout(this._sendQueue, 0);
 			}
 
@@ -748,7 +737,7 @@ define(function(require, exports, module) {
 			// 取出请求队列中的第一条
 			for (var property in queue) {
 				if (util.has(property, queue)) {
-					// 跳过已经执行过的
+					// 跳过正在执行的
 					if (queue[property]['xhr']) {
 						continue;
 					}
@@ -786,9 +775,9 @@ define(function(require, exports, module) {
 				'dataType'    : 'json',
 				'contentType' : 'application/json; charset=UTF-8',
 				'data'        : request.param,
-				'timeout'     : 9288,
-				'success'     : this._onSuccess,
-				'error'       : this._onError,
+				'timeout'     : CONFIG.timeout,
+				'success'     : this._requestSuccess,
+				'error'       : this._requestError,
 				'context'     : request
 			});
 
@@ -800,7 +789,7 @@ define(function(require, exports, module) {
 		 * 请求成功处理函数
 		 * @param  {Object} data [ajax成功请求的数据]
 		 */
-		_onSuccess: function(data) {
+		_requestSuccess: function(data) {
 			// 处理下一个请求
 			ajax._next(this);
 
@@ -824,11 +813,11 @@ define(function(require, exports, module) {
 				}
 			}
 			else {
-				error = {
-					'data'   : data,
-					'success': false,
-					'message': 'The server returns information is invalid'
-				};
+				error = util.extend({
+					'message': 'The server returns invalid',
+					'code'   : 200,
+					'success': false
+				}, data);
 			}
 
 			callback.call(context, error, result);
@@ -840,11 +829,11 @@ define(function(require, exports, module) {
 		 * @param  {String} textStatus [错误文本信息]
 		 * @param  {Object} err        [错误对象]
 		 */
-		_onError: function(xhr, textStatus, err) {
+		_requestError: function(xhr, textStatus, err) {
 			// 处理下一个请求
 			ajax._next(this);
 
-			var callback = this.callback
+			var callback = this.callback;
 			var context = this.context;
 			var error = {
 				'status' : textStatus,
@@ -866,9 +855,10 @@ define(function(require, exports, module) {
 		 * @param  {Json}     param    [请求参数]
 		 * @param  {Function} callback [请求回调]
 		 * @param  {Object}   context  [执行环境]
+		 * @return {Number}            [请求id]
 		 */
 		get: function(uri, param, callback, context) {
-			this._build('GET', uri + util.parse(param), null, callback, context);
+			return this._build('GET', uri + util.parse(param), null, callback, context);
 		},
 
 		/**
@@ -877,9 +867,10 @@ define(function(require, exports, module) {
 		 * @param  {Json}     param    [请求参数]
 		 * @param  {Function} callback [请求回调]
 		 * @param  {Object}   context  [执行环境]
+		 * @return {Number}            [请求id]
 		 */
 		post: function(uri, param, callback, context) {
-			this._build('POST', uri, param, callback, context);
+			return this._build('POST', uri, param, callback, context);
 		},
 
 		/**
@@ -897,7 +888,7 @@ define(function(require, exports, module) {
 				context = callback;
 				param = null;
 			}
-			context = context || WIN;
+			context = context;
 
 			// 模板请求成功
 			function _fnSuccess(text) {
@@ -990,8 +981,8 @@ define(function(require, exports, module) {
 			}
 		});
 
-		// 初始数据备份
-		this._backup = util.clone(data);
+		// 初始数据备份，用于reset数据
+		this._backup = util.copy(data);
 
 		// 创建一个内部MVVM实例
 		this._vm = new Vue({
@@ -1053,7 +1044,7 @@ define(function(require, exports, module) {
 			}
 			// 重置多个
 			else if (util.isArray(key)) {
-				util.each(key, function(k) {
+				util.each(key, function(v, k) {
 					if (util.has(k, vm)) {
 						vm[k] = backup[k];
 					}
@@ -1061,8 +1052,10 @@ define(function(require, exports, module) {
 			}
 			// 重置所有
 			else {
-				util.each(vm, function(k) {
-					vm[k] = backup[k];
+				util.each(vm, function(v, k) {
+					if (util.has(k, vm)) {
+						vm[k] = backup[k];
+					}
 				});
 			}
 		}
@@ -1297,7 +1290,6 @@ define(function(require, exports, module) {
 		 * @param   {Function}  callback  [全部子模块创建完后的回调函数]
 		 */
 		createArrayAsync: function(modsMap, callback) {
-			var self = this;
 			// 子模块数组
 			var modArray = [];
 			// 子模块真实路径集合
@@ -1315,6 +1307,7 @@ define(function(require, exports, module) {
 				}
 			});
 
+			var self = this;
 			Sync(0);
 			require.async(pathArray, function() {
 				var args = util.argumentsToArray(arguments);
@@ -1419,6 +1412,7 @@ define(function(require, exports, module) {
 
 			// 从父模块删除（递归调用时不需要）
 			var parent = this.getParent();
+			var name = cls.name;
 			if (silent !== -1 && parent) {
 				parent._removeChild(cls.name);
 			}
@@ -1437,7 +1431,7 @@ define(function(require, exports, module) {
 
 			// 向父模块通知已销毁
 			if (silent) {
-				this.fire('subModuleDestroy');
+				this.fire('subModuleDestroy', name);
 			}
 		},
 
@@ -1445,7 +1439,7 @@ define(function(require, exports, module) {
 		 * 修正作用域的定时器
 		 * @param {Function} callback [定时器回调函数]
 		 * @param {Number}   time     [回调等待时间（毫秒）]
-		 * @param {Mix}      param    [<可选>回调函数的参数]
+		 * @param {Array}    param    [<可选>回调函数的参数]
 		 */
 		setTimeout: function(callback, time, param) {
 			var self = this;
@@ -1461,8 +1455,13 @@ define(function(require, exports, module) {
 				return null;
 			}
 
+			// 参数必须为数组或arguments对象
+			if (param && !util.isFunc(param.callee) && !util.isArray(param)) {
+				param = [param];
+			}
+
 			return setTimeout(function() {
-				callback.call(self, param);
+				callback.apply(self, param);
 				self = callback = time = param = null;
 			}, time);
 		},
@@ -1596,7 +1595,25 @@ define(function(require, exports, module) {
 
 
 	/**
-	 * Container 视图类基础模块，实现视图模块的通用方法
+	 * 模块配置参数合并、覆盖
+	 * @param  {Object} child  [子类模块配置参数]
+	 * @param  {Object} parent [父类模块配置参数]
+	 * @return {Object}        [合并后的配置参数]
+	 */
+	function cover(child, parent) {
+		if (!util.isObject(child)) {
+			child = {};
+		}
+		if (!util.isObject(parent)) {
+			parent = {};
+		}
+		return util.extend(parent, child);
+	}
+	exports.cover = cover;
+
+
+	/**
+	 * Container 视图类基础模块
 	 */
 	var Container = Module.extend({
 		/**
@@ -1625,14 +1642,14 @@ define(function(require, exports, module) {
 				// 视图渲染完成后的回调函数
 				'cbRender': 'viewReady',
 				// 从模板创建子模块后，是否移除节点的模块路径标记
-				'tidyNode': true
+				'tidyNode': false
 			});
 			// DOM对象
 			this._domObject = null;
 			// mvvm对象
 			this.vm = null;
 			// 模块是否已经创建完成
-			this.$ready = false;
+			this.$_ready = false;
 
 			// 是否从模板拉取布局
 			if (this.getConfig('template')) {
@@ -1647,7 +1664,6 @@ define(function(require, exports, module) {
 		 * 加载模板文件
 		 */
 		_loadTemplate: function() {
-			var self = this;
 			var c = this.getConfig();
 			var uri = c.template;
 			var param = util.extend(c.tplParam, {
@@ -1660,10 +1676,10 @@ define(function(require, exports, module) {
 					text = err.code + ' ' + err.message + ': ' + uri;
 					util.error(err);
 				}
-				self.setConfig('html', text);
-				self._render();
+				this.setConfig('html', text);
+				this._render();
 				Sync(1);
-			});
+			}, this);
 		},
 
 		/**
@@ -1688,10 +1704,10 @@ define(function(require, exports, module) {
 		 */
 		_render: function() {
 			// 判断是否已创建过
-			if (this.$ready) {
+			if (this.$_ready) {
 				return this;
 			}
-			this.$ready = true;
+			this.$_ready = true;
 
 			var c = this.getConfig();
 
@@ -1736,19 +1752,21 @@ define(function(require, exports, module) {
 			var modsMap = {};
 			var dom = this.getDOM();
 			var c = this.getConfig();
+			var mName = CONFIG.mName, mModule = CONFIG.mModule;
 			var config = util.isObject(configMap) ? configMap : {};
 
 			// 收集子模块定义节点
-			var node, resolve, uri, path, name;
-			var modNodes = dom.find('[m-name]');
+			var node, uri, name, resolve, path;
+			var modNodes = dom.find('['+ mName +']');
 			modNodes.each(function() {
 				node = jquery(this);
-				uri = node.attr('m-module');
-				name = node.attr('m-name');
+				uri = node.attr(mModule);
+				name = node.attr(mName);
 
-				// 是否去掉路径节点记录
+				// 是否去掉模块节点记录
 				if (c.tidyNode) {
-					node.removeAttr('m-module');
+					node.removeAttr(mName);
+					node.removeAttr(mModule);
 				}
 
 				// 解析子模块路径
@@ -1768,11 +1786,6 @@ define(function(require, exports, module) {
 					'target': node
 				};
 			});
-
-			// callback为属性值
-			if (util.isString(callback)) {
-				callback = this[callback];
-			}
 
 			// 没有特殊指定callback默认调用afterBuild
 			if (!callback) {
@@ -1842,13 +1855,13 @@ define(function(require, exports, module) {
 
 	/**
 	 * app初始化接口，可将全局配置文件引入，挂载其他基础模块
-	 * @param  {Object} config  [系统全局配置文件]
+	 * @param  {Object} config  [系统全局配置]
 	 * @param  {Object} modMap  [挂载模块映射对象]
 	 */
 	exports.init = function(config, modMap) {
 		// 系统全局配置对象
 		if (util.isObject(config)) {
-			appConfig.config = config;
+			CONFIG = util.extend(CONFIG, config);
 		}
 
 		// 挂载通用模块

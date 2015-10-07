@@ -363,7 +363,7 @@ define(function(require, util) {
 			arr.push(pro + '=' + param[pro]);
 		}
 		return '?' + arr.join('&');
-	},
+	}
 
 	/**
 	 * getClientHeight 获取页面可视区高度
@@ -501,7 +501,7 @@ define(function(require, util) {
 	 * 防环状嵌套克隆
 	 * @param {Mix} obj 克隆的对象值
 	 */
-	function Clone(obj) {
+	function CloneObject(obj) {
 		if (isPlainObject(obj) || isArray(obj)) {
 			var cloneKey = '___deep_clone___';
 
@@ -513,7 +513,7 @@ define(function(require, util) {
 			var objClone = obj[cloneKey] = (obj instanceof Array ? [] : {});
 			for (var key in obj) {
 				if (key !== cloneKey && has(key, obj)) {
-					objClone[key] = (typeOfObject(obj[key]) ? Clone(obj[key]) : obj[key]);
+					objClone[key] = (typeOfObject(obj[key]) ? CloneObject(obj[key]) : obj[key]);
 				}
 			}
 			delete obj[cloneKey];
@@ -521,7 +521,7 @@ define(function(require, util) {
 		}
 		return obj;
 	}
-	util.clone = Clone;
+	util.clone = CloneObject;
 
 	/**
 	 * extend 扩展合并
@@ -540,12 +540,12 @@ define(function(require, util) {
 			break;
 			// 目标是对象, 新值是数组
 			case 1:
-				dst = Clone(src);
+				dst = CloneObject(src);
 			break;
 			// 目标是数组, 新值是对象
 			case 2:
 				if (!isFakeArray(src)) {
-					dst = Clone(src);
+					dst = CloneObject(src);
 					break;
 				}
 			// 都是对象
@@ -580,7 +580,7 @@ define(function(require, util) {
 			}
 			// 克隆新对象赋值
 			else {
-				dst[key] = Clone(value);
+				dst[key] = CloneObject(value);
 			}
 		}
 		// 直接赋值
@@ -610,6 +610,15 @@ define(function(require, util) {
 		}
 		return target;
 	};
+
+	/**
+	 * 复制对象
+	 * @param   {Object}  obj  [需要复制的对象]
+	 * @return  {Object}       [复制后的对象]
+	 */
+	util.copy = function(obj) {
+		return this.extend({}, obj);
+	}
 
 	/**
 	 * 字符串首字母大写
