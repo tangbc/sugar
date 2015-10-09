@@ -46,7 +46,7 @@ define(function(require, exports) {
 	 * @return  {Mix}               [result]
 	 */
 	function bindSuper(Super, method) {
-		if (util.isFunc(method)) {
+		if (util.isFunc(method) && /\b\.Super\b/.test(String(method))) {
 			return function() {
 				this.Super = Super;
 				return method.apply(this, arguments);
@@ -973,7 +973,7 @@ define(function(require, exports) {
 
 		util.each(options, function(value, key) {
 			// 函数重新绑定作用域
-			if (util.isFunc(value) && Function.prototype.bind) {
+			if (util.isFunc(value)) {
 				data[key] = value.bind(context);
 			}
 			else {
