@@ -194,13 +194,8 @@ define(function(require, exports) {
 				return false;
 			}
 
-			// 事件为数组形式
-			if (util.isArray(_event)) {
-				_event = _event.join(' ');
-			}
-
 			// 不传data
-			if (arglen === 3) {
+			if (util.isFunc(data)) {
 				callback = data;
 				data = null;
 			}
@@ -264,11 +259,6 @@ define(function(require, exports) {
 
 			if (!util.isJquery(elm)) {
 				return false;
-			}
-
-			// 事件为数组形式
-			if (util.isArray(_event)) {
-				_event = _event.join(' ');
 			}
 
 			// selector和data传一个
@@ -1073,19 +1063,19 @@ define(function(require, exports) {
 	 * @param  {Object}  context   [回调函数执行环境]
 	 * @param  {Array}   args      [callback回调参数]
 	 *
-	 *   Sync(0)                      : 回调计数开始
-	 *   Sync(1)                      : 回调计数结束
+	 *   Sync(1)                      : 回调计数开始
+	 *   Sync(0)                      : 回调计数结束
 	 *   Sync(callback, context, args): 放入回调队列
 	 *
 	 */
 	function Sync(callback, context, args) {
 		var sync, cb, ct, ags;
 		// 回调计数开始
-		if (callback === 0) {
+		if (callback === 1) {
 			syncCount++;
 		}
 		// 回调计数结束
-		else if (callback === 1) {
+		else if (callback === 0) {
 			syncCount--;
 
 			// 依次从最后的回调开始处理，防止访问未创建完成的模块
@@ -1265,7 +1255,7 @@ define(function(require, exports) {
 
 			// 异步加载模块
 			var self = this, args = null;
-			Sync(0);
+			Sync(1);
 			require.async(path, function(Class) {
 				// 取导出点
 				if (Class && expt) {
@@ -1278,7 +1268,7 @@ define(function(require, exports) {
 					Sync(callback, self, args);
 					args[0] = self.create(name, Class, config);
 				}
-				Sync(1);
+				Sync(0);
 			});
 
 			return this;
@@ -1308,7 +1298,7 @@ define(function(require, exports) {
 			});
 
 			var self = this;
-			Sync(0);
+			Sync(1);
 			require.async(pathArray, function() {
 				var args = util.argumentsToArray(arguments);
 				var retMods = [], mod, name, expt, config, child;
@@ -1333,7 +1323,7 @@ define(function(require, exports) {
 						retMods.push(child);
 					}
 				});
-				Sync(1);
+				Sync(0);
 			});
 		},
 
@@ -1670,7 +1660,7 @@ define(function(require, exports) {
 				'ts': util.random()
 			});
 
-			Sync(0);
+			Sync(1);
 			ajax.load(uri, param, function(err, text) {
 				if (err) {
 					text = err.code + ' ' + err.message + ': ' + uri;
@@ -1678,7 +1668,7 @@ define(function(require, exports) {
 				}
 				this.setConfig('html', text);
 				this._render();
-				Sync(1);
+				Sync(0);
 			}, this);
 		},
 
