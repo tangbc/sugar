@@ -963,7 +963,7 @@ define(function(require, exports) {
 
 		util.each(options, function(value, key) {
 			// 函数重新绑定作用域
-			if (util.isFunc(value)) {
+			if (util.isFunc(value) && Function.prototype.bind) {
 				data[key] = value.bind(context);
 			}
 			else {
@@ -1421,14 +1421,14 @@ define(function(require, exports) {
 
 			// 向父模块通知已销毁
 			if (silent) {
-				this.fire('subModuleDestroy', name);
+				this.fire('subDestroyed', name);
 			}
 		},
 
 		/**
 		 * 修正作用域的定时器
 		 * @param {Function} callback [定时器回调函数]
-		 * @param {Number}   time     [回调等待时间（毫秒）]
+		 * @param {Number}   time     [<可选>回调等待时间（毫秒）不填为0]
 		 * @param {Array}    param    [<可选>回调函数的参数]
 		 */
 		setTimeout: function(callback, time, param) {
@@ -1473,9 +1473,9 @@ define(function(require, exports) {
 				param = null;
 			}
 
-			// callback为属性值，加上on前缀
+			// callback为属性值
 			if (util.isString(callback)) {
-				callback = 'on' + util.ucFirst(callback);
+				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
@@ -1501,9 +1501,9 @@ define(function(require, exports) {
 				param = null;
 			}
 
-			// callback为属性值，加上on前缀
+			// callback为属性值
 			if (util.isString(callback)) {
-				callback = 'on' + util.ucFirst(callback);
+				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
@@ -1537,9 +1537,9 @@ define(function(require, exports) {
 				param = null;
 			}
 
-			// callback为属性值，加上on前缀
+			// callback为属性值
 			if (util.isString(callback)) {
-				callback = 'on' + util.ucFirst(callback);
+				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
