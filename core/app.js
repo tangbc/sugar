@@ -1629,7 +1629,9 @@ define(function(require, exports) {
 				'tag'     : 'div',
 				// DOM元素的class
 				'class'   : '',
-				// DOM元素的attr
+				// DOM元素的CSS(以jQuery的css方法设置)
+				'css'     : null,
+				// DOM元素的attr(以jQuery的attr方法设置)
 				'attr'    : null,
 				// 视图布局内容(html结构字符串)
 				'html'    : '',
@@ -1711,19 +1713,23 @@ define(function(require, exports) {
 
 			var c = this.getConfig();
 
-			this._domObject = jquery('<'+ c.tag +'/>');
+			var element = this._domObject = jquery('<'+ c.tag +'/>');
 
 			if (c.class) {
-				this._domObject.addClass(c.class);
+				element.addClass(c.class);
+			}
+
+			if (c.css) {
+				element.css(c.css);
 			}
 
 			if (c.attr) {
-				this._domObject.attr(c.attr);
+				element.attr(c.attr);
 			}
 
 			// 添加页面布局元素
 			if (c.html && util.isString(c.html)) {
-				this._domObject.html(c.html);
+				element.html(c.html);
 			}
 
 			// 插入目标容器，初始化vm
@@ -1731,9 +1737,9 @@ define(function(require, exports) {
 			if (target) {
 				// 初始化vm对象
 				if (util.isObject(vModel)) {
-					this.vm = new MVVM(this._domObject, vModel, this);
+					this.vm = new MVVM(element, vModel, this);
 				}
-				this._domObject.appendTo(target);
+				element.appendTo(target);
 			}
 
 			// 调用子模块的(视图渲染完毕)后续回调方法
