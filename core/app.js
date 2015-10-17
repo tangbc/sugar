@@ -125,7 +125,7 @@ define(function(require, exports) {
 	 */
 	function appConfig(cData, name, value) {
 		// 不传cData配置对象
-		if (util.isString(cData)) {
+		if (util.isString(cData) || arguments.length === 0) {
 			value = name;
 			name = cData;
 			cData = CONFIG.data;
@@ -186,7 +186,7 @@ define(function(require, exports) {
 		 * 为元素添加绑定事件
 		 * @param  {Object}   elm       [绑定事件的元素]
 		 * @param  {String}   _event    [绑定的事件，多个事件用空格分开]
-		 * @param  {Mix}      data      [<可选>传递到回调函数的额外数据]
+		 * @param  {Object}   data      [<可选>传递到回调函数的额外数据]
 		 * @param  {Function} callback  [回调函数, 回调参数evt, elm]
 		 * @return {Boolean}            [result]
 		 */
@@ -200,7 +200,7 @@ define(function(require, exports) {
 			}
 
 			// 不传data
-			if (util.isFunc(data)) {
+			if (util.isFunc(data) || util.isString(data)) {
 				callback = data;
 				data = null;
 			}
@@ -1611,6 +1611,14 @@ define(function(require, exports) {
 	}
 	exports.cover = cover;
 
+	/**
+	 * 模板多语言替换标记
+	 * @type  {RegExp}
+	 */
+	var langReg = /\{\% (.+?) \%\}/g;
+	function langReplace(all, text) {
+		return LANG(text);
+	}
 
 	/**
 	 * Container 视图类基础模块
@@ -1678,6 +1686,8 @@ define(function(require, exports) {
 					text = err.code + ' ' + err.message + ': ' + uri;
 					util.error(err);
 				}
+				// 替换多语言标记
+				text = text.replace(langReg, langReplace);
 				this.setConfig('html', text);
 				this._render();
 				Sync(0);
