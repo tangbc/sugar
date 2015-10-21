@@ -1,5 +1,5 @@
 /**
- * app.js 框架核心应用模块，基础模块及其拓展的实现
+ * sugar.js 框架核心应用模块，基础模块及其拓展的实现
  */
 define(function(require, exports) {
 	var UDF, WIN = (function() {return this})();
@@ -59,10 +59,10 @@ define(function(require, exports) {
 
 	/*
 	 * Root 根函数，实现类式继承
-	 * @param  {Object} proto [生成类的新原型属性或方法]
-	 * @return {Object} Class [继承后的类]
+	 * @param  {Object}   proto [生成类的新原型属性或方法]
+	 * @return {Function} Class [继承后的类]
 	 */
-	function Root() {};
+	function Root() {}
 	Root.extend = function(proto) {
 		var property, classProto;
 		var parent = this.prototype;
@@ -82,7 +82,7 @@ define(function(require, exports) {
 		/**
 		 * 返回(继承后)的类
 		 */
-		function Class() {};
+		function Class() {}
 		classProto = Class.prototype = createProto(parent);
 
 		for (property in proto) {
@@ -114,7 +114,7 @@ define(function(require, exports) {
 		'mName'      : 'm-name',
 		// 视图模块文件中的子模块标记属性路径
 		'mModule'    : 'm-module'
-	};
+	}
 
 	/**
 	 * 设置/读取配置对象
@@ -178,7 +178,7 @@ define(function(require, exports) {
 	 */
 	function Events(context) {
 		this.context = context;
-	};
+	}
 	Events.prototype = {
 		constructor: Events,
 
@@ -191,7 +191,6 @@ define(function(require, exports) {
 		 * @return {Boolean}            [result]
 		 */
 		bind: function(elm, _event, data, callback) {
-			var arglen = arguments.length;
 			var context = this.context || this;
 
 			if (!util.isJquery(elm)) {
@@ -352,7 +351,7 @@ define(function(require, exports) {
 		 * @type {Array}
 		 */
 		this.queue = [];
-	};
+	}
 	Messager.prototype = {
 		constructor: Messager,
 
@@ -488,9 +487,6 @@ define(function(require, exports) {
 			}
 			this.busy = true;
 
-			var senderCls = sender._collections;
-			// 发送者全局实例缓存id
-			var id = senderCls && senderCls.id;
 			// 创建消息
 			var msg = this._create(type, sender, name, param);
 			// 消息接收者，先从自身开始接收
@@ -525,9 +521,6 @@ define(function(require, exports) {
 			}
 			this.busy = true;
 
-			var senderCls = sender._collections;
-			// 发送者全局实例缓存id
-			var id = senderCls && senderCls.id;
 			// 创建消息
 			var msg = this._create(type, sender, name, param);
 			// 消息接收者集合，先从自身开始接收
@@ -550,7 +543,7 @@ define(function(require, exports) {
 		/**
 		 * 向指定模块发送消息
 		 * @param  {Object}   sender   [发送消息的模块]
-		 * @param  {Mix}      receiver [接受消息的模块，模块名称或者对象]
+		 * @param  {String}   receiver [接受消息的模块名称支持.分层级]
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -578,10 +571,10 @@ define(function(require, exports) {
 					}
 				});
 				return target;
-			};
+			}
 
 			// 找到receiver，名称可能为superName.fatherName.childName的情况
-			var ns = null, stop = false, tmp, tar;
+			var ns = null, tmp, tar;
 			if (util.isString(receiver)) {
 				ns = receiver.split('.');
 
@@ -630,7 +623,7 @@ define(function(require, exports) {
 			}
 			this.busy = false;
 
-			var receiver = null, func = null;
+			var receiver = null;
 			var msg = this._create(type, 'core', name, param);
 			for (var cls in sysCaches) {
 				if (!util.has(cls, sysCaches)) {
@@ -664,7 +657,7 @@ define(function(require, exports) {
 		 * @type {Number}
 		 */
 		this.count = 0;
-	};
+	}
 	Ajax.prototype = {
 		constructor: Ajax,
 
@@ -986,7 +979,7 @@ define(function(require, exports) {
 
 		// 正在监视的所有数据对象，可对其进行读写操作
 		this.$ = this._vm.$data;
-	};
+	}
 	MVVM.prototype = {
 		constructor: MVVM,
 
@@ -1106,7 +1099,7 @@ define(function(require, exports) {
 		else if (util.isFunc(callback)) {
 			syncQueue.push([callback, context, args]);
 		}
-	};
+	}
 	exports.sync = Sync;
 
 	/**
@@ -1146,7 +1139,7 @@ define(function(require, exports) {
 			'path': path,
 			'expt': expt
 		};
-	};
+	}
 
 	/**
 	 * Module 系统模块基础类，实现所有模块的通用方法
@@ -1743,7 +1736,7 @@ define(function(require, exports) {
 			}
 
 			// 插入目标容器，初始化vm
-			var target = c.target, vModel = c.vModel;;
+			var target = c.target, vModel = c.vModel;
 			if (target) {
 				// 初始化vm对象
 				if (util.isObject(vModel)) {
@@ -1772,7 +1765,7 @@ define(function(require, exports) {
 			var config = util.isObject(configMap) ? configMap : {};
 
 			// 收集子模块定义节点
-			var node, uri, name, resolve, path;
+			var node, uri, name, resolve;
 			var modNodes = dom.find('['+ mName +']');
 			modNodes.each(function() {
 				node = jquery(this);

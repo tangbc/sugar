@@ -476,8 +476,8 @@ define(function(require, util) {
 			case 2:
 				if (!isFakeArray(src)) {
 					dst = CloneObject(src);
-					break;
 				}
+			break;
 			// 都是对象
 			case 3:
 				if (!dst) {
