@@ -1383,6 +1383,7 @@ define(function(require, exports) {
 		 */
 		destroy: function(notify) {
 			var cls = this._collections;
+			var name = cls.name;
 
 			// 调用销毁前函数，可进行必要的数据保存
 			if (util.isFunc(this.beforeDestroy)) {
@@ -1399,9 +1400,8 @@ define(function(require, exports) {
 
 			// 从父模块删除（递归调用时不需要）
 			var parent = this.getParent();
-			var name = cls.name;
 			if (notify !== -1 && parent) {
-				parent._removeChild(cls.name);
+				parent._removeChild(name);
 			}
 
 			// 从系统缓存队列中销毁相关记录
@@ -1584,7 +1584,7 @@ define(function(require, exports) {
 			messager.globalCast(name, param);
 		}
 	});
-	exports.core = new Core();
+	exports.core = sysCaches['-1'] = new Core();
 
 
 	/**
