@@ -12,7 +12,7 @@ define(function(require, exports) {
 	var jquery = exports.jquery = require('../jquery/jquery.min');
 
 	// 多语言转换函数，若未定义则原样返回
-	var LANG = !util.isFunc(WIN && WIN.T) ? function() {
+	var LANG = !util.isFunc(WIN.T) ? function() {
 		return util.templateReplace.apply(this, arguments);
 	} : WIN.T;
 
@@ -1439,7 +1439,7 @@ define(function(require, exports) {
 
 			// 不合法的回调函数
 			if (!util.isFunc(callback)) {
-				util.err('callback must be a type of Function: ', callback);
+				util.error('callback must be a type of Function: ', callback);
 				return null;
 			}
 
