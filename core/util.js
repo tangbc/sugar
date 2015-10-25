@@ -59,16 +59,6 @@ define(function(require, util) {
 	}
 
 	/**
-	 * inArray 数组中是否存在某元素
-	 * @param  {Mix}   ele [目标元素]
-	 * @param  {Array} arr [查询数组]
-	 * @return {Number}    [数组下标]
-	 */
-	function inArray(ele, arr) {
-		return isArray(arr) ? arr.indexOf(ele) : -1;
-	}
-
-	/**
 	 * isFakeArray 是否是假数组
 	 */
 	function isFakeArray(val) {
@@ -121,7 +111,6 @@ define(function(require, util) {
 	util.isArray = isArray;
 	util.isFunc = isFunc;
 	util.isString = isString;
-	util.inArray = inArray;
 	util.isBoolean = isBoolean;
 	util.isNumber = isNumber;
 	util.isFakeArray = isFakeArray;
