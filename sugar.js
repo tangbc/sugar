@@ -5,11 +5,11 @@ define(function(require, exports) {
 	var UDF, WIN = (function() {return this})();
 
 	// Vue.js MVVM框架
-	var Vue = require('../vue/vue.min');
+	var Vue = require('./vue/vue.min');
 	// util辅助功能函数库
-	var util = exports.util = require('./util');
+	var util = exports.util = require('util');
 	// jquery
-	var jquery = exports.jquery = require('../jquery/jquery.min');
+	var jquery = exports.jquery = require('./jquery/jquery.min');
 
 	// 多语言转换函数，若未定义则原样返回
 	var LANG = !util.isFunc(WIN.T) ? function() {
