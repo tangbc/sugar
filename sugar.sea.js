@@ -1,22 +1,21 @@
+define(function(require, exports, module) {
+/***** pack for seajs begin ******/
 ;(function(factory) {
-	var vue, util, jquery;
-	var relies = ['./util', './vue/vue.min', './jquery/jquery.min'];
-
+	var util, vue, jquery;
 	if (typeof module !== 'undefined' && typeof exports === 'object') {
-		vue = require(relies[1]);
-		util = require(relies[0]);
-		jquery = require(relies[2]);
+		util = require('./util');
+		vue = require('./vue/vue.min');
+		jquery = require('./jquery/jquery.min');
 		module.exports = factory(util, vue, jquery);
 	}
 	else if (typeof define === 'function' && (define.amd || define.cmd)) {
-		define(relies, function() {
+		define(['./util', './vue/vue.min', './jquery/jquery.min'], function() {
 			return factory.apply(this, arguments);
 		});
 	}
 	else {
 		console.error('sugar.js must be running in a modular environment!');
 	}
-
 })(function(util, Vue, jquery) {
 	var UDF, WIN = this, LANG, CONFIG;
 	var Fpb = Function.prototype.bind;
@@ -1974,4 +1973,6 @@
 	}
 
 	return new Sugar();
+});
+/***** pack for seajs end ******/
 });

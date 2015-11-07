@@ -1,20 +1,22 @@
-/**
- * sugar.js 框架核心应用模块，基础模块及其拓展的实现
- */
-define(function(require, exports) {
-	var UDF, WIN = (function() {return this})();
-
-	// Vue.js MVVM框架
-	var Vue = require('./vue/vue.min');
-	// util辅助功能函数库
-	var util = exports.util = require('util');
-	// jquery
-	var jquery = exports.jquery = require('./jquery/jquery.min');
-
-	// 多语言转换函数，若未定义则原样返回
-	var LANG = !util.isFunc(WIN.T) ? function() {
-		return util.templateReplace.apply(this, arguments);
-	} : WIN.T;
+;(function(factory) {
+	var util, vue, jquery;
+	if (typeof module !== 'undefined' && typeof exports === 'object') {
+		util = require('./util');
+		vue = require('./vue/vue.min');
+		jquery = require('./jquery/jquery.min');
+		module.exports = factory(util, vue, jquery);
+	}
+	else if (typeof define === 'function' && (define.amd || define.cmd)) {
+		define(['./util', './vue/vue.min', './jquery/jquery.min'], function() {
+			return factory.apply(this, arguments);
+		});
+	}
+	else {
+		console.error('sugar.js must be running in a modular environment!');
+	}
+})(function(util, Vue, jquery) {
+	var UDF, WIN = this, LANG, CONFIG;
+	var Fpb = Function.prototype.bind;
 
 
 	/*
@@ -98,8 +100,11 @@ define(function(require, exports) {
 	};
 
 
-	// 系统配置参数，在app.init接口定义
-	var CONFIG = {
+	/**
+	 * 系统配置参数，可通过sugar.init重新设置
+	 * @type  {Object}
+	 */
+	CONFIG = {
 		// 配置文件数据
 		'data'       : {},
 		// ajax最大同时请求数
@@ -115,6 +120,7 @@ define(function(require, exports) {
 		// 视图模块文件中的子模块标记属性路径
 		'mModule'    : 'm-module'
 	}
+
 
 	/**
 	 * 设置/读取配置对象
@@ -168,8 +174,6 @@ define(function(require, exports) {
 			return data[name];
 		}
 	}
-	// 全局系统配置函数
-	exports.config = appConfig;
 
 
 	/**
@@ -639,6 +643,15 @@ define(function(require, exports) {
 
 
 	/**
+	 * 多语言转换函数，若未定义则原样返回
+	 * @type  {Function}
+	 */
+	LANG = !util.isFunc(WIN.T) ? function() {
+		return util.templateReplace.apply(this, arguments);
+	} : WIN.T;
+
+
+	/**
 	 * Ajax数据交互类
 	 */
 	function Ajax() {
@@ -945,7 +958,7 @@ define(function(require, exports) {
 		}
 	};
 	// 导出数据请求处理实例
-	var ajax = exports.ajax = new Ajax();
+	var ajax = new Ajax();
 
 
 	/**
@@ -960,8 +973,8 @@ define(function(require, exports) {
 
 		util.each(options, function(value, key) {
 			// 函数重新绑定作用域
-			if (util.isFunc(value) && Function.prototype.bind) {
-				data[key] = value.bind(context);
+			if (util.isFunc(value) && Fpb) {
+				data[key] = Fpb.call(value, context);
 			}
 			else {
 				data[key] = value;
@@ -1100,14 +1113,13 @@ define(function(require, exports) {
 			syncQueue.push([callback, context, args]);
 		}
 	}
-	exports.sync = Sync;
+
 
 	/**
 	 * sysCaches 系统模块实例缓存队列
 	 * 模块的唯一id对应模块的实例
 	 */
 	var sysCaches = {'id': 1, 'length': 0};
-	exports.sysCaches = sysCaches;
 
 	/**
 	 * 解析模块路径，返回真实路径和导出点
@@ -1553,7 +1565,6 @@ define(function(require, exports) {
 			messager.notify(this, receiver, name, param, callback, this);
 		}
 	});
-	exports.Module = Module;
 
 
 	/**
@@ -1584,7 +1595,7 @@ define(function(require, exports) {
 			messager.globalCast(name, param);
 		}
 	});
-	exports.core = sysCaches['-1'] = new Core();
+	sysCaches['-1'] = new Core();
 
 
 	/**
@@ -1602,7 +1613,6 @@ define(function(require, exports) {
 		}
 		return util.extend(parent, child);
 	}
-	exports.cover = cover;
 
 	/**
 	 * 模板多语言替换标记
@@ -1859,15 +1869,14 @@ define(function(require, exports) {
 			}
 		}
 	});
-	exports.Container = Container;
 
 
 	/**
-	 * app初始化接口，可将全局配置文件引入，挂载其他基础模块
+	 * sugar系统配置参数初始化接口，可将全局配置文件引入，挂载其他基础模块
 	 * @param  {Object} config  [系统全局配置]
 	 * @param  {Object} modMap  [挂载模块映射对象]
 	 */
-	exports.init = function(config, modMap) {
+	function init(config, modMap) {
 		// 系统全局配置对象
 		if (util.isObject(config)) {
 			CONFIG = util.extend(CONFIG, config);
@@ -1875,19 +1884,91 @@ define(function(require, exports) {
 
 		// 挂载通用模块
 		if (util.isObject(modMap)) {
-			for (var name in modMap) {
-				if (util.has(name, modMap)) {
-					if (this[name]) {
-						util.error(name + ' is already defined in app.js!');
-						continue;
-					}
-					else {
-						this[name] = modMap[name];
-					}
+			util.each(modMap, function(mod, name) {
+				if (this[name]) {
+					util.error(name + ' is already defined in sugar.js!');
+					return false;
 				}
-			}
+				else {
+					this[name] = mod;
+				}
+			}, this);
 		}
 
 		return this;
 	}
+
+
+	/**
+	 * Sugar框架构造函数
+	 */
+	function Sugar() {
+		/**
+		 * 初始化系统参数方法
+		 * @type  {Function}
+		 */
+		this.init = Fpb ? Fpb.call(init, this) : init;
+
+		/**
+		 * 辅助功能函数库
+		 * @type  {Object}
+		 */
+		this.util = util;
+
+		/**
+		 * jquery 库
+		 * @type  {Function}
+		 */
+		this.jquery = jquery;
+
+		/**
+		 * 系统配置读取方法
+		 * @type  {Function}
+		 */
+		this.config = appConfig;
+
+		/**
+		 * 数据处理实例
+		 * @type  {Object}
+		 */
+		this.ajax = ajax;
+
+		/**
+		 * 同步模块/回调操作方法
+		 * @type  {Function}
+		 */
+		this.sync = Sync;
+
+		/**
+		 * 系统模块实例缓存队列
+		 * @type  {Object}
+		 */
+		this.sysCaches = sysCaches;
+
+		/**
+		 * 模块基础模块类
+		 * @type  {Class}
+		 */
+		this.Module = Module;
+
+		/**
+		 * 系统核心模块实例
+		 * @type  {Object}
+		 */
+		this.core = sysCaches['-1'];
+
+		/**
+		 * 子父模块配置参数覆盖方法
+		 * @type  {Function}
+		 */
+		this.cover = cover;
+
+		/**
+		 * 视图基础模块类
+		 * @type  {Class}
+		 */
+		this.Container = Container;
+	}
+
+	return new Sugar();
 });
