@@ -19,8 +19,13 @@ define(function(require, exports, module) {
 })(function(util, Vue, jquery) {
 	var UDF, WIN = this;
 
+	if (!util || !Vue || !jquery) {
+		console.error('util, Vue and jquery No One Less!', arguments);
+		return UDF;
+	}
+
 	/**
-	 * 系统配置对象，可通过sugar.init进行设置
+	 * 系统配置对象，可通过导出实例的init接口进行设置
 	 * @type  {Object}
 	 */
 	var CONFIG = {
@@ -41,7 +46,7 @@ define(function(require, exports, module) {
 	};
 
 	/**
-	 * 多语言翻译函数
+	 * 多语言翻译函数，翻译规则为全局的T函数(sugar外实现)
 	 * @type  {Function}
 	 */
 	var TRANSLATE = !util.isFunc(WIN.T) ? function() {
@@ -78,7 +83,7 @@ define(function(require, exports, module) {
 	 * @return  {Mix}               [result]
 	 */
 	function bindSuper(Super, method) {
-		if (util.isFunc(method) && /\b\.Super\b/.test(String(method))) {
+		if (util.isFunc(method) && /\b\.Super\b/.test(Function.prototype.toString.call(method))) {
 			return function() {
 				this.Super = Super;
 				method.apply(this, arguments);
@@ -96,7 +101,6 @@ define(function(require, exports, module) {
 	 */
 	function Root() {}
 	Root.extend = function(proto) {
-		var property, classProto;
 		var parent = this.prototype;
 
 		/**
@@ -115,17 +119,15 @@ define(function(require, exports, module) {
 		 * 返回(继承后)的类
 		 */
 		function Class() {}
-		classProto = Class.prototype = createProto(parent);
+		var classProto = Class.prototype = createProto(parent);
 
-		for (property in proto) {
-			if (util.has(property, proto)) {
-				classProto[property] = bindSuper(Super, proto[property]);
-			}
-		}
+		util.each(proto, function(value, property) {
+			classProto[property] = bindSuper(Super, value);
+		});
 
 		proto = null;
-		classProto.constructor = Class;
 		Class.extend = this.extend;
+		classProto.constructor = Class;
 		return Class;
 	};
 
@@ -637,13 +639,10 @@ define(function(require, exports, module) {
 
 			var receiver = null;
 			var msg = this._create(type, 'core', name, param);
-			for (var cls in sysCaches) {
-				if (!util.has(cls, sysCaches)) {
-					continue;
-				}
-				receiver = sysCaches[cls];
-				this._trigger(receiver, msg);
-			}
+
+			util.each(sysCaches, function(cache, cls) {
+				this._trigger(cache, msg);
+			});
 		}
 	};
 	// 模块消息通信实例
@@ -933,6 +932,7 @@ define(function(require, exports, module) {
 		abort: function(id) {
 			var count = 0;
 			var request = this.queue[id];
+
 			// 终止指定id的请求
 			if (request) {
 				if (request.xhr && !request.isAbort) {
@@ -944,14 +944,11 @@ define(function(require, exports, module) {
 			}
 			// 终止所有请求
 			else {
-				for (id in this.queue) {
-					if (!util.has(id, this.queue)) {
-						continue;
-					}
-					this.queue[id].isAbort = true;
-					this.queue[id].abort();
+				util.each(this.queue, function(req, id) {
+					req.isAbort = true;
+					req.abort();
 					count++;
-				}
+				});
 				return count;
 			}
 		}
@@ -1210,8 +1207,8 @@ define(function(require, exports, module) {
 				'name': name,
 				// 子模块实例id
 				'id'  : sysCaches.id++,
-				// 父模块实例id，-1为顶级模块
-				'pid' : cls.id || -1
+				// 父模块实例id，0为顶级模块
+				'pid' : cls.id || 0
 			};
 			instance._collections = info;
 
@@ -1435,11 +1432,11 @@ define(function(require, exports, module) {
 
 			// 递归调用子模块的销毁函数
 			var childs = this.getChilds(true);
-			for (var i = 0; i < childs.length; i++) {
-				if (util.isFunc(childs[i].destroy)) {
-					childs[i].destroy(-1);
+			util.each(childs, function(child) {
+				if (util.isFunc(child.destroy)) {
+					child.destroy(-1);
 				}
-			}
+			});
 
 			// 从父模块删除（递归调用时不需要）
 			var parent = this.getParent();
@@ -1955,7 +1952,7 @@ define(function(require, exports, module) {
 		this.ajax = ajax;
 
 		/**
-		 * 同步模块/回调操作方法
+		 * 同步模块/回调方法
 		 * @type  {Function}
 		 */
 		this.sync = Sync;
@@ -1976,7 +1973,7 @@ define(function(require, exports, module) {
 		 * 系统核心模块实例
 		 * @type  {Object}
 		 */
-		this.core = sysCaches['-1'] = new Core();
+		this.core = sysCaches['0'] = new Core();
 
 		/**
 		 * 子父模块配置参数覆盖方法
