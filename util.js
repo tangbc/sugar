@@ -1,9 +1,9 @@
 /**
- * 框架辅助功能函数库
+ * sugar框架辅助功能函数库
  */
-define(function(require, util) {
-	var UDF;
-	var WIN = window;
+define(function() {
+	var WIN = this;
+	var UDF, UTIL = {};
 	var OP = Object.prototype;
 	var AP = Array.prototype;
 	var docBody = document.body;
@@ -106,25 +106,25 @@ define(function(require, util) {
 	/**
 	 * 工具方法导出
 	 */
-	util.typeOfObject = typeOfObject;
-	util.isObject = isObject;
-	util.isArray = isArray;
-	util.isFunc = isFunc;
-	util.isString = isString;
-	util.isBoolean = isBoolean;
-	util.isNumber = isNumber;
-	util.isFakeArray = isFakeArray;
-	util.isPlainObject = isPlainObject;
-	util.isJquery = isJquery;
+	UTIL.typeOfObject = typeOfObject;
+	UTIL.isObject = isObject;
+	UTIL.isArray = isArray;
+	UTIL.isFunc = isFunc;
+	UTIL.isString = isString;
+	UTIL.isBoolean = isBoolean;
+	UTIL.isNumber = isNumber;
+	UTIL.isFakeArray = isFakeArray;
+	UTIL.isPlainObject = isPlainObject;
+	UTIL.isJquery = isJquery;
 
 	/**
 	 * 日志函数
 	 */
 	var cons = WIN.console || {};
-	util.log = function() {
+	UTIL.log = function() {
 		cons.log.apply(cons, arguments);
 	}
-	util.error = function() {
+	UTIL.error = function() {
 		if (cons.error.apply) {
 			cons.error.apply(cons, arguments);
 		}
@@ -139,7 +139,7 @@ define(function(require, util) {
 	 * @param   {String}  name  [属性名称]
 	 * @return  {Mix}           [读取结果]
 	 */
-	util.get = function(data, name) {}
+	UTIL.get = function(data, name) {}
 
 	/**
 	 * 设置对象（数据）属性
@@ -148,7 +148,7 @@ define(function(require, util) {
 	 * @return  {Mix}     value [设置值]
 	 * @return  {Object}  data  [对象数据]
 	 */
-	util.set = function(data, name, value) {}
+	UTIL.set = function(data, name, value) {}
 
 	/*
 	 * has 自有属性检测
@@ -159,14 +159,14 @@ define(function(require, util) {
 		}
 		return OP.hasOwnProperty.call(obj, key);
 	}
-	util.has = has;
+	UTIL.has = has;
 
 	/**
 	 * scrollTo 自定义滚动条位置
 	 * @param  {Number} x [横位置]
 	 * @param  {Number} y [纵位置]
 	 */
-	util.scrollTo = function(x, y) {
+	UTIL.scrollTo = function(x, y) {
 		x = x || 0;
 		y = y || 0;
 		WIN.scrollTo(x, y);
@@ -177,7 +177,7 @@ define(function(require, util) {
 	 * @param  {Object} args [参数]
 	 * @return {Array}       [数组]
 	 */
-	util.argumentsToArray = function(args) {
+	UTIL.argumentsToArray = function(args) {
 		if  (args instanceof arguments.constructor) {
 			return AP.slice.call(args);
 		}
@@ -192,7 +192,7 @@ define(function(require, util) {
 	 * @param  {Object} obj  [值所在的对象]
 	 * @return {String}      [键值名称]
 	 */
-	util.getKey = function(val, obj) {
+	UTIL.getKey = function(val, obj) {
 		var key = '';
 		if ((val && obj) && isObject(obj)) {
 			for (key in obj) {
@@ -209,7 +209,7 @@ define(function(require, util) {
 	 * @param  {String} val  [值]
 	 * @return {Boolean}     [空为真,非空为假]
 	 */
-	util.isEmpty = function(val) {
+	UTIL.isEmpty = function(val) {
 		if (isObject(val)) {
 			for (var property in val) {
 				if (has(property, val)) {
@@ -229,7 +229,7 @@ define(function(require, util) {
 	 * @param  {Fuction}       callback  [回调函数]
 	 * @param  {Object}        context   [作用域]
 	 */
-	util.each = function(items, callback, context) {
+	UTIL.each = function(items, callback, context) {
 		if (!context) {
 			context = WIN;
 		}
@@ -276,7 +276,7 @@ define(function(require, util) {
 	 * @return {Mix} 返回唯一的ID号
 	 */
 	var _guid = 1;
-	util.guid = function(fix) {
+	UTIL.guid = function(fix) {
 		if (fix) {
 			return '' + fix + (_guid++);
 		}
@@ -290,7 +290,7 @@ define(function(require, util) {
 	 * @param  {Number} begin  [开始]
 	 * @param  {Number} end    [结束]
 	 */
-	util.random = function(begin, end) {
+	UTIL.random = function(begin, end) {
 		var ret;
 		if (arguments.length === 2) {
 			ret = parseInt(Math.random() * (end - begin + 1) + begin, 10);
@@ -305,7 +305,7 @@ define(function(require, util) {
 	 * htmlEncode 将html标签转义
 	 * @param  {String} html  [字符]
 	 */
-	util.htmlEncode = function(html) {
+	UTIL.htmlEncode = function(html) {
 		var tag = {
 			'&': '&amp;',
 			'<': '&lt;',
@@ -324,7 +324,7 @@ define(function(require, util) {
 	 * @param  {Mix}     value  [查询值]
 	 * @param  {String}  field  [对应的字段名]
 	 */
-	util.find = function(arr, value, field) {
+	UTIL.find = function(arr, value, field) {
 		var ret = null;
 		this.each(arr, function(item) {
 			if (item[field] === value) {
@@ -341,7 +341,7 @@ define(function(require, util) {
 	 * @param   {String}  param  [参数JSON]
 	 * @return  {String}         [解析的字符创]
 	 */
-	util.parse = function(param) {
+	UTIL.parse = function(param) {
 		var arr = [];
 		for (var pro in param) {
 			arr.push(pro + '=' + param[pro]);
@@ -353,21 +353,21 @@ define(function(require, util) {
 	 * getClientHeight 获取页面可视区高度
 	 */
 	var dcm = document.compatMode === 'CSS1Compat';
-	util.getClientHeight = function() {
+	UTIL.getClientHeight = function() {
 		return dcm ? docElem.clientHeight : docBody.clientHeight;
 	}
 
 	/**
 	 * getClientWidth 获取页面可视区宽度
 	 */
-	util.getClientWidth = function() {
+	UTIL.getClientWidth = function() {
 		return dcm ? docElem.clientWidth : docBody.clientWidth;
 	}
 
 	/**
 	 * getClient 获取页面可视区信息
 	 */
-	util.getClient = function() {
+	UTIL.getClient = function() {
 		return {
 			'width': this.getClientWidth(),
 			'height': this.getClientHeight()
@@ -377,7 +377,7 @@ define(function(require, util) {
 	/**
 	 * removeTags 去掉html标签
 	 */
-	util.removeTags = function(html) {
+	UTIL.removeTags = function(html) {
 		return String(html).replace(/<[^>]+>/g, '');
 	}
 
@@ -385,7 +385,7 @@ define(function(require, util) {
 	 * fixZero 自动补0, (9 , 1) -> 09; (9 , 3) -> 0009
 	 * num: 原始数值 ; zeros: 补0个数
 	 */
-	util.fixZero = function(num, zeros) {
+	UTIL.fixZero = function(num, zeros) {
 		var b, v, x = 10, y, ns = String(num).length;
 		if (!isNumber(zeros) || !isNumber(zeros)) {
 			return num;
@@ -398,7 +398,7 @@ define(function(require, util) {
 
 	/*
 	 * 模板替换
-	 * eg. util.templateReplace('<a href="{1}">{2}</a>', 'http://www.tangbc.com', '小前端')
+	 * eg. UTIL.templateReplace('<a href="{1}">{2}</a>', 'http://www.tangbc.com', '小前端')
 	 * =>  '<a href="http://www.tangbc.com">小前端</a>')
 	 */
 	var templateReplaceList;
@@ -411,7 +411,7 @@ define(function(require, util) {
 			return match[0];
 		}
 	}
-	util.templateReplace = function(template /*, replaceN ... */) {
+	UTIL.templateReplace = function(template /*, replaceN ... */) {
 		templateReplaceList = arguments;
 		return template.replace(templateReplaceRegx, _templateReplace);
 	}
@@ -440,7 +440,7 @@ define(function(require, util) {
 		}
 		return obj;
 	}
-	util.clone = CloneObject;
+	UTIL.clone = CloneObject;
 
 	/**
 	 * extend 扩展合并
@@ -507,7 +507,7 @@ define(function(require, util) {
 			dst[key] = value;
 		}
 	}
-	util.extend = function() {
+	UTIL.extend = function() {
 		var args = arguments;
 		var len = args.length;
 		var deep = args[0];
@@ -535,18 +535,20 @@ define(function(require, util) {
 	 * @param   {Object}  obj  [需要复制的对象]
 	 * @return  {Object}       [复制后的对象]
 	 */
-	util.copy = function(obj) {
+	UTIL.copy = function(obj) {
 		return this.extend({}, obj);
 	}
 
 	/**
 	 * 字符串首字母大写
 	 */
-	util.ucFirst = function(str) {
+	UTIL.ucFirst = function(str) {
 		if (!isString(str)) {
 			return str;
 		}
 		var first = str.charAt(0).toUpperCase();
 		return first + str.substr(1);
 	}
+
+	return UTIL;
 });

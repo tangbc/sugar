@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-/***** pack for seajs begin ******/
+/***** pack source code begin *****/
 ;(function(factory) {
 	var util, vue, jquery;
 	if (typeof module !== 'undefined' && typeof exports === 'object') {
@@ -1362,7 +1362,7 @@ define(function(require, exports, module) {
 						child = this.create(name, Class, config);
 						retMods.push(child);
 					}
-				});
+				}, this);
 				Sync(0);
 			});
 		},
@@ -1993,5 +1993,5 @@ define(function(require, exports, module) {
 
 	return new Sugar();
 });
-/***** pack for seajs end ******/
+/***** pack source code end *****/
 });

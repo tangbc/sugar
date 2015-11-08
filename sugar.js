@@ -1360,7 +1360,7 @@
 						child = this.create(name, Class, config);
 						retMods.push(child);
 					}
-				});
+				}, this);
 				Sync(0);
 			});
 		},
