@@ -378,21 +378,21 @@ define(function(require, exports, module) {
 		_create: function(type, sender, name, param) {
 			return {
 				// 消息类型
-				'type'    : type,
+				'type'   : type,
 				// 消息发起模块
-				'from'    : sender,
+				'from'   : sender,
 				// 消息目标模块
-				'to'      : null,
+				'to'     : null,
 				// 消息被传递的次数
-				'count'   : 0,
+				'count'  : 0,
 				// 消息名称
-				'name'    : name,
+				'name'   : name,
 				// 消息参数
-				'param'   : param,
+				'param'  : param,
 				// 接收消息模块的调用方法 on + 首字母大写
-				'method'  : 'on' + util.ucFirst(name),
+				'method' : 'on' + util.ucFirst(name),
 				// 接收消息模块的返回值
-				'returns' : null
+				'returns': null
 			};
 		},
 
@@ -777,17 +777,17 @@ define(function(require, exports, module) {
 			// 发起请求并保存对应关系
 			request.xhr = jquery.ajax({
 				// 请求
-				'url'         : request.uri,
-				'type'        : request.type,
-				'data'        : request.param,
+				'url'        : request.uri,
+				'type'       : request.type,
+				'data'       : request.param,
 				// 配置
-				'timeout'     : CONFIG.timeout,
-				'dataType'    : CONFIG.dataType,
-				'contentType' : CONFIG.contentType,
+				'timeout'    : CONFIG.timeout,
+				'dataType'   : CONFIG.dataType,
+				'contentType': CONFIG.contentType,
 				// 回调
-				'success'     : this._requestSuccess,
-				'error'       : this._requestError,
-				'context'     : request
+				'success'    : this._requestSuccess,
+				'error'      : this._requestError,
+				'context'    : request
 			});
 
 			// 请求数计数
@@ -819,9 +819,9 @@ define(function(require, exports, module) {
 			}
 			else {
 				error = util.extend({
-					'message': 'The server returns invalid',
 					'code'   : 200,
-					'success': false
+					'success': false,
+					'message': 'The server returns invalid'
 				}, data);
 			}
 
@@ -1115,23 +1115,6 @@ define(function(require, exports, module) {
 
 
 	/**
-	 * 异步请求模块
-	 * @param   {String}    uri       [模块路径，支持数组路径]
-	 * @param   {Function}  callback  [模块请求成功后的回调函数]
-	 */
-	function requireAsync(uri, callback) {
-		// CMD Seajs
-		if (util.isFunc(require.async)) {
-			require.async(uri, callback);
-		}
-		// AMD requirejs
-		else {
-			require(util.isString(uri) ? [uri] : uri, callback);
-		}
-	}
-
-
-	/**
 	 * sysCaches 系统模块实例缓存队列
 	 * 模块的唯一id对应模块的实例
 	 */
@@ -1249,6 +1232,39 @@ define(function(require, exports, module) {
 		},
 
 		/**
+		 * 异步请求模块
+		 * @param   {String}    uri       [模块路径，支持路径数组]
+		 * @param   {Function}  callback  [模块请求成功后的回调函数]
+		 */
+		requireAsync: function(uri, callback) {
+			var context = this;
+
+			// callback为属性值
+			if (util.isString(callback)) {
+				callback = context[callback];
+			}
+
+			// 不合法的回调函数
+			if (!util.isFunc(callback)) {
+				util.error('callback must be a type of Function: ', callback);
+				return false;
+			}
+
+			// CMD Seajs
+			if (util.isFunc(require.async)) {
+				require.async(uri, function() {
+					callback.apply(context, arguments);
+				});
+			}
+			// AMD requirejs
+			else {
+				require(util.isString(uri) ? [uri] : uri, function() {
+					callback.apply(context, arguments);
+				});
+			}
+		},
+
+		/**
 		 * 异步创建一个子模块实例
 		 * @param  {String}   name     [子模块名称，同一模块下创建的子模块名称不能重复]
 		 * @param  {String}   uri      [子模块uri（路径），支持.获取文件模块指定实例]
@@ -1279,9 +1295,9 @@ define(function(require, exports, module) {
 			var expt = resolve.expt;
 
 			// 异步加载模块
-			var self = this, args = null;
+			var args = null;
 			Sync(1);
-			requireAsync(path, function(Class) {
+			this.requireAsync(path, function(Class) {
 				// 取导出点
 				if (Class && expt) {
 					Class = Class[expt];
@@ -1290,8 +1306,8 @@ define(function(require, exports, module) {
 				// 创建子模块
 				if (Class) {
 					args = Array(1);
-					Sync(callback, self, args);
-					args[0] = self.create(name, Class, config);
+					Sync(callback, this, args);
+					args[0] = this.create(name, Class, config);
 				}
 				Sync(0);
 			});
@@ -1322,13 +1338,12 @@ define(function(require, exports, module) {
 				}
 			});
 
-			var self = this;
 			Sync(1);
-			requireAsync(pathArray, function() {
+			this.requireAsync(pathArray, function() {
 				var args = util.argumentsToArray(arguments);
 				var retMods = [], mod, name, expt, config, child;
 
-				Sync(callback, self, [retMods]);
+				Sync(callback, this, [retMods]);
 				util.each(args, function(Class, index) {
 					mod = modArray[index];
 					name = mod.name;
@@ -1344,7 +1359,7 @@ define(function(require, exports, module) {
 
 					// 创建子模块
 					if (Class) {
-						child = self.create(name, Class, config);
+						child = this.create(name, Class, config);
 						retMods.push(child);
 					}
 				});
@@ -1950,12 +1965,6 @@ define(function(require, exports, module) {
 		 * @type  {Object}
 		 */
 		this.sysCaches = sysCaches;
-
-		/**
-		 * 异步请求模块
-		 * @type  {Function}
-		 */
-		this.requireAsync = requireAsync;
 
 		/**
 		 * 模块基础模块类

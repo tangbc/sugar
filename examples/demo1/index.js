@@ -113,7 +113,9 @@ require(['../../sugar'], function(sugar) {
 	page.logModuleConfig();
 
 
-	/**
-	 * 下一个示例请看demo2：利用sugar异步创建一个模块（sugar.core.createAsync）
+	/*
+	 * *******************************************************
+	 * 下一个示例demo2: 异步创建一个模块(sugar.core.createAsync) *
+	 * *******************************************************
 	 */
 });
