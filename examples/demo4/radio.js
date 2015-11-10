@@ -123,7 +123,7 @@ define(['radio'], function() {
 			var url = this.getConfig('url');
 
 			// 用sugar的ajax拉取数据
-			sugar.ajax.get(url, null, function(err, data) {
+			sugar.ajax.get(url, function(err, data) {
 				if (err) {
 					alert('数据拉取失败：' + err.message);
 					util.error(err);

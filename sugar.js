@@ -855,7 +855,14 @@
 		 * @return {Number}            [请求id]
 		 */
 		get: function(uri, param, callback, context) {
-			return this._build('GET', uri + util.parse(param), null, callback, context);
+			// 不传param
+			if (util.isFunc(param)) {
+				context = callback;
+				callback = param;
+				param = null;
+			}
+
+			return this._build('GET', uri + (param ? util.parse(param) : ''), null, callback, context);
 		},
 
 		/**
