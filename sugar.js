@@ -1052,6 +1052,23 @@
 					}
 				});
 			}
+		},
+
+		/**
+		 * 监控VM数据对象(或数据对象的表达式)的变化
+		 * @param   {String}    expression  [数据对象或数据对象之间的的表达式)]
+		 * @param   {Function}  callback    [值变化时的回调函数，回调参数为newVal和oldVal]
+		 */
+		watch: function(expression, callback) {
+			var context = this.context;
+			if (!util.isString(expression)) {
+				util.error('watch expression must be a type of String: ', expression);
+				return false;
+			}
+
+			this._vm.$watch(expression, function() {
+				callback.apply(context, arguments);
+			});
 		}
 	};
 
@@ -1687,7 +1704,7 @@
 			// mvvm对象
 			this.vm = null;
 			// 模块是否已经创建完成
-			this.$_ready = false;
+			this._ready = false;
 
 			// 是否从模板拉取布局
 			if (this.getConfig('template')) {
@@ -1744,10 +1761,10 @@
 		 */
 		_render: function() {
 			// 判断是否已创建过
-			if (this.$_ready) {
+			if (this._ready) {
 				return this;
 			}
-			this.$_ready = true;
+			this._ready = true;
 
 			var c = this.getConfig();
 
@@ -1882,8 +1899,15 @@
 		 * 模块销毁后的回调函数，销毁视图界面和取消所有的事件绑定
 		 */
 		afterDestroy: function() {
+			var vm = this.vm;
 			var domObject = this._domObject;
 			if (domObject) {
+				// 销毁VM对象
+				if (vm) {
+					vm._vm.$destroy();
+					vm = null;
+				}
+
 				// 取消所有事件
 				this.unbind(domObject);
 				domObject.find('*').unbind();
