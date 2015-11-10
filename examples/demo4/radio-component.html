@@ -1,0 +1,6 @@
+<li v-repeat="item in radios">
+	<label>
+		<input type="radio" v-attr="name: name, value: item.value" v-model="picked">
+		<span v-text="item.text"></span>
+	</label>
+</li>

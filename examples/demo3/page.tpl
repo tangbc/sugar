@@ -1,6 +1,12 @@
 <!-- demo3的布局模板文件 可以在模板中运用Vue指令来控制视图与数据 -->
-<h1>欢迎使用sugar.js！</h1>
+<h1>demo3：利用模板和MVVM构建模块布局</h1>
 <h3>轻量、易用、API简单的sugar.js适用于构建模块化和组件化的web应用。</h3>
+<h3>
+	其他3个例子：
+	<a style="margin-left: 20px;" href="../demo1/">demo1</a>
+	<a style="margin-left: 20px;" href="../demo2/">demo2</a>
+	<a style="margin-left: 20px;" href="../demo4/">demo4</a>
+</h3>
 <hr/>
 <!-- 示例1 -->
 <dl>

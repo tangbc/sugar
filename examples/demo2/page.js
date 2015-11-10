@@ -28,8 +28,14 @@ define(['page'], function() {
 
 			// 在渲染完毕后添加HTML结构也是可以的
 			dom.html([
-				'<h1>欢迎使用sugar.js！</h1>',
+				'<h1>demo2：异步创建一个模块</h1>',
 				'<h3>轻量、易用、API简单的sugar.js适用于构建模块化和组件化的web应用。</h3>',
+				'<h3>',
+					'其他3个例子：',
+					'<a style="margin-left: 20px;" href="../demo1/">demo1</a>',
+					'<a style="margin-left: 20px;" href="../demo3/">demo3</a>',
+					'<a style="margin-left: 20px;" href="../demo4/">demo4</a>',
+				'</h3>',
 				'<hr/>',
 				'<dl>',
 					'<dt>这个页面是利用sugar异步创建的一个简单的模块：</dt>',

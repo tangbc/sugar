@@ -1,0 +1,57 @@
+<h1>demo4：模块的复用与继承</h1>
+<h3>轻量、易用、API简单的sugar.js适用于构建模块化和组件化的web应用。</h3>
+<h3>
+	其他3个例子：
+	<a style="margin-left: 20px;" href="../demo1/">demo1</a>
+	<a style="margin-left: 20px;" href="../demo2/">demo2</a>
+	<a style="margin-left: 20px;" href="../demo3/">demo3</a>
+</h3>
+<hr/>
+<!--
+	radio组件
+	在模板中定义（创建）子模块，只需要标记子模块的名称m-name，子模块类的地址或别名m-module两个属性
+	然后在主模块中调用createTplModules()，然后会自动扫描标记的节点，异步创建子模块
+-->
+<dl class="best">
+	<dt>模块复用：选出您心目中的NBA最佳阵容（下面五组radio由同一个模块radio.base创建而成，每一组相当于一个独立的子模块）</dt>
+	<dd class="radioBox">
+		<span class="pos">控球后卫</span>
+		<span m-name="m-pg" m-module="radio.base"></span>
+	</dd>
+	<dd class="radioBox">
+		<span class="pos">得分后卫</span>
+		<span m-name="m-sg" m-module="radio.base"></span>
+	</dd>
+	<dd class="radioBox">
+		<span class="pos">小前锋</span>
+		<span m-name="m-sf" m-module="radio.base"></span>
+	</dd>
+	<dd class="radioBox">
+		<span class="pos">大前锋</span>
+		<span m-name="m-pf" m-module="radio.base"></span>
+	</dd>
+	<dd class="radioBox">
+		<span class="pos">中锋</span>
+		<span m-name="m-c" m-module="radio.base"></span>
+	</dd>
+</dl>
+<!-- 查看选择按钮 -->
+<dl>
+	<dd>
+		<input class="btn" type="button" value="点击查看您的选择的结果" v-on="click: vmClickResult">
+		<i style="padding-top: 10px;" v-show="showResult">
+			{{spg}}、{{ssg}}、{{ssf}}、{{spf}}、{{sc}}
+		</i>
+	</dd>
+</dl>
+<hr/>
+<dl>
+	<dt>模块继承：下面的radio是由模块radio.senior创建而成，radio.senior继承自radio.base，并拥有Ajax动态拉取数据功能：</dt>
+	<dd style="padding-top: 10px;">
+		<input class="btn" type="button" value="点击加载数据" v-on="click: vmClickLoad">
+		<input class="btn" type="button" value="点击清除数据" v-on="click: vmClickReset">
+	</dd>
+	<dd>
+		<span m-name="m-team" m-module="radio.senior"></span>
+	</dd>
+</dl>

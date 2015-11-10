@@ -1,5 +1,5 @@
 /**
- * 利用模板和MVVM构建模块布局
+ * 利用模板和MVVM构建模块布局，模板拉取需要Ajax，所以该示例必须放到服务器环境下
  */
 
 require(['../../sugar'], function(sugar) {

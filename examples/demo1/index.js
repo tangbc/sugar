@@ -20,17 +20,23 @@ require(['../../sugar'], function(sugar) {
 				// 模块的HTML标签
 				'tag'     : 'div',
 				// 模块的CSS(以jquery的css()方法设置)
-				'css'     : {'color'  : 'green'},
+				'css'     : {'text-shadow': '2px 2px 4px #C3C3C3'},
 				// 模块的attr(以jquery的attr()方法设置)
-				'attr'    : {'title': '这是悬浮提示文字~'},
+				'attr'    : {'data-type': 'sugar-module'},
 				// 模块的类名
 				'class'   : 'mainPage',
 				// 视图渲染完成后的回调函数
 				'cbRender': 'afterRendered',
 				// 模块的HTML布局，渲染时以jquery的html()将布局插入到模块的DOM节点
 				'html'    : [
-					'<h1>欢迎使用sugar.js！</h1>',
+					'<h1>demo1：创建一个简单的模块化页面</h1>',
 					'<h3>轻量、易用、API简单的sugar.js适用于构建模块化和组件化的web应用。</h3>',
+					'<h3>',
+						'其他3个例子：',
+						'<a style="margin-left: 20px;" href="../demo2/">demo2</a>',
+						'<a style="margin-left: 20px;" href="../demo3/">demo3</a>',
+						'<a style="margin-left: 20px;" href="../demo4/">demo4</a>',
+					'</h3>',
 					'<hr/>',
 					'<dl>',
 						'<dt>这个页面是利用sugar同步创建的一个简单的模块：</dt>',
