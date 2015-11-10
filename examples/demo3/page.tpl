@@ -33,7 +33,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr v-repeat="team in nba">
+			<tr v-for="team in nba">
 				<td v-text="team.range"></td>
 				<td v-text="team.name"></td>
 				<td v-text="team.score"></td>

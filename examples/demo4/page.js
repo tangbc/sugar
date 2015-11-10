@@ -128,7 +128,7 @@ define(['page'], function() {
 
 				// 调用子模块的getData方法获取所选数据
 				'spg': chs['m-pg'].getData()['text'],
-				'ssg': chs['m-sg'].getData()['text'],
+				'ssg': chs['m-sg'].getData()['name'], // sg创建时字段配置不一样
 				'ssf': chs['m-sf'].getData()['text'],
 				'spf': chs['m-pf'].getData()['text'],
 				'sc' : chs['m-c'].getData()['text']

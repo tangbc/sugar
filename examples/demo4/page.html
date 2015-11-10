@@ -38,7 +38,7 @@
 <!-- 查看选择按钮 -->
 <dl>
 	<dd>
-		<input class="btn" type="button" value="点击查看您的选择的结果" v-on="click: vmClickResult">
+		<input class="btn" type="button" value="点击查看您的选择的结果" v-on:click="vmClickResult">
 		<i style="padding-top: 10px;" v-show="showResult">
 			{{spg}}、{{ssg}}、{{ssf}}、{{spf}}、{{sc}}
 		</i>
@@ -48,8 +48,8 @@
 <dl>
 	<dt>模块继承：下面的radio是由模块radio.senior创建而成，radio.senior继承自radio.base，并拥有Ajax动态拉取数据功能：</dt>
 	<dd style="padding-top: 10px;">
-		<input class="btn" type="button" value="点击加载数据" v-on="click: vmClickLoad">
-		<input class="btn" type="button" value="点击清除数据" v-on="click: vmClickReset">
+		<input class="btn" type="button" value="点击加载数据" v-on:click="vmClickLoad">
+		<input class="btn" type="button" value="点击清除数据" v-on:click="vmClickReset">
 	</dd>
 	<dd>
 		<span m-name="m-team" m-module="radio.senior"></span>
