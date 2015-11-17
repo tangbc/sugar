@@ -379,9 +379,9 @@
 			return {
 				// 消息类型
 				'type'   : type,
-				// 消息发起模块
+				// 消息发起模块实例
 				'from'   : sender,
-				// 消息目标模块
+				// 消息目标模块实例
 				'to'     : null,
 				// 消息被传递的次数
 				'count'  : 0,
@@ -397,8 +397,8 @@
 		},
 
 		/**
-		 * 触发接收消息模块的处理方法
-		 * @param  {Object} receiver [接收消息的模块]
+		 * 触发接收消息模块实例的处理方法
+		 * @param  {Object} receiver [接收消息的模块实例]
 		 * @param  {Mix}    msg      [消息体（内容）]
 		 * @param  {Mix}    returns  [返回给发送者的数据]
 		 * @return {Mix}             [returns]
@@ -480,8 +480,8 @@
 		},
 
 		/**
-		 * 冒泡（由下往上）方式发送消息，由子模块发出，逐层父模块接收
-		 * @param  {Object}   sender   [发送消息的子模块]
+		 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
+		 * @param  {Object}   sender   [发送消息的子模块实例]
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -519,7 +519,7 @@
 		},
 
 		/**
-		 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
+		 * 广播（由上往下）方式发送消息，由父模块实例发出，逐层子模块实例接收
 		 */
 		broadcast: function(sender, name, param, callback, context) {
 			var type = 'broadcast';
@@ -553,9 +553,9 @@
 		},
 
 		/**
-		 * 向指定模块发送消息
-		 * @param  {Object}   sender   [发送消息的模块]
-		 * @param  {String}   receiver [接受消息的模块名称支持.分层级]
+		 * 向指定模块实例发送消息
+		 * @param  {Object}   sender   [发送消息的模块实例]
+		 * @param  {String}   receiver [接受消息的模块实例名称支持.分层级]
 		 * @param  {String}   name     [发送的消息名称]
 		 * @param  {Mix}      param    [<可选>附加消息参数]
 		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -958,7 +958,7 @@
 			}
 		}
 	};
-	// 导出数据请求处理实例
+	// 数据请求处理实例
 	var ajax = new Ajax();
 
 
@@ -1081,12 +1081,7 @@
 
 
 	/**
-	 * syncCount 回调计数
-	 * syncQueue 回调队列
-	 */
-	var syncCount = 0, syncQueue = [];
-	/**
-	 * 处理模块的异步通信和回调，实现回调函数按队列触发
+	 * 异步状态锁，处理模块创建的异步回调和通信，实现回调函数按队列触发
 	 * @param  {Mix}     callback  [回调函数]
 	 * @param  {Object}  context   [回调函数执行环境]
 	 * @param  {Array}   args      [callback回调参数]
@@ -1096,6 +1091,7 @@
 	 *   Sync(callback, context, args): 放入回调队列
 	 *
 	 */
+	var syncCount = 0, syncQueue = [];
 	function Sync(callback, context, args) {
 		var sync, cb, ct, ags;
 		// 回调计数开始
@@ -1208,7 +1204,7 @@
 			var cls = this._collections;
 			// 建立关系信息
 			if (!util.has(childArray, cls)) {
-				// 子模块缓存数组
+				// 子模块实例缓存数组
 				cls[childArray] = [];
 				// 子模块命名索引
 				cls[childMap] = {};
@@ -1223,13 +1219,13 @@
 			// 生成子模块实例
 			var instance = new Class(config);
 
-			// 记录子模块信息和父模块的对应关系
+			// 记录子模块实例信息和父模块实例的对应关系
 			var info = {
 				// 子模块实例名称
 				'name': name,
 				// 子模块实例id
 				'id'  : sysCaches.id++,
-				// 父模块实例id，0为顶级模块
+				// 父模块实例id，0为顶级模块实例
 				'pid' : cls.id || 0
 			};
 			instance._collections = info;
@@ -1238,11 +1234,11 @@
 			sysCaches[info.id] = instance;
 			sysCaches.length++;
 
-			// 缓存子模块
+			// 缓存子模块实例
 			cls[childArray].push(instance);
 			cls[childMap][name] = instance;
 
-			// 调用模块的init方法，传入配置参数和父模块
+			// 调用模块实例的init方法，传入配置参数和父模块
 			if (util.isFunc(instance.init)) {
 				instance.init(config, this);
 			}
@@ -1251,7 +1247,7 @@
 		},
 
 		/**
-		 * 异步请求模块
+		 * 异步请求模块文件
 		 * @param   {String}    uri       [模块路径，支持路径数组]
 		 * @param   {Function}  callback  [模块请求成功后的回调函数]
 		 */
@@ -1335,9 +1331,9 @@
 		},
 
 		/**
-		 * 异步创建多个子模块
+		 * 异步创建多个子模块实例
 		 * @param   {Object}    modsMap   [子模块名称与路径和配置的映射关系]
-		 * @param   {Function}  callback  [全部子模块创建完后的回调函数]
+		 * @param   {Function}  callback  [全部子模块实例创建完后的回调函数]
 		 */
 		createArrayAsync: function(modsMap, callback) {
 			// 子模块数组
@@ -1387,7 +1383,7 @@
 		},
 
 		/**
-		 * 获取当前模块的父模块对象（模块创建者）
+		 * 获取当前模块的父模块实例（模块创建者）
 		 */
 		getParent: function() {
 			var cls = this._collections;
@@ -1398,7 +1394,7 @@
 		/**
 		 * 获取当前模块创建的指定名称的子模块实例
 		 * @param  {String} name [子模块名称]
-		 * @return {Object}      [目标实例，子模块不存在返回null]
+		 * @return {Object}      [目标实例，不存在返回null]
 		 */
 		getChild: function(name) {
 			var cls = this._collections;
@@ -1406,7 +1402,7 @@
 		},
 
 		/**
-		 * 返回当前模块的所有子模块
+		 * 返回当前模块的所有子模块实例
 		 * @param  {Boolean} returnArray [返回的集合是否为数组形式，否则返回映射结构]
 		 * @return {Mix}                 [对象或者数组]
 		 */
@@ -1417,7 +1413,7 @@
 		},
 
 		/**
-		 * 移除当前模块下的指定子模块的记录
+		 * 移除当前模块实例下的指定子模块的记录
 		 * @param  {String}  name [子模块名称]
 		 * @return {Boolean}      [result]
 		 */
@@ -1804,7 +1800,7 @@
 				element.appendTo(target);
 			}
 
-			// 调用子模块的(视图渲染完毕)后续回调方法
+			// 调用模块的(视图渲染完毕)后续回调方法
 			var cb = this[c.cbRender];
 			if (util.isFunc(cb)) {
 				cb.call(this);
@@ -1963,13 +1959,13 @@
 		this.util = util;
 
 		/**
-		 * jquery 库
+		 * jquery库
 		 * @type  {Function}
 		 */
 		this.jquery = jquery;
 
 		/**
-		 * 系统配置读取方法
+		 * 系统配置方法
 		 * @type  {Function}
 		 */
 		this.config = appConfig;
@@ -1981,7 +1977,7 @@
 		this.ajax = ajax;
 
 		/**
-		 * 同步模块/回调方法
+		 * 异步模块回调状态锁
 		 * @type  {Function}
 		 */
 		this.sync = Sync;
@@ -1993,7 +1989,7 @@
 		this.sysCaches = sysCaches;
 
 		/**
-		 * 模块基础模块类
+		 * 基础模块类
 		 * @type  {Class}
 		 */
 		this.Module = Module;
