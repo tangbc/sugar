@@ -1709,6 +1709,11 @@
 			// 模块是否已经创建完成
 			this._ready = false;
 
+			// 调用渲染前函数
+			if (util.isFunc(this.beforeRender)) {
+				this.beforeRender();
+			}
+
 			// 是否从模板拉取布局
 			if (this.getConfig('template')) {
 				this._loadTemplate();
