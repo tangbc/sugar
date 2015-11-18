@@ -19,8 +19,13 @@ A JavaScript framework for building modular and component frontend projects
 
 	`util.js` 辅助功能函数库，sugar的依赖库之三
 
+* 依赖的两个库jquery和vue在sugar的作用：
 
-# 2、开始使用
+	 vue只用到了它的数据绑定；jquery只用了ajax和视图的DOM操作。两者都是为了方便开发而引入的工具库，去掉这两个依赖也是可以的。整个sugar的模块树构建是基于模块继承`Root.extend`和模块定义类`sugar.Module`，是不是vue中的Component。
+
+
+
+# 2、使用
 以seajs作为模块加载器为例，创建一个简单的页面（模块）：
 
 页面入口文件：`index.js`
