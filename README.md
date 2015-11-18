@@ -1,7 +1,7 @@
 # sugar
-A lightweight JavaScript framework for building modular and component frontend projects
+A JavaScript framework for building modular and component frontend projects
 
-一个构建模块化、组件化前端项目的轻量级JavaScript框架
+一个构建模块化、组件化前端项目的JavaScript框架
 
 
 # 1、简单介绍
@@ -11,20 +11,13 @@ A lightweight JavaScript framework for building modular and component frontend p
 
 	`jquery` jquery-2.1.4，sugar的依赖库之一（以后可以考虑去除该依赖）
 
-	`vue` vue-1.0.4，尤雨溪大神的视图层mvvm库，sugar的依赖库之二
+	`vue` vue-1.0.4，视图层mvvm库，sugar的依赖库之二
 
-	`sugar.js` sugar主文件，内部自动加载依赖，只需require该文件即可
+	`sugar.js` sugar主文件，内部自动加载依赖
 
 	`sugar.sea.js` 为seajs加载器包装的模块文件
 
 	`util.js` 辅助功能函数库，sugar的依赖库之三
-
-* sugar的特点：
-	* 构建方便：利用sugar的模块树管理和模块特性，可以很方便的开发出易维护、可复用和可拓展性强的前端模块、组件。
-
-	* 一切皆模块：sugar可以使前端的每一个元素都定义成一个模块，模块之间各司其职，业务的开发就是各个模块之间的协作。
-
-	* 数据/视图分离：在每个模块中，通过模板文件布局、Vue处理视图与数据可以让复杂业务逻辑的开发便捷明了。
 
 
 # 2、开始使用
@@ -56,7 +49,9 @@ var Page = sugar.Container.extend({
 		config = sugar.cover(config, {
 			'class'   : 'mainPage',
 			'cbRender': 'afterRender',
+			// 模板文件地址
 			'template': 'page.html',
+			// vue数据配置
 			'vModle'  : {
 				'navs'       : [], // 导航数据
 				'footContent': '<h2>Welcome to use sugar.js</h2>' // 页脚内容
@@ -129,11 +124,11 @@ exports.base = Body;
 
 
 # 4、API
-详细的API文档见：<a href="https://github.com/tangbc/sugar/blob/master/API.md" target="_blank">API.md</a>
+详见：<a href="https://github.com/tangbc/sugar/blob/master/API.md" target="_blank">API.md</a>
 
 
 # 5、改进&建议
-由于水平有限，sugar必然存在很多不足之处，欢迎各种形式的骚扰：意见、提bug、issues和pull request！
+由于水平有限，sugar必然存在很多不足之处，欢迎各种意见、提bug和issues！
 
 
 # 6、At last
