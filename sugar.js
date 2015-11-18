@@ -635,11 +635,10 @@
 			}
 			this.busy = false;
 
-			var receiver = null;
 			var msg = this._create(type, 'core', name, param);
 
-			util.each(sysCaches, function(cache, cls) {
-				this._trigger(cache, msg);
+			util.each(sysCaches, function(receiver, cls) {
+				this._trigger(receiver, msg);
 			});
 		}
 	};
