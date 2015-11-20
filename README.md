@@ -23,6 +23,8 @@ A JavaScript framework for building modular and component frontend projects
 
 	vue只用到了它的数据绑定；jquery只用了ajax和视图的DOM操作。两者都是为了方便模块布局而引入的工具库，去掉这两个依赖也是可以的。整个sugar的模块树构建是基于模块继承`Root.extend`和模块定义类`sugar.Module`，而不是vue中的Component。
 
+	这些天，关于sugar.js大家主要吐槽点集中在vue上了，的确，为了数据绑定就依赖了vue，就像为了吃薯条买了个全家桶一样。接下来难道要自己写个mvvm渲染引擎？唉，这轮子不太好造……
+
 
 # 2、使用
 以seajs作为模块加载器为例，创建一个简单的页面（模块）：
