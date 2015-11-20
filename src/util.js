@@ -2,12 +2,15 @@
  * sugar框架辅助功能函数库
  */
 define(function() {
-	var WIN = this;
 	var UDF, UTIL = {};
-	var OP = Object.prototype;
-	var AP = Array.prototype;
-	var docBody = document.body;
-	var docElem = document.documentElement;
+
+	var WIN = UTIL.GLOBAL = window;
+	var DOC = UTIL.DOC = WIN.document;
+	var OP = UTIL.OP = Object.prototype;
+	var AP = UTIL.AP = Array.prototype;
+
+	var docBody = DOC.body;
+	var docElem = DOC.documentElement;
 
 	/**
 	 * typeOfObject 是否是对象
@@ -352,7 +355,7 @@ define(function() {
 	/**
 	 * getClientHeight 获取页面可视区高度
 	 */
-	var dcm = document.compatMode === 'CSS1Compat';
+	var dcm = DOC.compatMode === 'CSS1Compat';
 	UTIL.getClientHeight = function() {
 		return dcm ? docElem.clientHeight : docBody.clientHeight;
 	}
@@ -549,6 +552,14 @@ define(function() {
 		var first = str.charAt(0).toUpperCase();
 		return first + str.substr(1);
 	}
+
+	/**
+	 * 多语言翻译函数，翻译规则为全局的T函数(UTIL外实现)
+	 * @type  {Function}
+	 */
+	UTIL.TRANSLATE = !UTIL.isFunc(WIN.T) ? function() {
+		return UTIL.templateReplace.apply(this, arguments);
+	} : WIN.T;
 
 	return UTIL;
 });

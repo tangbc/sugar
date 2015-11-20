@@ -14,7 +14,7 @@ define(['page'], function() {
 			config = sugar.cover(config, {
 				'class'   : 'demo4',
 				'template': 'page.html',
-				'vModel'  : {
+				'model'   : {
 					// 是否显示结果
 					'showResult': false,
 

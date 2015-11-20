@@ -16,7 +16,7 @@ define(['page'], function() {
 				// 模板文件uri，通过ajax拉取，不限文件后缀
 				'template': 'page.tpl',
 				// MVVM数据模型定义，详细API请参考：http://cn.vuejs.org/api/#指令
-				'vModel'  : {
+				'model'   : {
 					// 双向数据message
 					'message': 'Vue.js是一款比较易上手的视图层mvvm库，在sugar.js中是一把开发利刃~',
 					// nba球队数据数组

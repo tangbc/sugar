@@ -26,7 +26,7 @@ define(['radio'], function() {
 				'value'   : 'value',
 				'template': 'radio-component.html',
 				// 数据模型的配置尽量避免在创建子模块时定义，最好是根据一级参数来确定
-				'vModel'  : {
+				'model'   : {
 					// 默认选中的值
 					'picked': config.picked,
 					// radio的name属性
