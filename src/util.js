@@ -153,6 +153,24 @@ define(function() {
 	 */
 	UTIL.set = function(data, name, value) {}
 
+	/**
+	 * 对象定义
+	 * @param   {Object}  object      [description]
+	 * @param   {String}  property    [description]
+	 * @param   {Mix}     value       [description]
+	 * @param   {Boolean} enumerable  [description]
+	 */
+	function def(object, property, value, enumerable) {
+		Object.defineProperty(object, property, {
+			'value'       : value,
+			'enumerable'  : !!enumerable,
+			'writable'    : true,
+			'configurable': true
+		});
+		return object;
+	}
+	UTIL.def = def;
+
 	/*
 	 * has 自有属性检测
 	 */

@@ -8,11 +8,6 @@ define([
 ], function(util, VM, jquery, messager, ajax, events) {
 	var UDF, WIN = this;
 
-	if (!util || !VM || !jquery) {
-		console.error('util, VM and jquery No One Less!', arguments);
-		return UDF;
-	}
-
 	/**
 	 * 系统配置对象，可通过导出实例的init接口进行设置
 	 * @type  {Object}
