@@ -1,40 +1,48 @@
 require([
 	'../../dist/sugar',
 	'../../src/mvvm-observe'
-], function(sugar, observe) {
-	window.observe = observe;
+], function(sugar, Observer) {
 	var $ = sugar.jquery;
 
-	// var test1 = [1,2,3];
-	var test2 = {a: 1, b: 2, c: {c1: 3}}
-
-	function foo(n, o, name, t) {
-		console.log('new:', n, 'old:', o, 'target:', t);
+	var test = {
+		'okc': {
+			'rwb': true,
+			'kdr': '35',
+			'sib': {
+				'blr': 12
+			}
+		}
 	}
 
-	observe.observe(test2, foo);
+	var ob = new Observer(test, function (name, newVal, oldVal) {
+		console.log(name, newVal, oldVal);
+	});
+	ob.init();
 
-	// test1[0] = 11;
 
-	// test1.push(11);
+	test.okc.rwb = {
+		'number': 0
+	}
 
-	// test1.unshift(0);
+	test.okc.rwb = {
+		'number': 12
+	}
 
-	test2.c.c1 = 4;
+	test.okc.rwb = 12;
 
-	var template = [
-		'<h1 v-text="message"></h1>',
-		'<ul class="list">',
-			'<li>金州勇士</li>',
-			'<li>圣安东尼奥马刺</li>',
-			'<li>克利夫兰骑士</li>',
-		'</ul>'
-	].join('');
+	test.okc.sib.blr = {
+		'hehe': 0
+	}
+
+	// test.okc.sib.blr = 100002;
+
+	// console.log(test)
+
 
 	var MainPage = sugar.Container.extend({
 		init: function(config) {
 			config = sugar.cover(config, {
-				'html': template,
+				'html': '<h1 v-text="message"></h1>',
 				'model': {
 					'message': 'mvvm test'
 				}

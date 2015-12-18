@@ -461,7 +461,6 @@ define(function() {
 		}
 		return obj;
 	}
-	UTIL.clone = CloneObject;
 
 	/**
 	 * extend 扩展合并
@@ -552,12 +551,22 @@ define(function() {
 	};
 
 	/**
-	 * 复制对象
-	 * @param   {Object}  obj  [需要复制的对象]
-	 * @return  {Object}       [复制后的对象]
+	 * 复制对象或数组
+	 * @param   {Object|Array}  obj  [需要复制的对象]
+	 * @return  {Object}             [复制后的对象]
 	 */
 	UTIL.copy = function(obj) {
-		return this.extend({}, obj);
+		var ret;
+		if (isArray(obj)) {
+			ret = obj.slice(0);
+		}
+		else if (isObject(obj)) {
+			ret = this.extend({}, obj);
+		}
+		else {
+			ret = obj;
+		}
+		return ret;
 	}
 
 	/**
