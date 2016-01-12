@@ -67,12 +67,12 @@ define(['./util'], function(util) {
 
 		/**
 		 * 监测数组
-		 * @param   {Array}   array   [监测的对象]
+		 * @param   {Array}   array   [监测的数组]
 		 * @param   {Array}   paths   [<可选>访问路径数组]
 		 */
 		observeArray: function(array, paths) {
-			this.rewriteArrayMethods(array, paths);
-			this.handleProperties(array, paths);
+			this.rewriteArrayMethods(array, paths)
+			.handleProperties(array, paths);
 		},
 
 		/**
@@ -120,7 +120,7 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 设置指定对象的属性缓存映射
+		 * 设置指定对象的属性与值的缓存映射
 		 * @param  {Object}  object    [指定对象]
 		 * @param  {Mix}     value     [值]
 		 * @param  {String}  property  [属性名称]
@@ -146,8 +146,8 @@ define(['./util'], function(util) {
 
 		/**
 		 * 对属性绑定监测方法
-		 * @param   {Object}  object  [对象]
-		 * @param   {Array}   paths   [访问路径数组]
+		 * @param   {Object|Array}  object  [对象或数组]
+		 * @param   {Array}         paths   [访问路径数组]
 		 */
 		bindWatching: function(object, paths) {
 			var prop = paths[paths.length - 1];
@@ -168,6 +168,7 @@ define(['./util'], function(util) {
 			});
 
 			var value = object[prop];
+
 			// 嵌套数组
 			if (util.isArray(value)) {
 				this.observeArray(value, paths);
@@ -180,19 +181,19 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 重写Array方法
+		 * 重写指定的Array方法
 		 * @param   {Array}  array  [目标数组]
 		 * @param   {Array}  paths  [<可选>访问路径数组]
 		 */
 		rewriteArrayMethods: function(array, paths) {
-			var self = this;
 			var arrayProto = util.AP;
 			var arrayMethods = Object.create(arrayProto);
-			var path = paths && paths.join(self.separator);
+			var path = paths && paths.join(this.separator);
 
 			util.each(this.fixArrayMethods, function(method) {
+				var self = this;
 				var original = arrayProto[method];
-				self.modifyProperty(arrayMethods, method, function redefineArrayMethod() {
+				this.modifyProperty(arrayMethods, method, function redefineArrayMethod() {
 					var i = arguments.length, result;
 					var args = new Array(i);
 					while (i--) {
@@ -200,13 +201,15 @@ define(['./util'], function(util) {
 					}
 					result = original.apply(this, args);
 
+					// 触发回调
 					self.triggerArrayMethod(method, path, this);
-					// 重新监测
+
+					// 重新监测数组
 					self.observeArray(this);
 
 					return result;
 				});
-			});
+			}, this);
 
 			array.__proto__ = arrayMethods;
 
@@ -229,7 +232,7 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 触发array的操作方法
+		 * 触发array操作回调
 		 * @param   {String}  method  [操作方法]
 		 * @param   {Array}   path    [访问路径,undefined则为操作顶级数组]
 		 * @param   {Array}   array   [操作数组]
