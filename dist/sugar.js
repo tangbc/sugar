@@ -1,6 +1,6 @@
 define([
 	'../src/util',
-	'../src/mvvm',
+	'../src/mvvm-index',
 	'../jquery.min',
 	'../src/messager',
 	'../src/ajax',

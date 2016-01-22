@@ -6,12 +6,19 @@ define(['./util'], function(util) {
 	/**
 	 * 对象变化监测类
 	 * @param  {Object|Array}  object    [对象或数组]
+	 * @param  {Array}         ranges    [<可选>监测的字段范围]
 	 * @param  {Function}      callback  [变化回调函数]
-	 * @param  {Object}        context   [执行上下文]
+	 * @param  {Object}        context   [<可选>执行上下文]
 	 */
-	function Observer(object, callback, context) {
+	function Observer(object, ranges, callback, context) {
 		var isArray = util.isArray(object);
 		var isObject = util.isObject(object);
+
+		if (util.isFunc(ranges)) {
+			context = callback;
+			callback = ranges;
+			ranges = null;
+		}
 
 		if (!isObject && !isArray) {
 			util.error('object must be a type of Object or Array: ', object);
@@ -23,6 +30,7 @@ define(['./util'], function(util) {
 		}
 
 		this._object = object;
+		this._ranges = ranges;
 		this._callback = callback;
 		this._context = context || util.GLOBAL;
 
@@ -100,11 +108,38 @@ define(['./util'], function(util) {
 					copies = [property];
 				}
 
-				this.setCacheProps(object, value, property)
-				.bindWatching(object, copies);
+				if (this.checkWatch(copies) !== -1) {
+					this.setCacheProps(object, value, property)
+					.bindWatching(object, copies);
+				}
+
 			}, this);
 
 			return this;
+		},
+
+		/**
+		 * 检查paths是否在监测范围内
+		 * @param   {Array}    paths  [访问路径数组]
+		 * @return  {Number}          [-1为不在范围]
+		 */
+		checkWatch: function(paths) {
+			var flag = -1;
+			var ranges = this._ranges;
+			var path = paths.join(this.separator);
+
+			if (!util.isArray(ranges)) {
+				return 1;
+			}
+
+			util.each(ranges, function(range) {
+				if (range.indexOf(path) === 0) {
+					flag = 1;
+					return false;
+				}
+			}, this);
+
+			return flag;
 		},
 
 		/**

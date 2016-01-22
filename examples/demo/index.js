@@ -41,17 +41,17 @@ require([
 
 
 	// deep array ---------------------
-	var arr = [
-		{a: ['kb','sc','kd']},
-		['b1',['b21', 'b22'], ['b31', 'b32']],
-		{c: 3}
-	];
+	// var arr = [
+	// 	{a: ['kb','sc','kd']},
+	// 	['b1',['b21', 'b22'], ['b31', 'b32']],
+	// 	{c: 3}
+	// ];
 
-	var foo = function foo(name, newVal, oldVal, tar) {
-		console.log(name, newVal, oldVal);
-	}
+	// var foo = function foo(name, newVal, oldVal, tar) {
+	// 	console.log(name, newVal, oldVal);
+	// }
 
-	new Observer(arr, foo);
+	// new Observer(arr, foo);
 
 	// arr[0].a[2] = 'tang'; // 0*a*2 tang kd
 
@@ -59,9 +59,9 @@ require([
 
 	// arr[1].push('b3'); // push-1
 
-	arr[1][2].push('b33');
+	// arr[1][2].push('b33');
 
-	arr[0].a = 'worries';
+	// arr[0].a = 'worries';
 
 
 
@@ -105,12 +105,42 @@ require([
 	// obj.a.b.c[2].d = 'DDD';
 
 
+	/* ---------- range test ----------- */
+	// var obj = {
+	// 	'a': 'aaa',
+	// 	'b': 'bbb',
+	// 	'c': {
+	// 		'd': 'dd',
+	// 		'e': 'ee'
+	// 	}
+	// }
+
+	// new Observer(obj, ['c*e'], function(p, n, o) {
+	// 	console.log(p, n, o);
+	// });
+
+	// obj.a = '1111';
+	// obj.b = '2222';
+
+	// obj.c.d = 'DD';
+	// obj.c.e = 'EE';
+
+
 	var MainPage = sugar.Container.extend({
 		init: function(config) {
 			config = sugar.cover(config, {
-				'html': '<h1 v-text="message"></h1>',
+				'html': [
+					'<h1 v-text="message"></h1>',
+					'<div v-class="lv1">',
+						'<p v-class="lv2">',
+							'<em v-text="emcls"></em>',
+						'</p>',
+					'</div>',
+					'<span v-html="info"></span>',
+				].join(''),
 				'model': {
-					'message': 'mvvm test'
+					'message': 'mvvm test',
+					'info'   : '<a href="#">信息</a>'
 				}
 			});
 			this.Super('init', arguments);

@@ -130,11 +130,15 @@ define([
 		},
 
 		/**
-		 * 解析文档碎片
+		 * 解析文档碎片，提取指令
 		 */
 		parseFragment: function() {
 			var frag = this.$initFrag;
-			console.log();
+			var childNodes = frag.childNodes;
+			var i = 0, leng = childNodes.length;
+			for (; i < leng; i++) {
+				// util.log(childNodes[i]);
+			}
 		}
 	}
 
