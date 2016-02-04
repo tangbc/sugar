@@ -251,10 +251,16 @@ define(function() {
 	 * @param  {Object}        context   [作用域]
 	 */
 	UTIL.each = function(items, callback, context) {
+		var ret, i;
+
 		if (!context) {
 			context = WIN;
 		}
-		var ret, i;
+
+		if (isString(callback)) {
+			callback = context[callback];
+		}
+
 		if (isArray(items)) {
 			for (i = 0; i < items.length; i++) {
 				ret = callback.call(context, items[i], i);

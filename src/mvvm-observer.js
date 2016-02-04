@@ -9,8 +9,9 @@ define(['./util'], function(util) {
 	 * @param  {Array}         ranges    [<可选>监测的字段范围]
 	 * @param  {Function}      callback  [变化回调函数]
 	 * @param  {Object}        context   [<可选>执行上下文]
+	 * @param  {Object}        args      [<可选>回调参数]
 	 */
-	function Observer(object, ranges, callback, context) {
+	function Observer(object, ranges, callback, context, args) {
 		var isArray = util.isArray(object);
 		var isObject = util.isObject(object);
 
@@ -29,10 +30,10 @@ define(['./util'], function(util) {
 			return;
 		}
 
-		this._object = object;
-		this._ranges = ranges;
-		this._callback = callback;
-		this._context = context || util.GLOBAL;
+		this.ranges = ranges;
+		this.callback = callback;
+		this.context = context || util.GLOBAL;
+		this.args = args;
 
 		/**
 		 * 监测的对象集合，包括一级和嵌套对象
@@ -109,7 +110,7 @@ define(['./util'], function(util) {
 				}
 
 				if (this.checkWatch(copies) !== -1) {
-					this.setCacheProps(object, value, property)
+					this.setCache(object, value, property)
 					.bindWatching(object, copies);
 				}
 
@@ -125,7 +126,7 @@ define(['./util'], function(util) {
 		 */
 		checkWatch: function(paths) {
 			var flag = -1;
-			var ranges = this._ranges;
+			var ranges = this.ranges;
 			var path = paths.join(this.separator);
 
 			if (!util.isArray(ranges)) {
@@ -148,7 +149,7 @@ define(['./util'], function(util) {
 		 * @param   {String}  property  [属性名称]
 		 * @return  {Object}            [属性值]
 		 */
-		getCacheProps: function(object, property) {
+		getCache: function(object, property) {
 			var index = this.observers.indexOf(object);
 			var value = (index === -1) ? null : this.valuesMap[index];
 			return value ? value[property] : value;
@@ -160,7 +161,7 @@ define(['./util'], function(util) {
 		 * @param  {Mix}     value     [值]
 		 * @param  {String}  property  [属性名称]
 		 */
-		setCacheProps: function(object, value, property) {
+		setCache: function(object, value, property) {
 			var observers = this.observers;
 			var valuesMap = this.valuesMap;
 			var oleng = observers.length;
@@ -190,14 +191,14 @@ define(['./util'], function(util) {
 			// 定义object的getter和setter
 			Object.defineProperty(object, prop, {
 				get: (function getter() {
-					return this.getCacheProps(object, prop);
+					return this.getCache(object, prop);
 				}).bind(this),
 
 				set: (function setter() {
 					var newValue = arguments[0];
-					var oldValue = this.getCacheProps(object, prop);
+					var oldValue = this.getCache(object, prop);
 
-					this.setCacheProps(object, newValue, prop)
+					this.setCache(object, newValue, prop)
 					.triggerChange(paths.join(this.separator), newValue, oldValue, object);
 				}).bind(this)
 			});
@@ -270,21 +271,21 @@ define(['./util'], function(util) {
 		 * 触发array操作回调
 		 * @param   {String}  method  [操作方法]
 		 * @param   {Array}   path    [访问路径,undefined则为操作顶级数组]
-		 * @param   {Array}   array   [操作数组]
+		 * @param   {Array}   array   [操作数组（不传入回调）]
 		 */
 		triggerArrayMethod: function(method, path, array) {
-			this._callback.apply(this._context, ['Array:' + method, path, array]);
+			this.callback.apply(this.context, ['Array:' + method, path, this.args]);
 		},
 
 		/**
 		 * 触发object变化回调
-		 * @param   {String}         paths     [变更路径]
-		 * @param   {Mix}            newValue  [新值]
-		 * @param   {Mix}            oldValue  [旧值]
-		 * @param   {Object|Array}   target    [变化对象]
+		 * @param   {String}         path      [变更路径]
+		 * @param   {Mix}            last      [新值]
+		 * @param   {Mix}            old       [旧值]
+		 * @param   {Object|Array}   target    [变化对象（不传入回调）]
 		 */
-		triggerChange: function(paths, newValue, oldValue, target) {
-			this._callback.apply(this._context, arguments);
+		triggerChange: function(path, last, old, target) {
+			this.callback.apply(this.context, [path, last, old, this.args]);
 		}
 	}
 

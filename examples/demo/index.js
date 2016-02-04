@@ -1,6 +1,6 @@
 require([
 	'../../dist/sugar',
-	'../../src/mvvm-observe'
+	'../../src/mvvm-observer'
 ], function(sugar, Observer) {
 	var $ = sugar.jquery;
 
@@ -130,22 +130,47 @@ require([
 		init: function(config) {
 			config = sugar.cover(config, {
 				'html': [
-					'<h1 v-text="message"></h1>',
-					'<div v-class="lv1">',
-						'<p v-class="lv2">',
-							'<em v-text="emcls"></em>',
+					'<header class="header"></header>',
+					'<h1 v-show="showH1" v-text="message" style="display:inline;"></h1>',
+					'<h2 v-if="showH2">好多东西这里面</h2>',
+					'<div v-bind:class="hasLv1:lv1" class="div1 div2">',
+						'<p v-bind:data-id="dataId">',
+							'<em v-text="small"></em>',
 						'</p>',
 					'</div>',
 					'<span v-html="info"></span>',
 				].join(''),
 				'model': {
-					'message': 'mvvm test',
-					'info'   : '<a href="#">信息</a>'
+					'showH1' : true,
+					'showH2' : false,
+					'message': 'h1 test',
+					'info'   : '<a href="#">信息</a>',
+					'small'  : '',
+					'hasLv1' : true,
+					'dataId' : 'p1'
 				}
 			});
 			this.Super('init', arguments);
 		},
-		viewReady: function() {}
+		viewReady: function() {
+			// console.log(this.vm);
+			// this.vm.$data.message = 'vm -> message';
+
+			// this.vm.$data.small = 'vm -> small';
+
+			// this.setTimeout(function() {
+			// 	this.vm.$data.info = '<hr/>';
+			// }, 1000);
+
+			// this.setTimeout(function() {
+			// 	this.vm.$data.showH1 = true;
+			// }, 2000);
+
+			// this.setTimeout(function() {
+			// 	this.vm.$data.showH1 = false;
+			// }, 2000);
+
+		}
 	});
 
 	sugar.core.create('mainPage', MainPage, {
