@@ -1,6 +1,6 @@
 require([
 	'../../dist/sugar',
-	'../../src/mvvm-observer'
+	// '../../src/vm-observer'
 ], function(sugar, Observer) {
 	var $ = sugar.jquery;
 
@@ -130,46 +130,97 @@ require([
 		init: function(config) {
 			config = sugar.cover(config, {
 				'html': [
-					'<header class="header"></header>',
-					'<h1 v-show="showH1" v-text="message" style="display:inline;"></h1>',
-					'<h2 v-if="showH2">好多东西这里面</h2>',
-					'<div v-bind:class="hasLv1:lv1" class="div1 div2">',
-						'<p v-bind:data-id="dataId">',
+					'<header class="header" v-bind="{id: span_id, name: span_name, data-id: span_data_id}"></header>',
+					'<h1 v-show="showH1" v-text="message" style="display:inline"></h1>',
+					'<h2 style="background: #abcdef; padding: 10px;" v-if="showH2">',
+						'好多东西这里面 —— <em v-text="emTextIf"></em>',
+					'</h2>',
+					'<div v-bind:class="test">',
+						'<p>',
 							'<em v-text="small"></em>',
 						'</p>',
 					'</div>',
-					'<span v-html="info"></span>',
+					'<span v-html="info" v-bind:class="test"></span>',
 				].join(''),
 				'model': {
-					'showH1' : true,
-					'showH2' : false,
-					'message': 'h1 test',
-					'info'   : '<a href="#">信息</a>',
-					'small'  : '',
-					'hasLv1' : true,
-					'dataId' : 'p1'
+					'showH1'  : true,
+
+					'showH2'  : true,
+					'emTextIf': 'if里面的初始化时不应该被编译才对！',
+
+					'message' : 'h1 test',
+					'info'    : '<a href="#">信息</a>',
+					'small'   : '',
+					'id_div'  : 'id_original',
+
+					'bind_new3': true,
+					'bind_new4': false,
+
+					'span_id'     : 'id_1',
+					'span_name'   : 'name_1',
+					'span_data_id': 'data_id_1',
+
+					'test': 'test_class'
 				}
 			});
 			this.Super('init', arguments);
 		},
 		viewReady: function() {
-			// console.log(this.vm);
-			// this.vm.$data.message = 'vm -> message';
-
-			// this.vm.$data.small = 'vm -> small';
+			var vm = this.vm.$data;
 
 			// this.setTimeout(function() {
-			// 	this.vm.$data.info = '<hr/>';
+			// 	vm.info = '<hr/>';
 			// }, 1000);
 
 			// this.setTimeout(function() {
-			// 	this.vm.$data.showH1 = true;
+			// 	vm.showH1 = true;
 			// }, 2000);
 
 			// this.setTimeout(function() {
-			// 	this.vm.$data.showH1 = false;
-			// }, 2000);
+			// 	vm.showH1 = false;
 
+			// 	this.setTimeout(function() {
+			// 		vm.showH1 = true;
+			// 	}, 5000);
+			// }, 5000);
+
+			// this.setTimeout(function() {
+			// 	vm.showH2 = false;
+
+			// 	this.setTimeout(function() {
+			// 		vm.showH2 = true;
+			// 	}, 5000);
+			// }, 5000);
+
+			// this.setTimeout(function() {
+			// 	vm.id_div = 'id_once';
+
+			// 	this.setTimeout(function() {
+			// 		vm.id_div = null;
+			// 	}, 5000);
+			// }, 5000);
+
+			// this.setTimeout(function() {
+			// 	vm.bind_new3 = false;
+			// 	vm.bind_new4 = true;
+
+			// 	this.setTimeout(function() {
+			// 		vm.bind_new3 = true;
+			// 		vm.bind_new4 = false;
+			// 	}, 5000);
+			// }, 5000);
+
+			this.setTimeout(function() {
+				vm.span_id = 'id_2';
+				vm.span_name = 'name_2';
+				vm.span_data_id = 'data_id_2';
+
+				this.setTimeout(function() {
+					vm.span_id = 'id_3';
+					vm.span_name = 'name_3';
+					vm.span_data_id = 'data_id_3';
+				}, 5000);
+			}, 5000);
 		}
 	});
 

@@ -1,5 +1,5 @@
 /**
- * observe模块
+ * observer模块
  */
 define(['./util'], function(util) {
 
@@ -12,22 +12,14 @@ define(['./util'], function(util) {
 	 * @param  {Object}        args      [<可选>回调参数]
 	 */
 	function Observer(object, ranges, callback, context, args) {
-		var isArray = util.isArray(object);
-		var isObject = util.isObject(object);
-
-		if (util.isFunc(ranges)) {
+		if (!util.isArray(ranges)) {
 			context = callback;
 			callback = ranges;
 			ranges = null;
 		}
 
-		if (!isObject && !isArray) {
-			util.error('object must be a type of Object or Array: ', object);
-			return;
-		}
-		if (!util.isFunc(callback)) {
-			util.error('callback must be a type of Function: ', callback);
-			return;
+		if (util.isString(callback)) {
+			callback = context[callback];
 		}
 
 		this.ranges = ranges;
@@ -62,12 +54,12 @@ define(['./util'], function(util) {
 		this.separator = '*';
 
 		// 处理数组
-		if (isArray) {
+		if (util.isArray(object)) {
 			this.observeArray(object);
 		}
 
 		// 处理对象
-		if (isObject) {
+		if (util.isObject(object)) {
 			this.observeObject(object);
 		}
 	}
