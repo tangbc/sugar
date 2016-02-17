@@ -253,6 +253,10 @@ define(function() {
 	UTIL.each = function(items, callback, context) {
 		var ret, i;
 
+		if (!items) {
+			return;
+		}
+
 		if (!context) {
 			context = WIN;
 		}

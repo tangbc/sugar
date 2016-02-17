@@ -33,6 +33,8 @@ define([
 		this.$data = util.copy(model);
 		// DOM对象注册索引
 		this.$data.$els = {};
+		// 事件绑定回调集合
+		this.$listeners = {};
 
 		// 未编译指令数目
 		this.$unCompileCount = 0;
@@ -394,16 +396,6 @@ define([
 		},
 
 		/**
-		 * 设置VM数据指令的当前值
-		 * @param  {String}  directive  [指令名称]
-		 * @param  {Mix}     value      [设置值]
-		 */
-		setValue: function(directive, value) {
-			this.$data[directive] = value;
-			return this;
-		},
-
-		/**
 		 * 获取字符表达式的值
 		 * @param   {String}   expression    [字符表达式]
 		 * @param   {Boolean}  returnArray   [是否返回数组]
@@ -412,6 +404,30 @@ define([
 		getTargetValue: function(expression, returnArray) {
 			var array = expression.split(':');
 			return returnArray ? array : array.pop();
+		},
+
+		/**
+		 * 分解字符串函数参数
+		 * @param   {String}  expression
+		 * @return  {Array}
+		 */
+		stringToParameters: function(expression) {
+			var ret, params, func;
+			var matches = expression.match(/(\(.*\))/);
+			var result = matches && matches[0];
+
+			// 有函数名和参数
+			if (result) {
+				params = result.substr(1, result.length - 2).split(',');
+				func = expression.substr(0, expression.indexOf(result));
+				ret = [func, params];
+			}
+			// 只有函数名
+			else {
+				ret = [expression, params];
+			}
+
+			return ret;
 		},
 
 		/**
@@ -437,6 +453,28 @@ define([
 			return ret;
 		},
 
+		/**
+		 * 节点事件绑定
+		 * @param   {DOMElement}    node      [节点]
+		 * @param   {String}        evt       [事件]
+		 * @param   {Function}      callback  [事件触发函数]
+		 */
+		addEvent: function(node, evt, callback) {
+			node.addEventListener(evt, callback);
+			return this;
+		},
+
+		/**
+		 * 解除节点事件绑定
+		 * @param   {DOMElement}    node      [节点]
+		 * @param   {String}        evt       [事件]
+		 * @param   {Function}      callback  [事件触发函数]
+		 */
+		removeEvent: function(node, evt, callback) {
+			node.removeEventListener(evt, callback);
+			return this;
+		},
+
 		/********** 指令处理方法 **********/
 
 		/**
@@ -451,7 +489,7 @@ define([
 		 */
 		handleText: function(node, dir) {
 			var init = this.getInitValue(dir);
-			this.setValue(dir, init).updateNodeTextContent(node, init);
+			this.updateNodeTextContent(node, init);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeTextContent(node, last);
@@ -463,7 +501,7 @@ define([
 		 */
 		handleHtml: function(node, dir) {
 			var init = this.getInitValue(dir);
-			this.setValue(dir, init).updateNodeHtmlContent(node, init);
+			this.updateNodeHtmlContent(node, init);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeHtmlContent(node, last);
@@ -471,12 +509,11 @@ define([
 		},
 
 		/**
-		 * @TODO: dir支持表达式控制
 		 * 指令处理方法：v-show 控制节点的显示隐藏
 		 */
 		handleShow: function(node, dir) {
 			var init = this.getInitValue(dir);
-			this.setValue(dir, init).updateNodeDisplay(node, init);
+			this.updateNodeDisplay(node, init);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeDisplay(node, last);
@@ -484,12 +521,11 @@ define([
 		},
 
 		/**
-		 * @TODO: dir支持表达式控制
 		 * 指令处理方法：v-if 控制节点内容的渲染
 		 */
 		handleIf: function(node, dir) {
 			var init = this.getInitValue(dir);
-			this.setValue(dir, init).updateNodeRenderContent(node, init, true);
+			this.updateNodeRenderContent(node, init, true);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeRenderContent(node, last, false);
@@ -501,16 +537,16 @@ define([
 		 * 除class外，一个attribute只能有一个value
 		 */
 		handleBind: function(node, value, attr) {
-			var prop;
+			var val;
 			var directive = this.removeSpace(attr);
 			var expression = this.removeSpace(value);
 			var props = this.stringToPropsArray(expression);
 
 			// 单个attribute
 			if (directive.indexOf(':') !== -1) {
-				prop = this.getTargetValue(directive);
+				val = this.getTargetValue(directive);
 
-				if (prop === 'class') {
+				if (val === 'class') {
 					// 多个class的json结构
 					if (props.length) {
 						util.each(props, function(prop) {
@@ -523,14 +559,14 @@ define([
 					}
 				}
 				else {
-					this._bindAttribute(node, prop, expression);
+					this._bindAttribute(node, expression, val);
 				}
 			}
 			// 多个attributes "v-bind={id:xxxx, name: yyy, data-id: zzz}"
 			else {
 				if (props.length) {
 					util.each(props, function(prop) {
-						this._bindAttribute(node, prop.name, prop.value);
+						this._bindAttribute(node, prop.value, prop.name);
 					}, this);
 				}
 			}
@@ -544,7 +580,7 @@ define([
 		 */
 		_bindClassName: function(node, bindField, classname) {
 			var init = this.getInitValue(bindField);
-			this.setValue(bindField, init).updateNodeClassName(node, init, null, classname);
+			this.updateNodeClassName(node, init, null, classname);
 
 			this.watcher.add(bindField, function(path, last, old) {
 				this.updateNodeClassName(node, last, old, classname);
@@ -554,12 +590,12 @@ define([
 		/**
 		 * 绑定节点属性
 		 * @param   {DOMElement}  node       [节点]
-		 * @param   {String}      attr       [属性名]
 		 * @param   {String}      bindField  [数据绑定字段]
+		 * @param   {String}      attr       [属性名]
 		 */
-		_bindAttribute: function(node, attr, bindField) {
+		_bindAttribute: function(node, bindField, attr) {
 			var init = this.getInitValue(bindField);
-			this.setValue(bindField, init).updateNodeAttribute(node, attr, init);
+			this.updateNodeAttribute(node, attr, init);
 
 			this.watcher.add(bindField, function(path, last) {
 				this.updateNodeAttribute(node, attr, last);
@@ -569,8 +605,38 @@ define([
 		/**
 		 * 指令处理方法：v-on 动态绑定一个或多个事件
 		 */
-		handleOn: function(node, dir) {
-			// util.log(node, dir);
+		handleOn: function(node, value, attr) {
+			var val, param, props;
+			var evt = this.removeSpace(attr);
+			var func = this.removeSpace(value);
+
+			// 单个事件 v-on:click
+			if (evt.indexOf(':') !== -1) {
+				val = this.getTargetValue(evt);
+				param = this.stringToParameters(func);
+				this._bindEvent(node, param[0], param[1], val);
+			}
+			// 多个事件 v-on="{click: xxx, mouseenter: yyy, mouseleave: zzz}"
+			else {
+				props = this.stringToPropsArray(func);
+				util.each(props, function(prop) {
+					val = prop.name;
+					param = this.stringToParameters(prop.value);
+					this._bindEvent(node, param[0], param[1], val);
+				}, this);
+			}
+		},
+
+		/**
+		 * 节点绑定事件
+		 */
+		_bindEvent: function(node, bindField, args, evt) {
+			var init = this.getInitValue(bindField);
+			this.updateNodeEvent(node, evt, init, null, args, bindField);
+
+			this.watcher.add(bindField, function(path, last, old) {
+				this.updateNodeEvent(node, evt, last, old, args, bindField);
+			}, this);
 		},
 
 		/**
@@ -713,6 +779,42 @@ define([
 				if (oldValue) {
 					this.removeClass(node, oldValue);
 				}
+			}
+		},
+
+		/**
+		 * 更新节点绑定事件的回调函数
+		 * @param   {DOMElement}  node     [节点]
+		 * @param   {String}      evt      [事件]
+		 * @param   {Function}    newFunc  [新callback]
+		 * @param   {Function}    oldFunc  [旧callback]
+		 * @param   {Array}       params   [回调参数]
+		 * @param   {String}      field    [监测的字段]
+		 */
+		updateNodeEvent: function(node, evt, newFunc, oldFunc, params, field) {
+			var listeners = this.$listeners;
+			var targetListener = listeners[field];
+
+			if (util.isFunc(newFunc)) {
+				listeners[field] = function(e) {
+					var args = [];
+					util.each(params, function(param) {
+						args.push(param === '$event' ? e : param);
+					});
+
+					// 未指定参数，则原生事件作为唯一参数
+					if (!args.length) {
+						args.push(e);
+					}
+
+					newFunc.apply(this, args);
+				}
+
+				this.addEvent(node, evt, listeners[field]);
+			}
+
+			if (util.isFunc(oldFunc)) {
+				this.removeEvent(node, evt, targetListener);
 			}
 		}
 	}

@@ -137,10 +137,13 @@ require([
 					'</h2>',
 					'<div v-bind:class="test">',
 						'<p>',
-							'<em v-text="small"></em>',
+							'<em v-text="small" v-on="{click: emClick(123), mouseenter: emMouseenter(456)}"></em>',
 						'</p>',
 					'</div>',
 					'<span v-html="info" v-bind:class="test"></span>',
+					// '<button v-on:click="btnClick">我是按钮</button>',
+					// '<button v-on:click="btnClick(123, 456)">我是按钮</button>',
+					// '<button v-on:click="btnClick($event, 123)">我是按钮</button>',
 				].join(''),
 				'model': {
 					'showH1'  : true,
@@ -150,7 +153,7 @@ require([
 
 					'message' : 'h1 test',
 					'info'    : '<a href="#">信息</a>',
-					'small'   : '',
+					'small'   : 'small',
 					'id_div'  : 'id_original',
 
 					'bind_new3': true,
@@ -210,17 +213,23 @@ require([
 			// 	}, 5000);
 			// }, 5000);
 
-			this.setTimeout(function() {
-				vm.span_id = 'id_2';
-				vm.span_name = 'name_2';
-				vm.span_data_id = 'data_id_2';
+			// this.setTimeout(function() {
+			// 	vm.span_id = 'id_2';
+			// 	vm.span_name = 'name_2';
+			// 	vm.span_data_id = 'data_id_2';
 
-				this.setTimeout(function() {
-					vm.span_id = 'id_3';
-					vm.span_name = 'name_3';
-					vm.span_data_id = 'data_id_3';
-				}, 5000);
-			}, 5000);
+			// 	this.setTimeout(function() {
+			// 		vm.span_id = 'id_3';
+			// 		vm.span_name = 'name_3';
+			// 		vm.span_data_id = 'data_id_3';
+			// 	}, 5000);
+			// }, 5000);
+
+			// this.setTimeout(function() {
+			// 	vm.btnClick = function() {
+			// 		console.log('click has changed!!');
+			// 	}
+			// }, 5000);
 		}
 	});
 
