@@ -75,7 +75,7 @@ define([
 		/**
 		 * 解析文档碎片/节点
 		 * @param   {Fragment|DOMElement}  fragment  [文档碎片/节点]
-		 * @param   {Boolean}              root      [是否是编译的根节点]
+		 * @param   {Boolean}              root      [是否是编译根节点]
 		 */
 		parseElement: function(fragment, root) {
 			var node, dirCount;
@@ -436,9 +436,13 @@ define([
 		 * @return  {Array}
 		 */
 		stringToPropsArray: function(expression) {
-			var ret = [], props, leng = expression.length;
+			var ret = [], props;
+			var leng = expression.length;
+			// 分离函数参数
+			var regFunc = /[^,]+:[^:]+((?=,[\w_-]+:)|$)/g;
+
 			if (expression.charAt(0) === '{' && expression.charAt(leng - 1) === '}') {
-				props = expression.substr(1, leng - 2).split(',');
+				props = expression.substr(1, leng - 2).match(regFunc);
 				util.each(props, function(prop) {
 					var vals = this.getTargetValue(prop, true);
 					var name = vals[0], value = vals[1];
@@ -763,10 +767,10 @@ define([
 		updateNodeClassName: function(node, newValue, oldValue, classname) {
 			// 指定classname，变化值由newValue布尔值决定
 			if (classname) {
-				if (newValue) {
+				if (newValue === true) {
 					this.addClass(node, classname);
 				}
-				else {
+				else if (newValue === false){
 					this.removeClass(node, classname);
 				}
 			}
@@ -802,7 +806,7 @@ define([
 						args.push(param === '$event' ? e : param);
 					});
 
-					// 未指定参数，则原生事件作为唯一参数
+					// 未指定参数，则原生事件对象作为唯一参数
 					if (!args.length) {
 						args.push(e);
 					}

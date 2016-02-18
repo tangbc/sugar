@@ -46,7 +46,7 @@ define([
 			var watchers = this.$watchers;
 
 			if (!util.has(field, data)) {
-				util.error('The field: ' + field + ' does not exist in model: ', data);
+				util.error('The field: ' + field + ' does not exist in model!');
 				return;
 			}
 
