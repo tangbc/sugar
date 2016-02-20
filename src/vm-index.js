@@ -1,5 +1,5 @@
 /**
- * 简单的数据绑定vm库
+ * 简单的数据绑定视图层库
  */
 define([
 	'./util',
@@ -61,7 +61,7 @@ define([
 
 		/**
 		 * DOMElement转换成文档片段
-		 * @param   {DOMElement}  element  [DOM节点]
+		 * @param   {DOMElement}  element
 		 */
 		nodeToFragment: function(element) {
 			var fragment = this.createFragment();
@@ -157,8 +157,8 @@ define([
 
 		/**
 		 * 编译节点的一条指令
-		 * @param   {DOMElement}  node       [节点]
-		 * @param   {Array}       directive  [指令]
+		 * @param   {DOMElement}  node
+		 * @param   {Array}       directive
 		 */
 		compileDirective: function(node, directive) {
 			var name = directive.name;
@@ -275,7 +275,7 @@ define([
 		},
 
 		/**
-		 * 所有指令编译完成，更新视图呈现
+		 * 所有指令编译完成，更新视图
 		 */
 		complieCompleted: function() {
 			var element = this.$element;
@@ -303,9 +303,9 @@ define([
 
 		/**
 		 * 设置节点的属性
-		 * @param   {DOMElement}  node  [节点]
-		 * @param   {String}      name  [属性名称]
-		 * @param   {String}      value [属性值]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
+		 * @param   {String}      value
 		 */
 		setAttr: function(node, name, value) {
 			node.setAttribute(name, value);
@@ -314,8 +314,8 @@ define([
 
 		/**
 		 * 获取节点的属性值
-		 * @param   {DOMElement}  node  [节点]
-		 * @param   {String}      name  [属性名称]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
 		 * @return  {String}
 		 */
 		getAttr: function(node, name) {
@@ -324,8 +324,8 @@ define([
 
 		/**
 		 * 判断节点是否存在属性
-		 * @param   {DOMElement}  node  [节点]
-		 * @param   {String}      name  [属性名称]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
 		 * @return  {Boolean}
 		 */
 		hasAttr: function(node, name) {
@@ -334,8 +334,8 @@ define([
 
 		/**
 		 * 移除节点的属性
-		 * @param   {DOMElement}  node  [节点]
-		 * @param   {String}      name  [属性名称]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
 		 */
 		removeAttr: function(node, name) {
 			node.removeAttribute(name);
@@ -397,23 +397,23 @@ define([
 		},
 
 		/**
-		 * 字符串转文档碎片
-		 * @param   {String}    htmlString  [html布局字符]
+		 * 字符串HTML转文档碎片
+		 * @param   {String}    html
 		 * @return  {Fragment}
 		 */
-		stringToFragment: function(htmlString) {
+		stringToFragment: function(html) {
 			var div, fragment;
 
-			// 存在html标签
-			if (/<[^>]+>/g.test(htmlString)) {
+			// 存在标签
+			if (/<[^>]+>/g.test(html)) {
 				div = util.DOC.createElement('div');
-				div.innerHTML = htmlString;
+				div.innerHTML = html;
 				fragment = this.nodeToFragment(div);
 			}
 			// 纯文本节点
 			else {
 				fragment = this.createFragment();
-				fragment.appendChild(util.DOC.createTextNode(htmlString));
+				fragment.appendChild(util.DOC.createTextNode(html));
 			}
 
 			return fragment;
@@ -439,14 +439,14 @@ define([
 		},
 
 		/**
-		 * 获取字符表达式的值
-		 * @param   {String}   expression    [字符表达式]
-		 * @param   {Boolean}  returnArray   [是否返回数组]
-		 * @return  {String}
+		 * 拆解字符键值对，返回键和值
+		 * @param   {String}   expression
+		 * @param   {Boolean}  both          [是否返回键和值]
+		 * @return  {String|Array}
 		 */
-		getTargetValue: function(expression, returnArray) {
+		getStringKeyValue: function(expression, both) {
 			var array = expression.split(':');
-			return returnArray ? array : array.pop();
+			return both ? array : array.pop();
 		},
 
 		/**
@@ -474,8 +474,8 @@ define([
 		},
 
 		/**
-		 * 字符表达式转为数组
-		 * @param   {String}  expression   [字符表达式]
+		 * 字符JSON结构转为键值数组
+		 * @param   {String}  expression
 		 * @return  {Array}
 		 */
 		stringToPropsArray: function(expression) {
@@ -487,7 +487,7 @@ define([
 			if (expression.charAt(0) === '{' && expression.charAt(leng - 1) === '}') {
 				props = expression.substr(1, leng - 2).match(regFunc);
 				util.each(props, function(prop) {
-					var vals = this.getTargetValue(prop, true);
+					var vals = this.getStringKeyValue(prop, true);
 					var name = vals[0], value = vals[1];
 					if (name && value) {
 						ret.push({
@@ -502,9 +502,9 @@ define([
 
 		/**
 		 * 节点事件绑定
-		 * @param   {DOMElement}    node      [节点]
-		 * @param   {String}        evt       [事件]
-		 * @param   {Function}      callback  [事件触发函数]
+		 * @param   {DOMElement}    node
+		 * @param   {String}        evt
+		 * @param   {Function}      callback
 		 */
 		addEvent: function(node, evt, callback) {
 			node.addEventListener(evt, callback);
@@ -513,26 +513,26 @@ define([
 
 		/**
 		 * 解除节点事件绑定
-		 * @param   {DOMElement}    node      [节点]
-		 * @param   {String}        evt       [事件]
-		 * @param   {Function}      callback  [事件触发函数]
+		 * @param   {DOMElement}    node
+		 * @param   {String}        evt
+		 * @param   {Function}      callback
 		 */
 		removeEvent: function(node, evt, callback) {
 			node.removeEventListener(evt, callback);
 			return this;
 		},
 
-		/********** 指令处理方法 **********/
+		/********** 指令实现方法 **********/
 
 		/**
-		 * 指令处理方法：v-el（唯一不需要在model中声明的指令）
+		 * v-el（唯一不需要在model中声明的指令）
 		 */
 		registerEl: function(node, dir) {
 			this.$data.$els[dir] = node;
 		},
 
 		/**
-		 * 指令处理方法：v-text DOM文本
+		 * v-text DOM文本
 		 */
 		handleText: function(node, dir) {
 			var init = this.getValue(dir);
@@ -544,7 +544,7 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-html DOM布局
+		 * v-html DOM布局
 		 */
 		handleHtml: function(node, dir) {
 			var init = this.getValue(dir);
@@ -556,7 +556,7 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-show 控制节点的显示隐藏
+		 * v-show 控制节点的显示隐藏
 		 */
 		handleShow: function(node, dir) {
 			var init = this.getValue(dir);
@@ -568,7 +568,7 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-if 控制节点内容的渲染
+		 * v-if 控制节点内容的渲染
 		 */
 		handleIf: function(node, dir) {
 			var init = this.getValue(dir);
@@ -580,7 +580,7 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-bind 动态绑定一个或多个attribute
+		 * v-bind 动态绑定一个或多个attribute
 		 * 除class外，一个attribute只能有一个value
 		 */
 		handleBind: function(node, value, attr) {
@@ -591,7 +591,7 @@ define([
 
 			// 单个attribute
 			if (directive.indexOf(':') !== -1) {
-				val = this.getTargetValue(directive);
+				val = this.getStringKeyValue(directive);
 
 				if (val === 'class') {
 					// 多个class的json结构
@@ -621,9 +621,9 @@ define([
 
 		/**
 		 * 绑定节点class
-		 * @param   {DOMElement}  node        [节点]
+		 * @param   {DOMElement}  node
 		 * @param   {String}      bindField   [数据绑定字段]
-		 * @param   {String}      classname   [类名]
+		 * @param   {String}      classname
 		 */
 		_bindClassName: function(node, bindField, classname) {
 			var init = this.getValue(bindField);
@@ -636,9 +636,9 @@ define([
 
 		/**
 		 * 绑定节点属性
-		 * @param   {DOMElement}  node       [节点]
+		 * @param   {DOMElement}  node
 		 * @param   {String}      bindField  [数据绑定字段]
-		 * @param   {String}      attr       [属性名]
+		 * @param   {String}      attr
 		 */
 		_bindAttribute: function(node, bindField, attr) {
 			var init = this.getValue(bindField);
@@ -650,7 +650,7 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-on 动态绑定一个或多个事件
+		 * v-on 动态绑定一个或多个事件
 		 */
 		handleOn: function(node, value, attr) {
 			var val, param, props;
@@ -659,9 +659,9 @@ define([
 
 			// 单个事件 v-on:click
 			if (evt.indexOf(':') !== -1) {
-				val = this.getTargetValue(evt);
+				val = this.getStringKeyValue(evt);
 				param = this.stringToParameters(func);
-				this._bindEvent(node, param[0], param[1], val);
+				this._handleOnEvent(node, param[0], param[1], val);
 			}
 			// 多个事件 v-on="{click: xxx, mouseenter: yyy, mouseleave: zzz}"
 			else {
@@ -669,7 +669,7 @@ define([
 				util.each(props, function(prop) {
 					val = prop.name;
 					param = this.stringToParameters(prop.value);
-					this._bindEvent(node, param[0], param[1], val);
+					this._handleOnEvent(node, param[0], param[1], val);
 				}, this);
 			}
 		},
@@ -677,7 +677,7 @@ define([
 		/**
 		 * 节点绑定事件
 		 */
-		_bindEvent: function(node, bindField, args, evt) {
+		_handleOnEvent: function(node, bindField, args, evt) {
 			var init = this.getValue(bindField);
 			this.updateNodeEvent(node, evt, init, null, args, bindField);
 
@@ -687,13 +687,13 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-model 表单控件双向绑定
+		 * v-model 表单控件双向绑定
 		 */
 		handleModel: function(node, dir) {
 			var tagName = node.tagName.toLowerCase();
 			var type = tagName === 'input' ? this.getAttr(node, 'type') : tagName;
 
-			// 分别绑定不同类型表单的数据监测
+			// 根据不同表单类型绑定数据监测方法
 			switch (type) {
 				case 'text'    :
 				case 'textarea': this._handleModelText.apply(this, arguments); break;
@@ -708,7 +708,7 @@ define([
 		 */
 		_handleModelText: function(node, dir) {
 			var init = this.getValue(dir);
-			this._bindEventModelText(node, dir).updateNodeFormTextValue(node, init);
+			this._bindModelTextEvent(node, dir).updateNodeFormTextValue(node, init);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeFormTextValue(node, last);
@@ -716,14 +716,14 @@ define([
 		},
 
 		/**
-		 * 表单text或textarea绑定数据监测事件
+		 * text, textarea绑定数据监测事件
 		 * @param   {Input}   node
 		 * @param   {String}  field
 		 */
-		_bindEventModelText: function(node, field) {
+		_bindModelTextEvent: function(node, field) {
 			var self = this, composeLock = false;
 
-			// 解决中文输入时input事件在未选择词组时也会触发的问题
+			// 解决中文输入时input事件在未选择词组时的触发问题
 			// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
 			this.addEvent(node, 'compositionstart', function() {
 				composeLock = true;
@@ -752,7 +752,7 @@ define([
 		 */
 		_handleModelRadio: function(node, dir) {
 			var init = this.getValue(dir);
-			this._bindEventModelRadio(node, dir).updateNodeFormRadioChecked(node, init);
+			this._bindModelRadioEvent(node, dir).updateNodeFormRadioChecked(node, init);
 
 			this.watcher.add(dir, function(path, last) {
 				this.updateNodeFormRadioChecked(node, last);
@@ -760,11 +760,11 @@ define([
 		},
 
 		/**
-		 * 单选框radio绑定数据监测事件
+		 * radio绑定数据监测事件
 		 * @param   {Input}   node
 		 * @param   {String}  field
 		 */
-		_bindEventModelRadio: function(node, field) {
+		_bindModelRadioEvent: function(node, field) {
 			var self = this;
 
 			this.addEvent(node, 'change', function() {
@@ -779,7 +779,7 @@ define([
 		 */
 		_handleModelCheckbox: function(node, dir) {
 			var init = this.getValue(dir);
-			this._bindEventCheckbox(node, dir).updateNodeFormCheckboxChecked(node, init);
+			this._bindCheckboxEvent(node, dir).updateNodeFormCheckboxChecked(node, init);
 
 			this.watcher.add(dir, function() {
 				this.updateNodeFormCheckboxChecked(node, this.getValue(dir));
@@ -787,11 +787,11 @@ define([
 		},
 
 		/**
-		 * 复选框checkbox绑定数据监测事件
+		 * checkbox绑定数据监测事件
 		 * @param   {Input}   node
 		 * @param   {String}  field
 		 */
-		_bindEventCheckbox: function(node, field) {
+		_bindCheckboxEvent: function(node, field) {
 			var self = this;
 			var array = this.getValue(field);
 
@@ -852,10 +852,11 @@ define([
 				return;
 			}
 
-			// 在数据模型中定义选中状态
+			// 数据模型中定义初始的选中状态
 			if (isDefined) {
 				this.updateNodeFormSelectCheck(node, init, multi);
 			}
+			// 模板中定义初始状态
 			else {
 				// 获取选中状态
 				for (i = 0; i < leng; i++) {
@@ -868,7 +869,7 @@ define([
 				this.setValue(dir, multi ? selects : selects[0]);
 			}
 
-			this._bindEventSelect(node, dir, multi);
+			this._bindSelectEvent(node, dir, multi);
 
 			this.watcher.add(dir, function() {
 				this.updateNodeFormSelectCheck(node, this.getValue(dir), multi);
@@ -881,7 +882,7 @@ define([
 		 * @param   {String}   field
 		 * @param   {Boolean}  multi
 		 */
-		_bindEventSelect: function(node, field, multi) {
+		_bindSelectEvent: function(node, field, multi) {
 			var self = this;
 
 			this.addEvent(node, 'change', function() {
@@ -902,16 +903,16 @@ define([
 		},
 
 		/**
-		 * 指令处理方法：v-for 基于源数据重复元素板块
+		 * v-for 基于源数据重复节点板块
 		 */
 		handleFor: function(node, dir) {},
 
-		/********** 指令实现方法 **********/
+		/********** 视图刷新方法 **********/
 
 		/**
 		 * 更新节点的文本内容 realize v-text
-		 * @param   {DOMElement}  node  [节点]
-		 * @param   {String}      text  [文本]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      text
 		 */
 		updateNodeTextContent: function(node, text) {
 			node.textContent = String(text);
@@ -920,17 +921,19 @@ define([
 
 		/**
 		 * 更新节点的html内容 realize v-html
-		 * @param   {DOMElement}  node        [节点]
-		 * @param   {String}      htmlString  [更新内容]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      html
 		 */
-		updateNodeHtmlContent: function(node, htmlString) {
+		updateNodeHtmlContent: function(node, html) {
 			this.empty(node);
-			node.appendChild(this.stringToFragment(String(htmlString)));
+			node.appendChild(this.stringToFragment(String(html)));
 		},
 
 		/**
 		 * 更新节点的显示隐藏 realize v-show
-		 * @param   {DOMElement}  node    [节点]
+		 * 行内样式display=''不会影响由classname中的定义
+		 * _vm_visible_display用于缓存节点行内样式的display显示值
+		 * @param   {DOMElement}  node
 		 * @param   {Boolean}     show    [是否显示]
 		 */
 		updateNodeDisplay: function(node, show) {
@@ -944,7 +947,7 @@ define([
 
 					util.each(styles, function(style) {
 						if (style.indexOf('display') !== -1) {
-							display = this.getTargetValue(style);
+							display = this.getStringKeyValue(style);
 						}
 					}, this);
 				}
@@ -959,7 +962,7 @@ define([
 
 		/**
 		 * 更新节点内容的渲染 realize v-if
-		 * @param   {DOMElement}  node    [节点]
+		 * @param   {DOMElement}  node
 		 * @param   {Boolean}     render  [是否渲染]
 		 * @param   {Boolean}     init    [是否是初始化编译]
 		 */
@@ -976,6 +979,7 @@ define([
 					node.appendChild(this.stringToFragment(node._vm_render_content));
 				}
 
+				// 重新编译节点内容
 				this.$lateComplie = true;
 				this.parseElement(node, true);
 			}
@@ -983,18 +987,18 @@ define([
 
 		/**
 		 * 更新节点的attribute realize v-bind
-		 * @param   {DOMElement}  node       [节点]
-		 * @param   {String}      attribute  [属性名]
-		 * @param   {String}      value      [属性值]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      attribute
+		 * @param   {String}      value
 		 */
 		updateNodeAttribute: function(node, attribute, value) {
 			if (value === null) {
 				this.removeAttr.apply(this, arguments);
 			}
 			else {
-				// 表单元素设置value不能用setAttribute
+				// setAttribute不适合用于表单元素的value
 				// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
-				if (attribute === 'value') {
+				if (attribute === 'value' && (this.$inputs.indexOf(node.tagName) !== -1)) {
 					node.value = value;
 				}
 				else {
@@ -1034,12 +1038,12 @@ define([
 
 		/**
 		 * 更新节点绑定事件的回调函数
-		 * @param   {DOMElement}  node     [节点]
-		 * @param   {String}      evt      [事件]
+		 * @param   {DOMElement}  node
+		 * @param   {String}      evt
 		 * @param   {Function}    newFunc  [新callback]
 		 * @param   {Function}    oldFunc  [旧callback]
 		 * @param   {Array}       params   [回调参数]
-		 * @param   {String}      field    [监测的字段]
+		 * @param   {String}      field    [回调对应监测字段]
 		 */
 		updateNodeEvent: function(node, evt, newFunc, oldFunc, params, field) {
 			var listeners = this.$listeners;
@@ -1069,7 +1073,7 @@ define([
 		},
 
 		/**
-		 * 更新表单value，type为text或textarea
+		 * 更新text或textarea的value
 		 * @param   {Input}  text
 		 * @param   {String} value
 		 */
@@ -1080,7 +1084,7 @@ define([
 		},
 
 		/**
-		 * 更新单选框radio的激活状态
+		 * 更新radio的激活状态
 		 * @param   {Input}  radio
 		 * @param   {String} value
 		 */
@@ -1089,8 +1093,8 @@ define([
 		},
 
 		/**
-		 * 更新复选框checkbox的激活状态
-		 * @param   {Input}          checkbox    [checkbox]
+		 * 更新checkbox的激活状态
+		 * @param   {Input}          checkbox
 		 * @param   {Array|Boolean}  values      [激活数组或状态]
 		 */
 		updateNodeFormCheckboxChecked: function(checkbox, values) {
@@ -1102,10 +1106,10 @@ define([
 		},
 
 		/**
-		 * 更新下拉框select的激活状态
-		 * @param   {Select}         select    [select]
+		 * 更新select的激活状态
+		 * @param   {Select}         select
 		 * @param   {Array|String}   selected  [选中值]
-		 * @param   {Boolean}        multi     [是否是多选]
+		 * @param   {Boolean}        multi
 		 */
 		updateNodeFormSelectCheck: function(select, selected, multi) {
 			var options = select.options;
@@ -1116,7 +1120,7 @@ define([
 				value = option.value;
 				option.selected = multi ? selected.indexOf(value) !== -1 : selected === value;
 			}
-		},
+		}
 	}
 
 	return VM;
