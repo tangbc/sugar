@@ -128,12 +128,10 @@ define(function() {
 		cons.log.apply(cons, arguments);
 	}
 	UTIL.error = function() {
-		if (cons.error.apply) {
-			cons.error.apply(cons, arguments);
-		}
-		else {
-			cons.error(arguments[0]);
-		}
+		cons.error.apply(cons, arguments);
+	}
+	UTIL.warn = function() {
+		cons.warn.apply(cons, arguments);
 	}
 
 	/**

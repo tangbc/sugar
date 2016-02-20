@@ -4,93 +4,52 @@
 define(['./util'], function(util) {
 
 	/**
-	 * 对象变化监测类
-	 * @param  {Object|Array}  object    [对象或数组]
-	 * @param  {Array}         ranges    [<可选>监测的字段范围]
+	 * VM对象变化监测类
+	 * @param  {Object}        object    [VM数据模型]
+	 * @param  {Array}         ignores   [忽略监测的字段]
 	 * @param  {Function}      callback  [变化回调函数]
 	 * @param  {Object}        context   [<可选>执行上下文]
 	 * @param  {Object}        args      [<可选>回调参数]
 	 */
-	function Observer(object, ranges, callback, context, args) {
-		if (!util.isArray(ranges)) {
-			context = callback;
-			callback = ranges;
-			ranges = null;
-		}
-
+	function Observer(object, ignores, callback, context, args) {
 		if (util.isString(callback)) {
 			callback = context[callback];
 		}
 
-		this.ranges = ranges;
+		this.ignores = ignores;
 		this.callback = callback;
 		this.context = context || util.GLOBAL;
 		this.args = args;
 
-		/**
-		 * 监测的对象集合，包括一级和嵌套对象
-		 * @type  {Array}
-		 */
+		// 监测的对象集合，包括一级和嵌套对象
 		this.observers = [object];
 
-		/**
-		 * 监测的对象副本，存储旧值
-		 * @type  {Object}
-		 */
+		// 监测的对象副本，存储旧值
 		this.valuesMap = {
 			'0': util.copy(object)
-		};
+		}
 
-		/**
-		 * 需要重写的Array方法
-		 * @type  {Array}
-		 */
+		// 重写的Array方法
 		this.fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
-		/**
-		 * 属性层级分隔符
-		 * @type  {String}
-		 */
+		// 属性层级分隔符
 		this.separator = '*';
 
-		// 处理数组
-		if (util.isArray(object)) {
-			this.observeArray(object);
-		}
-
-		// 处理对象
-		if (util.isObject(object)) {
-			this.observeObject(object);
-		}
+		this.observe(object);
 	}
 	Observer.prototype = {
 		constructor: Observer,
 
 		/**
-		 * 监测数组
-		 * @param   {Array}   array   [监测的数组]
-		 * @param   {Array}   paths   [<可选>访问路径数组]
-		 */
-		observeArray: function(array, paths) {
-			this.rewriteArrayMethods(array, paths)
-			.handleProperties(array, paths);
-		},
-
-		/**
-		 * 监测对象
+		 * 监测数据模型
 		 * @param   {Object}  object  [监测的对象]
-		 * @param   {Array}   paths   [<可选>访问路径数组]
+		 * @param   {Array}   paths   [访问路径数组]
 		 */
-		observeObject: function(object, paths) {
-			this.handleProperties(object, paths);
-		},
+		observe: function(object, paths) {
+			if (util.isArray(object)) {
+				this.rewriteArrayMethods(object, paths);
+			}
 
-		/**
-		 * 处理对象属性的监测和数据缓存
-		 * @param   {Object|Array}  object  [对象或数组]
-		 * @param   {Array}         paths   [<可选>访问路径数组]
-		 */
-		handleProperties: function(object, paths) {
 			util.each(object, function(value, property) {
 				// 路径副本
 				var copies = paths && paths.slice(0);
@@ -101,9 +60,8 @@ define(['./util'], function(util) {
 					copies = [property];
 				}
 
-				if (this.checkWatch(copies) !== -1) {
-					this.setCache(object, value, property)
-					.bindWatching(object, copies);
+				if (!this.isIgnore(copies)) {
+					this.setCache(object, value, property).bindWatching(object, copies);
 				}
 
 			}, this);
@@ -112,34 +70,28 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 检查paths是否在监测范围内
+		 * 检查paths是否在排除范围内
 		 * @param   {Array}    paths  [访问路径数组]
-		 * @return  {Number}          [-1为不在范围]
+		 * @return  {Boolean}
 		 */
-		checkWatch: function(paths) {
-			var flag = -1;
-			var ranges = this.ranges;
-			var path = paths.join(this.separator);
+		isIgnore: function(paths) {
+			var ret, path = paths.join(this.separator);
 
-			if (!util.isArray(ranges)) {
-				return 1;
-			}
-
-			util.each(ranges, function(range) {
-				if (range.indexOf(path) === 0) {
-					flag = 1;
+			util.each(this.ignores, function(ignore) {
+				if (ignore.indexOf(path) === 0) {
+					ret = true;
 					return false;
 				}
 			}, this);
 
-			return flag;
+			return ret;
 		},
 
 		/**
 		 * 获取指定对象的属性缓存值
 		 * @param   {Object}  object    [指定对象]
 		 * @param   {String}  property  [属性名称]
-		 * @return  {Object}            [属性值]
+		 * @return  {Object}
 		 */
 		getCache: function(object, property) {
 			var index = this.observers.indexOf(object);
@@ -164,7 +116,7 @@ define(['./util'], function(util) {
 				observers.push(object);
 				valuesMap[oleng] = util.copy(object);
 			}
-			// 记录存在，重新对object[property]赋值
+			// 记录存在，重新赋值
 			else {
 				valuesMap[index][property] = value;
 			}
@@ -190,28 +142,24 @@ define(['./util'], function(util) {
 					var newValue = arguments[0];
 					var oldValue = this.getCache(object, prop);
 
-					this.setCache(object, newValue, prop)
-					.triggerChange(paths.join(this.separator), newValue, oldValue, object);
+					if (newValue !== oldValue) {
+						this.setCache(object, newValue, prop).triggerChange(paths.join(this.separator), newValue, oldValue);
+					}
 				}).bind(this)
 			});
 
 			var value = object[prop];
 
-			// 嵌套数组
-			if (util.isArray(value)) {
-				this.observeArray(value, paths);
-			}
-
-			// 嵌套对象
-			if (util.isObject(value)) {
-				this.observeObject(value, paths);
+			// 嵌套数组或对象
+			if (util.isArray(value) || util.isObject(value)) {
+				this.observe(value, paths);
 			}
 		},
 
 		/**
 		 * 重写指定的Array方法
 		 * @param   {Array}  array  [目标数组]
-		 * @param   {Array}  paths  [<可选>访问路径数组]
+		 * @param   {Array}  paths  [访问路径数组]
 		 */
 		rewriteArrayMethods: function(array, paths) {
 			var arrayProto = util.AP;
@@ -229,11 +177,11 @@ define(['./util'], function(util) {
 					}
 					result = original.apply(this, args);
 
-					// 触发回调
-					self.triggerArrayMethod(method, path, this);
+					// 重新监测
+					self.observe(this, paths);
 
-					// 重新监测数组
-					self.observeArray(this);
+					// 触发回调
+					self.triggerChange(path, this);
 
 					return result;
 				});
@@ -260,23 +208,12 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 触发array操作回调
-		 * @param   {String}  method  [操作方法]
-		 * @param   {Array}   path    [访问路径,undefined则为操作顶级数组]
-		 * @param   {Array}   array   [操作数组（不传入回调）]
-		 */
-		triggerArrayMethod: function(method, path, array) {
-			this.callback.apply(this.context, ['Array:' + method, path, this.args]);
-		},
-
-		/**
 		 * 触发object变化回调
 		 * @param   {String}         path      [变更路径]
 		 * @param   {Mix}            last      [新值]
 		 * @param   {Mix}            old       [旧值]
-		 * @param   {Object|Array}   target    [变化对象（不传入回调）]
 		 */
-		triggerChange: function(path, last, old, target) {
+		triggerChange: function(path, last, old) {
 			this.callback.apply(this.context, [path, last, old, this.args]);
 		}
 	}

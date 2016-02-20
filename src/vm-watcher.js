@@ -29,7 +29,7 @@ define([
 		 */
 		this.$callbacks = {};
 
-		this.observer = new Observer(data, '_triggerAgent', this);
+		this.observer = new Observer(data, ['$els'], '_triggerAgent', this);
 	}
 	Watcher.prototype =  {
 		constructor: Watcher,
@@ -46,7 +46,7 @@ define([
 			var watchers = this.$watchers;
 
 			if (!util.has(field, data)) {
-				util.error('The field: ' + field + ' does not exist in model!');
+				util.warn('The field: ' + field + ' does not exist in model!');
 				return;
 			}
 

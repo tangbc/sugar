@@ -47,6 +47,9 @@ define([
 
 		this.watcher = new Watcher(this.$data);
 
+		// v-model限制使用的表单元素
+		this.$inputs = ['INPUT', 'SELECT', 'TEXTAREA'];
+
 		this.init();
 	}
 	VM.prototype = {
@@ -159,6 +162,7 @@ define([
 		 */
 		compileDirective: function(node, directive) {
 			var name = directive.name;
+			var tagName = node.tagName;
 			var args = [node, directive.value, name];
 
 			// 计数自减并移除指令标记
@@ -180,13 +184,32 @@ define([
 			// 静态指令
 			else {
 				switch (name) {
-					case 'v-el'   : this.registerElement.apply(this, args); break;
-					case 'v-text' : this.handleText.apply(this, args); break;
-					case 'v-html' : this.handleHtml.apply(this, args); break;
-					case 'v-show' : this.handleShow.apply(this, args); break;
-					case 'v-if'   : this.handleIf.apply(this, args); break;
-					case 'v-model': this.handleModel.apply(this, args); break;
-					case 'v-for'  : this.handleFor.apply(this, args); break;
+					case 'v-el':
+						this.registerEl.apply(this, args);
+						break;
+					case 'v-text':
+						this.handleText.apply(this, args);
+						break;
+					case 'v-html':
+						this.handleHtml.apply(this, args);
+						break;
+					case 'v-show':
+						this.handleShow.apply(this, args);
+						break;
+					case 'v-if':
+						this.handleIf.apply(this, args);
+						break;
+					case 'v-model':
+						if (this.$inputs.indexOf(tagName) !== -1) {
+							this.handleModel.apply(this, args);
+						}
+						else {
+							util.warn('v-model only for use in ' + this.$inputs.join(', '));
+						}
+						break;
+					case 'v-for':
+						this.handleFor.apply(this, args);
+						break;
 				}
 			}
 
@@ -396,6 +419,25 @@ define([
 		},
 
 		/**
+		 * 设置VM数据值
+		 * @param  {String}  field
+		 * @param  {Mix}     value
+		 */
+		setValue: function(field, value) {
+			this.$data[field] = value;
+			return this;
+		},
+
+		/**
+		 * 获取当前VM数据值
+		 * @param  {String}  field
+		 * @param  {Mix}     value
+		 */
+		getValue: function(field) {
+			return this.$data[field];
+		},
+
+		/**
 		 * 获取字符表达式的值
 		 * @param   {String}   expression    [字符表达式]
 		 * @param   {Boolean}  returnArray   [是否返回数组]
@@ -484,7 +526,7 @@ define([
 		/**
 		 * 指令处理方法：v-el（唯一不需要在model中声明的指令）
 		 */
-		registerElement: function(node, dir) {
+		registerEl: function(node, dir) {
 			this.$data.$els[dir] = node;
 		},
 
@@ -646,7 +688,134 @@ define([
 		/**
 		 * 指令处理方法：v-model 表单控件双向绑定
 		 */
-		handleModel: function(node, dir) {},
+		handleModel: function(node, dir) {
+			var type = node.tagName === 'TEXTAREA' ? 'textarea' : this.getAttr(node, 'type');
+			// 分别绑定不同类型表单的数据监测
+			switch (type) {
+				case 'text'    :
+				case 'textarea': this._handleModelText.apply(this, arguments); break;
+				case 'radio'   : this._handleModelRadio.apply(this, arguments); break;
+				case 'checkbox': this._handleModelCheckbox.apply(this, arguments); break;
+			}
+		},
+
+		/**
+		 * v-model for text, textarea
+		 */
+		_handleModelText: function(node, dir) {
+			var init = this.getInitValue(dir);
+			this._bindEventModelText(node, dir).updateNodeFormTextValue(node, init);
+
+			this.watcher.add(dir, function(path, last) {
+				this.updateNodeFormTextValue(node, last);
+			}, this);
+		},
+
+		/**
+		 * 表单text或textarea绑定数据监测事件
+		 * @param   {Input}   node
+		 * @param   {String}  field
+		 */
+		_bindEventModelText: function(node, field) {
+			var self = this, composeLock = false;
+
+			// 解决中文输入时input事件在未选择词组时也会触发的问题
+			// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
+			this.addEvent(node, 'compositionstart', function() {
+				composeLock = true;
+			});
+			this.addEvent(node, 'compositionend', function() {
+				composeLock = false;
+			});
+
+			// input事件(实时触发)
+			this.addEvent(node, 'input', function() {
+				if (!composeLock) {
+					self.setValue(field, this.value);
+				}
+			});
+
+			// change事件(失去焦点触发)
+			this.addEvent(node, 'change', function() {
+				self.setValue(field, this.value);
+			});
+
+			return this;
+		},
+
+		/**
+		 * v-model for radio
+		 */
+		_handleModelRadio: function(node, dir) {
+			var init = this.getInitValue(dir);
+			this._bindEventModelRadio(node, dir).updateNodeFormRadioChecked(node, init);
+
+			this.watcher.add(dir, function(path, last) {
+				this.updateNodeFormRadioChecked(node, last);
+			}, this);
+		},
+
+		/**
+		 * 单选框radio绑定数据监测事件
+		 * @param   {Input}   node
+		 * @param   {String}  field
+		 */
+		_bindEventModelRadio: function(node, field) {
+			var self = this;
+
+			this.addEvent(node, 'change', function() {
+				self.setValue(field, this.value);
+			});
+
+			return this;
+		},
+
+		/**
+		 * v-model for checkbox
+		 */
+		_handleModelCheckbox: function(node, dir) {
+			var init = this.getInitValue(dir);
+			this._bindEventCheckbox(node, dir).updateNodeFormCheckboxChecked(node, init);
+
+			this.watcher.add(dir, function() {
+				this.updateNodeFormCheckboxChecked(node, this.getValue(dir));
+			}, this);
+		},
+
+		/**
+		 * 复选框checkbox绑定数据监测事件
+		 * @param   {Input}   node
+		 * @param   {String}  field
+		 */
+		_bindEventCheckbox: function(node, field) {
+			var self = this;
+			var array = this.getValue(field);
+
+			this.addEvent(node, 'change', function() {
+				var index, value = this.value, checked = this.checked;
+
+				// 多个checkbox
+				if (util.isArray(array)) {
+					index = array.indexOf(value);
+					if (checked) {
+						if (index === -1) {
+							array.push(value);
+						}
+					}
+					else {
+						if (index !== -1) {
+							array.splice(index, 1);
+						}
+					}
+				}
+				// 单个checkbox
+				else if (util.isBoolean(array)) {
+					self.setValue(field, checked);
+				}
+			});
+
+			return this;
+		},
 
 		/**
 		 * 指令处理方法：v-for 基于源数据重复元素板块
@@ -661,9 +830,7 @@ define([
 		 * @param   {String}      text  [文本]
 		 */
 		updateNodeTextContent: function(node, text) {
-			if (text && util.isString(text)) {
-				node.textContent = text;
-			}
+			node.textContent = String(text);
 			return this;
 		},
 
@@ -673,11 +840,8 @@ define([
 		 * @param   {String}      htmlString  [更新内容]
 		 */
 		updateNodeHtmlContent: function(node, htmlString) {
-			if (htmlString && util.isString(htmlString)) {
-				this.empty(node);
-				node.appendChild(this.stringToFragment(htmlString));
-			}
-			return this;
+			this.empty(node);
+			node.appendChild(this.stringToFragment(String(htmlString)));
 		},
 
 		/**
@@ -707,7 +871,6 @@ define([
 			}
 
 			node.style.display = show ? (node._vm_visible_display || '') : 'none';
-			return this;
 		},
 
 		/**
@@ -732,7 +895,6 @@ define([
 				this.$lateComplie = true;
 				this.parseElement(node, true);
 			}
-			return this;
 		},
 
 		/**
@@ -770,7 +932,7 @@ define([
 				if (newValue === true) {
 					this.addClass(node, classname);
 				}
-				else if (newValue === false){
+				else if (newValue === false) {
 					this.removeClass(node, classname);
 				}
 			}
@@ -820,6 +982,39 @@ define([
 			if (util.isFunc(oldFunc)) {
 				this.removeEvent(node, evt, targetListener);
 			}
+		},
+
+		/**
+		 * 更新表单value，type为text或textarea
+		 * @param   {Input}  text
+		 * @param   {String} value
+		 */
+		updateNodeFormTextValue: function(text, value) {
+			if (text.value !== value) {
+				text.value = value;
+			}
+		},
+
+		/**
+		 * 更新单选框radio的激活状态
+		 * @param   {Input}  radio
+		 * @param   {String} value
+		 */
+		updateNodeFormRadioChecked: function(radio, value) {
+			radio.checked = radio.value === (util.isNumber(value) ? String(value) : value);
+		},
+
+		/**
+		 * 更新复选框checkbox的激活状态
+		 * @param   {Input}          checkbox    [checkbox]
+		 * @param   {Array|Boolean}  values      [激活数组或状态]
+		 */
+		updateNodeFormCheckboxChecked: function(checkbox, values) {
+			if (!util.isArray(values) && !util.isBoolean(values)) {
+				util.warn('checkbox v-model value must be a type of Boolean or Array!');
+				return;
+			}
+			checkbox.checked = util.isBoolean(values) ? values : (values.indexOf(checkbox.value) !== -1);
 		}
 	}
 
