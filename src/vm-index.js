@@ -323,6 +323,16 @@ define([
 		},
 
 		/**
+		 * 判断节点是否存在属性
+		 * @param   {DOMElement}  node  [节点]
+		 * @param   {String}      name  [属性名称]
+		 * @return  {Boolean}
+		 */
+		hasAttr: function(node, name) {
+			return node.hasAttribute(name);
+		},
+
+		/**
 		 * 移除节点的属性
 		 * @param   {DOMElement}  node  [节点]
 		 * @param   {String}      name  [属性名称]
@@ -407,15 +417,6 @@ define([
 			}
 
 			return fragment;
-		},
-
-		/**
-		 * 获取指令初始值
-		 * @param   {String}  directive  [指令名称]
-		 * @return  {Mix}                [初始值]
-		 */
-		getInitValue: function(directive) {
-			return this.$model[directive];
 		},
 
 		/**
@@ -534,7 +535,7 @@ define([
 		 * 指令处理方法：v-text DOM文本
 		 */
 		handleText: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this.updateNodeTextContent(node, init);
 
 			this.watcher.add(dir, function(path, last) {
@@ -546,7 +547,7 @@ define([
 		 * 指令处理方法：v-html DOM布局
 		 */
 		handleHtml: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this.updateNodeHtmlContent(node, init);
 
 			this.watcher.add(dir, function(path, last) {
@@ -558,7 +559,7 @@ define([
 		 * 指令处理方法：v-show 控制节点的显示隐藏
 		 */
 		handleShow: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this.updateNodeDisplay(node, init);
 
 			this.watcher.add(dir, function(path, last) {
@@ -570,7 +571,7 @@ define([
 		 * 指令处理方法：v-if 控制节点内容的渲染
 		 */
 		handleIf: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this.updateNodeRenderContent(node, init, true);
 
 			this.watcher.add(dir, function(path, last) {
@@ -625,7 +626,7 @@ define([
 		 * @param   {String}      classname   [类名]
 		 */
 		_bindClassName: function(node, bindField, classname) {
-			var init = this.getInitValue(bindField);
+			var init = this.getValue(bindField);
 			this.updateNodeClassName(node, init, null, classname);
 
 			this.watcher.add(bindField, function(path, last, old) {
@@ -640,7 +641,7 @@ define([
 		 * @param   {String}      attr       [属性名]
 		 */
 		_bindAttribute: function(node, bindField, attr) {
-			var init = this.getInitValue(bindField);
+			var init = this.getValue(bindField);
 			this.updateNodeAttribute(node, attr, init);
 
 			this.watcher.add(bindField, function(path, last) {
@@ -677,7 +678,7 @@ define([
 		 * 节点绑定事件
 		 */
 		_bindEvent: function(node, bindField, args, evt) {
-			var init = this.getInitValue(bindField);
+			var init = this.getValue(bindField);
 			this.updateNodeEvent(node, evt, init, null, args, bindField);
 
 			this.watcher.add(bindField, function(path, last, old) {
@@ -689,13 +690,16 @@ define([
 		 * 指令处理方法：v-model 表单控件双向绑定
 		 */
 		handleModel: function(node, dir) {
-			var type = node.tagName === 'TEXTAREA' ? 'textarea' : this.getAttr(node, 'type');
+			var tagName = node.tagName.toLowerCase();
+			var type = tagName === 'input' ? this.getAttr(node, 'type') : tagName;
+
 			// 分别绑定不同类型表单的数据监测
 			switch (type) {
 				case 'text'    :
 				case 'textarea': this._handleModelText.apply(this, arguments); break;
 				case 'radio'   : this._handleModelRadio.apply(this, arguments); break;
 				case 'checkbox': this._handleModelCheckbox.apply(this, arguments); break;
+				case 'select'  : this._handleModelSelect.apply(this, arguments); break;
 			}
 		},
 
@@ -703,7 +707,7 @@ define([
 		 * v-model for text, textarea
 		 */
 		_handleModelText: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this._bindEventModelText(node, dir).updateNodeFormTextValue(node, init);
 
 			this.watcher.add(dir, function(path, last) {
@@ -747,7 +751,7 @@ define([
 		 * v-model for radio
 		 */
 		_handleModelRadio: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this._bindEventModelRadio(node, dir).updateNodeFormRadioChecked(node, init);
 
 			this.watcher.add(dir, function(path, last) {
@@ -774,7 +778,7 @@ define([
 		 * v-model for checkbox
 		 */
 		_handleModelCheckbox: function(node, dir) {
-			var init = this.getInitValue(dir);
+			var init = this.getValue(dir);
 			this._bindEventCheckbox(node, dir).updateNodeFormCheckboxChecked(node, init);
 
 			this.watcher.add(dir, function() {
@@ -812,6 +816,86 @@ define([
 				else if (util.isBoolean(array)) {
 					self.setValue(field, checked);
 				}
+			});
+
+			return this;
+		},
+
+		/**
+		 * v-model for select
+		 */
+		_handleModelSelect: function(node, dir) {
+			var self = this;
+			var options = node.options;
+			var init = this.getValue(dir);
+			var multi = this.hasAttr(node, 'multiple');
+			var option, i, leng = options.length, selects = [], isDefined;
+
+			// 数据模型定义为单选
+			if (util.isString(init)) {
+				if (multi) {
+					util.warn('select cannot be multiple when your model set \'' + dir + '\' to noArray!');
+					return;
+				}
+				isDefined = Boolean(init);
+			}
+			// 定义为多选
+			else if (util.isArray(init)) {
+				if (!multi) {
+					util.warn('your model \'' + dir + '\' cannot set as Array when select has no multiple propperty!');
+					return;
+				}
+				isDefined = init.length > 0;
+			}
+			else {
+				util.warn(dir + ' must be a type of String or Array!');
+				return;
+			}
+
+			// 在数据模型中定义选中状态
+			if (isDefined) {
+				this.updateNodeFormSelectCheck(node, init, multi);
+			}
+			else {
+				// 获取选中状态
+				for (i = 0; i < leng; i++) {
+					option = options[i];
+					if (option.selected) {
+						selects.push(option.value);
+					}
+				}
+
+				this.setValue(dir, multi ? selects : selects[0]);
+			}
+
+			this._bindEventSelect(node, dir, multi);
+
+			this.watcher.add(dir, function() {
+				this.updateNodeFormSelectCheck(node, this.getValue(dir), multi);
+			}, this);
+		},
+
+		/**
+		 * select绑定数据监测事件
+		 * @param   {Select}   node
+		 * @param   {String}   field
+		 * @param   {Boolean}  multi
+		 */
+		_bindEventSelect: function(node, field, multi) {
+			var self = this;
+
+			this.addEvent(node, 'change', function() {
+				var options = this.options;
+				var i, option, leng = options.length, selects = [];
+
+				for (i = 0; i < leng; i++) {
+					option = options[i];
+					if (option.selected) {
+						selects.push(option.value);
+					}
+				}
+
+				self.setValue(field, multi ? selects : selects[0]);
 			});
 
 			return this;
@@ -1015,7 +1099,24 @@ define([
 				return;
 			}
 			checkbox.checked = util.isBoolean(values) ? values : (values.indexOf(checkbox.value) !== -1);
-		}
+		},
+
+		/**
+		 * 更新下拉框select的激活状态
+		 * @param   {Select}         select    [select]
+		 * @param   {Array|String}   selected  [选中值]
+		 * @param   {Boolean}        multi     [是否是多选]
+		 */
+		updateNodeFormSelectCheck: function(select, selected, multi) {
+			var options = select.options;
+			var i, option, value, leng = options.length;
+
+			for (i = 0; i < leng; i++) {
+				option = options[i];
+				value = option.value;
+				option.selected = multi ? selected.indexOf(value) !== -1 : selected === value;
+			}
+		},
 	}
 
 	return VM;
