@@ -24,7 +24,7 @@ define([
 
 		// 参数缓存
 		this.$element = element;
-		this.$model = model;
+		this.$initData = model;
 
 		// 初始碎片
 		this.$fragment = this.nodeToFragment(element);
@@ -584,15 +584,15 @@ define([
 		 * 除class外，一个attribute只能有一个value
 		 */
 		handleBind: function(node, value, attr) {
-			var val;
 			var directive = this.removeSpace(attr);
 			var expression = this.removeSpace(value);
-			var props = this.stringToPropsArray(expression);
+			var val, props = this.stringToPropsArray(expression);
 
-			// 单个attribute
+			// 单个attribute v-bind:class="xxx"
 			if (directive.indexOf(':') !== -1) {
 				val = this.getStringKeyValue(directive);
 
+				// class
 				if (val === 'class') {
 					// 多个class的json结构
 					if (props.length) {
@@ -605,17 +605,36 @@ define([
 						this._bindClassName(node, expression);
 					}
 				}
+				// 行内样式
+				else if (val === 'style') {
+					// 多个inline-style的json结构
+					if (props.length) {
+						util.each(props, function(prop) {
+							this._bindInlineStyle(node, prop.value, prop.name);
+						}, this);
+					}
+					// 单个inline-style
+					else {
+						this._bindInlineStyle(node, expression);
+					}
+				}
+				// 其他属性
 				else {
 					this._bindAttribute(node, expression, val);
 				}
 			}
 			// 多个attributes "v-bind={id:xxxx, name: yyy, data-id: zzz}"
 			else {
-				if (props.length) {
-					util.each(props, function(prop) {
-						this._bindAttribute(node, prop.value, prop.name);
-					}, this);
-				}
+				util.each(props, function(prop) {
+					var name = prop.name;
+					var value = prop.value;
+					if (name === 'class') {
+						this._bindClassName(node, value);
+					}
+					else {
+						this._bindAttribute(node, value, name);
+					}
+				}, this);
 			}
 		},
 
@@ -627,10 +646,101 @@ define([
 		 */
 		_bindClassName: function(node, bindField, classname) {
 			var init = this.getValue(bindField);
-			this.updateNodeClassName(node, init, null, classname);
+			var isObject = util.isObject(init);
+			var isSingle = util.isString(init) || util.isBoolean(init);
+
+			// single class
+			if (isSingle) {
+				this.updateNodeClassName(node, init, null, classname);
+			}
+			// classObject
+			else if (isObject) {
+				this._bindClassNameObject(node, init);
+			}
+			else {
+				return;
+			}
 
 			this.watcher.add(bindField, function(path, last, old) {
-				this.updateNodeClassName(node, last, old, classname);
+				if (isObject) {
+					// 替换整个classObject
+					if (util.isObject(last)) {
+						// 移除所有旧值
+						this._bindClassNameObject(node, old, true);
+						// 重新添加新值
+						this._bindClassNameObject(node, last);
+					}
+					// 只修改classObject的一个字段
+					else if (util.isBoolean(last)) {
+						this.updateNodeClassName(node, last, null, path.split('*').pop());
+					}
+				}
+				else {
+					this.updateNodeClassName(node, last, old, classname);
+				}
+			}, this);
+		},
+
+		/**
+		 * 通过classObject批量绑定或移除class
+		 * @param   {DOMElement}  node
+		 * @param   {object}      classObject  [定义classname组的json]
+		 * @param   {Boolean}     removeAll    [是否移除所有]
+		 */
+		_bindClassNameObject: function(node, classObject, removeAll) {
+			util.each(classObject, function(isAdd, cls) {
+				this.updateNodeClassName(node, removeAll ? false : isAdd, null, cls);
+			}, this);
+		},
+
+		/**
+		 * 绑定节点style
+		 * @param   {DOMElement}  node
+		 * @param   {String}      bindField   [数据绑定字段]
+		 * @param   {String}      propperty   [行内样式属性]
+		 */
+		_bindInlineStyle: function(node, bindField, propperty) {
+			var init = this.getValue(bindField);
+			var isObject = util.isObject(init);
+			var isString = util.isString(init);
+
+			// styleString
+			if (isString) {
+				this.updateNodeStyle(node, propperty, init);
+			}
+			// styleObject
+			else if (isObject) {
+				this._bindInlineStyleObject(node, init);
+			}
+			else {
+				return;
+			}
+
+			this.watcher.add(bindField, function(path, last, old) {
+				if (isObject) {
+					// 替换整个styleObject，保留旧样式定义
+					if (util.isObject(last)) {
+						this._bindInlineStyleObject(node, last);
+					}
+					// 只修改styleObject的一个字段
+					else if (util.isString(last)) {
+						this.updateNodeStyle(node, path.split('*').pop(), last);
+					}
+				}
+				else {
+					this.updateNodeStyle(node, propperty, last);
+				}
+			}, this);
+		},
+
+		/**
+		 * 通过styleObject批量绑定或移除行内样式
+		 * @param   {DOMElement}  node
+		 * @param   {object}      styleObject  [定义style组的json]
+		 */
+		_bindInlineStyleObject: function(node, styleObject) {
+			util.each(styleObject, function(value, propperty) {
+				this.updateNodeStyle(node, propperty, value);
 			}, this);
 		},
 
@@ -1034,6 +1144,16 @@ define([
 					this.removeClass(node, oldValue);
 				}
 			}
+		},
+
+		/**
+		 * 更新节点的style realize v-bind:style
+		 * @param   {DOMElement}  node
+		 * @param   {String}      propperty  [属性名称]
+		 * @param   {String}      value      [样式值]
+		 */
+		updateNodeStyle: function(node, propperty, value) {
+			node.style[propperty] = value;
 		},
 
 		/**

@@ -8,28 +8,18 @@ define([
 
 	/**
 	 * 监测器构造函数
-	 * @param  {Object}  data     [监测对象]
+	 * @param  {Object}  model     [VM数据模型]
 	 */
-	function Watcher(data) {
-		/**
-		 * 参数缓存
-		 * @type  {Object}
-		 */
-		this.$data = data;
+	function Watcher(model) {
+		this.$model = model;
 
-		/**
-		 * 已监测的字段集合
-		 * @type  {Array}
-		 */
+		// 已监测的字段集合
 		this.$watchers = [];
 
-		/**
-		 * 以监测字段为索引的回调集合
-		 * @type  {Object}
-		 */
+		// 以监测字段为索引的回调集合
 		this.$callbacks = {};
 
-		this.observer = new Observer(data, ['$els'], '_triggerAgent', this);
+		this.observer = new Observer(model, ['$els'], '_triggerAgent', this);
 	}
 	Watcher.prototype =  {
 		constructor: Watcher,
@@ -38,38 +28,30 @@ define([
 		 * 添加一个监测回调
 		 * @param  {String}    field     [监测字段]
 		 * @param  {Function}  callback  [变化回调]
-		 * @param  {Object}    context   [回调上下文]
+		 * @param  {Object}    context   [作用域]
 		 * @param  {Array}     args      [回调参数]
 		 */
 		add: function(field, callback, context, args) {
-			var data = this.$data;
+			var model = this.$model;
 			var watchers = this.$watchers;
+			var callbacks = this.$callbacks;
 
-			if (!util.has(field, data)) {
+			if (!util.has(field, model)) {
 				util.warn('The field: ' + field + ' does not exist in model!');
 				return;
 			}
 
+			// 缓存字段
 			if (watchers.indexOf(field) === -1) {
 				watchers.push(field);
 			}
 
-			this._saveCallback(field, [callback, context, args]);
-		},
-
-		/**
-		 * 设置字段变化的回调函数
-		 * @param  {String}  field  [字段名称]
-		 * @param  {Array}   cbs    [回调与参数]
-		 */
-		_saveCallback: function(field, cbs) {
-			var callbacks = this.$callbacks;
-
+			// 缓存回调函数
 			if (!callbacks[field]) {
 				callbacks[field] = [];
 			}
 
-			callbacks[field].push(cbs);
+			callbacks[field].push([callback, context, args]);
 		},
 
 		/**
@@ -88,7 +70,9 @@ define([
 
 			// 触发所有回调
 			util.each(this.$callbacks[field], function(cb) {
-				cb[0].apply(cb[1], [path, last, old, cb[2]]);
+				var callback = cb[0], context = cb[1], args = cb[2];
+
+				callback.apply(context, [path, last, old, args]);
 			}, this);
 		},
 	};

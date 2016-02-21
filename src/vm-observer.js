@@ -8,7 +8,7 @@ define(['./util'], function(util) {
 	 * @param  {Object}        object    [VM数据模型]
 	 * @param  {Array}         ignores   [忽略监测的字段]
 	 * @param  {Function}      callback  [变化回调函数]
-	 * @param  {Object}        context   [<可选>执行上下文]
+	 * @param  {Object}        context   [执行上下文]
 	 * @param  {Object}        args      [<可选>回调参数]
 	 */
 	function Observer(object, ignores, callback, context, args) {
@@ -16,24 +16,24 @@ define(['./util'], function(util) {
 			callback = context[callback];
 		}
 
-		this.ignores = ignores;
-		this.callback = callback;
-		this.context = context || util.GLOBAL;
-		this.args = args;
+		this.$ignores = ignores;
+		this.$callback = callback;
+		this.$context = context;
+		this.$args = args;
 
 		// 监测的对象集合，包括一级和嵌套对象
-		this.observers = [object];
+		this.$observers = [object];
 
 		// 监测的对象副本，存储旧值
-		this.valuesMap = {
+		this.$valuesMap = {
 			'0': util.copy(object)
 		}
 
 		// 重写的Array方法
-		this.fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+		this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 		// 属性层级分隔符
-		this.separator = '*';
+		this.$separator = '*';
 
 		this.observe(object);
 	}
@@ -51,7 +51,6 @@ define(['./util'], function(util) {
 			}
 
 			util.each(object, function(value, property) {
-				// 路径副本
 				var copies = paths && paths.slice(0);
 				if (copies) {
 					copies.push(property);
@@ -75,9 +74,9 @@ define(['./util'], function(util) {
 		 * @return  {Boolean}
 		 */
 		isIgnore: function(paths) {
-			var ret, path = paths.join(this.separator);
+			var ret, path = paths.join(this.$separator);
 
-			util.each(this.ignores, function(ignore) {
+			util.each(this.$ignores, function(ignore) {
 				if (ignore.indexOf(path) === 0) {
 					ret = true;
 					return false;
@@ -94,8 +93,8 @@ define(['./util'], function(util) {
 		 * @return  {Object}
 		 */
 		getCache: function(object, property) {
-			var index = this.observers.indexOf(object);
-			var value = (index === -1) ? null : this.valuesMap[index];
+			var index = this.$observers.indexOf(object);
+			var value = (index === -1) ? null : this.$valuesMap[index];
 			return value ? value[property] : value;
 		},
 
@@ -106,8 +105,8 @@ define(['./util'], function(util) {
 		 * @param  {String}  property  [属性名称]
 		 */
 		setCache: function(object, value, property) {
-			var observers = this.observers;
-			var valuesMap = this.valuesMap;
+			var observers = this.$observers;
+			var valuesMap = this.$valuesMap;
 			var oleng = observers.length;
 			var index = observers.indexOf(object);
 
@@ -143,7 +142,11 @@ define(['./util'], function(util) {
 					var oldValue = this.getCache(object, prop);
 
 					if (newValue !== oldValue) {
-						this.setCache(object, newValue, prop).triggerChange(paths.join(this.separator), newValue, oldValue);
+						this.setCache(object, newValue, prop).triggerChange(paths.join(this.$separator), newValue, oldValue);
+
+						if (util.isObject(newValue)) {
+							this.observe(newValue, paths);
+						}
 					}
 				}).bind(this)
 			});
@@ -164,9 +167,9 @@ define(['./util'], function(util) {
 		rewriteArrayMethods: function(array, paths) {
 			var arrayProto = util.AP;
 			var arrayMethods = Object.create(arrayProto);
-			var path = paths && paths.join(this.separator);
+			var path = paths && paths.join(this.$separator);
 
-			util.each(this.fixArrayMethods, function(method) {
+			util.each(this.$fixArrayMethods, function(method) {
 				var self = this;
 				var original = arrayProto[method];
 				this.modifyProperty(arrayMethods, method, function redefineArrayMethod() {
@@ -214,7 +217,7 @@ define(['./util'], function(util) {
 		 * @param   {Mix}            old       [旧值]
 		 */
 		triggerChange: function(path, last, old) {
-			this.callback.apply(this.context, [path, last, old, this.args]);
+			this.$callback.apply(this.$context, [path, last, old, this.$args]);
 		}
 	}
 
