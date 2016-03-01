@@ -5,23 +5,38 @@ require(['../../dist/sugar'], function(sugar) {
 		init: function(config) {
 			config = sugar.cover(config, {
 				'html': [
-					'<h1 v-bind:style="{width: w, height: h, background: bg}">styleString</h1>',
-					'<h1 v-bind:style="styleObject">styleObject</h1>',
-					'<h1 v-bind:class="classObject">classObject</h1>'
+					'<ul>',
+						'<li v-for="item in items">',
+							'<p v-text="item.text"></p>',
+							'<div v-for="arr in item.arrs">',
+								'<a v-text="item.arr.text"></a>',
+								'<b v-for="s in item.arrs.ss">',
+									'<i style="display:block;" v-text="s.text"></i>',
+								'</b>',
+							'</div>',
+						'</li>',
+					'</ul>'
 				].join(''),
 				'model': {
-					'w': 200 + 'px',
-					'h': 50 + 'px',
-					'bg': 'red',
-					'styleObject': {
-						'width': 200 + 'px',
-						'height': 60 + 'px',
-						'background': 'green'
-					},
-					'classObject': {
-						'cls_1': true,
-						'cls_2': false
-					},
+					'hehe': 111,
+					'items': [
+						{
+							'text': 'AAAA',
+							'arrs': [
+								{'text': 'aaa', 'ss': [{'text': 'i'},{'text': 'ii'},{'text': 'iii'},{'text': 'iiii'}]},
+								{'text': 'bbb'},
+								{'text': 'ccc', 'ss': [{'text': 'k'},{'text': 'kk'}]}
+							]
+						},
+						{
+							'text': 'BBBBB',
+							'arrs': [
+								{'text': 'aaa', 'ss': [{'text': 'l'},{'text': 'll'},]},
+								{'text': 'aaaa', 'ss': [{'text': 'm'},{'text': 'mm'},{'text': 'mmm'}]},
+								{'text': 'aaaaa', 'ss': [{'text': 'n'},{'text': 'nn'},{'text': 'nnn'},{'text': 'nnn'}]}
+							]
+						}
+					]
 				}
 			});
 			this.Super('init', arguments);
@@ -30,13 +45,7 @@ require(['../../dist/sugar'], function(sugar) {
 			var vm = this.vm.$data;
 
 			this.setTimeout(function() {
-				vm.styleObject.width = 60 + 'px';
-				vm.styleObject.height = 200 + 'px';
-
-				vm.bg = 'gray'
-
-				vm.classObject.cls_1 = false
-				vm.classObject.cls_2 = true
+				vm.items[0].style = {'background': '#adcdef'};
 			}, 5000);
 		}
 	});

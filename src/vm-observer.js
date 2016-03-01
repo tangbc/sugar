@@ -172,12 +172,14 @@ define(['./util'], function(util) {
 			util.each(this.$fixArrayMethods, function(method) {
 				var self = this;
 				var original = arrayProto[method];
-				this.modifyProperty(arrayMethods, method, function redefineArrayMethod() {
+				var redefineArrayMethod = function _redefineArrayMethod() {
 					var i = arguments.length, result;
 					var args = new Array(i);
+
 					while (i--) {
 						args[i] = arguments[i];
 					}
+
 					result = original.apply(this, args);
 
 					// 重新监测
@@ -187,7 +189,9 @@ define(['./util'], function(util) {
 					self.triggerChange(path, this);
 
 					return result;
-				});
+				}
+
+				this.defineProperty(arrayMethods, method, redefineArrayMethod, true, false, true);
 			}, this);
 
 			array.__proto__ = arrayMethods;
@@ -196,17 +200,20 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * 修改target的property属性
-		 * @param   {Object|Array}  target    [数组或对象]
-		 * @param   {String}        property  [属性或下标]
-		 * @param   {Mix}           value     [修改值]
+		 * object定义或修改属性
+		 * @param   {Object|Array}  object         [数组或对象]
+		 * @param   {String}        property       [属性或数组下标]
+		 * @param   {Mix}           value          [属性的修改值/新值]
+		 * @param   {Boolean}       writable       [该属性是否能被赋值运算符改变]
+		 * @param   {Boolean}       enumerable     [该属性是否出现在枚举中]
+		 * @param   {Boolean}       configurable   [该属性是否能够被改变或删除]
 		 */
-		modifyProperty: function(target, property, value) {
-			Object.defineProperty(target, property, {
+		defineProperty: function(object, property, value, writable, enumerable, configurable) {
+			Object.defineProperty(object, property, {
 				'value'       : value,
-				'enumerable'  : false,
-				'writable'    : true,
-				'configurable': true
+				'writable'    : writable,
+				'enumerable'  : enumerable,
+				'configurable': configurable
 			});
 		},
 
