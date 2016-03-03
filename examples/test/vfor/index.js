@@ -1,4 +1,4 @@
-require(['../../dist/sugar'], function(sugar) {
+require(['../../../dist/sugar'], function(sugar) {
 	var $ = sugar.jquery;
 
 	var MainPage = sugar.Container.extend({

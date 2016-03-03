@@ -12,7 +12,7 @@ define([
 	 * @param  {Object}      model    [数据模型对象]
 	 */
 	function VM(element, model) {
-		if (!this.isElement(element)) {
+		if (!this.isElementNode(element)) {
 			util.error('element must be a type of DOMElement: ', element);
 			return;
 		}
@@ -24,12 +24,12 @@ define([
 
 		// 参数缓存
 		this.$element = element;
-		this.$initData = model;
+		this.$initModel = model;
 
 		// 初始碎片
 		this.$fragment = this.nodeToFragment(element);
 
-		// VM数据
+		// VM数据模型
 		this.$data = util.copy(model);
 		// DOM对象注册索引
 		this.$data.$els = {};
@@ -42,13 +42,13 @@ define([
 		this.$unCompileNodes = [];
 		// 编译状态 0未开始 1开始 2已结束
 		this.$compileStatus = 0;
-		// 是否是延迟编译状态(if指令节点)
+		// 是否是延迟编译状态(vif指令节点)
 		this.$lateComplie = false;
 
 		this.watcher = new Watcher(this.$data);
 
 		// v-model限制使用的表单元素
-		this.$inputs = ['INPUT', 'SELECT', 'TEXTAREA'];
+		this.$inputs = ['input', 'select', 'textarea'];
 
 		this.init();
 	}
@@ -64,12 +64,12 @@ define([
 		 * @param   {DOMElement}  element
 		 */
 		nodeToFragment: function(element) {
+			var child;
 			var fragment = this.createFragment();
 			var cloneNode = element.cloneNode(true);
 
-			var childNode;
-			while (childNode = cloneNode.firstChild) {
-				fragment.appendChild(childNode);
+			while (child = cloneNode.firstChild) {
+				fragment.appendChild(child);
 			}
 
 			return fragment;
@@ -79,7 +79,7 @@ define([
 		 * 解析文档碎片/节点
 		 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
 		 * @param   {Boolean}              root      [是否是编译根节点]
-		 * @param   {Array}                fors      [vfor数据信息]
+		 * @param   {Array}                fors      [vfor数据]
 		 */
 		parseElement: function(element, root, fors) {
 			var node, dirCount;
@@ -112,13 +112,17 @@ define([
 		 */
 		getDirectivesCount: function(node) {
 			var count = 0, nodeAttrs;
-			if (this.isElement(node)) {
+			var regDelimiters = /(\{\{.*\}\})/;
+			if (this.isElementNode(node)) {
 				nodeAttrs = node.attributes;
 				for (var i = 0; i < nodeAttrs.length; i++) {
 					if (this.isDirective(nodeAttrs[i].name)) {
 						count++;
 					}
 				}
+			}
+			else if (this.isTextNode(node) && regDelimiters.test(node.textContent)) {
+				count++;
 			}
 			return count;
 		},
@@ -137,41 +141,49 @@ define([
 
 		/**
 		 * 收集并编译节点指令
-		 * @param   {Array}  info   [node, item, index]
+		 * @param   {Array}  info   [node, fors]
 		 */
 		collectDirectives: function(info) {
 			var atr, attrs = [], nodeAttrs;
 			var node = info[0], fors = info[1];
 
-			// 将node的节点集合转为数组
-			nodeAttrs = node.attributes
+			if (this.isElementNode(node)) {
+				// node节点集合转为数组
+				nodeAttrs = node.attributes
 
-			for (var i = 0; i < nodeAttrs.length; i++) {
-				atr = nodeAttrs[i];
-				if (this.isDirective(atr.name)) {
-					attrs.push(atr);
+				for (var i = 0; i < nodeAttrs.length; i++) {
+					atr = nodeAttrs[i];
+					if (this.isDirective(atr.name)) {
+						attrs.push(atr);
+					}
 				}
+
+				// 编译node的所有指令
+				util.each(attrs, function(attr) {
+					this.reduceCount().compileDirective(node, attr, fors);
+				}, this);
+			}
+			else if (this.isTextNode(node)) {
+				this.reduceCount().compileTextNode(node, fors);
 			}
 
-			// 编译node上的所有指令
-			util.each(attrs, function(attr) {
-				this.compileDirective(node, attr, fors);
-			}, this);
+			if (!fors) {
+				this.checkCompleted();
+			}
 		},
 
 		/**
-		 * 编译节点的一条指令
+		 * 编译元素节点指令
 		 * @param   {DOMElement}      node
 		 * @param   {Array}           directive
-		 * @param   {Array}           fors       [vfor数据信息]
+		 * @param   {Array}           fors       [vfor数据]
 		 */
 		compileDirective: function(node, directive, fors) {
 			var name = directive.name;
-			var tagName = node.tagName;
 			var args = [node, directive.value, name, fors];
 
-			// 计数自减并移除指令标记
-			this.reduceCount().removeAttr(node, name);
+			// 移除指令标记
+			this.removeAttr(node, name);
 
 			if (name.charAt(0) === '$') {
 				util.error('model\'s name cannot start with the character $', name);
@@ -205,22 +217,31 @@ define([
 						this.handleIf.apply(this, args);
 						break;
 					case 'v-model':
-						if (this.$inputs.indexOf(tagName) !== -1) {
-							this.handleModel.apply(this, args);
-						}
-						else {
-							util.warn('v-model only for use in ' + this.$inputs.join(', '));
-						}
+						this.handleModel.apply(this, args);
 						break;
 					case 'v-for':
 						this.handleFor.apply(this, args);
 						break;
 				}
 			}
+		},
 
-			if (!fors) {
-				this.checkCompleted();
-			}
+		/**
+		 * 编译文本节点
+		 * @param   {DOMElement}      node
+		 * @param   {Array}           fors       [vfor数据]
+		 */
+		compileTextNode: function(node, fors) {
+			var text = node.textContent;
+			var matches = text.match(new RegExp('{{(.+?)}}', 'g'));
+			var match = matches[0];
+			var splits = text.split(match);
+			var field = match.replace(/\{|\{|\}|\}/g, '');
+
+			node._vm_text_prefix = splits[0];
+			node._vm_text_suffix = splits[splits.length - 1];
+
+			this.handleText(node, field, 'v-text', fors);
 		},
 
 		/**
@@ -232,18 +253,26 @@ define([
 		},
 
 		/**
-		 * 是否是DOM元素
+		 * 是否是元素节点
 		 * @param   {DOMElement}   element
 		 * @return  {Boolean}
 		 */
-		isElement: function(element) {
-			var type = element.nodeType;
-			return type === 1 || type === 9;
+		isElementNode: function(element) {
+			return element.nodeType === 1;
+		},
+
+		/**
+		 * 是否是文本节点
+		 * @param   {DOMElement}   element
+		 * @return  {Boolean}
+		 */
+		isTextNode: function(element) {
+			return element.nodeType === 3;
 		},
 
 		/**
 		 * 是否是合法的指令
-		 * @param   {String}   directive  [指令名称]
+		 * @param   {String}   directive
 		 * @return  {Boolean}
 		 */
 		isDirective: function(directive) {
@@ -251,8 +280,8 @@ define([
 		},
 
 		/**
-		 * 节点的子节点是否需要延迟编译
-		 * v-if, v-for的子节点为处理指令时再编译
+		 * 节点的子节点是否延迟编译
+		 * v-if, v-for的子节点为处理指令时单独编译
 		 * @param   {DOMElement}   node
 		 * @return  {Boolean}
 		 */
@@ -352,7 +381,7 @@ define([
 		 * @param  {String}      classname
 		 */
 		addClass: function(node, classname) {
-			var list = node.classList, current;
+			var current, list = node.classList;
 			if (list) {
 				list.add(classname);
 			}
@@ -371,14 +400,13 @@ define([
 		 * @param  {String}      classname
 		 */
 		removeClass: function(node, classname) {
-			var current, target;
-			var list = node.classList;
+			var current, target, list = node.classList;
 			if (list) {
 				list.remove(classname);
 			}
 			else {
-				current = ' ' + this.getAttr(node, 'class') + ' ';
 				target = ' ' + classname + ' ';
+				current = ' ' + this.getAttr(node, 'class') + ' ';
 				while (current.indexOf(target) !== -1) {
 					current = current.replace(target, ' ');
 				}
@@ -444,8 +472,8 @@ define([
 
 		/**
 		 * 拆解字符键值对，返回键和值
-		 * @param   {String}   expression
-		 * @param   {Boolean}  both          [是否返回键和值]
+		 * @param   {String}         expression
+		 * @param   {Boolean}        both          [是否返回键和值]
 		 * @return  {String|Array}
 		 */
 		getStringKeyValue: function(expression, both) {
@@ -485,11 +513,9 @@ define([
 		stringToPropsArray: function(expression) {
 			var ret = [], props;
 			var leng = expression.length;
-			// 分离函数参数
-			var regFunc = /[^,]+:[^:]+((?=,[\w_-]+:)|$)/g;
 
 			if (expression.charAt(0) === '{' && expression.charAt(leng - 1) === '}') {
-				props = expression.substr(1, leng - 2).match(regFunc);
+				props = expression.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
 				util.each(props, function(prop) {
 					var vals = this.getStringKeyValue(prop, true);
 					var name = vals[0], value = vals[1];
@@ -527,26 +553,45 @@ define([
 		},
 
 		/**
-		 * 获取vfor循环中指定键
-		 * @param   {String}  directive
+		 * 获取vfor中循环对象的键名
+		 * @param   {String}  field
 		 * @param   {Object}  item
 		 * @return  {String}
 		 */
-		getForKey: function(directive) {
-			return directive.indexOf('.') === -1 ? '' : directive.substr(directive.lastIndexOf('.') + 1);
+		getVforKey: function(field) {
+			var pos = field.lastIndexOf('.');
+			return pos === -1 ? '' : field.substr(pos + 1);
 		},
 
-
-		getForValue: function() {},
+		/**
+		 * 获取vfor中循环对象的指定值
+		 */
+		getVforValue: function(value, fors) {
+			var splits = value.split('.');
+			var alias = splits[0], key = splits[splits.length - 1];
+			var map = fors[3], scope = (map && map[alias]) || fors[0];
+			return scope[key];
+		},
 
 		/**
-		 * 替换指令表达式中的下标
-		 * @param   {String}          directive
+		 * 获取vfor中当前循环对象的监测访问路径
+		 */
+		getVforAccess: function(value, fors) {
+			var splits = value.split('.');
+			var path = fors[2], level = fors[5], alias = splits[0]
+			var key = splits[splits.length - 1], suffix = '*' + key;
+			var access = alias === fors[4] ? (fors[2] + suffix) : (path.split('*', level).join('*') + suffix);
+			return access;
+		},
+
+		/**
+		 * 替换vfor循环体表达式中的下标
+		 * @param   {String}          expression
 		 * @return  {String|Number}   index
 		 * @return  {String}
 		 */
-		replaceIndex: function(directive, index) {
-			return directive.indexOf('$index') === -1 ? null : directive.replace(/\$index/g, index);
+		replaceVforIndex: function(expression, index) {
+			return expression.indexOf('$index') === -1 ? null : expression.replace(/\$index/g, index);
 		},
 
 		/********** 指令实现方法 **********/
@@ -562,20 +607,19 @@ define([
 		 * v-text DOM文本
 		 */
 		handleText: function(node, value, name, fors) {
-			var item, index, access, key, text, replace;
+			var access, text, replace;
 
-			// vfor compile
+			// v-for
 			if (fors) {
-				item = fors[0], index = fors[1], access = fors[2];
-				replace = this.replaceIndex(value, index);
+				replace = this.replaceVforIndex(value, fors[1]);
 				if (replace) {
 					text = replace;
 				}
 				else {
-					key = this.getForKey(value);
-					text = item[key];
+					text = this.getVforValue(value, fors);
+					access = this.getVforAccess(value, fors)
 					// 监测访问路径
-					this.watcher.watchAccess(access + '*' + key, function(last, old) {
+					this.watcher.watchAccess(access, function(last, old) {
 						this.updateNodeTextContent(node, last);
 					}, this);
 				}
@@ -709,7 +753,7 @@ define([
 				this.bindClassNameObject(node, init);
 			}
 			else {
-				// vfor compile
+				// v-for
 				if (fors) {
 					this.bindClassNameVfor(node, bindField, fors);
 				}
@@ -741,11 +785,11 @@ define([
 		 */
 		bindClassNameVfor: function(node, bindField, fors) {
 			var item = fors[0], index = fors[1], access = fors[2];
-			var replace, key = this.getForKey(bindField), classname = item[key];
+			var replace, key = this.getVforKey(bindField), classname = item[key];
 			var path = access + '*' + key, watcher = this.watcher;
 
 			if (util.isString(classname)) {
-				replace = this.replaceIndex(classname, index);
+				replace = this.replaceVforIndex(classname, index);
 
 				if (replace) {
 					classname = replace;
@@ -819,7 +863,7 @@ define([
 				this.bindInlineStyleObject(node, init);
 			}
 			else {
-				// vfor compile
+				// v-for
 				if (fors) {
 					this.bindInlineStyleVfor(node, bindField, fors);
 				}
@@ -851,11 +895,11 @@ define([
 		 */
 		bindInlineStyleVfor: function(node, bindField, fors) {
 			var item = fors[0], index = fors[1], access = fors[2];
-			var key = this.getForKey(bindField), style = item[key];
+			var key = this.getVforKey(bindField), style = item[key];
 			var replace, path = access + '*' + key, watcher = this.watcher;
 
 			if (util.isString(style)) {
-				replace = this.replaceIndex(style, index);
+				replace = this.replaceVforIndex(style, index);
 
 				if (replace) {
 					style = replace;
@@ -918,11 +962,11 @@ define([
 		bindNormalAttribute: function(node, bindField, attr, fors) {
 			var value, key, replace, item, index, path;
 
-			// vfor compile
+			// v-for
 			if (fors) {
 				item = fors[0], index = fors[1], path = fors[2];
-				key = this.getForKey(bindField);
-				replace = this.replaceIndex(key, index);
+				key = this.getVforKey(bindField);
+				replace = this.replaceVforIndex(key, index);
 				if (replace) {
 					value = replace;
 				}
@@ -988,6 +1032,11 @@ define([
 		handleModel: function(node) {
 			var tagName = node.tagName.toLowerCase();
 			var type = tagName === 'input' ? this.getAttr(node, 'type') : tagName;
+
+			if (this.$inputs.indexOf(tagName) === -1) {
+				util.warn('v-model only for use in ' + this.$inputs.join(', '));
+				return;
+			}
 
 			// 根据不同表单类型绑定数据监测方法
 			switch (type) {
@@ -1203,22 +1252,27 @@ define([
 		 */
 		handleFor: function(node, value, attr, fors) {
 			var match = value.match(/(.*) in (.*)/);
+			var scope = {}, level = 0;
+			var alias = match[1];
 			var field = match[2];
-			var key = this.getForKey(field);
+			var key = this.getVforKey(field);
 			var watcher = this.watcher;
 			var parent = node.parentNode;
 			var template, array = this.getValue(field);
 
 			if (key) {
+				scope = fors[3];
+				level = fors[5];
 				array = fors[0][key];
 				field = fors[2] + '*' + key;
 			}
 
 			if (!util.isArray(array)) {
+				parent.removeChild(node);
 				return;
 			}
 
-			template = this.buildVforTemplate(node, array, field);
+			template = this.buildVforTemplate(node, array, field, scope, alias, level);
 
 			parent.appendChild(template);
 
@@ -1231,7 +1285,7 @@ define([
 					}
 					// 更新整个数组
 					else {
-						//
+						// TODO
 					}
 				}, this);
 			}
@@ -1242,22 +1296,30 @@ define([
 		 * @param   {DOMElement}  node   [重复节点]
 		 * @param   {Array}       array  [源数组]
 		 * @param   {String}      field  [访问路径]
+		 * @param   {Object}      scope  [循环中对象取值范围]
+		 * @param   {String}      alias  [当前循环对象别名]
+		 * @param   {Number}      level  [当前循环层级]
 		 * @return  {Fragment}           [板块集合]
 		 */
-		buildVforTemplate: function(node, array, field) {
+		buildVforTemplate: function(node, array, field, scope, alias, level) {
 			var fragments = this.createFragment();
+
+			level++;
 
 			// 构建重复片段
 			util.each(array, function(item, index) {
 				var path = field + '*' + index;
 				var cloneNode = node.cloneNode(true);
 
-				this.parseElement(cloneNode, true, [item, index, path]);
-				fragments.appendChild(cloneNode);
+				// 缓存取值范围
+				scope[alias] = item;
 
+				// 解析/编译板块
+				this.parseElement(cloneNode, true, [item, index, path, scope, alias, level]);
+				fragments.appendChild(cloneNode);
 			}, this);
 
-			// 完成复制，移除初始片段
+			// 完成批量构建，移除初始模板片段
 			node.parentNode.removeChild(node);
 
 			return fragments;
@@ -1271,7 +1333,7 @@ define([
 		 * @param   {String}      text
 		 */
 		updateNodeTextContent: function(node, text) {
-			node.textContent = String(text);
+			node.textContent = (node._vm_text_prefix || '') + String(text) + (node._vm_text_suffix || '');
 			return this;
 		},
 
@@ -1354,7 +1416,7 @@ define([
 			else {
 				// setAttribute不适合用于表单元素的value
 				// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
-				if (attribute === 'value' && (this.$inputs.indexOf(node.tagName) !== -1)) {
+				if (attribute === 'value' && (this.$inputs.indexOf(node.tagName.toLowerCase()) !== -1)) {
 					node.value = value;
 				}
 				else {
