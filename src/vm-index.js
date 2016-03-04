@@ -47,7 +47,7 @@ define([
 
 		this.watcher = new Watcher(this.$data);
 
-		// v-model限制使用的表单元素
+		// vmodel限制使用的表单元素
 		this.$inputs = ['input', 'select', 'textarea'];
 
 		this.init();
@@ -166,10 +166,6 @@ define([
 			else if (this.isTextNode(node)) {
 				this.reduceCount().compileTextNode(node, fors);
 			}
-
-			if (!fors) {
-				this.checkCompleted();
-			}
 		},
 
 		/**
@@ -224,6 +220,10 @@ define([
 						break;
 				}
 			}
+
+			if (!fors) {
+				this.checkCompleted();
+			}
 		},
 
 		/**
@@ -242,6 +242,10 @@ define([
 			node._vm_text_suffix = splits[splits.length - 1];
 
 			this.handleText(node, field, 'v-text', fors);
+
+			if (!fors) {
+				this.checkCompleted();
+			}
 		},
 
 		/**
@@ -570,7 +574,7 @@ define([
 			var splits = value.split('.');
 			var alias = splits[0], key = splits[splits.length - 1];
 			var map = fors[3], scope = (map && map[alias]) || fors[0];
-			return scope[key];
+			return alias === key ? scope : scope[key];
 		},
 
 		/**
@@ -608,6 +612,7 @@ define([
 		 */
 		handleText: function(node, value, name, fors) {
 			var access, text, replace;
+			var watcher = this.watcher;
 
 			// v-for
 			if (fors) {
@@ -617,16 +622,16 @@ define([
 				}
 				else {
 					text = this.getVforValue(value, fors);
-					access = this.getVforAccess(value, fors)
+					access = this.getVforAccess(value, fors);
 					// 监测访问路径
-					this.watcher.watchAccess(access, function(last, old) {
+					watcher.watchAccess(access, function(last) {
 						this.updateNodeTextContent(node, last);
 					}, this);
 				}
 			}
 			else {
 				text = this.getValue(value);
-				this.watcher.add(value, function(path, last) {
+				watcher.add(value, function(path, last) {
 					this.updateNodeTextContent(node, last);
 				}, this);
 			}
@@ -1310,12 +1315,13 @@ define([
 			util.each(array, function(item, index) {
 				var path = field + '*' + index;
 				var cloneNode = node.cloneNode(true);
+				var fors = [item, index, path, scope, alias, level];
 
 				// 缓存取值范围
 				scope[alias] = item;
 
 				// 解析/编译板块
-				this.parseElement(cloneNode, true, [item, index, path, scope, alias, level]);
+				this.parseElement(cloneNode, true, fors);
 				fragments.appendChild(cloneNode);
 			}, this);
 
