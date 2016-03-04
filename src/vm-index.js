@@ -1277,6 +1277,7 @@ define([
 				return;
 			}
 
+			this.$lateComplie = true;
 			template = this.buildVforTemplate(node, array, field, scope, alias, level);
 
 			parent.appendChild(template);
