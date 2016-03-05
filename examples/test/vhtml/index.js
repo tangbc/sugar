@@ -8,31 +8,31 @@ require(['../../../dist/sugar'], function(sugar) {
 					'<ul>',
 						'<li v-for="item in teams">',
 							'<span>{{item.text}}</span>',
-							'<span v-for="p in item.ps">',
-								'<i>{{p}}</i>',
+							'<span v-for="t in item.ts">',
+								'<i>{{t}}</i>',
 							'</span>',
 						'</li>',
 					'</ul>',
-					'</hr>',
+					'<hr/>',
 					'<ul>',
 						'<li v-for="item in players">',
 							'<span>{{item.text}}</span>',
 							'<span v-for="p in item.ps">',
-								'<i>{{p}}</i>',
+								'<b>{{p}}</b>',
 							'</span>',
 						'</li>',
 					'</ul>',
 				].join(''),
 				'model': {
 					'teams': [
-						{'text': '金州勇士', 'ps': [30, 11, 23]},
-						{'text': '神安东尼奥马刺'},
-						{'text': '俄克拉荷马雷霆'}
+						{'text': '金州勇士', 'ts': [1, 2, 3]},
+						{'text': '圣安东尼奥马刺', 'ts': [4,5]},
+						{'text': '俄克拉荷马雷霆', 'ts': [6,7]}
 					],
 					'players': [
-						{'text': '库里', 'ps': [1,2,3]},
-						{'text': '汤普森'},
-						{'text': '格林'}
+						{'text': '库里', 'ps': [1]},
+						{'text': '汤普森', 'ps': [2,3,4]},
+						{'text': '格林', 'ps': [5]}
 					]
 				}
 			});

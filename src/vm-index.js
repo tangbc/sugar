@@ -22,15 +22,13 @@ define([
 			return;
 		}
 
-		// 参数缓存
+		// 缓存根节点
 		this.$element = element;
-		this.$initModel = model;
-
-		// 初始碎片
+		// 根节点转为文档碎片
 		this.$fragment = this.nodeToFragment(element);
 
 		// VM数据模型
-		this.$data = util.copy(model);
+		this.$data = model;
 		// DOM对象注册索引
 		this.$data.$els = {};
 		// 事件绑定回调集合
@@ -38,12 +36,10 @@ define([
 
 		// 未编译指令数目
 		this.$unCompileCount = 0;
-		// 未编译的节点
+		// 未编译节点缓存队列
 		this.$unCompileNodes = [];
-		// 编译状态 0未开始 1开始 2已结束
-		this.$compileStatus = 0;
-		// 是否是延迟编译状态(vif指令节点)
-		this.$lateComplie = false;
+		// 根节点是否已完成编译
+		this.$rootComplied = false;
 
 		this.watcher = new Watcher(this.$data);
 
@@ -128,11 +124,9 @@ define([
 		},
 
 		/**
-		 * 编译所有的指令节点
+		 * 编译节点缓存队列
 		 */
 		compileAllNodes: function() {
-			this.$compileStatus = 1;
-
 			util.each(this.$unCompileNodes, function(info) {
 				this.collectDirectives(info);
 				return null;
@@ -158,20 +152,20 @@ define([
 					}
 				}
 
-				// 编译node的所有指令
+				// 编译节点指令
 				util.each(attrs, function(attr) {
-					this.reduceCount().compileDirective(node, attr, fors);
+					this.compileDirective(node, attr, fors);
 				}, this);
 			}
 			else if (this.isTextNode(node)) {
-				this.reduceCount().compileTextNode(node, fors);
+				this.compileTextNode(node, fors);
 			}
 		},
 
 		/**
 		 * 编译元素节点指令
 		 * @param   {DOMElement}      node
-		 * @param   {Array}           directive
+		 * @param   {Object}          directive
 		 * @param   {Array}           fors       [vfor数据]
 		 */
 		compileDirective: function(node, directive, fors) {
@@ -179,12 +173,7 @@ define([
 			var args = [node, directive.value, name, fors];
 
 			// 移除指令标记
-			this.removeAttr(node, name);
-
-			if (name.charAt(0) === '$') {
-				util.error('model\'s name cannot start with the character $', name);
-				return;
-			}
+			this.reduceCount().removeAttr(node, name);
 
 			// 动态指令：v-bind:xxx
 			if (name.indexOf('v-bind') === 0) {
@@ -218,6 +207,7 @@ define([
 					case 'v-for':
 						this.handleFor.apply(this, args);
 						break;
+					default: util.warn(name + ' is an unknown directive!');
 				}
 			}
 
@@ -228,8 +218,8 @@ define([
 
 		/**
 		 * 编译文本节点
-		 * @param   {DOMElement}      node
-		 * @param   {Array}           fors       [vfor数据]
+		 * @param   {DOMElement}   node
+		 * @param   {Array}        fors     [vfor数据]
 		 */
 		compileTextNode: function(node, fors) {
 			var text = node.textContent;
@@ -241,7 +231,7 @@ define([
 			node._vm_text_prefix = splits[0];
 			node._vm_text_suffix = splits[splits.length - 1];
 
-			this.handleText(node, field, 'v-text', fors);
+			this.reduceCount().handleText(node, field, 'v-text-plain', fors);
 
 			if (!fors) {
 				this.checkCompleted();
@@ -275,7 +265,7 @@ define([
 		},
 
 		/**
-		 * 是否是合法的指令
+		 * 是否是合法指令
 		 * @param   {String}   directive
 		 * @return  {Boolean}
 		 */
@@ -285,7 +275,7 @@ define([
 
 		/**
 		 * 节点的子节点是否延迟编译
-		 * v-if, v-for的子节点为处理指令时单独编译
+		 * vif, vfor的子节点为处理指令时单独编译
 		 * @param   {DOMElement}   node
 		 * @return  {Boolean}
 		 */
@@ -294,29 +284,21 @@ define([
 		},
 
 		/**
-		 * 检查是否编译完成
+		 * 检查根节点是否编译完成
 		 */
 		checkCompleted: function() {
-			var completed = (this.$compileStatus !== 0) && (this.$unCompileCount === 0);
-			if (completed) {
-				this.$compileStatus = 2;
-				// 延迟编译完成
-				if (this.$lateComplie) {
-					this.$lateComplie = false;
-				}
-				// 初始化编译完成
-				else {
-					this.complieCompleted();
-				}
+			if (this.$unCompileCount === 0 && !this.$rootComplied) {
+				this.rootComplieCompleted();
 			}
 		},
 
 		/**
-		 * 所有指令编译完成，更新视图
+		 * 根节点编译完成，更新视图
 		 */
-		complieCompleted: function() {
+		rootComplieCompleted: function() {
 			var element = this.$element;
 			this.empty(element);
+			this.$rootComplied = true;
 			element.appendChild(this.$fragment);
 		},
 
@@ -339,7 +321,7 @@ define([
 		},
 
 		/**
-		 * 设置节点的属性
+		 * 设置节点属性
 		 * @param   {DOMElement}  node
 		 * @param   {String}      name
 		 * @param   {String}      value
@@ -350,7 +332,7 @@ define([
 		},
 
 		/**
-		 * 获取节点的属性值
+		 * 获取节点属性值
 		 * @param   {DOMElement}  node
 		 * @param   {String}      name
 		 * @return  {String}
@@ -370,7 +352,7 @@ define([
 		},
 
 		/**
-		 * 移除节点的属性
+		 * 移除节点属性
 		 * @param   {DOMElement}  node
 		 * @param   {String}      name
 		 */
@@ -460,7 +442,7 @@ define([
 		 * @param  {String}  field
 		 * @param  {Mix}     value
 		 */
-		setValue: function(field, value) {
+		setData: function(field, value) {
 			this.$data[field] = value;
 			return this;
 		},
@@ -470,7 +452,7 @@ define([
 		 * @param  {String}  field
 		 * @param  {Mix}     value
 		 */
-		getValue: function(field) {
+		getData: function(field) {
 			return this.$data[field];
 		},
 
@@ -511,15 +493,14 @@ define([
 
 		/**
 		 * 字符JSON结构转为键值数组
-		 * @param   {String}  expression
+		 * @param   {String}  jsonString
 		 * @return  {Array}
 		 */
-		stringToPropsArray: function(expression) {
-			var ret = [], props;
-			var leng = expression.length;
+		jsonStringToArray: function(jsonString) {
+			var ret = [], props, leng = jsonString.length;
 
-			if (expression.charAt(0) === '{' && expression.charAt(leng - 1) === '}') {
-				props = expression.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
+			if (jsonString.charAt(0) === '{' && jsonString.charAt(leng - 1) === '}') {
+				props = jsonString.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
 				util.each(props, function(prop) {
 					var vals = this.getStringKeyValue(prop, true);
 					var name = vals[0], value = vals[1];
@@ -568,7 +549,7 @@ define([
 		},
 
 		/**
-		 * 获取vfor中循环对象的指定值
+		 * 获取vfor中循环对象的值
 		 */
 		getVforValue: function(value, fors) {
 			var splits = value.split('.');
@@ -584,8 +565,7 @@ define([
 			var splits = value.split('.');
 			var path = fors[2], level = fors[5], alias = splits[0]
 			var key = splits[splits.length - 1], suffix = '*' + key;
-			var access = alias === fors[4] ? (fors[2] + suffix) : (path.split('*', level).join('*') + suffix);
-			return access;
+			return alias === fors[4] ? (fors[2] + suffix) : (path.split('*', level).join('*') + suffix);
 		},
 
 		/**
@@ -630,7 +610,7 @@ define([
 				}
 			}
 			else {
-				text = this.getValue(value);
+				text = this.getData(value);
 				watcher.add(value, function(path, last) {
 					this.updateNodeTextContent(node, last);
 				}, this);
@@ -643,7 +623,7 @@ define([
 		 * v-html DOM布局
 		 */
 		handleHtml: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.updateNodeHtmlContent(node, init);
 
 			this.watcher.add(value, function(path, last) {
@@ -655,7 +635,7 @@ define([
 		 * v-show 控制节点的显示隐藏
 		 */
 		handleShow: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.updateNodeDisplay(node, init);
 
 			this.watcher.add(value, function(path, last) {
@@ -667,7 +647,7 @@ define([
 		 * v-if 控制节点内容的渲染
 		 */
 		handleIf: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.updateNodeRenderContent(node, init, true);
 
 			this.watcher.add(value, function(path, last) {
@@ -682,7 +662,7 @@ define([
 		handleBind: function(node, value, attr, fors) {
 			var directive = this.removeSpace(attr);
 			var expression = this.removeSpace(value);
-			var val, props = this.stringToPropsArray(expression);
+			var val, props = this.jsonStringToArray(expression);
 
 			// 单个attribute v-bind:class="xxx"
 			if (directive.indexOf(':') !== -1) {
@@ -745,7 +725,7 @@ define([
 		 * @param   {Array}           fors
 		 */
 		bindClassName: function(node, bindField, classname, fors) {
-			var init = this.getValue(bindField);
+			var init = this.getData(bindField);
 			var isObject = util.isObject(init);
 			var isSingle = util.isString(init) || util.isBoolean(init);
 
@@ -855,7 +835,7 @@ define([
 		 * @param   {Array}       fors
 		 */
 		bindInlineStyle: function(node, bindField, propperty, fors) {
-			var init = this.getValue(bindField);
+			var init = this.getData(bindField);
 			var isObject = util.isObject(init);
 			var isString = util.isString(init);
 
@@ -984,7 +964,7 @@ define([
 				}
 			}
 			else {
-				value = this.getValue(bindField);
+				value = this.getData(bindField);
 
 				this.watcher.add(bindField, function(path, last) {
 					this.updateNodeAttribute(node, attr, last);
@@ -1010,7 +990,7 @@ define([
 			}
 			// 多个事件 v-on="{click: xxx, mouseenter: yyy, mouseleave: zzz}"
 			else {
-				props = this.stringToPropsArray(func);
+				props = this.jsonStringToArray(func);
 				util.each(props, function(prop) {
 					val = prop.name;
 					param = this.stringToParameters(prop.value);
@@ -1023,7 +1003,7 @@ define([
 		 * 节点绑定事件
 		 */
 		handleOnEvent: function(node, bindField, args, evt) {
-			var init = this.getValue(bindField);
+			var init = this.getData(bindField);
 			this.updateNodeEvent(node, evt, init, null, args, bindField);
 
 			this.watcher.add(bindField, function(path, last, old) {
@@ -1057,7 +1037,7 @@ define([
 		 * v-model for text, textarea
 		 */
 		handleModelText: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.bindModelTextEvent(node, value).updateNodeFormTextValue(node, init);
 
 			this.watcher.add(value, function(path, last) {
@@ -1085,13 +1065,13 @@ define([
 			// input事件(实时触发)
 			this.addEvent(node, 'input', function() {
 				if (!composeLock) {
-					self.setValue(field, this.value);
+					self.setData(field, this.value);
 				}
 			});
 
 			// change事件(失去焦点触发)
 			this.addEvent(node, 'change', function() {
-				self.setValue(field, this.value);
+				self.setData(field, this.value);
 			});
 
 			return this;
@@ -1101,7 +1081,7 @@ define([
 		 * v-model for radio
 		 */
 		handleModelRadio: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.bindModelRadioEvent(node, value).updateNodeFormRadioChecked(node, init);
 
 			this.watcher.add(value, function(path, last) {
@@ -1118,7 +1098,7 @@ define([
 			var self = this;
 
 			this.addEvent(node, 'change', function() {
-				self.setValue(field, this.value);
+				self.setData(field, this.value);
 			});
 
 			return this;
@@ -1128,11 +1108,11 @@ define([
 		 * v-model for checkbox
 		 */
 		handleModelCheckbox: function(node, value) {
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			this.bindCheckboxEvent(node, value).updateNodeFormCheckboxChecked(node, init);
 
 			this.watcher.add(value, function() {
-				this.updateNodeFormCheckboxChecked(node, this.getValue(value));
+				this.updateNodeFormCheckboxChecked(node, this.getData(value));
 			}, this);
 		},
 
@@ -1143,7 +1123,7 @@ define([
 		 */
 		bindCheckboxEvent: function(node, field) {
 			var self = this;
-			var array = this.getValue(field);
+			var array = this.getData(field);
 
 			this.addEvent(node, 'change', function() {
 				var index, value = this.value, checked = this.checked;
@@ -1164,7 +1144,7 @@ define([
 				}
 				// 单个checkbox
 				else if (util.isBoolean(array)) {
-					self.setValue(field, checked);
+					self.setData(field, checked);
 				}
 			});
 
@@ -1177,7 +1157,7 @@ define([
 		handleModelSelect: function(node, value) {
 			var self = this;
 			var options = node.options;
-			var init = this.getValue(value);
+			var init = this.getData(value);
 			var multi = this.hasAttr(node, 'multiple');
 			var option, i, leng = options.length, selects = [], isDefined;
 
@@ -1216,13 +1196,13 @@ define([
 					}
 				}
 
-				this.setValue(value, multi ? selects : selects[0]);
+				this.setData(value, multi ? selects : selects[0]);
 			}
 
 			this.bindSelectEvent(node, value, multi);
 
 			this.watcher.add(value, function() {
-				this.updateNodeFormSelectCheck(node, this.getValue(value), multi);
+				this.updateNodeFormSelectCheck(node, this.getData(value), multi);
 			}, this);
 		},
 
@@ -1246,7 +1226,7 @@ define([
 					}
 				}
 
-				self.setValue(field, multi ? selects : selects[0]);
+				self.setData(field, multi ? selects : selects[0]);
 			});
 
 			return this;
@@ -1263,7 +1243,7 @@ define([
 			var key = this.getVforKey(field);
 			var watcher = this.watcher;
 			var parent = node.parentNode;
-			var template, array = this.getValue(field);
+			var template, array = this.getData(field);
 
 			if (key) {
 				scope = fors[3];
@@ -1277,7 +1257,6 @@ define([
 				return;
 			}
 
-			this.$lateComplie = true;
 			template = this.buildVforTemplate(node, array, field, scope, alias, level);
 
 			parent.appendChild(template);
@@ -1322,6 +1301,7 @@ define([
 				scope[alias] = item;
 
 				// 解析/编译板块
+
 				this.parseElement(cloneNode, true, fors);
 				fragments.appendChild(cloneNode);
 			}, this);
@@ -1405,7 +1385,6 @@ define([
 				}
 
 				// 重新编译节点内容
-				this.$lateComplie = true;
 				this.parseElement(node, true);
 			}
 		},
