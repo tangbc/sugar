@@ -29,6 +29,10 @@ define(['./util'], function(util) {
 			'0': util.copy(object)
 		}
 
+		// 记录当前数组操作
+		this.$arrayAction = 921;
+		// 避免触发下标的数组操作
+		this.$aviodArrayAction = ['shift', 'unshift', 'splice'];
 		// 重写的Array方法
 		this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
@@ -142,10 +146,14 @@ define(['./util'], function(util) {
 					var oldValue = this.getCache(object, prop);
 
 					if (newValue !== oldValue) {
-						this.setCache(object, newValue, prop).triggerChange(paths.join(this.$separator), newValue, oldValue);
-
 						if (util.isObject(newValue)) {
 							this.observe(newValue, paths);
+						}
+
+						this.setCache(object, newValue, prop);
+
+						if (this.$aviodArrayAction.indexOf(this.$arrayAction) === -1) {
+							this.triggerChange(paths.join(this.$separator), newValue, oldValue);
 						}
 					}
 				}).bind(this)
@@ -180,18 +188,22 @@ define(['./util'], function(util) {
 						args[i] = arguments[i];
 					}
 
+					self.$arrayAction = method;
+
 					result = original.apply(this, args);
+
+					self.$arrayAction = 921;
 
 					// 重新监测
 					self.observe(this, paths);
 
 					// 触发回调
-					self.triggerChange(path, this);
+					self.triggerChange(path, this, method);
 
 					return result;
 				}
 
-				this.defineProperty(arrayMethods, method, redefineArrayMethod, true, false, true);
+				util.defineProperty(arrayMethods, method, redefineArrayMethod, true, false, true);
 			}, this);
 
 			array.__proto__ = arrayMethods;
@@ -200,28 +212,11 @@ define(['./util'], function(util) {
 		},
 
 		/**
-		 * object定义或修改属性
-		 * @param   {Object|Array}  object         [数组或对象]
-		 * @param   {String}        property       [属性或数组下标]
-		 * @param   {Mix}           value          [属性的修改值/新值]
-		 * @param   {Boolean}       writable       [该属性是否能被赋值运算符改变]
-		 * @param   {Boolean}       enumerable     [该属性是否出现在枚举中]
-		 * @param   {Boolean}       configurable   [该属性是否能够被改变或删除]
-		 */
-		defineProperty: function(object, property, value, writable, enumerable, configurable) {
-			Object.defineProperty(object, property, {
-				'value'       : value,
-				'writable'    : writable,
-				'enumerable'  : enumerable,
-				'configurable': configurable
-			});
-		},
-
-		/**
 		 * 触发object变化回调
-		 * @param   {String}         path      [变更路径]
-		 * @param   {Mix}            last      [新值]
-		 * @param   {Mix}            old       [旧值]
+		 * 数组操作会触发下标的setter，且下标先于数组操作被触发
+		 * @param   {String}       path      [变更路径]
+		 * @param   {Mix}          last      [新值]
+		 * @param   {Mix|String}   old       [旧值/数组操作名称]
 		 */
 		triggerChange: function(path, last, old) {
 			this.$callback.apply(this.$context, [path, last, old, this.$args]);

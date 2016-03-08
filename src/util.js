@@ -152,22 +152,22 @@ define(function() {
 	UTIL.set = function(data, name, value) {}
 
 	/**
-	 * 对象定义
-	 * @param   {Object}  object      [description]
-	 * @param   {String}  property    [description]
-	 * @param   {Mix}     value       [description]
-	 * @param   {Boolean} enumerable  [description]
+	 * object定义或修改属性
+	 * @param   {Object|Array}  object         [数组或对象]
+	 * @param   {String}        property       [属性或数组下标]
+	 * @param   {Mix}           value          [属性的修改值/新值]
+	 * @param   {Boolean}       writable       [该属性是否能被赋值运算符改变]
+	 * @param   {Boolean}       enumerable     [该属性是否出现在枚举中]
+	 * @param   {Boolean}       configurable   [该属性是否能够被改变或删除]
 	 */
-	function def(object, property, value, enumerable) {
-		Object.defineProperty(object, property, {
+	UTIL.defineProperty = function(object, property, value, writable, enumerable, configurable) {
+		return Object.defineProperty(object, property, {
 			'value'       : value,
-			'enumerable'  : !!enumerable,
-			'writable'    : true,
-			'configurable': true
+			'writable'    : writable,
+			'enumerable'  : enumerable,
+			'configurable': configurable
 		});
-		return object;
 	}
-	UTIL.def = def;
 
 	/*
 	 * has 自有属性检测

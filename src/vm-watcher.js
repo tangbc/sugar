@@ -20,12 +20,12 @@ define([
 		this.$watcherCallbacks = {};
 
 		// 已监测的访问路径集合
-		this.$accesses = [];
+		this.$accesses = {};
 
 		// 以监测访问路径为索引的回调集合
 		this.$accessCallbacks = {};
 
-		this.observer = new Observer(model, ['$els'], 'triggerAgent', this);
+		this.observer = new Observer(model, ['$els'], 'triggerModelAgent', this);
 	}
 	Watcher.prototype =  {
 		constructor: Watcher,
@@ -67,7 +67,7 @@ define([
 		 * @param   {Mix}     last  [新值]
 		 * @param   {Mix}     old   [旧值]
 		 */
-		triggerAgent: function(path, last, old) {
+		triggerModelAgent: function(path, last, old) {
 			var field = path.indexOf('*') === -1 ? path : path.split('*')[0];
 
 			// 排除非数据模型的监测字段
@@ -92,11 +92,14 @@ define([
 		watchAccess: function(access, callback, context, args) {
 			var accesses = this.$accesses;
 			var callbacks = this.$accessCallbacks;
+			var root = access.substr(0, access.indexOf('*'));
 
-			// 缓存字段
-			if (accesses.indexOf(access) === -1) {
-				accesses.push(access);
+			// 缓存根字段
+			if (!util.has(root, accesses)) {
+				accesses[root] = [];
 			}
+
+			accesses[root].push(access);
 
 			// 缓存回调函数
 			if (!callbacks[access]) {
@@ -113,14 +116,74 @@ define([
 		 * @param   {Mix}     old     [旧值]
 		 */
 		triggerAccess: function(access, last, old) {
-			if (this.$accesses.indexOf(access) === -1) {
+			var accesses = this.$accesses;
+			var callbacks = this.$accessCallbacks;
+			var root = access.substr(0, access.indexOf('*'));
+
+			if (!util.has(root, accesses)) {
 				return;
 			}
 
-			util.each(this.$accessCallbacks[access], function(cb) {
+			util.each(callbacks[access], function(cb) {
 				var callback = cb[0], context = cb[1], args = cb[2];
 				callback.apply(context, [last, old, args]);
 			});
+		},
+
+		/**
+		 * 访问路径回调延后/提前一位，处理循环数组的unshift/shift操作
+		 * @param   {String}   field     [数组访问路径]
+		 * @param   {Number}   newLeng   [新数组长度]
+		 * @param   {Boolean}  backward  [是否延后]
+		 */
+		updateAccess: function(field, newLeng, backward) {
+			var prefix = field + '*';
+			// 访问路径根数组
+			var root = field.substr(0, field.indexOf('*'));
+			var accesses = this.$accesses[root || field];
+			var callbacks = this.$accessCallbacks;
+
+			// 需要移位的所有访问路径和回调
+			var targets = [], cbCaches = {};
+			util.each(accesses, function(access) {
+				if (access.indexOf(prefix) === 0) {
+					targets.push(access);
+					cbCaches[access] = callbacks[access];
+				}
+			});
+
+			util.each(targets, function(current) {
+				var index = +current.substr(prefix.length).charAt(0);
+				var suffix = current.substr(prefix.length + 1);
+				var first = prefix + 0 + suffix;
+				var next = prefix + (index + 1) + suffix;
+
+				// 延后一位，第一位将为undefined
+				if (backward) {
+					callbacks[next] = cbCaches[current];
+					if (index === 0) {
+						callbacks[first] = undefined;
+					}
+				}
+				// 提前一位，最后一位将为undefined
+				else {
+					callbacks[current] = cbCaches[next];
+				}
+			}, this);
+		},
+
+		/**
+		 * 访问路径回调延后一位，处理循环数组的unshift操作
+		 */
+		backwardAccess: function(field, newLeng) {
+			this.updateAccess(field, newLeng, true);
+		},
+
+		/**
+		 * 访问路径回调提前一位，处理循环数组的shift操作
+		 */
+		forwardAccess: function(field, newLeng) {
+			this.updateAccess(field, newLeng, false);
 		}
 	};
 
