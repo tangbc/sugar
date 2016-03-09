@@ -163,9 +163,9 @@ define(function() {
 	UTIL.defineProperty = function(object, property, value, writable, enumerable, configurable) {
 		return Object.defineProperty(object, property, {
 			'value'       : value,
-			'writable'    : writable,
-			'enumerable'  : enumerable,
-			'configurable': configurable
+			'writable'    : !!writable,
+			'enumerable'  : !!enumerable,
+			'configurable': !!configurable
 		});
 	}
 

@@ -9,11 +9,11 @@ require(['../../../dist/sugar'], function(sugar) {
 						'<b>不要把头移除了</b>',
 						'<li v-for="item in teams">',
 							'<span>{{item.text}}</span>',
-							'<b> 二层头</b>',
+							'<b>^</b>',
 							'<span v-for="t in item.ts">',
 								'<i><{{t}}></i>',
 							'</span>',
-							'<b> 二层尾</b>',
+							'<b>$</b>',
 						'</li>',
 						'<b>不要把尾巴移除了</b>',
 					'</ul>',
@@ -46,18 +46,13 @@ require(['../../../dist/sugar'], function(sugar) {
 			var vm = this.vm.$data;
 
 			this.setTimeout(function() {
-				vm.teams[0].ts.unshift('o');
-				// vm.teams.shift();
+				// vm.teams = [{'text': '96公牛', 'ts': ['x','y','z']}];
+				// vm.teams.unshift('');
+				// vm.teams.push({'text': '洛杉矶快船', 'ts': ['j', 'k', 'l']})
 
 				this.setTimeout(function() {
-					vm.teams[0].ts[0] = 'OOO';
-					vm.teams[0].ts[1] = 'AAA';
-					vm.teams[0].ts[2] = 'BBB';
-					vm.teams[0].ts[3] = 'CCC';
-
-
-					vm.teams[0].text = '勇士';
-					vm.teams[1].text = '马刺';
+					// vm.teams[3].ts.push('m')
+					// vm.teams[1].text = '雷霆'
 				}, 2000)
 			}, 2000);
 		}

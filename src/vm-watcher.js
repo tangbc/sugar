@@ -116,14 +116,7 @@ define([
 		 * @param   {Mix}     old     [旧值]
 		 */
 		triggerAccess: function(access, last, old) {
-			var accesses = this.$accesses;
 			var callbacks = this.$accessCallbacks;
-			var root = access.substr(0, access.indexOf('*'));
-
-			if (!util.has(root, accesses)) {
-				return;
-			}
-
 			util.each(callbacks[access], function(cb) {
 				var callback = cb[0], context = cb[1], args = cb[2];
 				callback.apply(context, [last, old, args]);

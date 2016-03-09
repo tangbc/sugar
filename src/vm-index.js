@@ -188,7 +188,7 @@ define([
 			// 移除指令标记
 			this.reduceCount().removeAttr(node, name);
 
-			util.defineProperty(node, '_directive', name, false, false, false);
+			util.defineProperty(node, '_directive', name);
 
 			// 动态指令：v-bind:xxx
 			if (name.indexOf('v-bind') === 0) {
@@ -586,7 +586,7 @@ define([
 		/**
 		 * 替换vfor循环体表达式中的下标
 		 * @param   {String}          expression
-		 * @return  {String|Number}   index
+		 * @param   {String|Number}   index
 		 * @return  {String}
 		 */
 		replaceVforIndex: function(expression, index) {
@@ -603,7 +603,7 @@ define([
 		},
 
 		/**
-		 * v-text DOM文本
+		 * v-text, {{text}} DOM文本
 		 */
 		handleText: function(node, value, name, fors) {
 			var access, text, replace;
@@ -682,7 +682,6 @@ define([
 			// 单个attribute v-bind:class="xxx"
 			if (directive.indexOf(':') !== -1) {
 				val = this.getStringKeyValue(directive);
-
 				// class
 				if (val === 'class') {
 					// 多个class的json结构
@@ -1258,7 +1257,7 @@ define([
 			var watcher = this.watcher;
 			var parent = node.parentNode;
 			var key = this.getVforKey(field);
-			var template, extras, array = this.getData(field);
+			var template, infos, array = this.getData(field);
 
 			if (key) {
 				scope = fors[3];
@@ -1277,7 +1276,7 @@ define([
 			parent.replaceChild(template, node);
 
 			// differ数组信息
-			extras = [field, scope, alias, level];
+			infos = [field, scope, alias, level];
 
 			// 监测根列表数据的变化
 			if (!fors) {
@@ -1288,14 +1287,14 @@ define([
 					}
 					// 更新整个根数组
 					else {
-						this.differVfors(parent, node, last, old, extras);
+						this.differVfors(parent, node, last, old, infos);
 					}
 				}, this);
 			}
 			// 嵌套vfor
 			else {
 				watcher.watchAccess(field, function(last, old) {
-					this.differVfors(parent, node, last, old, extras);
+					this.differVfors(parent, node, last, old, infos);
 				}, this);
 			}
 		},
@@ -1326,7 +1325,7 @@ define([
 				// 解析/编译板块
 				this.parseElement(cloneNode, true, fors);
 				// 定义私有标记属性
-				util.defineProperty(cloneNode, '_vfor_alias', alias, false, false, false);
+				util.defineProperty(cloneNode, '_vfor_alias', alias);
 
 				fragments.appendChild(cloneNode);
 			}, this);
@@ -1340,13 +1339,13 @@ define([
 		 * @param   {DOMElement}  node      [初始模板片段]
 		 * @param   {Array}       newArray  [新的数据重复列表]
 		 * @param   {String}      method    [数组操作]
-		 * @param   {Array}       extras    [differ信息]
+		 * @param   {Array}       infos    [differ信息]
 		 */
-		differVfors: function(parent, node, newArray, method, extras) {
-			var field = extras[0];
-			var alias = extras[2];
+		differVfors: function(parent, node, newArray, method, infos) {
 			var firstChild, lastChild;
 			var watcher = this.watcher;
+			var newLeng = newArray.length;
+			var field = infos[0], alias = infos[2];
 
 			switch (method) {
 				case 'push':
@@ -1357,23 +1356,17 @@ define([
 					parent.removeChild(lastChild);
 					break;
 				case 'unshift':
-					watcher.backwardAccess(field, newArray.length);
+					watcher.backwardAccess(field, newLeng);
 					this.unshiftVforArray.apply(this, arguments);
 					break;
 				case 'shift':
 					firstChild = this.getVforFirstChild(parent, alias);
-					watcher.forwardAccess(field, newArray.length);
+					watcher.forwardAccess(field, newLeng);
 					parent.removeChild(firstChild);
 					break;
-				case 'splice':
-					this.spliceVforArray.apply(this, arguments);
-					break;
-				case 'sort':
-					this.sortVforArray.apply(this, arguments);
-					break;
-				case 'reverse':
-					this.reverseVforArray.apply(this, arguments);
-					break;
+				// @todo: splice, sort, reverse操作和直接赋值暂时都重新编译
+				default:
+					this.recompileVforArray.apply(this, arguments);
 			}
 		},
 
@@ -1418,36 +1411,40 @@ define([
 		/**
 		 * 在循环体数组的最后追加一条数据 array.push
 		 */
-		pushVforArray: function(parent, node, newArray, method, extras) {
+		pushVforArray: function(parent, node, newArray, method, infos) {
+			var lastChild;
 			var last = newArray.length - 1;
 			var fragment = this.createFragment();
 			var cloneNode = node.cloneNode(true);
-			var field = extras[0], scope = extras[1], alias = extras[2], level = extras[3];
+			var field = infos[0], scope = infos[1], alias = infos[2], level = infos[3];
+			var fors = [newArray[last], last, field + '*' + last, scope, alias, level];
 
 			// 循环体定义
 			scope[alias] = newArray[last];
 
 			// 解析节点
-			this.parseElement(cloneNode, true, [newArray[last], last, field + '*' + last, scope, alias, level]);
+			this.parseElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
-			parent.appendChild(fragment);
+			lastChild = this.getVforLastChild(parent, alias);
+			parent.insertBefore(fragment, lastChild.nextSibling);
 		},
 
 		/**
 		 * 在循环体数组最前面追加一条数据 array.unshift
 		 */
-		unshiftVforArray: function(parent, node, newArray, method, extras) {
+		unshiftVforArray: function(parent, node, newArray, method, infos) {
 			var firstChild;
 			var fragment = this.createFragment();
 			var cloneNode = node.cloneNode(true);
-			var field = extras[0], scope = extras[1], alias = extras[2], level = extras[3];
+			var field = infos[0], scope = infos[1], alias = infos[2], level = infos[3];
+			var fors = [newArray[0], 0, field + '*' + 0, scope, alias, level, method];
 
 			// 循环体定义
 			scope[alias] = newArray[0];
 
 			// 解析节点
-			this.parseElement(cloneNode, true, [newArray[0], 0, field + '*' + 0, scope, alias, level]);
+			this.parseElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
 			firstChild = this.getVforFirstChild(parent, alias);
@@ -1455,20 +1452,33 @@ define([
 		},
 
 		/**
-		 * 循环体数组切割/替换数据 array.splice
+		 * 重新编译循环体数组
 		 */
-		spliceVforArray: function() {},
+		recompileVforArray: function(parent, node, newArray, method, infos) {
+			var template, alias = infos[2];
+			var childNodes = parent.childNodes;
+			var flag, child, args = [node, newArray];
 
-		/**
-		 * 循环体数组重新排序 array.sort
-		 */
-		sortVforArray: function() {},
+			// 移除旧板块
+			for (var i = 0; i < childNodes.length; i++) {
+				child = childNodes[i];
+				if (child._vfor_alias === alias) {
+					if (!flag) {
+						flag = child;
+					}
+					else {
+						i--;
+						parent.removeChild(child);
+					}
+				}
+			}
 
-		/**
-		 * 循环体数组顺序反转 array.reverse
-		 */
-		reverseVforArray: function() {},
+			util.AP.push.apply(args, infos);
 
+			template = this.buildVforTemplate.apply(this, args);
+
+			parent.replaceChild(template, flag);
+		},
 
 		/********** 视图刷新方法 **********/
 
