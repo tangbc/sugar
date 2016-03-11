@@ -52,20 +52,7 @@ define([
 		constructor: VM,
 
 		init: function() {
-			var illegal;
-			util.each(this.$data, function(value, key) {
-				if (key.indexOf('*') !== -1) {
-					illegal = true;
-					return false;
-				}
-			});
-
-			if (illegal) {
-				util.error('model key cannot contain the character \'*\'!');
-			}
-			else {
-				this.parseElement(this.$fragment, true);
-			}
+			this.parseElement(this.$fragment, true);
 		},
 
 		/**
@@ -577,10 +564,22 @@ define([
 		 * 获取vfor中当前循环对象的监测访问路径
 		 */
 		getVforAccess: function(value, fors) {
-			var splits = value.split('.');
-			var path = fors[2], level = fors[5], alias = splits[0]
-			var key = splits[splits.length - 1], suffix = splits.length === 1 ? '' : '*' + key;
-			return alias === fors[4] ? (fors[2] + suffix) : (path.split('*', level).join('*') + suffix);
+			var path = fors[2], access;
+			var splits, leng, level, key, suffix;
+
+			if (value === '$index') {
+				access = path;
+			}
+			else {
+				splits = value.split('.');
+				leng = splits.length;
+				level = fors[5], alias = splits[0]
+				key = splits[leng - 1]
+				suffix = leng === 1 ? '' : '*' + key;
+				access = alias === fors[4] ? (fors[2] + suffix) : (path.split('*', level).join('*') + suffix);
+			}
+
+			return access;
 		},
 
 		/**
@@ -606,18 +605,20 @@ define([
 		 * v-text, {{text}} DOM文本
 		 */
 		handleText: function(node, value, name, fors) {
-			var access, text, replace;
-			var watcher = this.watcher;
+			var access, text, watcher = this.watcher;
 
 			// v-for
 			if (fors) {
-				replace = this.replaceVforIndex(value, fors[1]);
-				if (replace) {
-					text = replace;
+				access = this.getVforAccess(value, fors);
+				text = this.replaceVforIndex(value, fors[1]);
+				if (text) {
+					// 监测数组下标变更
+					watcher.watcherIndex(access, function(index) {
+						this.updateNodeTextContent(node, this.replaceVforIndex(value, index));
+					}, this);
 				}
 				else {
 					text = this.getVforValue(value, fors);
-					access = this.getVforAccess(value, fors);
 					// 监测访问路径
 					watcher.watchAccess(access, function(last) {
 						this.updateNodeTextContent(node, last);
@@ -1344,7 +1345,6 @@ define([
 		differVfors: function(parent, node, newArray, method, infos) {
 			var firstChild, lastChild;
 			var watcher = this.watcher;
-			var newLeng = newArray.length;
 			var field = infos[0], alias = infos[2];
 
 			switch (method) {
@@ -1356,12 +1356,12 @@ define([
 					parent.removeChild(lastChild);
 					break;
 				case 'unshift':
-					watcher.backwardAccess(field, newLeng);
+					watcher.backwardAccess(field);
 					this.unshiftVforArray.apply(this, arguments);
 					break;
 				case 'shift':
 					firstChild = this.getVforFirstChild(parent, alias);
-					watcher.forwardAccess(field, newLeng);
+					watcher.forwardAccess(field);
 					parent.removeChild(firstChild);
 					break;
 				// @todo: splice, sort, reverse操作和直接赋值暂时都重新编译

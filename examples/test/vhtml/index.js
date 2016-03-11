@@ -8,10 +8,11 @@ require(['../../../dist/sugar'], function(sugar) {
 					'<ul>',
 						'<b>不要把头移除了</b>',
 						'<li v-for="item in teams">',
+							'<span>{{$index}}</span>',
 							'<span>{{item.text}}</span>',
 							'<b>^</b>',
 							'<span v-for="t in item.ts">',
-								'<i><{{t}}></i>',
+								'<span><i><{{$index}}</i>{{t}}></span>',
 							'</span>',
 							'<b>$</b>',
 						'</li>',
@@ -47,12 +48,16 @@ require(['../../../dist/sugar'], function(sugar) {
 
 			this.setTimeout(function() {
 				// vm.teams = [{'text': '96公牛', 'ts': ['x','y','z']}];
-				// vm.teams.unshift('');
+				// vm.teams.unshift({'text': '芝加哥公牛'});
 				// vm.teams.push({'text': '洛杉矶快船', 'ts': ['j', 'k', 'l']})
+				// vm.teams.shift();
+				vm.teams[1].ts.unshift('@');
 
 				this.setTimeout(function() {
 					// vm.teams[3].ts.push('m')
+					// vm.teams[0].text = '马刺'
 					// vm.teams[1].text = '雷霆'
+					// vm.teams[1].ts[1] = 'FFF'
 				}, 2000)
 			}, 2000);
 		}

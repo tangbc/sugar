@@ -24,10 +24,8 @@ define(['./util'], function(util) {
 		// 监测的对象集合，包括一级和嵌套对象
 		this.$observers = [object];
 
-		// 监测的对象副本，存储旧值
-		this.$valuesMap = {
-			'0': util.copy(object)
-		}
+		// 监测的数据副本，存储旧值
+		this.$valuesMap = {'0': util.copy(object)};
 
 		// 记录当前数组操作
 		this.$arrayAction = 921;
@@ -36,7 +34,7 @@ define(['./util'], function(util) {
 		// 重写的Array方法
 		this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
-		// 属性层级分隔符
+		// 路径层级分隔符
 		this.$separator = '*';
 
 		this.observe(object);
@@ -178,9 +176,8 @@ define(['./util'], function(util) {
 			var path = paths && paths.join(this.$separator);
 
 			util.each(this.$fixArrayMethods, function(method) {
-				var self = this;
-				var original = arrayProto[method];
-				var redefineArrayMethod = function _redefineArrayMethod() {
+				var self = this, original = arrayProto[method];
+				util.defineProperty(arrayMethods, method, function _redefineArrayMethod() {
 					var i = arguments.length, result;
 					var args = new Array(i);
 
@@ -201,9 +198,7 @@ define(['./util'], function(util) {
 					self.triggerChange(path, this, method);
 
 					return result;
-				}
-
-				util.defineProperty(arrayMethods, method, redefineArrayMethod, true, false, true);
+				}, true, false, true);
 			}, this);
 
 			array.__proto__ = arrayMethods;
