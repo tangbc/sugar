@@ -596,5 +596,124 @@ define(function() {
 		return UTIL.templateReplace.apply(this, arguments);
 	} : WIN.T;
 
+
+	// ********** vm ************
+
+	/**
+	 * 去掉字符串中所有空格
+	 * @param   {String}  string
+	 * @return  {String}
+	 */
+	UTIL.removeSpace = function(string) {
+		return string.replace(/\s/g, '');
+	}
+
+	/**
+	 * 拆解字符键值对，返回键和值
+	 * @param   {String}         expression
+	 * @param   {Boolean}        both          [是否返回键和值]
+	 * @return  {String|Array}
+	 */
+	UTIL.getStringKeyValue = function(expression, both) {
+		var array = expression.split(':');
+		return both ? array : array.pop();
+	}
+
+	/**
+	 * 分解字符串函数参数
+	 * @param   {String}  expression
+	 * @return  {Array}
+	 */
+	UTIL.stringToParameters = function(expression) {
+		var ret, params, func;
+		var matches = expression.match(/(\(.*\))/);
+		var result = matches && matches[0];
+
+		// 有函数名和参数
+		if (result) {
+			params = result.substr(1, result.length - 2).split(',');
+			func = expression.substr(0, expression.indexOf(result));
+			ret = [func, params];
+		}
+		// 只有函数名
+		else {
+			ret = [expression, params];
+		}
+
+		return ret;
+	}
+
+	/**
+	 * 字符JSON结构转为键值数组
+	 * @param   {String}  jsonString
+	 * @return  {Array}
+	 */
+	UTIL.jsonStringToArray = function(jsonString) {
+		var ret = [], props, leng = jsonString.length;
+
+		if (jsonString.charAt(0) === '{' && jsonString.charAt(leng - 1) === '}') {
+			props = jsonString.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
+			util.each(props, function(prop) {
+				var vals = this.getStringKeyValue(prop, true);
+				var name = vals[0], value = vals[1];
+				if (name && value) {
+					ret.push({
+						'name' : name,
+						'value': value
+					});
+				}
+			}, this);
+		}
+		return ret;
+	}
+
+	/**
+	 * 返回一个空文档碎片
+	 * @return  {Fragment}
+	 */
+	UTIL.createFragment = function() {
+		return DOC.createDocumentFragment();
+	}
+
+	/**
+	 * DOMElement转换成文档片段
+	 * @param   {DOMElement}  element
+	 */
+	UTIL.nodeToFragment = function(element) {
+		var child;
+		var fragment = this.createFragment();
+		var cloneNode = element.cloneNode(true);
+
+		while (child = cloneNode.firstChild) {
+			fragment.appendChild(child);
+		}
+
+		return fragment;
+	}
+
+	/**
+	 * 字符串HTML转文档碎片
+	 * @param   {String}    html
+	 * @return  {Fragment}
+	 */
+	UTIL.stringToFragment = function(html) {
+		var div, fragment;
+
+		// 存在标签
+		if (/<[^>]+>/g.test(html)) {
+			div = DOC.createElement('div');
+			div.innerHTML = html;
+			fragment = this.nodeToFragment(div);
+		}
+		// 纯文本节点
+		else {
+			fragment = this.createFragment();
+			fragment.appendChild(DOC.createTextNode(html));
+		}
+
+		return fragment;
+	}
+
+
 	return UTIL;
 });

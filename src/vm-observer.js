@@ -1,10 +1,9 @@
 /**
- * observer模块
+ * observer 数据变化监测模块
  */
 define(['./util'], function(util) {
 
 	/**
-	 * VM对象变化监测类
 	 * @param  {Object}        object    [VM数据模型]
 	 * @param  {Array}         ignores   [忽略监测的字段]
 	 * @param  {Function}      callback  [变化回调函数]

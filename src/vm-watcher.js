@@ -1,5 +1,5 @@
 /**
- * watcher模块
+ * watcher 数据订阅模块
  */
 define([
 	'./util',
@@ -7,7 +7,6 @@ define([
 ], function(util, Observer) {
 
 	/**
-	 * 监测器构造函数
 	 * @param  {Object}  model     [VM数据模型]
 	 */
 	function Watcher(model) {
@@ -189,7 +188,7 @@ define([
 			this.updateAccess(field, false);
 			return this;
 		}
-	};
+	}
 
 	return Watcher;
 });
