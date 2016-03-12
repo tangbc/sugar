@@ -16,10 +16,32 @@ define([
 		constructor: Parser,
 
 		/**
-		 * v-el（唯一不需要在model中声明的指令）
+		 * v-el
 		 */
-		parseVEl: function(node, value) {
-			this.vm.$data.$els[value] = node;
+		parseVEl: function(node, value, name, fors) {
+			var item, alias, scope, key, splits;
+
+			if (fors) {
+				splits = value.split('.');
+				alias = splits[0];
+
+				// vel在vfor循环中只能在当前循环体中赋值
+				if (alias !== fors[4]) {
+					util.warn('The directive \'v-el\' in v-for must be defined in current circulation body!');
+					return;
+				}
+
+				scope = fors[3];
+				item = scope[alias];
+
+				if (util.isObject(item)) {
+					key = splits[splits.length - 1];
+					item[key] = node;
+				}
+			}
+			else {
+				this.vm.$data.$els[value] = node;
+			}
 		},
 
 		/**
@@ -30,7 +52,6 @@ define([
 			var watcher = this.watcher;
 			var updater = this.updater;
 
-			// v-for
 			if (fors) {
 				access = this.getVforAccess(value, fors);
 				text = this.replaceVforIndex(value, fors[1]);
@@ -176,7 +197,6 @@ define([
 				this.bindClassNameObject(node, init);
 			}
 			else {
-				// v-for
 				if (fors) {
 					this.bindClassNameVfor(node, bindField, fors);
 				}
@@ -286,7 +306,6 @@ define([
 				this.bindInlineStyleObject(node, init);
 			}
 			else {
-				// v-for
 				if (fors) {
 					this.bindInlineStyleVfor(node, bindField, fors);
 				}
@@ -385,7 +404,6 @@ define([
 		bindNormalAttribute: function(node, bindField, attr, fors) {
 			var value, key, replace, item, index, path;
 
-			// v-for
 			if (fors) {
 				item = fors[0], index = fors[1], path = fors[2];
 				key = this.getVforKey(bindField);
@@ -919,12 +937,12 @@ define([
 		},
 
 		/**
-		 * 获取vfor中循环对象的值
+		 * 获取vfor中循环对象的值，当前循环取值或跨层级取值
 		 */
 		getVforValue: function(value, fors) {
 			var splits = value.split('.');
 			var alias = splits[0], key = splits[splits.length - 1];
-			var map = fors[3], scope = (map && map[alias]) || fors[0];
+			var scopeMap = fors[3], scope = (scopeMap && scopeMap[alias]) || fors[0];
 			return alias === key ? scope : scope[key];
 		},
 

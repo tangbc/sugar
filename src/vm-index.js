@@ -158,10 +158,7 @@ define([
 			var args = [node, directive.value, name, fors];
 
 			// 移除指令标记
-			this.reduceCount();
 			dom.removeAttr(node, name);
-
-			util.defineProperty(node, '_directive', name);
 
 			// 动态指令：v-bind:xxx
 			if (name.indexOf('v-bind') === 0) {
@@ -199,6 +196,8 @@ define([
 				}
 			}
 
+			this.reduceCount();
+
 			if (!fors) {
 				this.checkCompleted();
 			}
@@ -219,8 +218,9 @@ define([
 			node._vm_text_prefix = splits[0];
 			node._vm_text_suffix = splits[splits.length - 1];
 
-			this.reduceCount();
 			this.parser.parseVText(node, field, 'v-text-plain', fors);
+
+			this.reduceCount();
 
 			if (!fors) {
 				this.checkCompleted();
