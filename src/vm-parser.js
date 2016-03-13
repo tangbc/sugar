@@ -27,7 +27,7 @@ define([
 
 				// vel在vfor循环中只能在当前循环体中赋值
 				if (alias !== fors[4]) {
-					util.warn('The directive \'v-el\' in v-for must be defined in current circulation body!');
+					util.warn('The directive \'v-el\' in v-for must be defined in current loop body!');
 					return;
 				}
 
@@ -82,13 +82,37 @@ define([
 		/**
 		 * v-html DOM布局
 		 */
-		parseVHtml: function(node, value) {
-			var init = this.vm.getData(value);
-			updater.updateNodeHtmlContent(node, init);
+		parseVHtml: function(node, value, name, fors) {
+			var access, html, isPlain;
+			var updater = this.updater;
+			var watcher = this.watcher;
 
-			this.watcher.add(value, function(path, last) {
-				updater.updateNodeHtmlContent(node, last);
-			}, this);
+			if (fors) {
+				access = this.getVforAccess(value, fors);
+				html = this.replaceVforIndex(value, fors[1]);
+				if (html) {
+					isPlain = true;
+					// 监测数组下标变更，v-html如果使用了下标替换则前缀和后缀将编译到同一文本节点
+					watcher.watcherIndex(access, function(index) {
+						updater.updateNodeHtmlContent(node, this.replaceVforIndex(value, index), isPlain);
+					}, this);
+				}
+				else {
+					html = this.getVforValue(value, fors);
+					// 监测访问路径
+					watcher.watchAccess(access, function(last) {
+						updater.updateNodeHtmlContent(node, last);
+					}, this);
+				}
+			}
+			else {
+				html = this.vm.getData(value);
+				watcher.add(value, function(path, last) {
+					updater.updateNodeHtmlContent(node, last);
+				}, this);
+			}
+
+			updater.updateNodeHtmlContent(node, html, isPlain);
 		},
 
 		/**
@@ -941,9 +965,10 @@ define([
 		 */
 		getVforValue: function(value, fors) {
 			var splits = value.split('.');
-			var alias = splits[0], key = splits[splits.length - 1];
+			var sl = splits.length;
+			var alias = splits[0], key = splits[sl - 1];
 			var scopeMap = fors[3], scope = (scopeMap && scopeMap[alias]) || fors[0];
-			return alias === key ? scope : scope[key];
+			return sl === 1 ? scope : scope[key];
 		},
 
 		/**

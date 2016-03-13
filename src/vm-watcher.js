@@ -134,9 +134,10 @@ define([
 			var callbacks = this.$accessCallbacks;
 			var accesses = Object.keys(callbacks);
 			var indexCallbacks = this.$indexCallbacks;
+			var indexes = Object.keys(indexCallbacks);
+			var targets = [], cbCaches = {};
 
 			// 需要移位的所有访问路径和回调
-			var targets = [], cbCaches = {};
 			util.each(accesses, function(access) {
 				if (access.indexOf(prefix) === 0) {
 					targets.push(access);
@@ -157,20 +158,44 @@ define([
 					if (index === 0) {
 						callbacks[first] = udf;
 					}
-					// 更新下标
-					util.each(indexCallbacks[indexPath], function(cbs) {
-						cbs[0].call(cbs[1], index + 1);
-					});
 				}
 				// 提前一位，最后一位将为undefined
 				else {
 					callbacks[current] = cbCaches[next];
-					// 更新下标
-					util.each(indexCallbacks[indexPath], function(cbs) {
-						cbs[0].call(cbs[1], index - 1);
-					});
 				}
 			}, this);
+
+
+			// 需要移位的下标监测
+			util.each(indexes, function(index) {
+				if (index.indexOf(prefix) !== 0) {
+					return;
+				}
+
+				var idx = +index.substr(prefix.length).charAt(0);
+				var first = prefix + 0;
+				var next = prefix + (idx + 1);
+
+				// 延后一位
+				if (backward) {
+					indexCallbacks[next] = indexCallbacks[index];
+					if (index === 0) {
+						indexCallbacks[first] = udf;
+					}
+
+					util.each(indexCallbacks[index], function(cbs) {
+						cbs[0].call(cbs[1], idx);
+					});
+				}
+				// 提前一位
+				else {
+					indexCallbacks[index] = indexCallbacks[next];
+
+					util.each(indexCallbacks[index], function(cbs) {
+						cbs[0].call(cbs[1], idx);
+					});
+				}
+			});
 		},
 
 		/**

@@ -25,12 +25,29 @@ define([
 
 		/**
 		 * 更新节点的html内容 realize v-html
+		 * isPlainText用于判断在纯文本节点使用{{{$index}}}的情况
+		 * 因为replaceChild后下标变更时将无法找回原有的节点进行更新下标
 		 * @param   {DOMElement}  node
 		 * @param   {String}      html
+		 * @param   {Boolean}     isPlainText    [是否是纯文本节点]
 		 */
-		updateNodeHtmlContent: function(node, html) {
-			dom.empty(node);
-			node.appendChild(util.stringToFragment(String(html)));
+		updateNodeHtmlContent: function(node, html, isPlainText) {
+			var vm = this.vm, parent;
+			html = String(html);
+
+			if (vm.isElementNode(node)) {
+				dom.empty(node);
+				node.appendChild(util.stringToFragment(html));
+			}
+			else if (vm.isTextNode(node)) {
+				if (isPlainText) {
+					this.updateNodeTextContent(node, html);
+				}
+				else {
+					html = (node._vm_text_prefix || '') + html + (node._vm_text_suffix || '');
+					node.parentNode.replaceChild(util.stringToFragment(html), node);
+				}
+			}
 		},
 
 		/**
@@ -150,7 +167,7 @@ define([
 		},
 
 		/**
-		 * 更新节点绑定事件的回调函数
+		 * 更新节点绑定事件的回调函数 realize v-on
 		 * @param   {DOMElement}  node
 		 * @param   {String}      evt
 		 * @param   {Function}    newFunc  [新callback]
@@ -186,7 +203,7 @@ define([
 		},
 
 		/**
-		 * 更新text或textarea的value
+		 * 更新text或textarea的value realize v-model
 		 * @param   {Input}  text
 		 * @param   {String} value
 		 */
@@ -197,7 +214,7 @@ define([
 		},
 
 		/**
-		 * 更新radio的激活状态
+		 * 更新radio的激活状态 realize v-model
 		 * @param   {Input}  radio
 		 * @param   {String} value
 		 */
@@ -206,7 +223,7 @@ define([
 		},
 
 		/**
-		 * 更新checkbox的激活状态
+		 * 更新checkbox的激活状态 realize v-model
 		 * @param   {Input}          checkbox
 		 * @param   {Array|Boolean}  values      [激活数组或状态]
 		 */
@@ -219,7 +236,7 @@ define([
 		},
 
 		/**
-		 * 更新select的激活状态
+		 * 更新select的激活状态 realize v-model
 		 * @param   {Select}         select
 		 * @param   {Array|String}   selected  [选中值]
 		 * @param   {Boolean}        multi

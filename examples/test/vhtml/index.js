@@ -6,58 +6,36 @@ require(['../../../dist/sugar'], function(sugar) {
 			config = sugar.cover(config, {
 				'html': [
 					'<ul>',
-						'<b>不要把头移除了</b>',
-						'<li v-for="item in teams">',
-							'<span>{{$index}}</span>',
-							'<span>{{item.text}}</span>',
-							'<b>^</b>',
-							'<span v-for="t in item.ts">',
-								'<span><i><{{$index}}</i>{{t}}></span>',
-							'</span>',
-							'<b>$</b>',
+						'<li v-for="item in items">',
+							'前缀{{item.text}}后缀',
+							'<br>',
+							'<span>I love you {{{$index}}} times</span>',
+							// '<span v-text="$index"></span>',
+							'<span v-text="item.text"></span>',
+							'<div v-for="p in item.ps">',
+								'<p>___{{{p.hp}}}___</p>',
+								'<p>****{{{item.html}}}***</p>',
+							'</div>',
 						'</li>',
-						'<b>不要把尾巴移除了</b>',
-					'</ul>',
-					'<hr/>',
-					// '<ul>',
-					// 	'<li v-for="item in players">',
-					// 		'<span>{{item.text}}</span>',
-					// 		'<span v-for="p in item.ps">',
-					// 			'<b>{{p}}</b>',
-					// 		'</span>',
-					// 	'</li>',
-					// '</ul>',
+					'</ul>'
 				].join(''),
 				'model': {
-					'teams': [
-						{'text': '金州勇士', 'ts': ['a','b','c']},
-						{'text': '圣安东尼奥马刺', 'ts': ['d','e','f']},
-						{'text': '俄克拉荷马雷霆', 'ts': ['g','h','i']}
-					],
-					// 'players': [
-					// 	{'text': '库里', 'ps': [1,2,3]},
-					// 	{'text': '汤普森', 'ps': [1,2,3]},
-					// 	{'text': '格林', 'ps': [1,2,3]}
-					// ]
+					'items': [
+						{'text': '_粗体文本_', 'html': '<b>粗体</b>', 'ps': [{'hp': '粗体'}]},
+						{'text': '_斜体文本_', 'html': '<i>斜体</i>', 'ps': [{'hp': '斜体'}]},
+						{'text': '_小号文本_', 'html': '<small>小号</small>', 'ps': [{'hp': '小号'}]},
+					]
 				}
 			});
 			this.Super('init', arguments);
 		},
 		viewReady: function() {
-			var vm = this.vm.$data;
+			window.vm = this.vm.$data;
 
 			this.setTimeout(function() {
-				// vm.teams = [{'text': '96公牛', 'ts': ['x','y','z']}];
-				// vm.teams.unshift({'text': '芝加哥公牛'});
-				// vm.teams.push({'text': '洛杉矶快船', 'ts': ['j', 'k', 'l']})
-				// vm.teams.shift();
-				vm.teams[1].ts.unshift('@');
 
 				this.setTimeout(function() {
-					// vm.teams[3].ts.push('m')
-					// vm.teams[0].text = '马刺'
-					// vm.teams[1].text = '雷霆'
-					// vm.teams[1].ts[1] = 'FFF'
+
 				}, 2000)
 			}, 2000);
 		}

@@ -92,7 +92,9 @@ define([
 		 */
 		getDirectivesCount: function(node) {
 			var count = 0, nodeAttrs;
-			var regDelimiters = /(\{\{.*\}\})/;
+			var text = node.textContent;
+			var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+
 			if (this.isElementNode(node)) {
 				nodeAttrs = node.attributes;
 				for (var i = 0; i < nodeAttrs.length; i++) {
@@ -101,7 +103,7 @@ define([
 					}
 				}
 			}
-			else if (this.isTextNode(node) && regDelimiters.test(node.textContent)) {
+			else if (this.isTextNode(node) && reg.test(text)) {
 				count++;
 			}
 			return count;
@@ -155,10 +157,17 @@ define([
 		compileDirective: function(node, directive, fors) {
 			var parser = this.parser;
 			var name = directive.name;
+			var value = directive.value;
 			var args = [node, directive.value, name, fors];
 
+			this.reduceCount();
 			// 移除指令标记
 			dom.removeAttr(node, name);
+
+			if (!value) {
+				util.warn('The directive value of ' + name + ' is empty!');
+				return;
+			}
 
 			// 动态指令：v-bind:xxx
 			if (name.indexOf('v-bind') === 0) {
@@ -196,8 +205,6 @@ define([
 				}
 			}
 
-			this.reduceCount();
-
 			if (!fors) {
 				this.checkCompleted();
 			}
@@ -210,17 +217,36 @@ define([
 		 */
 		compileTextNode: function(node, fors) {
 			var text = node.textContent;
-			var matches = text.match(new RegExp('{{(.+?)}}', 'g'));
-			var match = matches[0];
-			var splits = text.split(match);
-			var field = match.replace(/\{|\{|\}|\}/g, '');
+			var regtext = new RegExp('{{(.+?)}}', 'g');
+			var regHtml = new RegExp('{{{(.+?)}}}', 'g');
+			var matches = text.match(regHtml);
+			var match, splits, field, htmlCompile;
 
+			// html match
+			if (matches) {
+				match = matches[0];
+				htmlCompile = true;
+				field = match.replace(/\{|\{|\{|\}|\}|\}/g, '');
+			}
+			// text match
+			else {
+				matches = text.match(regtext);
+				match = matches[0];
+				field = match.replace(/\{|\{|\}|\}/g, '');
+			}
+
+			this.reduceCount();
+
+			splits = text.split(match);
 			node._vm_text_prefix = splits[0];
 			node._vm_text_suffix = splits[splits.length - 1];
 
-			this.parser.parseVText(node, field, 'v-text-plain', fors);
-
-			this.reduceCount();
+			if (htmlCompile) {
+				this.parser.parseVHtml(node, field, 'v-html-plain', fors);
+			}
+			else {
+				this.parser.parseVText(node, field, 'v-text-plain', fors);
+			}
 
 			if (!fors) {
 				this.checkCompleted();

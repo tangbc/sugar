@@ -25,7 +25,7 @@ require(['../../../dist/sugar'], function(sugar) {
 			this.Super('init', arguments);
 		},
 		viewReady: function() {
-			window.vm = vm = this.vm.$data;
+			window.vm = this.vm.$data;
 
 			this.setTimeout(function() {
 
