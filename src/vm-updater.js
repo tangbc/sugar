@@ -25,13 +25,13 @@ define([
 
 		/**
 		 * 更新节点的html内容 realize v-html
-		 * isPlainText用于判断在纯文本节点使用{{{$index}}}的情况
-		 * 因为replaceChild后下标变更时将无法找回原有的节点进行更新下标
+		 * isPlain用于判断v-html在纯文本节点使用{{{$index}}}的情况
+		 * 因为用了replaceChild后下标变更时将无法找回原有的节点进行更新下标
 		 * @param   {DOMElement}  node
 		 * @param   {String}      html
-		 * @param   {Boolean}     isPlainText    [是否是纯文本节点]
+		 * @param   {Boolean}     isPlain    [是否是纯文本节点]
 		 */
-		updateNodeHtmlContent: function(node, html, isPlainText) {
+		updateNodeHtmlContent: function(node, html, isPlain) {
 			var vm = this.vm, parent;
 			html = String(html);
 
@@ -40,7 +40,7 @@ define([
 				node.appendChild(util.stringToFragment(html));
 			}
 			else if (vm.isTextNode(node)) {
-				if (isPlainText) {
+				if (isPlain) {
 					this.updateNodeTextContent(node, html);
 				}
 				else {

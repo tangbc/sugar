@@ -92,7 +92,7 @@ define([
 				html = this.replaceVforIndex(value, fors[1]);
 				if (html) {
 					isPlain = true;
-					// 监测数组下标变更，v-html如果使用了下标替换则前缀和后缀将编译到同一文本节点
+					// 监测数组下标变更，v-html如果使用了下标替换则前缀和后缀将编译到与下标同一文本节点
 					watcher.watcherIndex(access, function(index) {
 						updater.updateNodeHtmlContent(node, this.replaceVforIndex(value, index), isPlain);
 					}, this);
@@ -825,12 +825,12 @@ define([
 					parent.removeChild(lastChild);
 					break;
 				case 'unshift':
-					watcher.backwardAccess(field);
+					watcher.backwardArray(field);
 					this.unshiftVforArray.apply(this, arguments);
 					break;
 				case 'shift':
 					firstChild = this.getVforFirstChild(parent, alias);
-					watcher.forwardAccess(field);
+					watcher.forwardArray(field);
 					parent.removeChild(firstChild);
 					break;
 				// @todo: splice, sort, reverse操作和直接赋值暂时都重新编译
@@ -928,6 +928,10 @@ define([
 			var childNodes = parent.childNodes;
 			var flag, child, args = [node, newArray];
 
+			// 重新构建循环板块
+			util.AP.push.apply(args, infos);
+			template = this.buildVforTemplate.apply(this, args);
+
 			// 移除旧板块
 			for (var i = 0; i < childNodes.length; i++) {
 				child = childNodes[i];
@@ -941,10 +945,6 @@ define([
 					}
 				}
 			}
-
-			util.AP.push.apply(args, infos);
-
-			template = this.buildVforTemplate.apply(this, args);
 
 			parent.replaceChild(template, flag);
 		},

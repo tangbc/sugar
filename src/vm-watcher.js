@@ -124,17 +124,43 @@ define([
 		},
 
 		/**
+		 * 访问路径回调延后一位，处理数组的unshift操作
+		 */
+		backwardArray: function(field) {
+			this.updateArrayAccess(field, true);
+			return this;
+		},
+
+		/**
+		 * 访问路径回调提前一位，处理数组的shift操作
+		 */
+		forwardArray: function(field) {
+			this.updateArrayAccess(field, false);
+			return this;
+		},
+
+		/**
 		 * 更新访问路径和回调函数的对应关系
 		 * 处理数组的unshift/shift操作
+		 * vfor数组的回调监测分为访问路径和下标两种监测
 		 * @param   {String}   field     [数组访问路径]
 		 * @param   {Boolean}  backward  [是否延后一位]
 		 */
-		updateAccess: function(field, backward) {
+		updateArrayAccess: function(field, backward) {
 			var prefix = field + '*';
+			this.displaceCallback(prefix, backward);
+			this.displaceIndex(prefix, backward);
+		},
+
+		/**
+		 * 移位访问路径的回调集合
+		 * @param   {String}   prefix    [移位路径的前缀]
+		 * @param   {Boolean}  backward
+		 */
+		displaceCallback: function(prefix, backward) {
 			var callbacks = this.$accessCallbacks;
 			var accesses = Object.keys(callbacks);
-			var indexCallbacks = this.$indexCallbacks;
-			var indexes = Object.keys(indexCallbacks);
+
 			var targets = [], cbCaches = {};
 
 			// 需要移位的所有访问路径和回调
@@ -164,7 +190,16 @@ define([
 					callbacks[current] = cbCaches[next];
 				}
 			}, this);
+		},
 
+		/**
+		 * 移位下标监测的回调集合
+		 * @param   {String}   prefix    [移位路径的前缀]
+		 * @param   {Boolean}  backward
+		 */
+		displaceIndex: function(prefix, backward) {
+			var indexCallbacks = this.$indexCallbacks;
+			var indexes = Object.keys(indexCallbacks);
 
 			// 需要移位的下标监测
 			util.each(indexes, function(index) {
@@ -196,22 +231,6 @@ define([
 					});
 				}
 			});
-		},
-
-		/**
-		 * 访问路径回调延后一位，处理数组的unshift操作
-		 */
-		backwardAccess: function(field) {
-			this.updateAccess(field, true);
-			return this;
-		},
-
-		/**
-		 * 访问路径回调提前一位，处理数组的shift操作
-		 */
-		forwardAccess: function(field) {
-			this.updateAccess(field, false);
-			return this;
 		}
 	}
 
