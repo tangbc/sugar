@@ -118,25 +118,60 @@ define([
 		/**
 		 * v-show 控制节点的显示隐藏
 		 */
-		parseVShow: function(node, value) {
-			var init = this.vm.getData(value);
-			updater.updateNodeDisplay(node, init);
+		parseVShow: function(node, value, name, fors) {
+			var result, access;
+			var updater = this.updater;
+			var watcher = this.watcher;
 
-			this.watcher.add(value, function(path, last) {
-				updater.updateNodeDisplay(node, last);
-			}, this);
+			if (fors) {
+				result = this.getVforValue(value, fors);
+				access = this.getVforAccess(value, fors);
+				// 监测访问路径
+				watcher.watchAccess(access, function(last) {
+					updater.updateNodeDisplay(node, last);
+				}, this);
+			}
+			else {
+				result = this.vm.getData(value);
+				watcher.add(value, function(path, last) {
+					updater.updateNodeDisplay(node, last);
+				}, this);
+			}
+
+			updater.updateNodeDisplay(node, result);
 		},
 
 		/**
 		 * v-if 控制节点内容的渲染
 		 */
-		parseVIf: function(node, value) {
-			var init = this.vm.getData(value);
-			updater.updateNodeRenderContent(node, init, true);
+		parseVIf: function(node, value, name, fors) {
+			var result, access;
+			var updater = this.updater;
+			var watcher = this.watcher;
 
-			this.watcher.add(value, function(path, last) {
-				updater.updateNodeRenderContent(node, last, false);
-			}, this);
+			if (fors) {
+				result = this.getVforValue(value, fors);
+				access = this.getVforAccess(value, fors);
+				// 监测访问路径
+				watcher.watchAccess(access, function(last) {
+					updater.updateNodeRenderContent(node, last);
+				}, this);
+			}
+			else {
+				result = this.vm.getData(value);
+				this.watcher.add(value, function(path, last) {
+					updater.updateNodeRenderContent(node, last);
+				}, this);
+			}
+
+			updater.updateNodeRenderContent(node, result);
+		},
+
+		/**
+		 * v-else vshow和vif的else板块
+		 */
+		parseVElse: function(node) {
+			util.defineProperty(node, '_directive', 'v-else');
 		},
 
 		/**
@@ -668,7 +703,7 @@ define([
 
 			// 数据模型中定义初始的选中状态
 			if (isDefined) {
-				updater.updateNodeFormSelectCheck(node, init, multi);
+				updater.updateNodeFormSelectChecked(node, init, multi);
 			}
 			// 模板中定义初始状态
 			else {
@@ -686,7 +721,7 @@ define([
 			this.bindSelectEvent(node, value, multi);
 
 			this.watcher.add(value, function() {
-				updater.updateNodeFormSelectCheck(node, this.vm.getData(value), multi);
+				updater.updateNodeFormSelectChecked(node, this.vm.getData(value), multi);
 			}, this);
 		},
 

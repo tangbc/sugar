@@ -148,8 +148,8 @@ define([
 		 */
 		updateArrayAccess: function(field, backward) {
 			var prefix = field + '*';
-			this.displaceCallback(prefix, backward);
 			this.displaceIndex(prefix, backward);
+			this.displaceCallback(prefix, backward);
 		},
 
 		/**

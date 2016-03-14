@@ -51,17 +51,34 @@ define([
 		},
 
 		/**
-		 * 更新节点的显示隐藏 realize v-show
-		 * 行内样式display=''不会影响由classname中的定义
-		 * _vm_visible_display用于缓存节点行内样式的display显示值
+		 * 更新节点的显示隐藏 realize v-show/v-else
 		 * @param   {DOMElement}  node
 		 * @param   {Boolean}     show    [是否显示]
 		 */
 		updateNodeDisplay: function(node, show) {
-			var display, inlineStyle, styles;
+			var siblingNode = node.nextSibling;
 
-			if (!node._vm_visible_display) {
-				inlineStyle = util.removeSpace(this.getAttr(node, 'style'));
+			this.setNodeVisibleDisplay(node);
+			this.updateNodeStyle(node, 'display', show ? node._visible_display : 'none');
+
+			// v-else
+			if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+				this.setNodeVisibleDisplay(siblingNode);
+				this.updateNodeStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
+			}
+		},
+
+		/**
+		 * 缓存节点行内样式值
+		 * 行内样式display=''不会影响由classname中的定义
+		 * _visible_display用于缓存节点行内样式的display显示值
+		 * @param  {DOMElement}  node
+		 */
+		setNodeVisibleDisplay: function(node) {
+			var inlineStyle, styles, display;
+
+			if (!node._visible_display) {
+				inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
 				if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
 					styles = inlineStyle.split(';');
@@ -74,34 +91,49 @@ define([
 				}
 
 				if (display !== 'none') {
-					node._vm_visible_display = display;
+					node._visible_display = display || '';
 				}
 			}
-
-			node.style.display = show ? (node._vm_visible_display || '') : 'none';
 		},
 
 		/**
-		 * 更新节点内容的渲染 realize v-if
+		 * 更新节点内容的渲染 realize v-if/v-else
 		 * @param   {DOMElement}  node
-		 * @param   {Boolean}     render  [是否渲染]
-		 * @param   {Boolean}     init    [是否是初始化编译]
+		 * @param   {Boolean}     isRender  [是否渲染]
 		 */
-		updateNodeRenderContent: function(node, render, init) {
-			if (!node._vm_render_content) {
-				node._vm_render_content = node.innerHTML;
-			}
+		updateNodeRenderContent: function(node, isRender) {
+			var siblingNode = node.nextSibling;
 
-			if (!render) {
-				dom.empty(node);
-			}
-			else {
-				if (!init) {
-					node.appendChild(util.stringToFragment(node._vm_render_content));
-				}
+			this.setNodeRenderContent(node);
+			this.toggleNodeRenderContent.apply(this, arguments);
 
-				// 重新编译节点内容
-				this.vm.parseElement(node, true);
+			// v-else
+			if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+				this.setNodeRenderContent(siblingNode);
+				this.toggleNodeRenderContent(siblingNode, !isRender);
+			}
+		},
+
+		/**
+		 * 缓存节点渲染内容并清空
+		 */
+		setNodeRenderContent: function(node) {
+			if (!node._render_content) {
+				node._render_content = node.innerHTML;
+			}
+			dom.empty(node);
+		},
+
+		/**
+		 * 切换节点内容渲染
+		 */
+		toggleNodeRenderContent: function(node, isRender) {
+			var fragment;
+			// 渲染
+			if (isRender) {
+				fragment = util.stringToFragment(node._render_content);
+				this.vm.parseElement(fragment, true);
+				node.appendChild(fragment);
 			}
 		},
 
@@ -241,7 +273,7 @@ define([
 		 * @param   {Array|String}   selected  [选中值]
 		 * @param   {Boolean}        multi
 		 */
-		updateNodeFormSelectCheck: function(select, selected, multi) {
+		updateNodeFormSelectChecked: function(select, selected, multi) {
 			var options = select.options;
 			var i, option, value, leng = options.length;
 

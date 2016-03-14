@@ -164,7 +164,7 @@ define([
 			// 移除指令标记
 			dom.removeAttr(node, name);
 
-			if (!value) {
+			if (!value && name !== 'v-else') {
 				util.warn('The directive value of ' + name + ' is empty!');
 				return;
 			}
@@ -194,6 +194,9 @@ define([
 						break;
 					case 'v-if':
 						parser.parseVIf.apply(parser, args);
+						break;
+					case 'v-else':
+						parser.parseVElse.apply(parser, args);
 						break;
 					case 'v-model':
 						parser.parseVModel.apply(parser, args);
