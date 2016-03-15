@@ -172,11 +172,11 @@ define([
 			});
 
 			util.each(targets, function(current) {
+				var udf;
 				var index = +current.substr(prefix.length).charAt(0);
 				var suffix = current.substr(prefix.length + 1);
 				var first = prefix + 0 + suffix;
 				var next = prefix + (index + 1) + suffix;
-				var udf, indexPath = prefix + index;
 
 				// 延后一位，第一位将为undefined
 				if (backward) {
@@ -207,9 +207,11 @@ define([
 					return;
 				}
 
+				var udf;
 				var idx = +index.substr(prefix.length).charAt(0);
+				var suffix = index.substr(prefix.length + 1);
 				var first = prefix + 0;
-				var next = prefix + (idx + 1);
+				var next = prefix + (idx + 1) + suffix;
 
 				// 延后一位
 				if (backward) {

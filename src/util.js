@@ -653,7 +653,7 @@ define(function() {
 
 		if (jsonString.charAt(0) === '{' && jsonString.charAt(leng - 1) === '}') {
 			props = jsonString.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
-			util.each(props, function(prop) {
+			this.each(props, function(prop) {
 				var vals = this.getStringKeyValue(prop, true);
 				var name = vals[0], value = vals[1];
 				if (name && value) {

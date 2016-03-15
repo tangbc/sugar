@@ -4,8 +4,9 @@
 define([
 	'./util',
 	'./vm-updater',
-	'./vm-watcher'
-], function(util, Updater, Watcher) {
+	'./vm-watcher',
+	'./dom'
+], function(util, Updater, Watcher, dom) {
 
 	function Parser(vm) {
 		this.vm = vm;
@@ -70,7 +71,7 @@ define([
 				}
 			}
 			else {
-				text = this.vm.getData(value);
+				text = this.vm.getValue(value);
 				watcher.add(value, function(path, last) {
 					updater.updateNodeTextContent(node, last);
 				}, this);
@@ -106,7 +107,7 @@ define([
 				}
 			}
 			else {
-				html = this.vm.getData(value);
+				html = this.vm.getValue(value);
 				watcher.add(value, function(path, last) {
 					updater.updateNodeHtmlContent(node, last);
 				}, this);
@@ -132,7 +133,7 @@ define([
 				}, this);
 			}
 			else {
-				result = this.vm.getData(value);
+				result = this.vm.getValue(value);
 				watcher.add(value, function(path, last) {
 					updater.updateNodeDisplay(node, last);
 				}, this);
@@ -158,7 +159,7 @@ define([
 				}, this);
 			}
 			else {
-				result = this.vm.getData(value);
+				result = this.vm.getValue(value);
 				this.watcher.add(value, function(path, last) {
 					updater.updateNodeRenderContent(node, last);
 				}, this);
@@ -243,87 +244,108 @@ define([
 		 * @param   {Array}           fors
 		 */
 		bindClassName: function(node, bindField, classname, fors) {
-			var init = this.vm.getData(bindField);
-			var isObject = util.isObject(init);
-			var isSingle = util.isString(init) || util.isBoolean(init);
+			var updater = this.updater;
+			var value = this.vm.getValue(bindField);
+			var isObject = util.isObject(value);
+			var isSingle = util.isString(value) || util.isBoolean(value);
 
-			// single class
-			if (isSingle) {
-				updater.updateNodeClassName(node, init, null, classname);
-			}
-			// classObject
-			else if (isObject) {
-				this.bindClassNameObject(node, init);
-			}
-			else {
-				if (fors) {
-					this.bindClassNameVfor(node, bindField, fors);
+			if (!fors) {
+				// single class
+				if (isSingle) {
+					updater.updateNodeClassName(node, value, null, classname);
+				}
+				// classObject
+				else if (isObject) {
+					this.bindClassNameObject(node, value);
 				}
 				else {
 					util.warn('model \'s '+ bindField + ' for binding class must be a type of Object, String or Boolean!');
+					return;
 				}
-				return;
-			}
 
-			this.watcher.add(bindField, function(path, last, old) {
-				if (isObject) {
-					// 替换整个classObject
-					if (util.isObject(last)) {
-						this.bindClassNameObject(node, last, old);
+				this.watcher.add(bindField, function(path, last, old) {
+					if (isObject) {
+						// 替换整个classObject
+						if (util.isObject(last)) {
+							this.bindClassNameObject(node, last, old);
+						}
+						// 只修改classObject的一个字段
+						else if (util.isBoolean(last)) {
+							updater.updateNodeClassName(node, last, null, path.split('*').pop());
+						}
 					}
-					// 只修改classObject的一个字段
-					else if (util.isBoolean(last)) {
-						updater.updateNodeClassName(node, last, null, path.split('*').pop());
+					else {
+						updater.updateNodeClassName(node, last, old, classname);
 					}
-				}
-				else {
-					updater.updateNodeClassName(node, last, old, classname);
-				}
-			}, this);
-		},
-
-		/**
-		 * classname in v-for
-		 */
-		bindClassNameVfor: function(node, bindField, fors) {
-			var item = fors[0], index = fors[1], access = fors[2];
-			var replace, key = this.getVforKey(bindField), classname = item[key];
-			var path = access + '*' + key, watcher = this.watcher;
-
-			if (util.isString(classname)) {
-				replace = this.replaceVforIndex(classname, index);
-
-				if (replace) {
-					classname = replace;
-				}
-				else {
-					watcher.watchAccess(path, function(last, old) {
-						this.addClass(node, last);
-						this.removeClass(node, old);
-					}, this);
-				}
-
-				this.addClass(node, classname);
-			}
-			// classObject
-			else if (util.isObject(classname)) {
-				this.bindClassNameObject(node, classname);
-
-				// 监测classObject一个字段修改
-				util.each(classname, function(isAdd, cls) {
-					watcher.watchAccess(path + '*' + cls, function(last, old) {
-						updater.updateNodeClassName(node, last, null, cls);
-					}, this);
-				}, this);
-
-				// 监测替换整个classObject
-				watcher.watchAccess(path, function(last, old) {
-					this.bindClassNameObject(node, last, old);
 				}, this);
 			}
 			else {
-				util.warn(path + ' for binding class must be a type of Object, String or Boolean!');
+				this.bindClassNameVfor(node, bindField, classname, fors);
 			}
+		},
+
+		/**
+		 * vbind-class in v-for
+		 */
+		bindClassNameVfor: function(node, bindField, classname, fors) {
+			var updater = this.updater;
+			var watcher = this.watcher;
+			var value = this.getVforValue(bindField, fors);
+			var access = this.getVforAccess(bindField, fors);
+
+			// 指定classname，由bindField的布尔值决定是否添加
+			if (classname) {
+				// 监测访问路径
+				watcher.watchAccess(access, function(last, old) {
+					updater.updateNodeClassName(node, last, old, classname);
+				}, this);
+
+				updater.updateNodeClassName(node, value, null, classname);
+			}
+			//
+			else {
+				// single class
+				if (util.isString(value)) {
+					// 监测访问路径
+					watcher.watchAccess(access, function(last, old) {
+						dom.addClass(node, last);
+						dom.removeClass(node, old);
+					}, this);
+
+					dom.addClass(node, value);
+				}
+				// classObject
+				else if (util.isObject(value)) {
+					// 监测classObject单个字段
+					this.watchClassNameObject(node, access, value);
+
+					// 监测替换整个classObject
+					watcher.watchAccess(access, function(last, old) {
+						this.bindClassNameObject(node, last, old);
+						this.watchClassNameObject(node, access, last);
+					}, this);
+
+					this.bindClassNameObject(node, value);
+				}
+				else {
+					util.warn(access + ' for binding class must be a type of Object, String or Boolean!');
+				}
+			}
+		},
+
+		/**
+		 * 监测classObject的每个字段
+		 * @todo: 这里当shift和unshift后无法在watcher的displaceCallback中正确的移位
+		 * 因为每条vfor数据的classObject的字段会不一样
+		 * @param   {String}  access
+		 * @param   {Object}  classObject
+		 */
+		watchClassNameObject: function(node, access, classObject) {
+			util.each(classObject, function(bool, cls) {
+				this.watcher.watchAccess(access + '*' + cls, function(last, old) {
+					this.updater.updateNodeClassName(node, last, null, cls);
+				}, this);
+			}, this);
 		},
 
 		/**
@@ -333,6 +355,8 @@ define([
 		 * @param   {Object}      oldObject    [旧classname组合的json]
 		 */
 		bindClassNameObject: function(node, classObject, oldObject) {
+			var updater = this.updater;
+
 			// 新增值
 			util.each(classObject, function(isAdd, cls) {
 				updater.updateNodeClassName(node, isAdd, null, cls);
@@ -352,17 +376,18 @@ define([
 		 * @param   {Array}       fors
 		 */
 		bindInlineStyle: function(node, bindField, propperty, fors) {
-			var init = this.vm.getData(bindField);
-			var isObject = util.isObject(init);
-			var isString = util.isString(init);
+			var updater = this.updater;
+			var value = this.vm.getValue(bindField);
+			var isObject = util.isObject(value);
+			var isString = util.isString(value);
 
 			// styleString
 			if (isString) {
-				updater.updateNodeStyle(node, propperty, init);
+				updater.updateNodeStyle(node, propperty, value);
 			}
 			// styleObject
 			else if (isObject) {
-				this.bindInlineStyleObject(node, init);
+				this.bindInlineStyleObject(node, value);
 			}
 			else {
 				if (fors) {
@@ -442,6 +467,8 @@ define([
 		 * @param   {object}      oldObject    [旧style组的json]
 		 */
 		bindInlineStyleObject: function(node, styleObject, oldObject) {
+			var updater = this.updater;
+
 			// 新值
 			util.each(styleObject, function(value, propperty) {
 				updater.updateNodeStyle(node, propperty, value);
@@ -461,27 +488,30 @@ define([
 		 * @param   {Array}       fors
 		 */
 		bindNormalAttribute: function(node, bindField, attr, fors) {
-			var value, key, replace, item, index, path;
+			var access, value;
+			var watcher = this.watcher;
+			var updater = this.updater;
 
 			if (fors) {
-				item = fors[0], index = fors[1], path = fors[2];
-				key = this.getVforKey(bindField);
-				replace = this.replaceVforIndex(key, index);
-				if (replace) {
-					value = replace;
+				access = this.getVforAccess(bindField, fors);
+				value = this.replaceVforIndex(bindField, fors[1]);
+				if (value) {
+					// 监测数组下标变更
+					watcher.watcherIndex(access, function(last) {
+						updater.updateNodeAttribute(node, attr, last);
+					}, this);
 				}
 				else {
-					value = item[key];
+					value = this.getVforValue(bindField, fors);
 					// 监测访问路径
-					this.watcher.watchAccess(path + '*' + key, function(last, old) {
-						updater.updateNodeAttribute(node, key, last);
+					watcher.watchAccess(access, function(last, old) {
+						updater.updateNodeAttribute(node, attr, last);
 					}, this);
 				}
 			}
 			else {
-				value = this.vm.getData(bindField);
-
-				this.watcher.add(bindField, function(path, last) {
+				value = this.vm.getValue(bindField);
+				watcher.add(bindField, function(path, last) {
 					updater.updateNodeAttribute(node, attr, last);
 				}, this);
 			}
@@ -518,7 +548,7 @@ define([
 		 * 节点绑定事件
 		 */
 		parseVOnEvent: function(node, bindField, args, evt) {
-			var init = this.vm.getData(bindField);
+			var init = this.vm.getValue(bindField);
 			updater.updateNodeEvent(node, evt, init, null, args, bindField);
 
 			this.watcher.add(bindField, function(path, last, old) {
@@ -553,7 +583,7 @@ define([
 		 * v-model for text, textarea
 		 */
 		parsevModelText: function(node, value) {
-			var init = this.vm.getData(value);
+			var init = this.vm.getValue(value);
 			this.bindModelTextEvent(node, value);
 			updater.updateNodeFormTextValue(node, init);
 
@@ -598,7 +628,7 @@ define([
 		 * v-model for radio
 		 */
 		parseVModelRadio: function(node, value) {
-			var init = this.vm.getData(value);
+			var init = this.vm.getValue(value);
 			this.bindModelRadioEvent(node, value);
 			updater.updateNodeFormRadioChecked(node, init);
 
@@ -626,12 +656,12 @@ define([
 		 * v-model for checkbox
 		 */
 		parseVModelCheckbox: function(node, value) {
-			var init = this.vm.getData(value);
+			var init = this.vm.getValue(value);
 			this.bindCheckboxEvent(node, value);
 			updater.updateNodeFormCheckboxChecked(node, init);
 
 			this.watcher.add(value, function() {
-				updater.updateNodeFormCheckboxChecked(node, this.vm.getData(value));
+				updater.updateNodeFormCheckboxChecked(node, this.vm.getValue(value));
 			}, this);
 		},
 
@@ -642,7 +672,7 @@ define([
 		 */
 		bindCheckboxEvent: function(node, field) {
 			var self = this;
-			var array = this.vm.getData(field);
+			var array = this.vm.getValue(field);
 
 			this.addEvent(node, 'change', function() {
 				var index, value = this.value, checked = this.checked;
@@ -676,7 +706,7 @@ define([
 		parseVModelSelect: function(node, value) {
 			var self = this;
 			var options = node.options;
-			var init = this.vm.getData(value);
+			var init = this.vm.getValue(value);
 			var multi = this.hasAttr(node, 'multiple');
 			var option, i, leng = options.length, selects = [], isDefined;
 
@@ -721,7 +751,7 @@ define([
 			this.bindSelectEvent(node, value, multi);
 
 			this.watcher.add(value, function() {
-				updater.updateNodeFormSelectChecked(node, this.vm.getData(value), multi);
+				updater.updateNodeFormSelectChecked(node, this.vm.getValue(value), multi);
 			}, this);
 		},
 
@@ -762,7 +792,7 @@ define([
 			var watcher = this.watcher;
 			var parent = node.parentNode;
 			var key = this.getVforKey(field);
-			var template, infos, array = this.vm.getData(field);
+			var template, infos, array = this.vm.getValue(field);
 
 			if (key) {
 				scope = fors[3];

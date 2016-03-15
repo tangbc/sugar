@@ -324,7 +324,7 @@ define([
 		 * @param  {String}  field
 		 * @param  {Mix}     value
 		 */
-		setData: function(field, value) {
+		setValue: function(field, value) {
 			this.$data[field] = value;
 		},
 
@@ -333,7 +333,7 @@ define([
 		 * @param  {String}  field
 		 * @param  {Mix}     value
 		 */
-		getData: function(field) {
+		getValue: function(field) {
 			return this.$data[field];
 		}
 	}
