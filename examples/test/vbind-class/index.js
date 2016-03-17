@@ -76,7 +76,7 @@ require(['../../../dist/sugar'], function(sugar) {
 					// 	'curry': false,
 					// 	'kelay': false
 					// }
-					// @todo: shift和unshift后无法在watcher的displaceCallback中正确的移位
+					// @todo: shift和unshift后无法在watcher的displaceCallback中正确的移位clsobj定义的类
 					// 'items': [
 					// 	{'clsobj': {'curry': true, 'kelay': true}, 'ps': [{'clsobj': {'aa': true, 'bb': true}},{'clsobj': {'cc': true, 'dd': true}}]},
 					// 	{'clsobj': {'brook': true, 'durant': true}, 'ps': [{'clsobj': {'ee': true}}]}

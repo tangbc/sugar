@@ -96,22 +96,24 @@ define(function() {
 
 		/**
 		 * 节点事件绑定
-		 * @param   {DOMElement}    node
-		 * @param   {String}        evt
-		 * @param   {Function}      callback
+		 * @param   {DOMElement}   node
+		 * @param   {String}       evt
+		 * @param   {Function}     callback
+		 * @param   {Boolean}      capture
 		 */
-		addEvent: function(node, evt, callback) {
-			node.addEventListener(evt, callback);
+		addEvent: function(node, evt, callback, capture) {
+			node.addEventListener(evt, callback, capture);
 		},
 
 		/**
 		 * 解除节点事件绑定
-		 * @param   {DOMElement}    node
-		 * @param   {String}        evt
-		 * @param   {Function}      callback
+		 * @param   {DOMElement}   node
+		 * @param   {String}       evt
+		 * @param   {Function}     callback
+		 * @param   {Boolean}      capture
 		 */
-		removeEvent: function(node, evt, callback) {
-			node.removeEventListener(evt, callback);
+		removeEvent: function(node, evt, callback, capture) {
+			node.removeEventListener(evt, callback, capture);
 		}
 	}
 });

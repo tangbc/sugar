@@ -202,20 +202,43 @@ define([
 		 * 更新节点绑定事件的回调函数 realize v-on
 		 * @param   {DOMElement}  node
 		 * @param   {String}      evt
-		 * @param   {Function}    newFunc  [新callback]
-		 * @param   {Function}    oldFunc  [旧callback]
-		 * @param   {Array}       params   [回调参数]
-		 * @param   {String}      field    [回调对应监测字段]
+		 * @param   {Function}    func     [回调函数]
+		 * @param   {Function}    oldFunc  [旧回调函数]
+		 * @param   {Array}       params   [参数]
+		 * @param   {String}      field    [对应监测字段/路径]
+		 * @param   {Number}      index    [vfor下标]
 		 */
-		updateNodeEvent: function(node, evt, newFunc, oldFunc, params, field) {
+		updateNodeEvent: function(node, evt, func, oldFunc, params, field, index) {
 			var listeners = this.$listeners;
-			var targetListener = listeners[field];
+			var modals, self, stop, prevent, capture = false;
 
-			if (util.isFunc(newFunc)) {
-				listeners[field] = function(e) {
+			// 支持4种事件修饰符.stop.prevent.self.capture
+			if (evt.indexOf('.') !== -1) {
+				modals = evt.split('.');
+				evt = modals.shift();
+				self = modals && modals.indexOf('self') !== -1;
+				stop = modals && modals.indexOf('stop') !== -1;
+				prevent = modals && modals.indexOf('prevent') !== -1;
+				capture = modals && modals.indexOf('capture') !== -1;
+			}
+
+			if (oldFunc) {
+				dom.removeEvent(node, evt, listeners[field], capture);
+			}
+
+			if (util.isFunc(func)) {
+				// 缓存事件回调
+				listeners[field] = function _listener(e) {
 					var args = [];
+
+					// 是否限定只能在当前节点触发事件
+					if (self && e.target !== node) {
+						return;
+					}
+
+					// 组合事件参数
 					util.each(params, function(param) {
-						args.push(param === '$event' ? e : param);
+						args.push(param === '$event' ? e : param === '$index' ? index : param);
 					});
 
 					// 未指定参数，则原生事件对象作为唯一参数
@@ -223,14 +246,22 @@ define([
 						args.push(e);
 					}
 
-					newFunc.apply(this, args);
+					func.apply(this, args);
+
+					// 是否阻止冒泡
+					if (stop) {
+						e.stopPropagation();
+					}
+					// 是否阻止默认事件
+					if (prevent) {
+						e.preventDefault();
+					}
 				}
 
-				dom.addEvent(node, evt, listeners[field]);
+				dom.addEvent(node, evt, listeners[field], capture);
 			}
-
-			if (util.isFunc(oldFunc)) {
-				dom.removeEvent(node, evt, targetListener);
+			else {
+				util.warn('The model: ' + field + '\'s value for using v-on must be a type of Function!');
 			}
 		},
 

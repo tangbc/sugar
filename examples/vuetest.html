@@ -12,10 +12,10 @@
 	<div id="demo">
 		<ul>
 			<li v-for="item in items">
-				<h1 class="static" v-bind:class="item.clsobj"></h1>
-				<p v-for="p in item.ps">
-					<b v-bind:class="p.clsobj"></b>
-				</p>
+				<h1 class="static" v-bind:class="item.clsobj" v-on:click="vmClick">{{$index}}</h1>
+				<!-- <p v-for="p in item.ps">
+					<b v-bind:class="p.clsobj" ></b>
+				</p> -->
 			</li>
 		</ul>
 	</div>
@@ -24,9 +24,14 @@
 	vm = new Vue({
 		'el': '#demo',
 		'data': {
+			'vmClick': function() {console.log('vmClick')},
 			'items': [
-				{'clsobj': {'curry': true, 'kelay': true}, 'ps': [{'clsobj': {'aa': true, 'bb': true}},{'clsobj': {'cc': true, 'dd': true}}]},
-				{'clsobj': {'brook': true, 'durant': true}, 'ps': [{'clsobj': {'ee': true}}]}
+				{
+					'click': function() {console.log(111)}
+				},
+				{
+					'click': function() {console.log(222)}
+				}
 			]
 		}
 	});
