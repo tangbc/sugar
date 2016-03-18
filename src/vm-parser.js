@@ -49,29 +49,31 @@ define([
 		 * v-text, {{text}} DOM文本
 		 */
 		parseVText: function(node, value, name, fors) {
-			var access, text;
+			var access, replace;
 			var watcher = this.watcher;
 			var updater = this.updater;
+			var inFor = fors && this.isForValue(value, fors);
+			var text = inFor ? this.getVforValue(value, fors) : this.vm.getValue(value);
 
-			if (fors) {
+			if (inFor) {
 				access = this.getVforAccess(value, fors);
-				text = this.replaceVforIndex(value, fors[1]);
-				if (text) {
-					// 监测数组下标变更
+				replace = this.replaceVforIndex(value, fors[1]);
+				if (replace) {
+					text = replace;
+					// 监测数组下标变更，shift, unshift
 					watcher.watcherIndex(access, function(index) {
 						updater.updateNodeTextContent(node, this.replaceVforIndex(value, index));
 					}, this);
 				}
 				else {
-					text = this.getVforValue(value, fors);
-					// 监测访问路径
+					// 监测当前vfor对象的访问路径
 					watcher.watchAccess(access, function(last) {
 						updater.updateNodeTextContent(node, last);
 					}, this);
 				}
 			}
 			else {
-				text = this.vm.getValue(value);
+				// 监测数据模型定义的字段
 				watcher.add(value, function(path, last) {
 					updater.updateNodeTextContent(node, last);
 				}, this);
@@ -84,30 +86,30 @@ define([
 		 * v-html DOM布局
 		 */
 		parseVHtml: function(node, value, name, fors) {
-			var access, html, isPlain;
+			var access, replace, isPlain;
 			var updater = this.updater;
 			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(value, fors);
+			var html = inFor ? this.getVforValue(value, fors) : this.vm.getValue(value);
 
-			if (fors) {
+			if (inFor) {
 				access = this.getVforAccess(value, fors);
-				html = this.replaceVforIndex(value, fors[1]);
-				if (html) {
+				replace = this.replaceVforIndex(value, fors[1]);
+				if (replace) {
+					html = replace;
 					isPlain = true;
-					// 监测数组下标变更，v-html如果使用了下标替换则前缀和后缀将编译到与下标同一文本节点
+					// v-html如果使用了下标替换则前缀和后缀将编译到与下标同一文本节点
 					watcher.watcherIndex(access, function(index) {
 						updater.updateNodeHtmlContent(node, this.replaceVforIndex(value, index), isPlain);
 					}, this);
 				}
 				else {
-					html = this.getVforValue(value, fors);
-					// 监测访问路径
 					watcher.watchAccess(access, function(last) {
 						updater.updateNodeHtmlContent(node, last);
 					}, this);
 				}
 			}
 			else {
-				html = this.vm.getValue(value);
 				watcher.add(value, function(path, last) {
 					updater.updateNodeHtmlContent(node, last);
 				}, this);
@@ -120,20 +122,19 @@ define([
 		 * v-show 控制节点的显示隐藏
 		 */
 		parseVShow: function(node, value, name, fors) {
-			var result, access;
+			var access;
 			var updater = this.updater;
 			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(value, fors);
+			var result = inFor ? this.getVforValue(value, fors) : this.vm.getValue(value);
 
-			if (fors) {
-				result = this.getVforValue(value, fors);
+			if (inFor) {
 				access = this.getVforAccess(value, fors);
-				// 监测访问路径
 				watcher.watchAccess(access, function(last) {
 					updater.updateNodeDisplay(node, last);
 				}, this);
 			}
 			else {
-				result = this.vm.getValue(value);
 				watcher.add(value, function(path, last) {
 					updater.updateNodeDisplay(node, last);
 				}, this);
@@ -146,20 +147,19 @@ define([
 		 * v-if 控制节点内容的渲染
 		 */
 		parseVIf: function(node, value, name, fors) {
-			var result, access;
+			var access;
 			var updater = this.updater;
 			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(value, fors);
+			var result = inFor ? this.getVforValue(value, fors) : this.vm.getValue(value);
 
-			if (fors) {
-				result = this.getVforValue(value, fors);
+			if (inFor) {
 				access = this.getVforAccess(value, fors);
-				// 监测访问路径
 				watcher.watchAccess(access, function(last) {
 					updater.updateNodeRenderContent(node, last);
 				}, this);
 			}
 			else {
-				result = this.vm.getValue(value);
 				this.watcher.add(value, function(path, last) {
 					updater.updateNodeRenderContent(node, last);
 				}, this);
@@ -245,11 +245,17 @@ define([
 		 */
 		bindClassName: function(node, field, classname, fors) {
 			var updater = this.updater;
-			var value = this.vm.getValue(field);
-			var isObject = util.isObject(value);
-			var isSingle = util.isString(value) || util.isBoolean(value);
+			var value, isObject, sSingle;
+			var inFor = fors && this.isForValue(field, fors);
 
-			if (!fors) {
+			if (inFor) {
+				this.bindClassNameVfor(node, field, classname, fors);
+			}
+			else {
+				value = this.vm.getValue(field);
+				isObject = util.isObject(value);
+				isSingle = util.isString(value) || util.isBoolean(value);
+
 				// single class
 				if (isSingle) {
 					updater.updateNodeClassName(node, value, null, classname);
@@ -279,9 +285,6 @@ define([
 					}
 				}, this);
 			}
-			else {
-				this.bindClassNameVfor(node, field, classname, fors);
-			}
 		},
 
 		/**
@@ -295,18 +298,15 @@ define([
 
 			// 指定classname，由field的布尔值决定是否添加
 			if (classname) {
-				// 监测访问路径
 				watcher.watchAccess(access, function(last, old) {
 					updater.updateNodeClassName(node, last, old, classname);
 				}, this);
 
 				updater.updateNodeClassName(node, value, null, classname);
 			}
-			//
 			else {
 				// single class
 				if (util.isString(value)) {
-					// 监测访问路径
 					watcher.watchAccess(access, function(last, old) {
 						dom.addClass(node, last);
 						dom.removeClass(node, old);
@@ -377,11 +377,17 @@ define([
 		 */
 		bindInlineStyle: function(node, field, propperty, fors) {
 			var updater = this.updater;
-			var value = this.vm.getValue(field);
-			var isObject = util.isObject(value);
-			var isString = util.isString(value);
+			var value, isObject, isString;
+			var inFor = fors && this.isForValue(field, fors);
 
-			if (!fors) {
+			if (inFor) {
+				this.bindInlineStyleVfor(node, field, fors);
+			}
+			else {
+				value = this.vm.getValue(field);
+				isObject = util.isObject(value);
+				isString = util.isString(value);
+
 				// styleString
 				if (isString) {
 					updater.updateNodeStyle(node, propperty, value);
@@ -411,9 +417,6 @@ define([
 					}
 				}, this);
 			}
-			else {
-				this.bindInlineStyleVfor(node, field, fors);
-			}
 		},
 
 		/**
@@ -427,7 +430,6 @@ define([
 			var access = this.getVforAccess(field, fors);
 
 			if (util.isString(style)) {
-				// 监测访问路径
 				watcher.watchAccess(access, function(last, old) {
 					updater.updateNodeStyle(node, key, last);
 				}, this);
@@ -494,30 +496,29 @@ define([
 		 * @param   {Array}       fors
 		 */
 		bindNormalAttribute: function(node, field, attr, fors) {
-			var access, value;
+			var value, access, replace;
 			var watcher = this.watcher;
 			var updater = this.updater;
+			var inFor = fors && this.isForValue(field, fors);
+			var value = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
-			if (fors) {
+			if (inFor) {
 				access = this.getVforAccess(field, fors);
 				// 除class和style外的属性可支持$index的替换
-				value = this.replaceVforIndex(field, fors[1]);
-				if (value) {
-					// 监测数组下标变更
+				replace = this.replaceVforIndex(field, fors[1]);
+				if (replace) {
+					value = replace;
 					watcher.watcherIndex(access, function(index) {
 						updater.updateNodeAttribute(node, attr, this.replaceVforIndex(field, index));
 					}, this);
 				}
 				else {
-					value = this.getVforValue(field, fors);
-					// 监测访问路径
 					watcher.watchAccess(access, function(last, old) {
 						updater.updateNodeAttribute(node, attr, last);
 					}, this);
 				}
 			}
 			else {
-				value = this.vm.getValue(field);
 				watcher.add(field, function(path, last) {
 					updater.updateNodeAttribute(node, attr, last);
 				}, this);
@@ -564,8 +565,6 @@ define([
 
 			if (inFor) {
 				access = this.getVforAccess(field, fors);
-
-				// 监测访问路径
 				watcher.watchAccess(access, function(last, old) {
 					updater.updateNodeEvent(node, evt, last, old, args, access, fors[1]);
 				}, this);
@@ -576,6 +575,7 @@ define([
 				}, this);
 			}
 
+			// 即使不在vfor中取值也需要获取访问路径
 			if (fors && !access) {
 				field = fors[2] + '*' + evt;
 			}
@@ -589,10 +589,10 @@ define([
 		parseVModel: function(node) {
 			var inputs = this.vm.$inputs;
 			var tagName = node.tagName.toLowerCase();
-			var type = tagName === 'input' ? this.getAttr(node, 'type') : tagName;
+			var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
 
 			if (inputs.indexOf(tagName) === -1) {
-				util.warn('v-model only for use in ' + inputs.join(', '));
+				util.warn('v-model only for using in ' + inputs.join(', '));
 				return;
 			}
 
@@ -609,59 +609,87 @@ define([
 		/**
 		 * v-model for text, textarea
 		 */
-		parsevModelText: function(node, value) {
-			var init = this.vm.getValue(value);
-			this.bindModelTextEvent(node, value);
-			updater.updateNodeFormTextValue(node, init);
+		parseVModelText: function(node, field, name, fors) {
+			var access;
+			var updater = this.updater;
+			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(field, fors);
+			var text = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
-			this.watcher.add(value, function(path, last) {
-				updater.updateNodeFormTextValue(node, last);
-			}, this);
+			if (inFor) {
+				access = this.getVforAccess(field, fors);
+				watcher.watchAccess(access, function(last) {
+					updater.updateNodeFormTextValue(node, last);
+				});
+			}
+			else {
+				watcher.add(field, function(path, last) {
+					updater.updateNodeFormTextValue(node, last);
+				}, this);
+			}
+
+			updater.updateNodeFormTextValue(node, text);
+
+			this.bindVModelTextEvent(node, field, inFor, fors);
 		},
 
 		/**
 		 * text, textarea绑定数据监测事件
-		 * @param   {Input}   node
-		 * @param   {String}  field
+		 * @param   {Input}    node
+		 * @param   {String}   field
+		 * @param   {Boolean}  inFor
+		 * @param   {Array}    fors
 		 */
-		bindvModelTextEvent: function(node, field) {
+		bindVModelTextEvent: function(node, field, inFor, fors) {
 			var self = this, composeLock = false;
 
 			// 解决中文输入时input事件在未选择词组时的触发问题
 			// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
-			this.addEvent(node, 'compositionstart', function() {
+			dom.addEvent(node, 'compositionstart', function() {
 				composeLock = true;
 			});
-			this.addEvent(node, 'compositionend', function() {
+			dom.addEvent(node, 'compositionend', function() {
 				composeLock = false;
 			});
 
 			// input事件(实时触发)
-			this.addEvent(node, 'input', function() {
+			dom.addEvent(node, 'input', function() {
 				if (!composeLock) {
-					self.setData(field, this.value);
+					self.setVModelValue(field, this.value, inFor, fors);
 				}
 			});
 
 			// change事件(失去焦点触发)
-			this.addEvent(node, 'change', function() {
-				self.setData(field, this.value);
+			dom.addEvent(node, 'change', function() {
+				self.setVModelValue(field, this.value, inFor, fors);
 			});
-
-			return this;
 		},
 
 		/**
 		 * v-model for radio
 		 */
-		parseVModelRadio: function(node, value) {
-			var init = this.vm.getValue(value);
-			this.bindModelRadioEvent(node, value);
-			updater.updateNodeFormRadioChecked(node, init);
+		parseVModelRadio: function(node, field, name, fors) {
+			var access;
+			var updater = this.updater;
+			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(field, fors);
+			var value = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
-			this.watcher.add(value, function(path, last) {
-				updater.updateNodeFormRadioChecked(node, last);
-			}, this);
+			if (inFor) {
+				access = this.getVforAccess();
+				watcher.watchAccess(access, function(last) {
+					updater.updateNodeFormRadioChecked(node, last);
+				});
+			}
+			else {
+				watcher.add(field, function(path, last) {
+					updater.updateNodeFormRadioChecked(node, last);
+				}, this);
+			}
+
+			updater.updateNodeFormRadioChecked(node, value);
+
+			this.bindModelRadioEvent(node, field, inFor, fors);
 		},
 
 		/**
@@ -669,40 +697,64 @@ define([
 		 * @param   {Input}   node
 		 * @param   {String}  field
 		 */
-		bindModelRadioEvent: function(node, field) {
+		bindModelRadioEvent: function(node, field, inFor, fors) {
 			var self = this;
-
-			this.addEvent(node, 'change', function() {
-				self.setData(field, this.value);
+			dom.addEvent(node, 'change', function() {
+				self.setVModelValue(field, this.value, inFor, fors);
 			});
-
-			return this;
 		},
 
 		/**
 		 * v-model for checkbox
 		 */
-		parseVModelCheckbox: function(node, value) {
-			var init = this.vm.getValue(value);
-			this.bindCheckboxEvent(node, value);
-			updater.updateNodeFormCheckboxChecked(node, init);
+		parseVModelCheckbox: function(node, field, name, fors) {
+			var watcher = this.watcher;
+			var updater = this.updater;
+			var access, scope, key, alias, infos;
+			var inFor = fors && this.isForValue(field, fors);
+			var value = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
-			this.watcher.add(value, function() {
-				updater.updateNodeFormCheckboxChecked(node, this.vm.getValue(value));
-			}, this);
+			if (inFor) {
+				scope = util.copy(fors[3]);
+				key = this.getVforKey(field);
+				alias = field.substr(0, field.indexOf(key) - 1);
+				infos = [scope, key, alias];
+
+				access = this.getVforAccess(field, fors);
+				watcher.watchAccess(access, function() {
+					updater.updateNodeFormCheckboxChecked(node, scope[alias][key]);
+				}, this);
+			}
+			else {
+				watcher.add(field, function() {
+					updater.updateNodeFormCheckboxChecked(node, this.vm.getValue(field));
+				}, this);
+			}
+
+			updater.updateNodeFormCheckboxChecked(node, value);
+
+			this.bindCheckboxEvent(node, field, inFor, infos);
 		},
 
 		/**
 		 * checkbox绑定数据监测事件
-		 * @param   {Input}   node
-		 * @param   {String}  field
+		 * @param   {Input}    node
+		 * @param   {String}   field
+		 * @param   {Boolean}  inFor
+		 * @param   {Array}    infos
 		 */
-		bindCheckboxEvent: function(node, field) {
-			var self = this;
-			var array = this.vm.getValue(field);
+		bindCheckboxEvent: function(node, field, inFor, infos) {
+			var self = this, scope, alias, key;
 
-			this.addEvent(node, 'change', function() {
+			if (inFor) {
+				scope = infos[0];
+				key = infos[1];
+				alias = infos[2];
+			}
+
+			dom.addEvent(node, 'change', function() {
 				var index, value = this.value, checked = this.checked;
+				var array = inFor ? scope[alias][key] : self.vm.getValue(field);
 
 				// 多个checkbox
 				if (util.isArray(array)) {
@@ -720,21 +772,21 @@ define([
 				}
 				// 单个checkbox
 				else if (util.isBoolean(array)) {
-					self.setData(field, checked);
+					scope[alias][key] = checked;
 				}
 			});
-
-			return this;
 		},
 
 		/**
 		 * v-model for select
 		 */
 		parseVModelSelect: function(node, value) {
+			var updater = this.updater;
+
 			var self = this;
 			var options = node.options;
 			var init = this.vm.getValue(value);
-			var multi = this.hasAttr(node, 'multiple');
+			var multi = dom.hasAttr(node, 'multiple');
 			var option, i, leng = options.length, selects = [], isDefined;
 
 			// 数据模型定义为单选
@@ -772,7 +824,7 @@ define([
 					}
 				}
 
-				this.setData(value, multi ? selects : selects[0]);
+				this.vm.setValue(value, multi ? selects : selects[0]);
 			}
 
 			this.bindSelectEvent(node, value, multi);
@@ -791,7 +843,7 @@ define([
 		bindSelectEvent: function(node, field, multi) {
 			var self = this;
 
-			this.addEvent(node, 'change', function() {
+			dom.addEvent(node, 'change', function() {
 				var options = this.options;
 				var i, option, leng = options.length, selects = [];
 
@@ -802,10 +854,28 @@ define([
 					}
 				}
 
-				self.setData(field, multi ? selects : selects[0]);
+				self.vm.setValue(field, multi ? selects : selects[0]);
 			});
 
 			return this;
+		},
+
+		/**
+		 * 设置v-model对应数据模型字段的值
+		 * @param  {String}   field
+		 * @param  {String}   value
+		 * @param  {Boolean}  inFor
+		 * @param  {Array}    fors
+		 */
+		setVModelValue: function(field, value, inFor, fors) {
+			var key;
+			if (inFor) {
+				key = this.getVforKey(field);
+				fors[0][key] = value;
+			}
+			else {
+				this.vm.setValue(field, value);
+			}
 		},
 
 		/**
@@ -882,7 +952,8 @@ define([
 				var cloneNode = node.cloneNode(true);
 				var fors = [item, index, path, scope, alias, level];
 
-				// 缓存取值范围
+				// 缓存取值范围，可在编译过程中获取当前循环对象的所有信息
+				// 当编译结束之后别名对应的取值对象永远会是循环体的最后一项
 				scope[alias] = item;
 				// 解析/编译板块
 				this.vm.parseElement(cloneNode, true, fors);
@@ -1050,7 +1121,7 @@ define([
 		isForValue: function(field, fors) {
 			var pos = field.indexOf('.');
 			var alias = pos === -1 ? null : field.substr(0, pos);
-			return alias ? util.has(alias, fors[3]) : false;
+			return field.indexOf('$index') === -1 ? (alias ? util.has(alias, fors[3]) : false) : true;
 		},
 
 		/**

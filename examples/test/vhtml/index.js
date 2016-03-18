@@ -5,6 +5,7 @@ require(['../../../dist/sugar'], function(sugar) {
 		init: function(config) {
 			config = sugar.cover(config, {
 				'html': [
+					'<h1 v-html="html"></h1>',
 					'<ul>',
 						'<li v-for="item in items">',
 							'前缀{{item.text}}后缀',
@@ -20,6 +21,7 @@ require(['../../../dist/sugar'], function(sugar) {
 					'</ul>'
 				].join(''),
 				'model': {
+					'html': '<i>呵呵哒~<i>',
 					'items': [
 						{'text': '_粗体文本_', 'html': '<b>粗体</b>', 'ps': [{'hp': '粗体'}]},
 						{'text': '_斜体文本_', 'html': '<i>斜体</i>', 'ps': [{'hp': '斜体'}]},

@@ -45,6 +45,7 @@ define([
 				}
 				else {
 					html = (node._vm_text_prefix || '') + html + (node._vm_text_suffix || '');
+					// @todo: <p>****{{{html}}}***</p> 这种与文本参杂的情况也将无法找回原有节点
 					node.parentNode.replaceChild(util.stringToFragment(html), node);
 				}
 			}
@@ -212,7 +213,7 @@ define([
 			var listeners = this.$listeners;
 			var modals, self, stop, prevent, capture = false;
 
-			// 支持4种事件修饰符.stop.prevent.self.capture
+			// 支持4种事件修饰符.self.stop.prevent.capture
 			if (evt.indexOf('.') !== -1) {
 				modals = evt.split('.');
 				evt = modals.shift();

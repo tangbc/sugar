@@ -229,13 +229,13 @@ define([
 			if (matches) {
 				match = matches[0];
 				htmlCompile = true;
-				field = match.replace(/\{|\{|\{|\}|\}|\}/g, '');
+				field = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			}
 			// text match
 			else {
 				matches = text.match(regtext);
 				match = matches[0];
-				field = match.replace(/\{|\{|\}|\}/g, '');
+				field = match.replace(/\s|\{|\{|\}|\}/g, '');
 			}
 
 			this.reduceCount();

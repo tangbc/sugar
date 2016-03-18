@@ -143,7 +143,7 @@ define(['./util'], function(util) {
 					var oldValue = this.getCache(object, prop);
 
 					if (newValue !== oldValue) {
-						if (util.isObject(newValue)) {
+						if (util.isObject(newValue) || util.isArray(newValue)) {
 							this.observe(newValue, paths);
 						}
 

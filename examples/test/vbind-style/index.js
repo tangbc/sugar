@@ -6,35 +6,44 @@ require(['../../../dist/sugar'], function(sugar) {
 			config = sugar.cover(config, {
 				'html': [
 					// single stylejson
-					// '<div style="display:block;" v-bind:style="{color: clr}">text</div>',
+					// '<div style="display:block;" v-bind:style="{color: outColor}">text</div>',
 					// '<ul>',
 					// 	'<li v-for="item in items">',
-					// 		'<h3 v-bind:style="{color: item.color, border: item.border}">text</h3>',
+					// 		'<h3 v-bind:style="{color: outColor, border: item.border}">text</h3>',
 					// 	'</li>',
 					// '</ul>'
 
 					// styleobj
-					// '<h1 style="display:block;" v-bind:style="obj"></h1>',
-					// @todo: shift和unshift后无法在watcher的displaceCallback中正确的移位styleobj定义的样式
+					// '<h1 style="display:block;" v-bind:style="outStyleObj"></h1>',
+					// // @todo: shift和unshift后无法在watcher的displaceCallback中正确的移位styleobj定义的样式
 					// '<ul>',
 					// 	'<li v-for="item in items">',
-					// 		'<h3 style="display:block;" v-bind:style="item.obj">text</h3>',
+					// 		'<h3 style="display:block;" v-bind:style="outStyleObj">text</h3>',
+					// 		// '<h3 style="display:block;" v-bind:style="item.obj">text</h3>',
 					// 	'</li>',
 					// '</ul>'
 
 					// mutil property with styleobj
-					// '<h1 v-bind="{style: styleobj, id: pid}"></h1>',
+					'<h1 v-bind="{style: styleobj, id: pid}"></h1>',
 					'<ul>',
 						'<li v-for="item in items">',
-							'<h3 style="display:block;" v-bind="{style: item.styleobj, id: item.id}">text</h3>',
+							// '<h3 style="display:block;" v-bind="{style: item.styleobj, id: item.id}">text</h3>',
+							'<h3 style="display:block;" v-bind="{style: styleobj, id: item.id}">text</h3>',
 							'<p v-for="p in item.ps">',
-								'<b v-bind="{style: p.styleobj, id: p.id}"></b>',
+								// '<b v-bind="{style: p.styleobj, id: p.id}"></b>',
+								'<i v-bind="{style: styleobj, id: p.id}"></i>',
 							'</p>',
 						'</li>',
 					'</ul>'
 
 				].join(''),
 				'model': {
+					'outColor': 'tan', // plum
+					'outStyleObj': {
+						'color': 'tan',
+						'border': '3px solid tan'
+					},
+
 					// single
 					// 'clr': 'red',
 					// 'items': [
@@ -65,13 +74,13 @@ require(['../../../dist/sugar'], function(sugar) {
 					// ]
 
 					// mutil property with styleobj
-					// 'styleobj': {
-					// 	'color': 'red',
-					// 	'paddingTop': '10px',
-					// 	'margin-left': '10px',
-					// 	'border': '1px solid #000',
-					// },
-					// 'pid': '30',
+					'styleobj': {
+						'color': 'red',
+						'paddingTop': '10px',
+						'margin-left': '10px',
+						'border': '1px solid #000',
+					},
+					'pid': '30',
 					'items': [
 						{'id': 12, 'styleobj': {
 							'color': 'red',

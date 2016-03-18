@@ -8,12 +8,12 @@ require(['../../../dist/sugar'], function(sugar) {
 					// vfor
 					'<ul>',
 						'<li v-for="item in items">',
-							'<h3 v-text="item.family" v-if="item.show"></h3>',
+							'<h3 v-text="item.family" v-if="show"></h3>',
 							'<h3 v-text="item.name" v-else></h3>',
-							'<div v-for="p in item.ps">',
-								'<b v-text="p.big" v-if="p.show"></b>',
-								'<b v-text="p.small" v-else></b>',
-							'</div>',
+							// '<div v-for="p in item.ps">',
+							// 	'<b v-text="p.big" v-if="p.show"></b>',
+							// 	'<b v-text="p.small" v-else></b>',
+							// '</div>',
 						'</li>',
 					'</ul>',
 
@@ -27,8 +27,8 @@ require(['../../../dist/sugar'], function(sugar) {
 				].join(''),
 				'model': {
 					// normal
-					'h1': '库里',
-					'h2': '汤普森',
+					'h1': '标题1',
+					'h2': '标题2',
 					'show': false,
 					// vfor
 					'items': [
