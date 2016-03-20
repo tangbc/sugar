@@ -133,7 +133,7 @@ define([
 			// 渲染
 			if (isRender) {
 				fragment = util.stringToFragment(node._render_content);
-				this.vm.parseElement(fragment, true);
+				this.vm.complieElement(fragment, true);
 				node.appendChild(fragment);
 			}
 		},

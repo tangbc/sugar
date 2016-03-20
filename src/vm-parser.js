@@ -586,7 +586,7 @@ define([
 		/**
 		 * v-model 表单控件双向绑定
 		 */
-		parseVModel: function(node) {
+		parseVModel: function(node, field) {
 			var inputs = this.vm.$inputs;
 			var tagName = node.tagName.toLowerCase();
 			var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
@@ -595,6 +595,8 @@ define([
 				util.warn('v-model only for using in ' + inputs.join(', '));
 				return;
 			}
+
+			util.defineProperty(node, '_vmodel', field);
 
 			// 根据不同表单类型绑定数据监测方法
 			switch (type) {
@@ -780,39 +782,40 @@ define([
 		/**
 		 * v-model for select
 		 */
-		parseVModelSelect: function(node, value) {
+		parseVModelSelect: function(node, field, name, fors) {
 			var updater = this.updater;
+			var watcher = this.watcher;
+			var inFor = fors && this.isForValue(field, fors);
+			var selectValue = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
-			var self = this;
 			var options = node.options;
-			var init = this.vm.getValue(value);
 			var multi = dom.hasAttr(node, 'multiple');
 			var option, i, leng = options.length, selects = [], isDefined;
 
 			// 数据模型定义为单选
-			if (util.isString(init)) {
+			if (util.isString(selectValue)) {
 				if (multi) {
-					util.warn('select cannot be multiple when your model set \'' + value + '\' to noArray!');
+					util.warn('select cannot be multiple when your model set \'' + field + '\' not Array!');
 					return;
 				}
-				isDefined = Boolean(init);
+				isDefined = Boolean(selectValue);
 			}
 			// 定义为多选
-			else if (util.isArray(init)) {
+			else if (util.isArray(selectValue)) {
 				if (!multi) {
-					util.warn('your model \'' + value + '\' cannot set as Array when select has no multiple propperty!');
+					util.warn('your model \'' + field + '\' cannot set as Array when select has no multiple propperty!');
 					return;
 				}
-				isDefined = init.length > 0;
+				isDefined = selectValue.length > 0;
 			}
 			else {
-				util.warn(value + ' must be a type of String or Array!');
+				util.warn(field + ' must be a type of String or Array!');
 				return;
 			}
 
 			// 数据模型中定义初始的选中状态
 			if (isDefined) {
-				updater.updateNodeFormSelectChecked(node, init, multi);
+				updater.updateNodeFormSelectChecked(node, selectValue, multi);
 			}
 			// 模板中定义初始状态
 			else {
@@ -823,15 +826,22 @@ define([
 						selects.push(option.value);
 					}
 				}
-
-				this.vm.setValue(value, multi ? selects : selects[0]);
+				this.setVModelValue(field, multi ? selects : selects[0], inFor, fors);
 			}
 
-			this.bindSelectEvent(node, value, multi);
+			if (inFor) {
+				access = this.getVforAccess(field, fors);
+				watcher.watchAccess(access, function(last) {
+					updater.updateNodeFormSelectChecked(node, this.vm.getValue(field), multi);
+				}, this);
+			}
+			else {
+				watcher.add(field, function() {
+					updater.updateNodeFormSelectChecked(node, this.vm.getValue(field), multi);
+				}, this);
+			}
 
-			this.watcher.add(value, function() {
-				updater.updateNodeFormSelectChecked(node, this.vm.getValue(value), multi);
-			}, this);
+			this.bindSelectEvent(node, field, multi, inFor, fors);
 		},
 
 		/**
@@ -839,25 +849,43 @@ define([
 		 * @param   {Select}   node
 		 * @param   {String}   field
 		 * @param   {Boolean}  multi
+		 * @param   {Boolean}  inFor
+		 * @param   {Array}    fors
 		 */
-		bindSelectEvent: function(node, field, multi) {
+		bindSelectEvent: function(node, field, multi, inFor, fors) {
 			var self = this;
-
 			dom.addEvent(node, 'change', function() {
-				var options = this.options;
-				var i, option, leng = options.length, selects = [];
-
-				for (i = 0; i < leng; i++) {
-					option = options[i];
-					if (option.selected) {
-						selects.push(option.value);
-					}
-				}
-
-				self.vm.setValue(field, multi ? selects : selects[0]);
+				var selects = self.getSelectValue(this);
+				self.setVModelValue(field, multi ? selects : selects[0], inFor, fors);
 			});
+		},
 
-			return this;
+		/**
+		 * 获取SELECT的选中值
+		 * @param   {Select}  select
+		 * @return  {Array}
+		 */
+		getSelectValue: function(select) {
+			var options = select.options;
+			var i, option, leng = options.length, sels = [];
+			for (i = 0; i < leng; i++) {
+				option = options[i];
+				if (option.selected) {
+					sels.push(option.value);
+				}
+			}
+			return sels;
+		},
+
+		/**
+		 * 强制更新select/option在vfor中的值
+		 * @param   {Select}  select
+		 */
+		froceUpdateOption: function(select, fors) {
+			var model = select._vmodel;
+			var inFor = fors && this.isForValue(model, fors);
+			var value = inFor ? this.getVforValue(model, fors) : this.vm.getValue(model);
+			this.updater.updateNodeFormSelectChecked(select, value, dom.hasAttr(select, 'multiple'));
 		},
 
 		/**
@@ -889,6 +917,7 @@ define([
 			var watcher = this.watcher;
 			var parent = node.parentNode;
 			var key = this.getVforKey(field);
+			var isOption = node.tagName === 'OPTION';
 			var template, infos, array = this.vm.getValue(field);
 
 			if (key) {
@@ -906,6 +935,10 @@ define([
 			template = this.buildVforTemplate(node, array, field, scope, alias, level);
 
 			parent.replaceChild(template, node);
+
+			if (isOption) {
+				this.froceUpdateOption(parent, fors);
+			}
 
 			// differ数组信息
 			infos = [field, scope, alias, level];
@@ -942,6 +975,7 @@ define([
 		 * @return  {Fragment}           [板块集合]
 		 */
 		buildVforTemplate: function(node, array, field, scope, alias, level) {
+			var vm = this.vm;
 			var fragments = util.createFragment();
 
 			level++;
@@ -952,11 +986,16 @@ define([
 				var cloneNode = node.cloneNode(true);
 				var fors = [item, index, path, scope, alias, level];
 
-				// 缓存取值范围，可在编译过程中获取当前循环对象的所有信息
-				// 当编译结束之后别名对应的取值对象永远会是循环体的最后一项
+				// 阻止重复编译节点除vfor以外的指令
+				if (node._vfor_directives > 1) {
+					vm.blockCompileNode(node);
+				}
+
+				// 可在编译过程中获取当前循环对象的所有信息
+				// 当编译结束之后别名对应的取值对象是循环体的最后一项
 				scope[alias] = item;
 				// 解析/编译板块
-				this.vm.parseElement(cloneNode, true, fors);
+				vm.complieElement(cloneNode, true, fors);
 				// 定义私有标记属性
 				util.defineProperty(cloneNode, '_vfor_alias', alias);
 
@@ -1055,7 +1094,7 @@ define([
 			scope[alias] = newArray[last];
 
 			// 解析节点
-			this.vm.parseElement(cloneNode, true, fors);
+			this.vm.complieElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
 			lastChild = this.getVforLastChild(parent, alias);
@@ -1076,7 +1115,7 @@ define([
 			scope[alias] = newArray[0];
 
 			// 解析节点
-			this.vm.parseElement(cloneNode, true, fors);
+			this.vm.complieElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
 			firstChild = this.getVforFirstChild(parent, alias);

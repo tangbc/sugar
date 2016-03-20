@@ -33,8 +33,6 @@ define([
 		// DOM对象注册索引
 		this.$data.$els = {};
 
-		// 未编译指令数目
-		this.$unCompileCount = 0;
 		// 未编译节点缓存队列
 		this.$unCompileNodes = [];
 		// 根节点是否已完成编译
@@ -52,31 +50,32 @@ define([
 		constructor: VM,
 
 		init: function() {
-			this.parseElement(this.$fragment, true);
+			this.complieElement(this.$fragment, true);
 		},
 
 		/**
-		 * 解析文档碎片/节点
+		 * 编译文档碎片/节点
 		 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
 		 * @param   {Boolean}              root      [是否是编译根节点]
 		 * @param   {Array}                fors      [vfor数据]
 		 */
-		parseElement: function(element, root, fors) {
+		complieElement: function(element, root, fors) {
 			var node, dirCount;
 			var childNodes = element.childNodes;
 
-			// 解析所有的子节点
+			if (root && this.hasDirective(element)) {
+				this.$unCompileNodes.push([element, fors]);
+			}
+
 			for (var i = 0; i < childNodes.length; i++) {
 				node = childNodes[i];
-				dirCount = this.getDirectivesCount(node);
-				this.$unCompileCount += dirCount;
 
-				if (dirCount) {
+				if (this.hasDirective(node)) {
 					this.$unCompileNodes.push([node, fors]);
 				}
 
 				if (node.childNodes.length && !this.isLateCompileNode(node)) {
-					this.parseElement(node, false, fors);
+					this.complieElement(node, false, fors);
 				}
 			}
 
@@ -86,12 +85,12 @@ define([
 		},
 
 		/**
-		 * 获取节点的指令数
+		 * 节点是否含有合法指令
 		 * @param   {DOMElement}  node
 		 * @return  {Number}
 		 */
-		getDirectivesCount: function(node) {
-			var count = 0, nodeAttrs;
+		hasDirective: function(node) {
+			var result, nodeAttrs;
 			var text = node.textContent;
 			var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
@@ -99,14 +98,15 @@ define([
 				nodeAttrs = node.attributes;
 				for (var i = 0; i < nodeAttrs.length; i++) {
 					if (this.isDirective(nodeAttrs[i].name)) {
-						count++;
+						result = true;
+						break;
 					}
 				}
 			}
 			else if (this.isTextNode(node) && reg.test(text)) {
-				count++;
+				result = true;
 			}
-			return count;
+			return result;
 		},
 
 		/**
@@ -114,7 +114,7 @@ define([
 		 */
 		compileAllNodes: function() {
 			util.each(this.$unCompileNodes, function(info) {
-				this.collectDirectives(info);
+				this.complieDirectives(info);
 				return null;
 			}, this);
 		},
@@ -123,9 +123,9 @@ define([
 		 * 收集并编译节点指令
 		 * @param   {Array}  info   [node, fors]
 		 */
-		collectDirectives: function(info) {
-			var atr, attrs = [], nodeAttrs;
+		complieDirectives: function(info) {
 			var node = info[0], fors = info[1];
+			var atr, name, vfor, attrs = [], nodeAttrs;
 
 			if (this.isElementNode(node)) {
 				// node节点集合转为数组
@@ -133,14 +133,25 @@ define([
 
 				for (var i = 0; i < nodeAttrs.length; i++) {
 					atr = nodeAttrs[i];
-					if (this.isDirective(atr.name)) {
+					name = atr.name;
+					if (this.isDirective(name)) {
+						if (name === 'v-for') {
+							vfor = atr;
+						}
 						attrs.push(atr);
 					}
 				}
 
+				// vfor编译时标记节点的指令数
+				if (vfor) {
+					util.defineProperty(node, '_vfor_directives', attrs.length);
+					attrs = [vfor];
+					vfor = null;
+				}
+
 				// 编译节点指令
 				util.each(attrs, function(attr) {
-					this.compileDirective(node, attr, fors);
+					this.compile(node, attr, fors);
 				}, this);
 			}
 			else if (this.isTextNode(node)) {
@@ -154,13 +165,12 @@ define([
 		 * @param   {Object}          directive
 		 * @param   {Array}           fors
 		 */
-		compileDirective: function(node, directive, fors) {
+		compile: function(node, directive, fors) {
 			var parser = this.parser;
 			var name = directive.name;
 			var value = directive.value;
 			var args = [node, directive.value, name, fors];
 
-			this.reduceCount();
 			// 移除指令标记
 			dom.removeAttr(node, name);
 
@@ -238,8 +248,6 @@ define([
 				field = match.replace(/\s|\{|\{|\}|\}/g, '');
 			}
 
-			this.reduceCount();
-
 			splits = text.split(match);
 			node._vm_text_prefix = splits[0];
 			node._vm_text_suffix = splits[splits.length - 1];
@@ -257,10 +265,15 @@ define([
 		},
 
 		/**
-		 * 未编译数减一
+		 * 停止编译节点的剩余指令，如vfor的根节点
+		 * @param   {DOMElement}  node
 		 */
-		reduceCount: function() {
-			this.$unCompileCount--;
+		blockCompileNode: function(node) {
+			util.each(this.$unCompileNodes, function(info) {
+				if (node === info[0]) {
+					return null;
+				}
+			});
 		},
 
 		/**
@@ -304,7 +317,7 @@ define([
 		 * 检查根节点是否编译完成
 		 */
 		checkCompleted: function() {
-			if (this.$unCompileCount === 0 && !this.$rootComplied) {
+			if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
 				this.rootComplieCompleted();
 			}
 		},
