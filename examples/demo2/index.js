@@ -2,13 +2,13 @@
  * 利用sugar异步创建一个模块
  */
 
-require(['../../sugar'], function(sugar) {
+require(['../../src/index'], function(sugar) {
 	var $ = sugar.jquery;
 
 	// 模块配置参数(也可在模块init中定义)
 	var config = {
 		// 模块目标容器
-		'target': $('body')
+		'target': document.querySelector('body');
 	};
 
 	/**

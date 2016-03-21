@@ -1,5 +1,5 @@
 /**
- * sugar框架辅助功能函数库
+ * 通用函数库
  */
 define(function() {
 	var UDF, UTIL = {};
@@ -97,14 +97,6 @@ define(function() {
 		return true;
 	}
 
-	/**
-	 * 检测是否是jQuery对象
-	 * @param  {Mix}     elm [需要检测的参数]
-	 * @return {Boolean}     [result]
-	 */
-	function isJquery(elm) {
-		return WIN.jQuery ? elm instanceof jQuery : false;
-	}
 
 	/**
 	 * 工具方法导出
@@ -118,7 +110,6 @@ define(function() {
 	UTIL.isNumber = isNumber;
 	UTIL.isFakeArray = isFakeArray;
 	UTIL.isPlainObject = isPlainObject;
-	UTIL.isJquery = isJquery;
 
 	/**
 	 * 日志函数
@@ -133,23 +124,6 @@ define(function() {
 	UTIL.warn = function() {
 		cons.warn.apply(cons, arguments);
 	}
-
-	/**
-	 * 读取对象（数据）属性
-	 * @param   {Object}  data  [对象数据]
-	 * @param   {String}  name  [属性名称]
-	 * @return  {Mix}           [读取结果]
-	 */
-	UTIL.get = function(data, name) {}
-
-	/**
-	 * 设置对象（数据）属性
-	 * @param   {Object}  data  [对象数据]
-	 * @param   {String}  name  [属性名称]
-	 * @return  {Mix}     value [设置值]
-	 * @return  {Object}  data  [对象数据]
-	 */
-	UTIL.set = function(data, name, value) {}
 
 	/**
 	 * object定义或修改属性
@@ -179,17 +153,6 @@ define(function() {
 		return OP.hasOwnProperty.call(obj, key);
 	}
 	UTIL.has = has;
-
-	/**
-	 * scrollTo 自定义滚动条位置
-	 * @param  {Number} x [横位置]
-	 * @param  {Number} y [纵位置]
-	 */
-	UTIL.scrollTo = function(x, y) {
-		x = x || 0;
-		y = y || 0;
-		WIN.scrollTo(x, y);
-	}
 
 	/**
 	 * argumentsToArray 参数转数组
@@ -224,27 +187,8 @@ define(function() {
 	}
 
 	/**
-	 * isEmpty 检测是否为空对象或者空数组
-	 * @param  {String} val  [值]
-	 * @return {Boolean}     [空为真,非空为假]
-	 */
-	UTIL.isEmpty = function(val) {
-		if (isObject(val)) {
-			for (var property in val) {
-				if (has(property, val)) {
-					return false;
-				}
-				return true;
-			}
-		}
-		else if (isArray(val)) {
-			return (val.length === 0);
-		}
-	}
-
-	/**
 	 * each 遍历数组或对象
-	 * @param  {Array,Object}  items     [数组或对象]
+	 * @param  {Array|Object}  items     [数组或对象]
 	 * @param  {Fuction}       callback  [回调函数]
 	 * @param  {Object}        context   [作用域]
 	 */
@@ -300,58 +244,10 @@ define(function() {
 	}
 
 	/**
-	 * guid 获取一个唯一的ID
-	 * @param  {String} fix [前缀]
-	 * @return {Mix} 返回唯一的ID号
-	 */
-	var _guid = 1;
-	UTIL.guid = function(fix) {
-		if (fix) {
-			return '' + fix + (_guid++);
-		}
-		else {
-			return _guid++;
-		}
-	}
-
-	/**
-	 * random 生成指定范围的随机整数(无范围返回时间戳)
-	 * @param  {Number} begin  [开始]
-	 * @param  {Number} end    [结束]
-	 */
-	UTIL.random = function(begin, end) {
-		var ret;
-		if (arguments.length === 2) {
-			ret = parseInt(Math.random() * (end - begin + 1) + begin, 10);
-		}
-		else {
-			ret = +new Date();
-		}
-		return ret;
-	}
-
-	/**
-	 * htmlEncode 将html标签转义
-	 * @param  {String} html  [字符]
-	 */
-	UTIL.htmlEncode = function(html) {
-		var tag = {
-			'&': '&amp;',
-			'<': '&lt;',
-			'>': '&gt;',
-			'"': '&quot;'
-		}
-		function esc_rp(m) {
-			return tag[m];
-		}
-		return (typeof(html) != 'string') ? html : html.replace(/[&<>']/g, esc_rp);
-	}
-
-	/**
 	 * find 根据字段和值查找数组中的元素
-	 * @param  {Array}   arr    [数组]
-	 * @param  {Mix}     value  [查询值]
-	 * @param  {String}  field  [对应的字段名]
+	 * @param  {Array}   arr     [数组]
+	 * @param  {Mix}     value   [查询值]
+	 * @param  {String}  field   [对应的字段名]
 	 */
 	UTIL.find = function(arr, value, field) {
 		var ret = null;
@@ -362,67 +258,6 @@ define(function() {
 			}
 		});
 		return ret;
-	}
-
-	/**
-	 * parse 解析get请求参数
-	 * @param   {Object}  param  [参数JSON]
-	 * @param   {String}  param  [参数JSON]
-	 * @return  {String}         [解析的字符创]
-	 */
-	UTIL.parse = function(param) {
-		var arr = [];
-		for (var pro in param) {
-			arr.push(pro + '=' + param[pro]);
-		}
-		return '?' + arr.join('&');
-	}
-
-	/**
-	 * getClientHeight 获取页面可视区高度
-	 */
-	var dcm = DOC.compatMode === 'CSS1Compat';
-	UTIL.getClientHeight = function() {
-		return dcm ? docElem.clientHeight : docBody.clientHeight;
-	}
-
-	/**
-	 * getClientWidth 获取页面可视区宽度
-	 */
-	UTIL.getClientWidth = function() {
-		return dcm ? docElem.clientWidth : docBody.clientWidth;
-	}
-
-	/**
-	 * getClient 获取页面可视区信息
-	 */
-	UTIL.getClient = function() {
-		return {
-			'width': this.getClientWidth(),
-			'height': this.getClientHeight()
-		}
-	}
-
-	/**
-	 * removeTags 去掉html标签
-	 */
-	UTIL.removeTags = function(html) {
-		return String(html).replace(/<[^>]+>/g, '');
-	}
-
-	/**
-	 * fixZero 自动补0, (9 , 1) -> 09; (9 , 3) -> 0009
-	 * num: 原始数值 ; zeros: 补0个数
-	 */
-	UTIL.fixZero = function(num, zeros) {
-		var b, v, x = 10, y, ns = String(num).length;
-		if (!isNumber(zeros) || !isNumber(zeros)) {
-			return num;
-		}
-		y = ns + zeros;
-		b = Math.pow(x, y);
-		v = b + num;
-		return String(v).substr(1);
 	}
 
 	/*
@@ -595,6 +430,60 @@ define(function() {
 	UTIL.TRANSLATE = !UTIL.isFunc(WIN.T) ? function() {
 		return UTIL.templateReplace.apply(this, arguments);
 	} : WIN.T;
+
+	// ********************************** new sugar **************************************
+
+	/**
+	 * 设置/读取配置对象
+	 * @param  {Object} cData  [配置对象]
+	 * @param  {String} name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}    value  [不传为读取配置信息, null为删除配置, 其他为设置值]
+	 * @return {Mix}           [返回读取的配置值, 操作失败返回false]
+	 */
+	UTIL.config = function (cData, name, value) {
+		// 不传cData配置对象
+		if (this.isString(cData) || arguments.length === 0) {
+			value = name;
+			name = cData;
+		}
+
+		var set = (value !== UDF);
+		var remove = (value === null);
+		var data = cData;
+
+		if (name) {
+			var ns = name.split('/');
+			while (ns.length > 1 && this.has(ns[0], data)) {
+				data = data[ns.shift()];
+			}
+			if (ns.length > 1) {
+				if (set) {
+					return false;
+				}
+				if (remove)	{
+					return true;
+				}
+				return UDF;
+			}
+			name = ns[0];
+		}
+		else {
+			return data;
+		}
+
+		if (set) {
+			data[name] = value;
+			return true;
+		}
+		else if (remove) {
+			data[name] = null;
+			delete data[name];
+			return true;
+		}
+		else {
+			return data[name];
+		}
+	}
 
 
 	// ********** vm ************

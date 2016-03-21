@@ -1,10 +1,14 @@
 /**
  * 模块消息通信 messager
  */
-define(['./util'], function(util) {
+define([
+	'./util',
+	'./cache',
+	'./sync'
+], function(util, cache, Sync) {
 
 	/**
-	 * Messager 消息类（实现模块间通信）
+	 * Messager 通信使者（实现模块间通信）
 	 * 默认接收消息onMessage, 默认全部发送完毕回调onMessageSendOut
 	 */
 	function Messager() {
@@ -13,6 +17,7 @@ define(['./util'], function(util) {
 		 * @type {Bool}
 		 */
 		this.busy = false;
+
 		/**
 		 * 等待发送的消息队列
 		 * @type {Array}
@@ -24,11 +29,11 @@ define(['./util'], function(util) {
 
 		/**
 		 * 创建一条消息
-		 * @param  {String} type   [消息类型]
-		 * @param  {Object} sender [发送消息的模块实例]
-		 * @param  {String} name   [发送的消息名称]
-		 * @param  {Mix}    param  [<可选>附加消息参数]
-		 * @return {Object}        [消息对象]
+		 * @param  {String}    type     [消息类型]
+		 * @param  {Object}    sender   [发送消息的模块实例]
+		 * @param  {String}    name     [发送的消息名称]
+		 * @param  {Mix}       param    [<可选>附加消息参数]
+		 * @return {Object}
 		 */
 		_create: function(type, sender, name, param) {
 			return {
@@ -48,19 +53,20 @@ define(['./util'], function(util) {
 				'method' : 'on' + util.ucFirst(name),
 				// 接收消息模块的返回值
 				'returns': null
-			};
+			}
 		},
 
 		/**
 		 * 触发接收消息模块实例的处理方法
-		 * @param  {Object} receiver [接收消息的模块实例]
-		 * @param  {Mix}    msg      [消息体（内容）]
-		 * @param  {Mix}    returns  [返回给发送者的数据]
-		 * @return {Mix}             [returns]
+		 * @param  {Object}   receiver   [接收消息的模块实例]
+		 * @param  {Mix}      msg        [消息体（内容）]
+		 * @param  {Mix}      returns    [返回给发送者的数据]
+		 * @return {Mix}
 		 */
 		_trigger: function(receiver, msg, returns) {
 			// 接收者对该消息的接收方法
 			var func = receiver[msg.method];
+
 			// 标识消息的发送目标
 			msg.to = receiver;
 
@@ -81,10 +87,9 @@ define(['./util'], function(util) {
 
 		/**
 		 * 通知发送者消息已被全部接收完毕
-		 * @param  {Mix}      msg      [消息体（内容）]
-		 * @param  {Function} callback [通知发送者的回调函数]
-		 * @param  {Object}   context  [执行环境]
-		 * @return {Boolean}           [result]
+		 * @param  {Mix}        msg        [消息体（内容）]
+		 * @param  {Function}   callback   [通知发送者的回调函数]
+		 * @param  {Object}     context    [执行环境]
 		 */
 		_notifySender: function(msg, callback, context) {
 			// callback未定义时触发默认事件
@@ -109,8 +114,6 @@ define(['./util'], function(util) {
 			else {
 				this.busy = false;
 			}
-
-			return true;
 		},
 
 		/**
@@ -118,6 +121,7 @@ define(['./util'], function(util) {
 		 */
 		_sendQueue: function() {
 			var request = messager.queue.shift();
+
 			messager.busy = false;
 
 			if (!request) {
@@ -136,22 +140,24 @@ define(['./util'], function(util) {
 
 		/**
 		 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
-		 * @param  {Object}   sender   [发送消息的子模块实例]
-		 * @param  {String}   name     [发送的消息名称]
-		 * @param  {Mix}      param    [<可选>附加消息参数]
-		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}   context  [执行环境]
+		 * @param  {Object}     sender     [发送消息的子模块实例]
+		 * @param  {String}     name       [发送的消息名称]
+		 * @param  {Mix}        param      [<可选>附加消息参数]
+		 * @param  {Function}   callback   [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+		 * @param  {Object}     context    [执行环境]
 		 */
 		fire: function(sender, name, param, callback, context) {
 			var type = 'fire';
+
 			// 是否处于忙碌状态
-			if (this.busy || syncCount) {
+			if (this.busy || Sync.count) {
 				this.queue.push([type, sender, name, param, callback, context]);
-				if (syncCount) {
-					Sync(this._sendQueue, this);
+				if (Sync.count) {
+					Sync.addQueue(this._sendQueue, this);
 				}
 				return false;
 			}
+
 			this.busy = true;
 
 			// 创建消息
@@ -166,6 +172,7 @@ define(['./util'], function(util) {
 				if (returns === false) {
 					break;
 				}
+
 				msg.from = receiver;
 				receiver = receiver.getParent();
 			}
@@ -178,14 +185,16 @@ define(['./util'], function(util) {
 		 */
 		broadcast: function(sender, name, param, callback, context) {
 			var type = 'broadcast';
+
 			// 是否处于忙碌状态
-			if (this.busy || syncCount) {
+			if (this.busy || Sync.count) {
 				this.queue.push([type, sender, name, param, callback, context]);
-				if (syncCount) {
-					Sync(this._sendQueue, this);
+				if (Sync.count) {
+					Sync.addQueue(this._sendQueue, this);
 				}
 				return false;
 			}
+
 			this.busy = true;
 
 			// 创建消息
@@ -201,6 +210,7 @@ define(['./util'], function(util) {
 				if (returns === false) {
 					break;
 				}
+
 				receivers.push.apply(receivers, receiver.getChilds(true));
 			}
 
@@ -209,29 +219,31 @@ define(['./util'], function(util) {
 
 		/**
 		 * 向指定模块实例发送消息
-		 * @param  {Object}   sender   [发送消息的模块实例]
-		 * @param  {String}   receiver [接受消息的模块实例名称支持.分层级]
-		 * @param  {String}   name     [发送的消息名称]
-		 * @param  {Mix}      param    [<可选>附加消息参数]
-		 * @param  {Function} callback [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}   context  [执行环境]
+		 * @param  {Object}     sender     [发送消息的模块实例]
+		 * @param  {String}     receiver   [接受消息的模块实例名称支持.分层级]
+		 * @param  {String}     name       [发送的消息名称]
+		 * @param  {Mix}        param      [<可选>附加消息参数]
+		 * @param  {Function}   callback   [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+		 * @param  {Object}     context    [执行环境]
 		 */
 		notify: function(sender, receiver, name, param, callback, context) {
 			var type = 'notify';
+
 			// 是否处于忙碌状态
-			if (this.busy || syncCount) {
+			if (this.busy || Sync.count) {
 				this.queue.push([type, sender, receiver, name, param, callback, context]);
-				if (syncCount) {
-					Sync(this._sendQueue, this);
+				if (Sync.count) {
+					Sync.addQueue(this._sendQueue, this);
 				}
 				return false;
 			}
+
 			this.busy = true;
 
 			// 根据名称获取系统实例
 			function _getInstanceByName(name) {
 				var target = null;
-				util.each(sysCaches, function(cache) {
+				util.each(cache, function(cache) {
 					if ((cache._collections && cache._collections.name) === name) {
 						target = cache;
 						return false;
@@ -262,7 +274,7 @@ define(['./util'], function(util) {
 			}
 
 			if (!util.isObject(receiver)) {
-				util.error('module: \'' + receiver + '\' is not found in sysCaches!');
+				util.error('module: \'' + receiver + '\' is not found in cache!');
 				return false;
 			}
 
@@ -275,28 +287,32 @@ define(['./util'], function(util) {
 
 		/**
 		 * 全局广播发消息，系统全部实例接受
-		 * @param  {String}   name     [发送的消息名称]
-		 * @param  {Mix}      param    [<可选>附加消息参数]
+		 * @param  {String}   name    [发送的消息名称]
+		 * @param  {Mix}      param   [<可选>附加消息参数]
 		 */
 		globalCast: function(name, param) {
 			var type = 'globalCast';
+
 			// 是否处于忙碌状态
-			if (this.busy || syncCount) {
+			if (this.busy || Sync.count) {
 				this.queue.push([type, name, param]);
-				if (syncCount) {
-					Sync(this._sendQueue, this);
+				if (Sync.count) {
+					Sync.addQueue(this._sendQueue, this);
 				}
 				return false;
 			}
+
 			this.busy = false;
 
 			var msg = this._create(type, 'core', name, param);
 
-			util.each(sysCaches, function(receiver, cls) {
+			util.each(cache, function(receiver, cls) {
 				this._trigger(receiver, msg);
 			});
 		}
 	};
 
-	return new Messager();
+	var messager = new Messager();
+
+	return messager;
 });

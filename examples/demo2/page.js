@@ -3,7 +3,7 @@
  */
 
 define(['page'], function() {
-	var sugar = require('../../sugar');
+	var sugar = require('../../src/index');
 	var $ = sugar.jquery;
 
 	/**
