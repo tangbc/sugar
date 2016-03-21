@@ -117,6 +117,8 @@ define([
 				this.complieDirectives(info);
 				return null;
 			}, this);
+
+			this.checkCompleted();
 		},
 
 		/**
@@ -217,10 +219,6 @@ define([
 					default: util.warn(name + ' is an unknown directive!');
 				}
 			}
-
-			if (!fors) {
-				this.checkCompleted();
-			}
 		},
 
 		/**
@@ -257,10 +255,6 @@ define([
 			}
 			else {
 				this.parser.parseVText(node, field, 'v-text-plain', fors);
-			}
-
-			if (!fors) {
-				this.checkCompleted();
 			}
 		},
 

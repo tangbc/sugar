@@ -28,7 +28,7 @@ require(['../../../dist/sugar'], function(sugar) {
 
 					// double vfor test
 					'<div v-for="item in items" v-bind="{data-id: did, id: item.id}">',
-						'<i v-text="item.text"></i>',
+						'<i>{{item.text}}</i>',
 					'</div>',
 					'<p v-for="item in items" v-bind="{id: item.id, data-id: did}">',
 						'<b>{{item.text}}</b>',
@@ -57,21 +57,19 @@ require(['../../../dist/sugar'], function(sugar) {
 
 					// bind property in top element
 					'did': 'gsw',
-					'items': [
-						{'id': 'curry', 'text': '库里'},
-						{'id': 'kelay', 'text': '克莱'},
-						{'id': 'green', 'text': '格林'}
-					]
+					// 'items': [
+					// 	{'id': 'curry', 'text': '库里'},
+					// 	{'id': 'kelay', 'text': '克莱'},
+					// 	{'id': 'green', 'text': '格林'}
+					// ],
+					'items': null
 				}
 			});
 			this.Super('init', arguments);
 		},
-		viewReady: function() {
-			var vm = this.vm.$data;
 
-			this.setTimeout(function() {
-				vm.items[0].style = {'background': '#adcdef'};
-			}, 5000);
+		viewReady: function() {
+			window.vm = this.vm.$data;
 		}
 	});
 

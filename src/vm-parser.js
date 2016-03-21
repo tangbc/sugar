@@ -491,7 +491,7 @@ define([
 		/**
 		 * 绑定节点属性
 		 * @param   {DOMElement}  node
-		 * @param   {String}      field  [数据绑定字段]
+		 * @param   {String}      field
 		 * @param   {String}      attr
 		 * @param   {Array}       fors
 		 */
@@ -691,7 +691,7 @@ define([
 
 			updater.updateNodeFormRadioChecked(node, value);
 
-			this.bindModelRadioEvent(node, field, inFor, fors);
+			this.bindVModelRadioEvent(node, field, inFor, fors);
 		},
 
 		/**
@@ -699,7 +699,7 @@ define([
 		 * @param   {Input}   node
 		 * @param   {String}  field
 		 */
-		bindModelRadioEvent: function(node, field, inFor, fors) {
+		bindVModelRadioEvent: function(node, field, inFor, fors) {
 			var self = this;
 			dom.addEvent(node, 'change', function() {
 				self.setVModelValue(field, this.value, inFor, fors);
@@ -735,7 +735,7 @@ define([
 
 			updater.updateNodeFormCheckboxChecked(node, value);
 
-			this.bindCheckboxEvent(node, field, inFor, infos);
+			this.bindVModelCheckboxEvent(node, field, inFor, infos);
 		},
 
 		/**
@@ -745,7 +745,7 @@ define([
 		 * @param   {Boolean}  inFor
 		 * @param   {Array}    infos
 		 */
-		bindCheckboxEvent: function(node, field, inFor, infos) {
+		bindVModelCheckboxEvent: function(node, field, inFor, infos) {
 			var self = this, scope, alias, key;
 
 			if (inFor) {
@@ -841,7 +841,7 @@ define([
 				}, this);
 			}
 
-			this.bindSelectEvent(node, field, multi, inFor, fors);
+			this.bindVModelSelectEvent(node, field, multi, inFor, fors);
 		},
 
 		/**
@@ -852,7 +852,7 @@ define([
 		 * @param   {Boolean}  inFor
 		 * @param   {Array}    fors
 		 */
-		bindSelectEvent: function(node, field, multi, inFor, fors) {
+		bindVModelSelectEvent: function(node, field, multi, inFor, fors) {
 			var self = this;
 			dom.addEvent(node, 'change', function() {
 				var selects = self.getSelectValue(this);
@@ -934,7 +934,7 @@ define([
 
 			template = this.buildVforTemplate(node, array, field, scope, alias, level);
 
-			parent.replaceChild(template, node);
+			node.parentNode.replaceChild(template, node);
 
 			if (isOption) {
 				this.froceUpdateOption(parent, fors);
@@ -966,7 +966,7 @@ define([
 
 		/**
 		 * 根据源数组构建循环板块集合
-		 * @param   {DOMElement}  node   [重复节点]
+		 * @param   {DOMElement}  node   [重复模板]
 		 * @param   {Array}       array  [源数组]
 		 * @param   {String}      field  [访问路径]
 		 * @param   {Object}      scope  [循环中对象取值范围]
@@ -986,7 +986,7 @@ define([
 				var cloneNode = node.cloneNode(true);
 				var fors = [item, index, path, scope, alias, level];
 
-				// 阻止重复编译节点除vfor以外的指令
+				// 阻止重复编译除vfor以外的指令
 				if (node._vfor_directives > 1) {
 					vm.blockCompileNode(node);
 				}
@@ -994,7 +994,7 @@ define([
 				// 可在编译过程中获取当前循环对象的所有信息
 				// 当编译结束之后别名对应的取值对象是循环体的最后一项
 				scope[alias] = item;
-				// 解析/编译板块
+				// 传入vfor数据编译板块
 				vm.complieElement(cloneNode, true, fors);
 				// 定义私有标记属性
 				util.defineProperty(cloneNode, '_vfor_alias', alias);
@@ -1128,7 +1128,7 @@ define([
 		recompileVforArray: function(parent, node, newArray, method, infos) {
 			var template, alias = infos[2];
 			var childNodes = parent.childNodes;
-			var flag, child, args = [node, newArray];
+			var scapegoat, child, args = [node, newArray];
 
 			// 重新构建循环板块
 			util.AP.push.apply(args, infos);
@@ -1138,8 +1138,8 @@ define([
 			for (var i = 0; i < childNodes.length; i++) {
 				child = childNodes[i];
 				if (child._vfor_alias === alias) {
-					if (!flag) {
-						flag = child;
+					if (!scapegoat) {
+						scapegoat = child;
 					}
 					else {
 						i--;
@@ -1148,7 +1148,7 @@ define([
 				}
 			}
 
-			parent.replaceChild(template, flag);
+			parent.replaceChild(template, scapegoat);
 		},
 
 		/**
