@@ -1,25 +1,26 @@
 require(['../../../src/index'], function(sugar) {
-	var $ = sugar.jquery;
 
 	var MainPage = sugar.Container.extend({
 		init: function(config) {
 			config = this.cover(config, {
+				'target'  : document.querySelector('body'),
 				'template': 'tpl.html'
 			});
 			this.Super('init', arguments);
 		},
 
 		viewReady: function() {
-			var span = this.query('span');
+			this.createTemplate();
+		},
 
-			this.bind(span, 'click', function(e) {
-				// console.log(e);
-			});
+		afterBuild: function() {
+			var sub = this.getChild('sub2');
+			this.setTimeout(function() {
+				sub.destroy();
+			}, 3000);
 		}
 	});
 
 
-	sugar.core.create('mainPage', MainPage, {
-		'target': document.querySelector('body')
-	});
+	sugar.core.create('mainPage', MainPage);
 });

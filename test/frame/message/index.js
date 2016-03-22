@@ -2,7 +2,7 @@ require(['../../../src/index'], function(sugar) {
 
 	var Subpage = sugar.Container.extend({
 		init: function(config) {
-			config = sugar.cover(config, {
+			config = this.cover(config, {
 				'class': 'sub-page',
 				'html' : [
 					'<h3>This is Subpage</h3>'
@@ -23,7 +23,7 @@ require(['../../../src/index'], function(sugar) {
 
 	var MainPage = sugar.Container.extend({
 		init: function(config) {
-			config = sugar.cover(config, {
+			config = this.cover(config, {
 				'template': 'layout.html'
 			});
 			this.Super('init', arguments);
@@ -32,7 +32,9 @@ require(['../../../src/index'], function(sugar) {
 		viewReady: function() {
 
 			this.create('sub', Subpage, {
-				'target': this.query('.cont')
+				'target': this.query('.cont'),
+				'class': 'sss',
+				'tang': 'bc'
 			});
 		},
 

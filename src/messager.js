@@ -29,10 +29,10 @@ define([
 
 		/**
 		 * 创建一条消息
-		 * @param  {String}    type     [消息类型]
-		 * @param  {Object}    sender   [发送消息的模块实例]
-		 * @param  {String}    name     [发送的消息名称]
-		 * @param  {Mix}       param    [<可选>附加消息参数]
+		 * @param  {String}  type    [消息类型]
+		 * @param  {Object}  sender  [发送消息的模块实例]
+		 * @param  {String}  name    [发送的消息名称]
+		 * @param  {Mix}     param   [<可选>附加消息参数]
 		 * @return {Object}
 		 */
 		_create: function(type, sender, name, param) {
@@ -58,9 +58,9 @@ define([
 
 		/**
 		 * 触发接收消息模块实例的处理方法
-		 * @param  {Object}   receiver   [接收消息的模块实例]
-		 * @param  {Mix}      msg        [消息体（内容）]
-		 * @param  {Mix}      returns    [返回给发送者的数据]
+		 * @param  {Object}  receiver  [接收消息的模块实例]
+		 * @param  {Mix}     msg       [消息体（内容）]
+		 * @param  {Mix}     returns   [返回给发送者的数据]
 		 * @return {Mix}
 		 */
 		_trigger: function(receiver, msg, returns) {
@@ -87,9 +87,9 @@ define([
 
 		/**
 		 * 通知发送者消息已被全部接收完毕
-		 * @param  {Mix}        msg        [消息体（内容）]
-		 * @param  {Function}   callback   [通知发送者的回调函数]
-		 * @param  {Object}     context    [执行环境]
+		 * @param  {Mix}       msg       [消息体（内容）]
+		 * @param  {Function}  callback  [通知发送者的回调函数]
+		 * @param  {Object}    context   [执行环境]
 		 */
 		_notifySender: function(msg, callback, context) {
 			// callback未定义时触发默认事件
@@ -140,11 +140,11 @@ define([
 
 		/**
 		 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
-		 * @param  {Object}     sender     [发送消息的子模块实例]
-		 * @param  {String}     name       [发送的消息名称]
-		 * @param  {Mix}        param      [<可选>附加消息参数]
-		 * @param  {Function}   callback   [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}     context    [执行环境]
+		 * @param  {Object}    sender    [发送消息的子模块实例]
+		 * @param  {String}    name      [发送的消息名称]
+		 * @param  {Mix}       param     [<可选>附加消息参数]
+		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+		 * @param  {Object}    context   [执行环境]
 		 */
 		fire: function(sender, name, param, callback, context) {
 			var type = 'fire';
@@ -219,12 +219,12 @@ define([
 
 		/**
 		 * 向指定模块实例发送消息
-		 * @param  {Object}     sender     [发送消息的模块实例]
-		 * @param  {String}     receiver   [接受消息的模块实例名称支持.分层级]
-		 * @param  {String}     name       [发送的消息名称]
-		 * @param  {Mix}        param      [<可选>附加消息参数]
-		 * @param  {Function}   callback   [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}     context    [执行环境]
+		 * @param  {Object}    sender    [发送消息的模块实例]
+		 * @param  {String}    receiver  [接受消息的模块实例名称支持.分层级]
+		 * @param  {String}    name      [发送的消息名称]
+		 * @param  {Mix}       param     [<可选>附加消息参数]
+		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+		 * @param  {Object}    context   [执行环境]
 		 */
 		notify: function(sender, receiver, name, param, callback, context) {
 			var type = 'notify';
@@ -287,8 +287,8 @@ define([
 
 		/**
 		 * 全局广播发消息，系统全部实例接受
-		 * @param  {String}   name    [发送的消息名称]
-		 * @param  {Mix}      param   [<可选>附加消息参数]
+		 * @param  {String}  name   [发送的消息名称]
+		 * @param  {Mix}     param  [<可选>附加消息参数]
 		 */
 		globalCast: function(name, param) {
 			var type = 'globalCast';

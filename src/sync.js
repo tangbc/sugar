@@ -1,11 +1,14 @@
 /**
- * 异步状态锁，处理模块创建的异步回调和通信，实现回调函数按队列触发
+ * 异步状态锁
  */
 define(['./util'], function(util) {
 
+	/**
+	 * 异步状态锁，处理模块创建的异步回调和通信，实现回调函数按队列触发
+	 */
 	function Sync() {
 		/**
-		 * 同步计数
+		 * 异步计数
 		 * @type  {Number}
 		 */
 		this.count = 0;
@@ -72,7 +75,5 @@ define(['./util'], function(util) {
 		}
 	}
 
-	var sync = new Sync();
-
-	return sync;
+	return new Sync();
 });

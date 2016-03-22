@@ -37,7 +37,7 @@ define([
 			var model = this.$model;
 			var callbacks = this.$watchCallbacks;
 
-			if (!util.has(field, model)) {
+			if (!util.hasOwn(model, field)) {
 				util.warn('The field: ' + field + ' does not exist in model!');
 				return;
 			}

@@ -2,164 +2,136 @@
  * 通用函数库
  */
 define(function() {
-	var UDF, UTIL = {};
-
-	var WIN = UTIL.GLOBAL = window;
-	var DOC = UTIL.DOC = WIN.document;
-	var OP = UTIL.OP = Object.prototype;
-	var AP = UTIL.AP = Array.prototype;
-
-	var docBody = DOC.body;
-	var docElem = DOC.documentElement;
+	var WIN = window;
+	var DOC = WIN.document;
+	var OP = Object.prototype;
+	var AP = Array.prototype;
 
 	/**
-	 * typeOfObject 是否是对象
-	 */
-	function typeOfObject(obj) {
-		return (obj && typeof(obj) === 'object');
-	}
-
-	/**
-	 * isObject 是否是对象自变量, {}或new Object()的形式
+	 * 是否是对象自变量, {}或new Object()的形式
 	 */
 	function isObject(obj) {
 		return OP.toString.call(obj) === '[object Object]';
 	}
 
 	/**
-	 * isArray 是否是真数组, []或new Array()的形式
+	 * 是否是真数组, []或new Array()的形式
 	 */
 	function isArray(obj) {
 		return OP.toString.call(obj) === '[object Array]';
 	}
 
 	/**
-	 * isFunc 是否是函数
+	 * 是否是函数
 	 */
 	function isFunc(fn) {
 		return fn instanceof Function;
 	}
 
 	/**
-	 * isString 是否是字符串
+	 * 是否是字符串
 	 */
 	function isString(str) {
 		return typeof(str) === 'string';
 	}
 
 	/**
-	 * isBoolean 是否是布尔值
+	 * 是否是布尔值
 	 */
 	function isBoolean(bool) {
 		return typeof(bool) === 'boolean';
 	}
 
 	/**
-	 * isNumber 是否是数字
+	 * 是否是数字
 	 */
 	function isNumber(num) {
 		return typeof(num) === 'number' && !isNaN(num);
 	}
 
 	/**
-	 * isFakeArray 是否是假数组
+	 * 深复制对象
 	 */
-	function isFakeArray(val) {
-		var key;
-		for (key in val) {
-			if (key === 'length') {
-				if (isNaN(+val[key])) {
+	function _extendObject(target, source) {
+		this.each(source, function(value, key) {
+			// 拷贝值为对象
+			if (isObject(value)) {
+				if (target[key] === value) {
 					return false;
 				}
-			}
-			else if (has(val, key) && isNaN(+key)) {
-				return false;
-			}
-		}
-		return true;
-	}
 
-	/**
-	 * isPlainObject 是否是纯粹对象
-	 */
-	function isPlainObject(val) {
-		if (!isObject(val) || val.nodeType || val === window) {
-			return false;
-		}
-		try {
-			if (val.constructor && !has(val.constructor.prototype, 'isPrototypeOf')) {
-				return false;
+				// target未定义key
+				if (!this.hasOwn(target, key)) {
+					target[key] = {};
+				}
+				_extendObject(target[key], value);
 			}
-		}
-		catch (e) {
-			return false;
-		}
-		return true;
+			// 拷贝值为数组
+			else if (isArray(value)) {
+				target[key] = value.slice(0);
+			}
+			else {
+				target[key] = value;
+			}
+		}, this);
 	}
 
 
 	/**
-	 * 工具方法导出
+	 * Util构造函数
 	 */
-	UTIL.typeOfObject = typeOfObject;
-	UTIL.isObject = isObject;
-	UTIL.isArray = isArray;
-	UTIL.isFunc = isFunc;
-	UTIL.isString = isString;
-	UTIL.isBoolean = isBoolean;
-	UTIL.isNumber = isNumber;
-	UTIL.isFakeArray = isFakeArray;
-	UTIL.isPlainObject = isPlainObject;
+	function Util() {
+		this.WIN = WIN;
+		this.DOC = DOC;
+		this.OP = OP;
+		this.AP = AP;
+
+		this.isFunc = isFunc;
+		this.isArray = isArray;
+		this.isNumber = isNumber;
+		this.isObject = isObject;
+		this.isString = isString;
+		this.isBoolean = isBoolean;
+	}
+
+	var p = Util.prototype;
+	var udf, cons = window.console;
+
 
 	/**
-	 * 日志函数
+	 * 打印日志
 	 */
-	var cons = WIN.console || {};
-	UTIL.log = function() {
+	p.log = function() {
 		cons.log.apply(cons, arguments);
 	}
-	UTIL.error = function() {
+
+	/**
+	 * 打印错误
+	 */
+	p.error = function() {
 		cons.error.apply(cons, arguments);
 	}
-	UTIL.warn = function() {
+
+	/**
+	 * 打印警告信息
+	 */
+	p.warn = function() {
 		cons.warn.apply(cons, arguments);
 	}
 
-	/**
-	 * object定义或修改属性
-	 * @param   {Object|Array}  object         [数组或对象]
-	 * @param   {String}        property       [属性或数组下标]
-	 * @param   {Mix}           value          [属性的修改值/新值]
-	 * @param   {Boolean}       writable       [该属性是否能被赋值运算符改变]
-	 * @param   {Boolean}       enumerable     [该属性是否出现在枚举中]
-	 * @param   {Boolean}       configurable   [该属性是否能够被改变或删除]
-	 */
-	UTIL.defineProperty = function(object, property, value, writable, enumerable, configurable) {
-		return Object.defineProperty(object, property, {
-			'value'       : value,
-			'writable'    : !!writable,
-			'enumerable'  : !!enumerable,
-			'configurable': !!configurable
-		});
-	}
-
 	/*
-	 * has 自有属性检测
+	 * 对象自有属性检测
 	 */
-	function has(key, obj) {
-		if (key === UDF) {
-			return false;
-		}
+	p.hasOwn = function(obj, key) {
 		return OP.hasOwnProperty.call(obj, key);
 	}
-	UTIL.has = has;
 
 	/**
-	 * argumentsToArray 参数转数组
-	 * @param  {Object} args [参数]
-	 * @return {Array}       [数组]
+	 * arguments对象转真实数组
+	 * @param  {Object}  args
+	 * @return {Array}
 	 */
-	UTIL.argumentsToArray = function(args) {
+	p.argumentsToArray = function(args) {
 		if  (args instanceof arguments.constructor) {
 			return AP.slice.call(args);
 		}
@@ -169,31 +141,31 @@ define(function() {
 	}
 
 	/**
-	 * getKey 获取对象键值名
-	 * @param  {String} val  [值]
-	 * @param  {Object} obj  [值所在的对象]
-	 * @return {String}      [键值名称]
+	 * object定义或修改属性
+	 * @param   {Object|Array}  object        [数组或对象]
+	 * @param   {String}        property      [属性或数组下标]
+	 * @param   {Mix}           value         [属性的修改值/新值]
+	 * @param   {Boolean}       writable      [该属性是否能被赋值运算符改变]
+	 * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
+	 * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
 	 */
-	UTIL.getKey = function(val, obj) {
-		var key = '';
-		if ((val && obj) && isObject(obj)) {
-			for (key in obj) {
-				if (has(key, obj)) {
-					return key;
-				}
-			}
-		}
-		return null;
+	p.defineProperty = function(object, property, value, writable, enumerable, configurable) {
+		return Object.defineProperty(object, property, {
+			'value'       : value,
+			'writable'    : !!writable,
+			'enumerable'  : !!enumerable,
+			'configurable': !!configurable
+		});
 	}
 
 	/**
-	 * each 遍历数组或对象
+	 * 遍历数组或对象
 	 * @param  {Array|Object}  items     [数组或对象]
 	 * @param  {Fuction}       callback  [回调函数]
 	 * @param  {Object}        context   [作用域]
 	 */
-	UTIL.each = function(items, callback, context) {
-		var ret, i;
+	p.each = function(items, callback, context) {
+		var ret, i, leng;
 
 		if (!items) {
 			return;
@@ -207,8 +179,9 @@ define(function() {
 			callback = context[callback];
 		}
 
+		// 数组
 		if (isArray(items)) {
-			for (i = 0; i < items.length; i++) {
+			for (i = 0, leng = items.length; i < leng; i++) {
 				ret = callback.call(context, items[i], i);
 
 				// 回调返回false退出循环
@@ -223,11 +196,13 @@ define(function() {
 				}
 			}
 		}
+		// 对象
 		else if (isObject(items)) {
 			for (i in items) {
-				if (!has(i, items)) {
+				if (!this.hasOwn(items, i)) {
 					continue;
 				}
+
 				ret = callback.call(context, items[i], i);
 
 				// 回调返回false退出循环
@@ -244,216 +219,107 @@ define(function() {
 	}
 
 	/**
-	 * find 根据字段和值查找数组中的元素
-	 * @param  {Array}   arr     [数组]
-	 * @param  {Mix}     value   [查询值]
-	 * @param  {String}  field   [对应的字段名]
+	 * 拷贝对象
+	 * @return  {Object}
 	 */
-	UTIL.find = function(arr, value, field) {
-		var ret = null;
-		this.each(arr, function(item) {
-			if (item[field] === value) {
-				ret = item;
-				return false;
-			}
-		});
-		return ret;
-	}
+	p.extend = function() {
+		var result = {};
+		var item, items = arguments;
+		var i = 0, leng = items.length;
 
-	/*
-	 * 模板替换
-	 * eg. UTIL.templateReplace('<a href="{1}">{2}</a>', 'http://www.tangbc.com', '小前端')
-	 * =>  '<a href="http://www.tangbc.com">小前端</a>')
-	 */
-	var templateReplaceList;
-	var templateReplaceRegx = /\%(\d+)|\{\d+\}/g;
-	function _templateReplace(match) {
-		if (match[1] > 0 && templateReplaceList[match[1]] !== UDF) {
-			return templateReplaceList[match[1]];
+		for (; i < leng; i++) {
+			item = items[i];
+			if (isObject(item)) {
+				_extendObject.call(this, result, item);
+			}
 		}
-		else {
-			return match[0];
-		}
-	}
-	UTIL.templateReplace = function(template /*, replaceN ... */) {
-		templateReplaceList = arguments;
-		return template.replace(templateReplaceRegx, _templateReplace);
-	}
 
-	/**
-	 * 防环状嵌套克隆
-	 * @param {Mix} obj 克隆的对象值
-	 */
-	function CloneObject(obj) {
-		if (isPlainObject(obj) || isArray(obj)) {
-			var cloneKey = '___deep_clone___';
-
-			// 已经被克隆过, 返回新克隆对象
-			if (obj[cloneKey]) {
-				return obj[cloneKey];
-			}
-
-			var objClone = obj[cloneKey] = (obj instanceof Array ? [] : {});
-			for (var key in obj) {
-				if (key !== cloneKey && has(key, obj)) {
-					objClone[key] = (typeOfObject(obj[key]) ? CloneObject(obj[key]) : obj[key]);
-				}
-			}
-			delete obj[cloneKey];
-			return objClone;
-		}
-		return obj;
+		return result;
 	}
-
-	/**
-	 * extend 扩展合并
-	 */
-	function ExtendObject(dst, src, deep) {
-		if (dst === src) {
-			return dst;
-		}
-		var i, type = (dst instanceof Array ? 0 : 1) + (src instanceof Array ? 0 : 2);
-		switch (type) {
-			// 都是数组, 合并有值的, 忽略undefined的
-			case 0:
-				for (i = src.length-1; i >= 0; i--) {
-					ExtendItem(dst, i, src[i], 0, deep);
-				}
-			break;
-			// 目标是对象, 新值是数组
-			case 1:
-				dst = CloneObject(src);
-			break;
-			// 目标是数组, 新值是对象
-			case 2:
-				if (!isFakeArray(src)) {
-					dst = CloneObject(src);
-				}
-			break;
-			// 都是对象
-			case 3:
-				if (!dst) {
-					dst = {};
-				}
-				for (i in src) {
-					if (has(i, src)) {
-						ExtendItem(dst, i, src[i], 1, deep);
-					}
-				}
-			break;
-		}
-		return dst;
-	}
-	function ExtendItem(dst, key, value, remove, deep) {
-		// undefined 时删除值
-		if (value === UDF) {
-			if (remove) {
-				delete dst[key];
-			}
-		}
-		else if (value && (isArray(value) || isPlainObject(value))) {
-			// 新值为对象
-			if (dst[key] === value) {
-				return;
-			}
-			// 继续合并数组和简答对象
-			if (deep !== 0) {
-				dst[key] = ExtendObject(dst[key], value, --deep);
-			}
-			// 克隆新对象赋值
-			else {
-				dst[key] = CloneObject(value);
-			}
-		}
-		// 直接赋值
-		else {
-			dst[key] = value;
-		}
-	}
-	UTIL.extend = function() {
-		var args = arguments;
-		var len = args.length;
-		var deep = args[0];
-		var target = args[1];
-		var i = 2;
-		if (!isNumber(deep)) {
-			target = deep;
-			deep = -1;
-			i = 1;
-		}
-		if (!target) {
-			target = {};
-		}
-		while (i < len) {
-			if (typeOfObject(args[i])) {
-				target = ExtendObject(target, args[i], deep);
-			}
-			i++;
-		}
-		return target;
-	};
 
 	/**
 	 * 复制对象或数组
-	 * @param   {Object|Array}  obj  [需要复制的对象]
-	 * @return  {Object}             [复制后的对象]
+	 * @param   {Object|Array}  target
+	 * @return  {Mix}
 	 */
-	UTIL.copy = function(obj) {
+	p.copy = function(target) {
 		var ret;
-		if (isArray(obj)) {
-			ret = obj.slice(0);
+
+		if (isArray(target)) {
+			ret = target.slice(0);
 		}
-		else if (isObject(obj)) {
-			ret = this.extend({}, obj);
+		else if (isObject(target)) {
+			ret = this.extend(target);
 		}
 		else {
 			ret = obj;
 		}
+
 		return ret;
 	}
 
 	/**
 	 * 字符串首字母大写
 	 */
-	UTIL.ucFirst = function(str) {
-		if (!isString(str)) {
-			return str;
-		}
+	p.ucFirst = function(str) {
 		var first = str.charAt(0).toUpperCase();
 		return first + str.substr(1);
 	}
 
 	/**
-	 * 多语言翻译函数，翻译规则为全局的T函数(UTIL外实现)
-	 * @type  {Function}
+	 * 解析模块路径，返回真实路径和导出点
+	 * @param   {String}  uri  [子模块uri]
+	 * @return  {Object}
 	 */
-	UTIL.TRANSLATE = !UTIL.isFunc(WIN.T) ? function() {
-		return UTIL.templateReplace.apply(this, arguments);
-	} : WIN.T;
+	p.resolveUri = function(uri) {
+		if (!isString(uri)) {
+			return {};
+		}
 
-	// ********************************** new sugar **************************************
+		// 根据"."拆解uri，处理/path/to/file.base的情况
+		var point = uri.lastIndexOf('.');
+		// 模块路径
+		var path = '';
+		// 模块导出点
+		var expt = null;
+
+		if (point !== -1) {
+			path = uri.substr(0, point);
+			expt = uri.substr(point + 1);
+		}
+		else {
+			path = uri;
+			expt = null;
+		}
+
+		return {
+			'path': path,
+			'expt': expt
+		}
+	}
 
 	/**
 	 * 设置/读取配置对象
-	 * @param  {Object} cData  [配置对象]
-	 * @param  {String} name   [配置名称, 支持/分隔层次]
-	 * @param  {Mix}    value  [不传为读取配置信息, null为删除配置, 其他为设置值]
-	 * @return {Mix}           [返回读取的配置值, 操作失败返回false]
+	 * @param  {Object}  cData  [配置对象]
+	 * @param  {String}  name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}     value  [不传为读取配置信息, null为删除配置, 其他为设置值]
+	 * @return {Mix}            [返回读取的配置值]
 	 */
-	UTIL.config = function (cData, name, value) {
+	p.config = function(cData, name, value) {
 		// 不传cData配置对象
-		if (this.isString(cData) || arguments.length === 0) {
+		if (isString(cData) || arguments.length === 0) {
 			value = name;
 			name = cData;
+			cData = {};
 		}
 
-		var set = (value !== UDF);
+		var set = (value !== udf);
 		var remove = (value === null);
 		var data = cData;
 
 		if (name) {
 			var ns = name.split('/');
-			while (ns.length > 1 && this.has(ns[0], data)) {
+			while (ns.length > 1 && this.hasOwn(data, ns[0])) {
 				data = data[ns.shift()];
 			}
 			if (ns.length > 1) {
@@ -463,7 +329,7 @@ define(function() {
 				if (remove)	{
 					return true;
 				}
-				return UDF;
+				return udf;
 			}
 			name = ns[0];
 		}
@@ -485,25 +351,22 @@ define(function() {
 		}
 	}
 
-
-	// ********** vm ************
-
 	/**
 	 * 去掉字符串中所有空格
 	 * @param   {String}  string
 	 * @return  {String}
 	 */
-	UTIL.removeSpace = function(string) {
+	p.removeSpace = function(string) {
 		return string.replace(/\s/g, '');
 	}
 
 	/**
 	 * 拆解字符键值对，返回键和值
-	 * @param   {String}         expression
-	 * @param   {Boolean}        both          [是否返回键和值]
+	 * @param   {String}        expression
+	 * @param   {Boolean}       both         [是否返回键和值]
 	 * @return  {String|Array}
 	 */
-	UTIL.getStringKeyValue = function(expression, both) {
+	p.getStringKeyValue = function(expression, both) {
 		var array = expression.split(':');
 		return both ? array : array.pop();
 	}
@@ -513,7 +376,7 @@ define(function() {
 	 * @param   {String}  expression
 	 * @return  {Array}
 	 */
-	UTIL.stringToParameters = function(expression) {
+	p.stringToParameters = function(expression) {
 		var ret, params, func;
 		var matches = expression.match(/(\(.*\))/);
 		var result = matches && matches[0];
@@ -537,7 +400,7 @@ define(function() {
 	 * @param   {String}  jsonString
 	 * @return  {Array}
 	 */
-	UTIL.jsonStringToArray = function(jsonString) {
+	p.jsonStringToArray = function(jsonString) {
 		var ret = [], props, leng = jsonString.length;
 
 		if (jsonString.charAt(0) === '{' && jsonString.charAt(leng - 1) === '}') {
@@ -557,10 +420,19 @@ define(function() {
 	}
 
 	/**
+	 * 创建一个空的dom元素
+	 * @param   {String}     tag  [元素标签名称]
+	 * @return  {DOMElemnt}
+	 */
+	p.createElement = function(tag) {
+		return DOC.createElement(tag);
+	}
+
+	/**
 	 * 返回一个空文档碎片
 	 * @return  {Fragment}
 	 */
-	UTIL.createFragment = function() {
+	p.createFragment = function() {
 		return DOC.createDocumentFragment();
 	}
 
@@ -568,7 +440,7 @@ define(function() {
 	 * DOMElement转换成文档片段
 	 * @param   {DOMElement}  element
 	 */
-	UTIL.nodeToFragment = function(element) {
+	p.nodeToFragment = function(element) {
 		var child;
 		var fragment = this.createFragment();
 		var cloneNode = element.cloneNode(true);
@@ -585,12 +457,12 @@ define(function() {
 	 * @param   {String}    html
 	 * @return  {Fragment}
 	 */
-	UTIL.stringToFragment = function(html) {
+	p.stringToFragment = function(html) {
 		var div, fragment;
 
 		// 存在标签
 		if (/<[^>]+>/g.test(html)) {
-			div = DOC.createElement('div');
+			div = this.createElement('div');
 			div.innerHTML = html;
 			fragment = this.nodeToFragment(div);
 		}
@@ -604,5 +476,5 @@ define(function() {
 	}
 
 
-	return UTIL;
+	return new Util();
 });

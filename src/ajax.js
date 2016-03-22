@@ -29,7 +29,7 @@ define(['./util'], function(util) {
 		 */
 		_execute: function(dataType, url, method, param, callback, context) {
 			var xmlHttp = this.xmlHttp;
-			var params = [], ct = context || util.GLOBAL;
+			var params = [], ct = context || util.WIN;
 
 			// 初始化请求
 			xmlHttp.open(method, url, true);
