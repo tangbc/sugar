@@ -15,110 +15,107 @@ define(['./util'], function(util) {
 	function Ajax() {
 		this.xmlHttp = new XMLHttpRequest();
 	}
-	Ajax.prototype = {
-		constructor: Ajax,
 
-		/**
-		 * 执行一个http请求
-		 * @param   {String}    dataType  [回调数据类型json/text]
-		 * @param   {String}    url       [请求url]
-		 * @param   {String}    method    [请求类型]
-		 * @param   {String}    param     [请求参数]
-		 * @param   {Function}  callback  [回调函数]
-		 * @param   {Function}  context   [作用域]
-		 */
-		_execute: function(dataType, url, method, param, callback, context) {
-			var xmlHttp = this.xmlHttp;
-			var params = [], ct = context || util.WIN;
+	var p = Ajax.prototype;
 
-			// 初始化请求
-			xmlHttp.open(method, url, true);
+	/**
+	 * 执行一个http请求
+	 * @param   {String}    dataType  [回调数据类型json/text]
+	 * @param   {String}    url       [请求url]
+	 * @param   {String}    method    [请求类型]
+	 * @param   {String}    param     [请求参数]
+	 * @param   {Function}  callback  [回调函数]
+	 * @param   {Function}  context   [作用域]
+	 */
+	p._execute = function(dataType, url, method, param, callback, context) {
+		var xmlHttp = this.xmlHttp;
+		var params = [], ct = context || util.WIN;
 
-			// 状态变化回调
-			xmlHttp.onreadystatechange = function() {
-				var response;
-				var result = null, error = null, status = xmlHttp.status;
+		// 初始化请求
+		xmlHttp.open(method, url, true);
 
-				// 请求完成
-				if (xmlHttp.readyState === 4) {
-					response = xmlHttp.responseText;
+		// 状态变化回调
+		xmlHttp.onreadystatechange = function() {
+			var response;
+			var result = null, error = null, status = xmlHttp.status;
 
-					// 返回数据类型
-					if (dataType !== 'text') {
-						try {
-							response = JSON.parse(response);
-						}
-						catch (e) {}
+			// 请求完成
+			if (xmlHttp.readyState === 4) {
+				response = xmlHttp.responseText;
+
+				// 返回数据类型
+				if (dataType !== 'text') {
+					try {
+						response = JSON.parse(response);
 					}
-
-					// 请求响应成功
-					if (status === 200) {
-						result = {
-							'success': true,
-							'result' : response
-						}
-					}
-					// 响应失败
-					else {
-						error = {
-							'result' : null,
-							'success': false,
-							'status' : status
-						}
-					}
-
-					callback.call(ct, error, result);
+					catch (e) {}
 				}
+
+				// 请求响应成功
+				if (status === 200) {
+					result = {
+						'success': true,
+						'result' : response
+					}
+				}
+				// 响应失败
+				else {
+					error = {
+						'result' : null,
+						'success': false,
+						'status' : status
+					}
+				}
+
+				callback.call(ct, error, result);
 			}
-
-			if (param) {
-				xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			}
-
-			xmlHttp.send(param);
-		},
-
-		/**
-		 * get请求
-		 */
-		get: function(url, param, callback, context, dataType) {
-			var params = [];
-
-			if (util.isFunc(param)) {
-				dataType = context;
-				context = callback;
-				callback = param;
-				param = null;
-			}
-
-			// 格式化参数对象
-			util.each(param, function(val, key) {
-				params.push(key + '=' + encodeURIComponent(val));
-			});
-
-			if (params.length) {
-				url = url + '?' + params.join('&');
-			}
-
-			this._execute(dataType || 'json', url, 'GET', null, callback, context);
-		},
-
-		/**
-		 * post请求
-		 */
-		post: function(url, param, callback, context) {
-			this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
-		},
-
-		/**
-		 * 拉取静态模板
-		 */
-		load: function(url, param, callback, context) {
-			this.get(url, param, callback, context, 'text');
 		}
+
+		if (param) {
+			xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		}
+
+		xmlHttp.send(param);
 	}
 
-	var ajax = new Ajax();
+	/**
+	 * get请求
+	 */
+	p.get = function(url, param, callback, context, dataType) {
+		var params = [];
 
-	return ajax;
+		if (util.isFunc(param)) {
+			dataType = context;
+			context = callback;
+			callback = param;
+			param = null;
+		}
+
+		// 格式化参数对象
+		util.each(param, function(val, key) {
+			params.push(key + '=' + encodeURIComponent(val));
+		});
+
+		if (params.length) {
+			url = url + '?' + params.join('&');
+		}
+
+		this._execute(dataType || 'json', url, 'GET', null, callback, context);
+	}
+
+	/**
+	 * post请求
+	 */
+	p.post = function(url, param, callback, context) {
+		this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
+	}
+
+	/**
+	 * 拉取静态模板
+	 */
+	p.load = function(url, param, callback, context) {
+		this.get(url, param, callback, context, 'text');
+	}
+
+	return new Ajax();;
 });

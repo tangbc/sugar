@@ -8,10 +8,10 @@ define([
 	'./sync',
 	'./messager'
 ], function(util, Root, cache, sync, messager) {
+
 	/**
 	 * Module 系统模块基础类，实现所有模块的通用方法
 	 */
-	var childArray = 'childArray', childMap = 'childMap';
 	var Module = Root.extend({
 		/**
 		 * _collections 记录模块信息
@@ -43,15 +43,15 @@ define([
 			var cls = this._collections;
 
 			// 建立模块关系信息
-			if (!util.hasOwn(cls, childArray)) {
+			if (!util.hasOwn(cls, 'childArray')) {
 				// 子模块实例缓存数组
-				cls[childArray] = [];
+				cls['childArray'] = [];
 				// 子模块命名索引
-				cls[childMap] = {};
+				cls['childMap'] = {};
 			}
 
 			// 判断是否已经创建过
-			if (cls[childMap][name]) {
+			if (cls['childMap'][name]) {
 				util.error('Module\'s name already exists: ', name);
 				return;
 			}
@@ -75,8 +75,8 @@ define([
 			cache.length++;
 
 			// 缓存子模块实例
-			cls[childArray].push(instance);
-			cls[childMap][name] = instance;
+			cls['childArray'].push(instance);
+			cls['childMap'][name] = instance;
 
 			// 调用模块实例的init方法，传入配置参数和父模块
 			if (util.isFunc(instance.init)) {
@@ -238,7 +238,7 @@ define([
 		 */
 		getChild: function(name) {
 			var cls = this._collections;
-			return cls && cls[childMap] && cls[childMap][name] || null;
+			return cls && cls['childMap'] && cls['childMap'][name] || null;
 		},
 
 		/**
@@ -249,7 +249,7 @@ define([
 		getChilds: function(returnArray) {
 			var cls = this._collections;
 			returnArray = util.isBoolean(returnArray) && returnArray;
-			return returnArray ? (cls[childArray] || []) : (cls[childMap] || {});
+			return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
 		},
 
 		/**
@@ -259,8 +259,8 @@ define([
 		 */
 		_removeChild: function(name) {
 			var cls = this._collections;
-			var cMap = cls[childMap] || {};
-			var cArray = cls[childArray] || [];
+			var cMap = cls['childMap'] || {};
+			var cArray = cls['childArray'] || [];
 			var child = cMap[name];
 
 			if (!child) {
