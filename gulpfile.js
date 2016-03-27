@@ -2,42 +2,30 @@ var gulp = require('gulp');
 // js语法检测
 var jshint = require('gulp-jshint');
 
-
 // 监听的js文件
-var jsFiles = ['dist/*.js', 'src/*.js'];
+var jsFiles = ['src/*.js', 'src/sug/*.js', 'src/vm/*.js'];
 
 // js语法检测配置
 var jshintConfig = {
-	'asi'       : true,
-	'curly'     : true,
-	'latedef'   : true,
-	'forin'     : false,
-	'noarg'     : false,
-	'sub'       : true,
-	'undef'     : true,
-	'unused'    : 'vars',
-	'boss'      : true,
-	'eqnull'    : true,
-	'browser'   : true,
-	'laxcomma'  : true,
-	'devel'     : true,
-	'smarttabs' : true,
-	'predef'    : [
-		'T',
-		'_T',
-		'module',
-		'require',
-		'define',
-		'console',
-		'seajs'
-	],
-	'globals'   : {
-		'jQuery'  : true,
-		'browser' : true
-	}
+	'asi'      : true,
+	'curly'    : true,
+	'latedef'  : true,
+	'forin'    : false,
+	'noarg'    : false,
+	'sub'      : true,
+	'undef'    : true,
+	'unused'   : 'vars',
+	'boss'     : true,
+	'eqnull'   : true,
+	'browser'  : true,
+	'laxcomma' : true,
+	'devel'    : true,
+	'smarttabs': true,
+	// Avoid warning The '__proto__' property is deprecated.
+	'proto'    : true,
+	'predef'   : ['module', 'require', 'define']
 }
 
-// js代码语法检测
 gulp.task('jshint', function() {
 	gulp.src(jsFiles)
 		.pipe(jshint(jshintConfig))

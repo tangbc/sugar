@@ -1,18 +1,32 @@
 {
   "name": "sugar",
-  "version": "0.1.0",
-  "description": "sugar framework",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "2.0.0",
+  "description": "A JavaScript framework for building modular and component frontend projects ",
+  "keywords": [
+    "modular",
+    "mvvm",
+    "framework"
+  ],
+  "main": "dist/sugar.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tangbc/sugar.git"
   },
-  "author": "tangbc",
-  "license": "ISC",
+  "bugs": "https://github.com/tangbc/sugar/issues",
+  "scripts": {
+    "pack-vm": "webpack --config build/vm.config.js",
+    "pack-vm-uglify": "webpack --config build/vm.uglify.config.js",
+    "pack-sugar": "webpack --config build/sugar.config.js",
+    "pack-sugar-uglify": "webpack --config build/sugar.uglify.config.js",
+    "pack-all": "npm run pack-sugar & npm run pack-sugar-uglify & npm run pack-vm & npm run pack-vm-uglify"
+  },
+  "author": "TANG",
+  "license": "MIT",
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-jshint": "^1.11.2",
-    "gulp-less": "^3.0.3",
-    "gulp-minify-css": "^1.2.0",
-    "gulp-rename": "^1.2.2"
+    "rollup": "^0.25.6",
+    "uglify-js": "^2.6.2",
+    "webpack": "^1.12.14"
   }
 }

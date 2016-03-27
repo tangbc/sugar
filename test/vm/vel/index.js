@@ -1,42 +1,24 @@
-require(['../../../dist/sugar'], function(sugar) {
-	var $ = sugar.jquery;
+require(['../../../src/vm/index'], function(VM) {
+	var body = document.querySelector('body');
 
-	var MainPage = sugar.Container.extend({
-		init: function(config) {
-			config = sugar.cover(config, {
-				'html': [
-					'<ul>',
-						'<li v-for="item in items">',
-							'<b v-text="item.text"></b>',
-							'<div v-for="p in item.ps">',
-								'<span v-el="p.el">{{p.number}}</span>',
-							'</div>',
-						'</li>',
-					'</ul>'
-				].join(''),
-				'model': {
-					'items': [
-						{'text': '库里', 'ps': [{'number': 30}, {'number': 13}]},
-						{'text': '汤普森', 'ps': [{'number': 11}]},
-						{'text': '格林', 'ps': [{'number': 23}]}
-					]
-				}
-			});
-			this.Super('init', arguments);
-		},
-		viewReady: function() {
-			window.vm = this.vm.$data;
+	body.innerHTML = [
+		'<ul>',
+			'<li v-for="item in items">',
+				'<b v-text="item.text"></b>',
+				'<div v-for="p in item.ps">',
+					'<span v-el="p.el">{{p.number}}</span>',
+				'</div>',
+			'</li>',
+		'</ul>'
+	].join('');
 
-			this.setTimeout(function() {
-
-				this.setTimeout(function() {
-
-				}, 2000)
-			}, 2000);
-		}
+	var vm = new VM(body, {
+		'items': [
+			{'text': '库里', 'ps': [{'number': 30}, {'number': 13}]},
+			{'text': '汤普森', 'ps': [{'number': 11}]},
+			{'text': '格林', 'ps': [{'number': 23}]}
+		]
 	});
 
-	sugar.core.create('mainPage', MainPage, {
-		'target': $('body')
-	});
+	window.vm = vm.$data;
 });

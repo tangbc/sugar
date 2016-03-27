@@ -1,42 +1,30 @@
-require(['../../../dist/sugar'], function(sugar) {
-	var $ = sugar.jquery;
+require(['../../../src/vm/index'], function(VM) {
+	var body = document.querySelector('body');
 
-	var MainPage = sugar.Container.extend({
-		init: function(config) {
-			config = sugar.cover(config, {
-				'html': [
-					// '<h3>{{title}}</h3>',
-					// '<input type="text" v-model="title">'
+	body.innerHTML = [
+		// '<h3>{{title}}</h3>',
+		// '<input type="text" v-model="title">'
 
-					// vfor test
-					'<h3>{{title}}</h3>',
-					'<ul>',
-						'<li v-for="item in items">',
-							'<span>{{item.title}}</span>',
-							'<input type="text" v-model="item.title">',
-							'<input type="text" v-model="title">',
-						'</li>',
-					'</ul>'
-				].join(''),
-				'model': {
-					'title': '标题',
+		// vfor test
+		'<h3>{{title}}</h3>',
+		'<ul>',
+			'<li v-for="item in items">',
+				'<span>{{item.title}}</span>',
+				'<input type="text" v-model="item.title">',
+				'<input type="text" v-model="title">',
+			'</li>',
+		'</ul>'
+	].join('');
 
-					'items': [
-						{'title': 'aaa'},
-						{'title': 'bbb'},
-						{'title': 'ccc'}
-					]
-				}
-			});
-			this.Super('init', arguments);
-		},
+	var vm = new VM(body, {
+		'title': '标题',
 
-		viewReady: function() {
-			window.vm = this.vm.$data;
-		}
+		'items': [
+			{'title': 'aaa'},
+			{'title': 'bbb'},
+			{'title': 'ccc'}
+		]
 	});
 
-	sugar.core.create('mainPage', MainPage, {
-		'target': $('body')
-	});
+	window.vm = vm.$data;
 });
