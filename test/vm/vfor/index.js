@@ -63,5 +63,5 @@ require(['../../../src/vm/index'], function(VM) {
 		// 'items': null
 	});
 
-	window.vm = vm.$data;
+	window.vm = vm.get();
 });

@@ -20,5 +20,5 @@ require(['../../../src/vm/index'], function(VM) {
 		]
 	});
 
-	window.vm = vm.$data;
+	window.vm = vm.get();
 });
