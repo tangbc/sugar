@@ -277,7 +277,7 @@ define(function() {
 			ret = target.slice(0);
 		}
 		else if (isObject(target)) {
-			ret = this.extend(target);
+			ret = this.extendObject(true, {}, target);
 		}
 		else {
 			ret = target;
@@ -380,7 +380,7 @@ define(function() {
 	}
 
 	/**
-	 * DOMElement转换成文档片段
+	 * DOMElement的子节点转换成文档片段
 	 * @param   {DOMElement}  element
 	 */
 	up.nodeToFragment = function(element) {

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<title>打星评分组件</title>
+	<script type="text/javascript" src="../require.js" data-main="index"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<style type="text/css">
+	ul{
+		display: inline;
+	}
+	li{
+		cursor: pointer;
+		list-style: none;
+		display: inline-block;
+		margin: 0 5px;
+		font-size: 35px;
+		color: orange;
+	}
+	.box{
+		padding-bottom: 30px;
+	}
+	.result{
+		margin-left: 20px;
+		display: inline;
+		font-size: 25px;
+	}
+	</style>
+</head>
+<body>
+	<h1>利用sugar.js开发的打星评分组件</h1>
+	<p>
+		<i>
+			PS：星星是用
+			<a href="http://fortawesome.github.io/Font-Awesome/icons/" target="_blank"> Font Awesome Bootstrap CDN </a>
+			的矢量图标，所以CSS和字体文件的加载会有点慢 ……
+		</i>
+	</p>
+	<hr>
+	<div class="box" id="star-five">
+		<h2>满分5星默认3星：</h2>
+	</div>
+	<div class="box" id="star-ten">
+		<h2>满分10星默认6.5星：</h2>
+	</div>
+</body>
+</html>

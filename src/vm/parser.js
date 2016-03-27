@@ -1149,7 +1149,13 @@ define([
 			}
 		}
 
-		parent.replaceChild(template, scapegoat);
+		if (scapegoat) {
+			parent.replaceChild(template, scapegoat);
+		}
+		else {
+			parent.appendChild(template);
+		}
+
 	}
 
 	/**

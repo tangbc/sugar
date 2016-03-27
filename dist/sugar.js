@@ -507,7 +507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				ret = target.slice(0);
 			}
 			else if (isObject(target)) {
-				ret = this.extend(target);
+				ret = this.extendObject(true, {}, target);
 			}
 			else {
 				ret = target;
@@ -610,7 +610,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * DOMElement转换成文档片段
+		 * DOMElement的子节点转换成文档片段
 		 * @param   {DOMElement}  element
 		 */
 		up.nodeToFragment = function(element) {
@@ -1892,11 +1892,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util, Parser) {
 
 		/**
-		 * VM构造函数
+		 * VM编译模块
 		 * @param  {DOMElement}  element  [视图的挂载原生DOM]
 		 * @param  {Object}      model    [数据模型对象]
 		 */
-		function VM(element, model) {
+		function VMCompiler(element, model) {
 			if (!this.isElementNode(element)) {
 				util.error('element must be a type of DOMElement: ', element);
 				return;
@@ -1909,8 +1909,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 缓存根节点
 			this.$element = element;
-			// 根节点转为文档碎片
-			this.$fragment = util.nodeToFragment(element);
+			// 元素转为文档碎片
+			this.$fragment = util.nodeToFragment(this.$element);
 
 			// VM数据模型
 			this.$data = model;
@@ -1931,7 +1931,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.init();
 		}
 
-		var vp = VM.prototype;
+		var vp = VMCompiler.prototype;
 
 		vp.init = function() {
 			this.complieElement(this.$fragment, true);
@@ -2227,7 +2227,87 @@ return /******/ (function(modules) { // webpackBootstrap
 			return this.$data[field];
 		}
 
-		return VM;
+
+		/**
+		 * MVVM构造函数，封装VMComplier
+		 * @param  {DOMElement}  element  [视图的挂载原生DOM]
+		 * @param  {Object}      model    [数据模型对象]
+		 * @param  {Function}    context  [VM事件及watch的回调上下文]
+		 */
+		function MVVM(element, model, context) {
+			// 将函数this指向调用者
+			util.each(model, function(value, key) {
+				if (util.isFunc(value)) {
+					model[key] = value.bind(context);
+				}
+			});
+
+			// 初始数据备份
+			this._backup = util.copy(model);
+
+			// 内部MVVM实例
+			this._vm = new VMCompiler(element, model);
+
+			// VM数据模型
+			this.$ = this._vm.$data;
+		}
+
+		var mvp = MVVM.prototype;
+
+		/**
+		 * 获取指定数据模型
+		 * @param   {String}  key  [数据模型字段]
+		 * @return  {Mix}
+		 */
+		mvp.get = function(key) {
+			return util.isString(key) ? this.$[key] : this.$;
+		}
+
+		/**
+		 * 设置数据模型的值，key为JSON时则批量设置
+		 * @param  {String}  key    [数据模型字段]
+		 * @param  {Mix}     value  [值]
+		 */
+		mvp.set = function(key, value) {
+			var vm = this.$;
+			// 批量设置
+			if (util.isObject(key)) {
+				util.each(key, function(v, k) {
+					vm[k] = v;
+				});
+			}
+			else if (util.isString(key)) {
+				vm[key] = value;
+			}
+		}
+
+		/**
+		 * 重置数据模型至初始状态
+		 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
+		 */
+		mvp.reset = function(key) {
+			var vm = this.$;
+			var backup = this._backup;
+
+			// 重置单个
+			if (util.isString(key)) {
+				vm[key] = backup[key];
+			}
+			// 重置多个
+			else if (util.isArray(key)) {
+				util.each(key, function(v, k) {
+					vm[k] = backup[k];
+				});
+			}
+			// 重置所有
+			else {
+				util.each(vm, function(v, k) {
+					vm[k] = backup[k];
+				});
+			}
+		}
+
+		return MVVM;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
@@ -3385,7 +3465,13 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			}
 
-			parent.replaceChild(template, scapegoat);
+			if (scapegoat) {
+				parent.replaceChild(template, scapegoat);
+			}
+			else {
+				parent.appendChild(template);
+			}
+
 		}
 
 		/**

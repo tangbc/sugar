@@ -1,11 +1,13 @@
 {
   "name": "sugar",
   "version": "2.0.0",
-  "description": "A JavaScript framework for building modular and component frontend projects ",
+  "description": "A javascript framework for building modular and component frontend projects.",
   "keywords": [
-    "modular",
     "mvvm",
-    "framework"
+    "modular",
+    "frontend",
+    "framework",
+    "component"
   ],
   "main": "dist/sugar.js",
   "repository": {
