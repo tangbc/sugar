@@ -717,7 +717,7 @@ define([
 		var value = inFor ? this.getVforValue(field, fors) : this.vm.getValue(field);
 
 		if (inFor) {
-			scope = util.copy(fors[3]);
+			scope = util.extend(fors[3]);
 			key = this.getVforKey(field);
 			alias = field.substr(0, field.indexOf(key) - 1);
 			infos = [scope, key, alias];
@@ -774,7 +774,8 @@ define([
 			}
 			// 单个checkbox
 			else if (util.isBoolean(array)) {
-				scope[alias][key] = checked;
+				// scope[alias][key] = checked;
+				self.setVModelValue(field, checked, inFor, infos);
 			}
 		});
 	}

@@ -3,9 +3,9 @@ require(['../../../src/mvvm/index'], function(VM) {
 
 	body.innerHTML =  [
 		// single selection
-		// '<input type="checkbox" value="curry" v-model="mvp"> mvp',
-		// '<hr/>',
-		// '选择结果：<span v-html="mvp"></span>'
+		'<input type="checkbox" v-model="mvp"> mvp',
+		'<br/>',
+		'选择结果：<span v-html="mvp"></span>',
 
 		// multi selection
 		// '<input type="checkbox" value="curry" v-model="players"> 库里',
@@ -31,6 +31,7 @@ require(['../../../src/mvvm/index'], function(VM) {
 		// '</ul>'
 
 		// vfor test multi selection
+		'<hr/>',
 		'<ul>',
 			'<li v-for="item in items">',
 				'<p>',
@@ -50,7 +51,7 @@ require(['../../../src/mvvm/index'], function(VM) {
 		},
 
 		// single selection
-		// 'mvp': true
+		'mvp': true,
 
 		// multi selection
 		// 'players': []
