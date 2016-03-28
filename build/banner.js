@@ -2,23 +2,24 @@
  * banner description
  */
 
-var year = (new Date()).getFullYear();
 var version = require('../package.json').version;
+var released = 'released under the MIT license.';
+var repository = 'https://github.com/tangbc/sugar';
+var author = '(c) ' + (new Date()).getFullYear() + ' TANG';
 
 module.exports = {
 	'sugar': [
 		'sugar.js v' + version,
-		'(c) ' + year + ' TANG',
-		'https://github.com/tangbc/sugar',
-		'released under the MIT license.'
+		author,
+		repository,
+		released
 	].join('\n'),
-
 	'vm': [
-		'vm.js',
+		'mvvm.js',
 		'mvvm library for sugar',
-		'(c) ' + year + ' TANG',
+		author,
 		'this library can be used independently (without sugar)',
-		'https://github.com/tangbc/sugar',
-		'released under the MIT license.'
+		repository,
+		released
 	].join('\n')
 }

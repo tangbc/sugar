@@ -1,16 +1,16 @@
 /**
- * webpack for vm.min config
+ * webpack for mvvm.min config
  */
 
 var webpack = require('webpack');
 var banner = require('./banner').vm;
 
 module.exports = {
-	'entry' : './src/vm/index',
+	'entry' : './src/mvvm/index',
 	'output': {
 		'path'         : './dist',
-		'library'      : 'VM',
-		'filename'     : 'vm.min.js',
+		'library'      : 'MVVM',
+		'filename'     : 'mvvm.min.js',
 		'libraryTarget': 'umd'
 	},
 	'plugins': [

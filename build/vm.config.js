@@ -6,11 +6,11 @@ var webpack = require('webpack');
 var banner = require('./banner').vm;
 
 module.exports = {
-	'entry' : './src/vm/index',
+	'entry' : './src/mvvm/index',
 	'output': {
 		'path'         : './dist',
-		'library'      : 'VM',
-		'filename'     : 'vm.js',
+		'library'      : 'MVVM',
+		'filename'     : 'mvvm.js',
 		'libraryTarget': 'umd'
 	},
 	'plugins': [

@@ -6,7 +6,7 @@ var webpack = require('webpack');
 var banner = require('./banner').sugar;
 
 module.exports = {
-	'entry' : './src/sug/index',
+	'entry' : './src/main/index',
 	'output': {
 		'path'         : './dist',
 		'library'      : 'Sugar',
