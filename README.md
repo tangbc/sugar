@@ -6,9 +6,9 @@ sugar是一个用于创建可继承、可复用和可拓展前端模块&组件�
 # 2. 项目结构
 * `src/` 目录为sugar全部的组成模块
 
-	* `src/main/` 为sugar的核心模块目录，该目录下所有的模块文件都最终服务于container.js（视图容器类），模块之间可以相互创建和消息通信，详细API参见: [sugar.README.md]
+	* `src/main/` 为sugar的核心模块目录，该目录下所有的模块文件都最终服务于container.js（视图容器类），模块之间可以相互创建和消息通信，详细API参见: [README-sugar.md]
 
-	* `src/mvvm/` 为一个简单的视图层mvvm库，通过数据绑定+视图刷新来实现，支持v-text, v-model, v-bind, v-on和v-for等几个常用的指令，mvvm与sugar没有任何依赖和耦合，可独立使用，详细指令参见: [mvvm.README.md]
+	* `src/mvvm/` 为一个简单的视图层mvvm库，通过数据绑定+视图刷新来实现，支持v-text, v-model, v-bind, v-on和v-for等几个常用的指令，mvvm与sugar没有任何依赖和耦合，可独立使用，详细指令参见: [README-mvvm.md]
 
 * `dist/` 目录存放打包好的sugar.js和mvvm.js以及各自的压缩版本
 
