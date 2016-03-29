@@ -62,12 +62,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(1),
+		__webpack_require__(2),
 		__webpack_require__(3),
 		__webpack_require__(5),
 		__webpack_require__(8)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(ajax, core, Module, Container) {
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, ajax, core, Module, Container) {
 
 		function Sugar() {
+			/**
+			 * 工具方法
+			 * @type  {Object}
+			 */
+			this.util = util;
+
 			/**
 			 * Ajax
 			 * @type  {Object}
@@ -98,134 +105,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Ajax模块
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
-
-		/**
-			readyState:
-			0: 请求未初始化
-			1: 服务器连接已建立
-			2: 请求已接收
-			3: 请求处理中
-			4: 请求已完成，且响应已就绪
-		 */
-
-		function Ajax() {
-			this.xmlHttp = new XMLHttpRequest();
-		}
-
-		var ap = Ajax.prototype;
-
-		/**
-		 * 执行一个http请求
-		 * @param   {String}    dataType  [回调数据类型json/text]
-		 * @param   {String}    url       [请求url]
-		 * @param   {String}    method    [请求类型]
-		 * @param   {String}    param     [请求参数]
-		 * @param   {Function}  callback  [回调函数]
-		 * @param   {Function}  context   [作用域]
-		 */
-		ap._execute = function(dataType, url, method, param, callback, context) {
-			var xmlHttp = this.xmlHttp;
-			var ct = context || util.WIN;
-
-			// 初始化请求
-			xmlHttp.open(method, url, true);
-
-			// 状态变化回调
-			xmlHttp.onreadystatechange = function() {
-				var response;
-				var result = null, error = null, status = xmlHttp.status;
-
-				// 请求完成
-				if (xmlHttp.readyState === 4) {
-					response = xmlHttp.responseText;
-
-					// 返回数据类型
-					if (dataType !== 'text') {
-						try {
-							response = JSON.parse(response);
-						}
-						catch (e) {}
-					}
-
-					// 请求响应成功
-					if (status === 200) {
-						result = {
-							'success': true,
-							'result' : response
-						}
-					}
-					// 响应失败
-					else {
-						error = {
-							'result' : null,
-							'success': false,
-							'status' : status
-						}
-					}
-
-					callback.call(ct, error, result);
-				}
-			}
-
-			if (param) {
-				xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			}
-
-			xmlHttp.send(param);
-		}
-
-		/**
-		 * get请求
-		 */
-		ap.get = function(url, param, callback, context, dataType) {
-			var params = [];
-
-			if (util.isFunc(param)) {
-				dataType = context;
-				context = callback;
-				callback = param;
-				param = null;
-			}
-
-			// 格式化参数对象
-			util.each(param, function(val, key) {
-				params.push(key + '=' + encodeURIComponent(val));
-			});
-
-			if (params.length) {
-				url = url + '?' + params.join('&');
-			}
-
-			this._execute(dataType || 'json', url, 'GET', null, callback, context);
-		}
-
-		/**
-		 * post请求
-		 */
-		ap.post = function(url, param, callback, context) {
-			this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
-		}
-
-		/**
-		 * 拉取静态模板
-		 */
-		ap.load = function(url, param, callback, context) {
-			this.get(url, param, callback, context, 'text');
-		}
-
-		return new Ajax();
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -654,6 +533,134 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+	 * Ajax模块
+	 */
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+		__webpack_require__(1)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
+
+		/**
+			readyState:
+			0: 请求未初始化
+			1: 服务器连接已建立
+			2: 请求已接收
+			3: 请求处理中
+			4: 请求已完成，且响应已就绪
+		 */
+
+		function Ajax() {
+			this.xmlHttp = new XMLHttpRequest();
+		}
+
+		var ap = Ajax.prototype;
+
+		/**
+		 * 执行一个http请求
+		 * @param   {String}    dataType  [回调数据类型json/text]
+		 * @param   {String}    url       [请求url]
+		 * @param   {String}    method    [请求类型]
+		 * @param   {String}    param     [请求参数]
+		 * @param   {Function}  callback  [回调函数]
+		 * @param   {Function}  context   [作用域]
+		 */
+		ap._execute = function(dataType, url, method, param, callback, context) {
+			var xmlHttp = this.xmlHttp;
+			var ct = context || util.WIN;
+
+			// 初始化请求
+			xmlHttp.open(method, url, true);
+
+			// 状态变化回调
+			xmlHttp.onreadystatechange = function() {
+				var response;
+				var result = null, error = null, status = xmlHttp.status;
+
+				// 请求完成
+				if (xmlHttp.readyState === 4) {
+					response = xmlHttp.responseText;
+
+					// 返回数据类型
+					if (dataType !== 'text') {
+						try {
+							response = JSON.parse(response);
+						}
+						catch (e) {}
+					}
+
+					// 请求响应成功
+					if (status === 200) {
+						result = {
+							'success': true,
+							'result' : response
+						}
+					}
+					// 响应失败
+					else {
+						error = {
+							'result' : null,
+							'success': false,
+							'status' : status
+						}
+					}
+
+					callback.call(ct, error, result);
+				}
+			}
+
+			if (param) {
+				xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			}
+
+			xmlHttp.send(param);
+		}
+
+		/**
+		 * get请求
+		 */
+		ap.get = function(url, param, callback, context, dataType) {
+			var params = [];
+
+			if (util.isFunc(param)) {
+				dataType = context;
+				context = callback;
+				callback = param;
+				param = null;
+			}
+
+			// 格式化参数对象
+			util.each(param, function(val, key) {
+				params.push(key + '=' + encodeURIComponent(val));
+			});
+
+			if (params.length) {
+				url = url + '?' + params.join('&');
+			}
+
+			this._execute(dataType || 'json', url, 'GET', null, callback, context);
+		}
+
+		/**
+		 * post请求
+		 */
+		ap.post = function(url, param, callback, context) {
+			this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
+		}
+
+		/**
+		 * 拉取静态模板
+		 */
+		ap.load = function(url, param, callback, context) {
+			this.get(url, param, callback, context, 'text');
+		}
+
+		return new Ajax();
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -661,7 +668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * sugar顶层模块实例
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(4),
 		__webpack_require__(5),
 		__webpack_require__(7)
@@ -723,7 +730,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(6),
 		__webpack_require__(4),
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(7)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Root, cache, util, messager) {
 
@@ -1046,7 +1053,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * 类式继承根函数
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
 		/**
@@ -1116,7 +1123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * 模块消息通信 messager
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(4)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, cache) {
 
@@ -1427,8 +1434,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(9),
-		__webpack_require__(1),
 		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(5),
 		__webpack_require__(10)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, ajax, util, Module, MVVM) {
@@ -1887,7 +1894,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(9),
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(11)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util, Parser) {
 
@@ -2235,6 +2242,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Function}    context  [VM事件及watch的回调上下文]
 		 */
 		function MVVM(element, model, context) {
+			this.context = context;
+
 			// 将函数this指向调用者
 			util.each(model, function(value, key) {
 				if (util.isFunc(value)) {
@@ -2307,6 +2316,17 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}
 
+		/**
+		 * 对数据模型的字段添加监测
+		 * @param   {String}    model     [数据模型字段]
+		 * @param   {Function}  callback  [触发回调，参数为model, last, old]
+		 */
+		mvp.watch = function(model, callback) {
+			this._vm.parser.watcher.add(model, function(path, last, old) {
+				callback.call(this, model, last, old);
+			}, this.context);
+		}
+
 		return MVVM;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -2319,7 +2339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(9),
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(12),
 		__webpack_require__(13)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util, Updater, Watcher) {
@@ -3554,7 +3574,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(9),
-		__webpack_require__(2)
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util) {
 
 		function Updater(vm) {
@@ -3878,7 +3898,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * watcher 数据订阅模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
+		__webpack_require__(1),
 		__webpack_require__(14)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, Observer) {
 
@@ -4119,7 +4139,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * observer 数据变化监测模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
 		/**

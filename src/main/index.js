@@ -1,11 +1,18 @@
 define([
+	'../util',
 	'./ajax',
 	'./core',
 	'./module',
 	'./container'
-], function(ajax, core, Module, Container) {
+], function(util, ajax, core, Module, Container) {
 
 	function Sugar() {
+		/**
+		 * 工具方法
+		 * @type  {Object}
+		 */
+		this.util = util;
+
 		/**
 		 * Ajax
 		 * @type  {Object}
