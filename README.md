@@ -2,6 +2,7 @@
 # 1. 简单介绍
 sugar 是一个用于创建可继承、可复用和可拓展前端模块&组件的轻量级 javascript 框架。简单优雅的模块化开发方式，自带模板功能和 mvvm，让代码更专心于处理业务逻辑而不是繁琐的操作界面(DOM)
 
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
 
 # 2. 项目结构
 * `demos/` 用 sugar.js 做的几个完整例子
