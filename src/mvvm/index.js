@@ -351,6 +351,8 @@ define([
 	 * @param  {Function}    context  [VM事件及watch的回调上下文]
 	 */
 	function MVVM(element, model, context) {
+		this.context = context;
+
 		// 将函数this指向调用者
 		util.each(model, function(value, key) {
 			if (util.isFunc(value)) {
@@ -421,6 +423,17 @@ define([
 				vm[k] = backup[k];
 			});
 		}
+	}
+
+	/**
+	 * 对数据模型的字段添加监测
+	 * @param   {String}    model     [数据模型字段]
+	 * @param   {Function}  callback  [触发回调，参数为model, last, old]
+	 */
+	mvp.watch = function(model, callback) {
+		this._vm.parser.watcher.add(model, function(path, last, old) {
+			callback.call(this, model, last, old);
+		}, this.context);
 	}
 
 	return MVVM;
