@@ -1,11 +1,12 @@
 # mvvm.js
+mvvm 源代码都放在 `src/mvvm/` 目录下：`index.js` (入口/编译模块)，`observer.js` (数据监测模块)，`parser.js` (指令解析模块)， `updater.js` (视图刷新模块)， `watcher.js` (数据订阅模块)
 
 ## 1. 定义一个vm实例
 ```javascript
 /*
- * element 接受一个DOM元素，作为编译的起点
- * model 接受一个{}作为数据模型，模型字段不能包含*字符
- * context 接受一个v-on事件回调函数this指向的执行上下文
+ * element 接受一个 DOM 元素，作为编译的起点
+ * model 接受一个 {} 作为数据模型，模型字段不能包含*字符
+ * context 接受一个 v-on 事件回调函数 this 指向的执行上下文
  */
 var vm = new MVVM(element, {
   'title': '初始标题',
@@ -13,21 +14,23 @@ var vm = new MVVM(element, {
 }, context);
 
 /*
- * vm实例的属性和方法
+ * vm 实例的属性和方法
  */
-vm.$data 为数据模型对象
+vm.$ 为数据模型对象
 
 vm.get('title'); // 返回 初始标题
 vm.get(); // 返回 整个数据模型
 
-vm.set('title', '新标题'); // 设置单个vm
-vm.set({ // 同时设置多个vm
+vm.set('title', '新标题'); // 设置单个 vm
+vm.set({ // 同时设置多个 vm
   'title': 'xxx',
   'items': [...]
 });
 
 vm.reset('title'); // 重置单个vm为初始状态
 vm.reset(); // 重置整个数据模型为初始状态
+
+vm.watch('title', callback); // 实现对数据模型的观察 callback 参数返回 ['title', last, old]
 ```
 
 
@@ -44,7 +47,7 @@ vm.reset(); // 重置整个数据模型为初始状态
   <div v-el="elm"></div>
   ```
   ```javascript
-  vm.$data.$els.elm.textContent = 'hello~';
+  vm.$.$els.elm.textContent = 'hello~';
   ```
 
 
@@ -74,7 +77,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-show
 * 说明：
 
-	根据指令的值（布尔值）来切换显示/隐藏元素 `CSS` 的 `display` 值，隐藏统一设为 `none` 显示的时候如果元素有行内样式设置了 `display` ，将自动切换回原来所定义的值，切换过程仍旧在文档中保留该元素，`v-show` 可以添加一个 `v-else` 兄弟节点进行toggle切换
+	根据指令的值（布尔值）来切换显示/隐藏元素 `CSS` 的 `display` 值，隐藏统一设为 `none` 显示的时候如果元素有行内样式设置了 `display` ，将自动切换回原来所定义的值，切换过程仍旧在文档中保留该元素，`v-show` 可以添加一个 `v-else` 兄弟节点进行 toggle 切换
 
 * 示例：
 	```html
@@ -87,7 +90,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-if
 * 说明：
 
-	根据指令的值（布尔值）切换渲染元素，在切换时元素及它的数据绑定将会被销毁并重建，切换过程将会从文档移除该元素的所有子节点，`v-if` 也可以添加一个 `v-else` 兄弟节点进行toggle切换
+	根据指令的值（布尔值）切换渲染元素，在切换时元素及它的数据绑定将会被销毁并重建，切换过程将会从文档移除该元素的所有子节点，`v-if` 也可以添加一个 `v-else` 兄弟节点进行 toggle 切换
 
 * 示例：与 `v-show` 用法相同
 
@@ -129,7 +132,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-model for checkbox
 * 示例：
 
-	单个checkbox绑定一个布尔值：
+	单个 checkbox 绑定一个布尔值：
 	```javascript
 	isCheck: true
 	```
@@ -141,7 +144,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 	<div>Selected: {{isCheck}}</div>
 	```
 
-	多个checkbox绑定一个数组：
+	多个 checkbox 绑定一个数组：
 	```javascript
 	phones: ['apple', 'mzx']
 	```
@@ -162,7 +165,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-model for select
 * 示例：
 
-	单选绑定到一个指定的value：
+	单选绑定到一个指定的 value：
 	```javascript
 	selected: 'apple'
 	```
@@ -208,12 +211,12 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-bind:class
 * 示例：
 
-	绑定 `class` 到一个字段，通过 `vm.$data.cls = 'class-a'` 切换classname：
+	绑定 `class` 到一个字段，通过 vm.$.cls = 'class-a' 切换 classname：
 	```html
 	<div class="static" v-bind:class="cls"></div>
 	```
 
-	绑定 `class` 到一个对象，键名作为classname，键值作为是否添加的布尔值：
+	绑定 `class` 到一个对象，键名作为 classname，键值作为是否添加的布尔值：
 	```javascript
 	'classObject': {
 		'class-a': true,
@@ -224,7 +227,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 	<div v-bind:class="classObject"></div>
 	```
 
-	绑定多个 `class` 的JSON结构：
+	绑定多个 `class` 的 json 结构：
 	```html
 	<div v-bind:class="{class-a: isA, class-b: isB}"></div>
 	```
@@ -243,7 +246,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 	<div v-bind:style="styleObject"></div>
 	```
 
-	绑定 `style` 的JSON结构：
+	绑定 `style` 的 json 结构：
 	```html
 	<div v-bind:style="{display: vdsp, border: vbrd, padding: vpd}"></div>
 	```
@@ -251,7 +254,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-on
 * 说明：
 
-	事件的绑定方式是 `addEventListener` 支持4种事件修饰符：只在当前元素触发 `.self` 、 阻止冒泡 `.stop` 、 阻止默认事件 `.prevent` 和 使用捕获 `.capture` 可以指定事件回调的参数，比如 `$event` 替换为原生事件对象e，在 `v-for` 循环中 `$index` 替换为数组下标
+	事件的绑定方式是 `addEventListener` 支持4种事件修饰符：只在当前元素触发 `.self` 、 阻止冒泡 `.stop` 、 阻止默认事件 `.prevent` 和 使用捕获 `.capture` 可以指定事件回调的参数(默认为原生事件对象 e )，比如 `$event` 替换为 e，在 `v-for` 循环中 `$index` 替换为数组下标
 
 * 示例：
 
@@ -277,7 +280,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 ### v-for
 * 说明：
 
-	构建基于源数据重复的动态列表，语法为: `alias in items` 支持 `push,pop,shift,unshift,splice,sort,reverse` 数组操作，支持下标操作，支持内嵌指令，嵌套v-for
+	构建基于源数据重复的动态列表，语法为: `alias in array` 支持 `push,pop,shift,unshift,splice,sort,reverse` 数组操作，支持下标操作，支持内嵌指令，嵌套 v-for ，在循环体中 `v-text`, `v-html` 以及 `v-bind` 的非 class 和 style 均可支持 `$index` 替换
 
 * 示例：
 
@@ -312,7 +315,7 @@ vm.reset(); // 重置整个数据模型为初始状态
 	</ul>
 	```
 
-	动态的option的select表单：
+	动态的 option 的 select 表单：
 	```html
 	<select v-model="selected">
 		<option v-for="option in options" v-bind:value="option.value">
