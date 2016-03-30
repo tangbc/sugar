@@ -17,7 +17,7 @@ sugar 是一个用于创建可继承、可复用和可拓展前端模块&组件�
 
 	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细 API 参见: [README-sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
-	* `src/mvvm/` 为一个简单的视图层 mvvm 库，通过数据绑定+视图刷新来实现，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，mvvm 与 sugar 没有任何依赖和耦合，可独立使用，详细指令参见: [README-mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
+	* `src/mvvm/` 为一个简单的视图层 mvvm 库（其实只是个数据绑定+视图刷新的 ViewModel），支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，mvvm 与 sugar 没有任何依赖和耦合，可独立使用，详细指令参见: [README-mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
 
 
 # 3. 简单使用
@@ -26,23 +26,23 @@ sugar 是一个用于创建可继承、可复用和可拓展前端模块&组件�
 var sugar = require('dist/sugar.min');
 
 /*
- * 定义 Page 模块，从 sugar.Container (约定了视图模块基础功能和 API )继承
+ * 定义 Page 模块，从 sugar.Container (约定了视图模块基础功能和 API)继承
  * Page 相当于获得了一个独立的视图，展现形式、数据和逻辑行为都可灵活自定义
  */
 var Page = sugar.Container.extend({
 	init: function(config) {
-		// 在config里定义模块的初始状态和数据：
+		// 在 config 里定义模块的初始状态和数据：
 		config = this.cover(config, {
-			'html': '<h1>{{title}}</h1>',
+			'html': '<h1 v-text="title"></h1>',
 			'model': {
 				'title': 'hello sugar~'
 			}
 		});
-		// 调用父类(sugar.Container)的init方法并传入配置进行渲染
+		// 调用父类 (sugar.Container) 的 init 方法并传入配置进行渲染
 		this.Super('init', arguments);
 	},
 	viewReady: {
-		// 当视图渲染完毕之后立即调用自身的viewReady方法
+		// 当视图渲染完毕之后立即调用自身的 viewReady 方法
 	}
 });
 
