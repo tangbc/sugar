@@ -1,10 +1,16 @@
 
 # 1. 简单介绍
-sugar 是一个用于创建可继承、可复用和可拓展前端模块&组件的轻量级 javascript 框架。简单优雅的模块化开发方式，自带模板功能和 mvvm，让代码更专心于处理业务逻辑而不是繁琐的操作界面(DOM)
+* sugar 是一个创建可继承、可复用和可拓展前端模块&组件的轻量级 javascript 框架
 
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
+* 特点：简单优雅的模块化开发方式；自带模板功能和 mvvm
 
-# 2. 项目结构
+* 项目分为两个独立的部分：`sugar` (实现模块化) 和 `mvvm` (实现数据与视图同步)
+
+# 2. 框架组成图
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-new" width="666">
+
+
+# 3. 项目结构
 * `demos/` 用 sugar.js 做的几个完整例子
 
 * `test/` 为测试文件目录，暂无unit，都是肉测
@@ -17,10 +23,10 @@ sugar 是一个用于创建可继承、可复用和可拓展前端模块&组件�
 
 	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细 API 参见: [README-sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
-	* `src/mvvm/` 为一个简单的视图层 mvvm 库（其实只是个数据绑定+视图刷新的 ViewModel），支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，mvvm 与 sugar 没有任何依赖和耦合，可独立使用，详细指令参见: [README-mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
+	* **`src/mvvm/`** 为一个简单的视图层 mvvm 库（其实只是个数据绑定+视图刷新的 ViewModel），支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [README-mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
 
 
-# 3. 简单使用
+# 4. 举个栗子
 
 ```javascript
 var sugar = require('dist/sugar.min');
@@ -57,15 +63,15 @@ var mod = sugar.core.create('pageName', Page, {
 ```
 
 
-# 4. 适用环境
+# 5. 适用环境
 * 引用方式：cmd, amd 以及 script 标签
 
 * 浏览器支持：不支持低版本 IE (用了 Object.defineProperty, Function.bind 等)
 
 
-# 5、改进&建议
+# 6、改进&建议
 水平有限，必然存在很多不足之处，欢迎各种文明吐槽、意见、 issues 和 pull request ！
 
 
-# 6、最后
+# 7、最后
 推荐一首适合边写代码边听的英文歌：<a href="http://music.163.com/#/song?id=29019227" target="_blank">Suagr - Maroon 5</a>
