@@ -1,4 +1,6 @@
 # mvvm.js
+**说明：mvvm.js 对 sugar.js 没有任何依赖，是一个独立的库，只是为了项目完整性把他们放到一个仓库下 ~**
+
 mvvm 源代码都放在 `src/mvvm/` 目录下：`index.js` (入口/编译模块)，`observer.js` (数据监测模块)，`parser.js` (指令解析模块)， `updater.js` (视图刷新模块)， `watcher.js` (数据订阅模块)
 
 ## 1. 定义一个vm实例

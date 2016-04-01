@@ -69,9 +69,9 @@ var mod = sugar.core.create('pageName', Page, {
 * 浏览器支持：不支持低版本 IE (用了 Object.defineProperty, Function.bind 等)
 
 
-# 6、改进&建议
+# 6. 改进&建议
 水平有限，必然存在很多不足之处，欢迎各种文明吐槽、意见、 issues 和 pull request ！
 
 
-# 7、最后
+# 7. 最后
 推荐一首适合边写代码边听的英文歌：<a href="http://music.163.com/#/song?id=29019227" target="_blank">Suagr - Maroon 5</a>
