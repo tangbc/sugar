@@ -3,7 +3,7 @@ var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 
 // 监听的js文件
-var jsFiles = ['src/*.js', 'src/sug/*.js', 'src/vm/*.js'];
+var jsFiles = ['src/*.js', 'src/main/*.js', 'src/mvvm/*.js'];
 
 // js语法检测配置
 var jshintConfig = {

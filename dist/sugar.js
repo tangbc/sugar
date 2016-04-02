@@ -3503,7 +3503,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		pp.isForValue = function(field, fors) {
 			var pos = field.indexOf('.');
-			var alias = pos === -1 ? null : field.substr(0, pos);
+			var alias = pos === -1 ? (field === fors[4] ? field : null) : field.substr(0, pos);
 			return field.indexOf('$index') === -1 ? (alias ? util.hasOwn(fors[3], alias) : false) : true;
 		}
 
