@@ -238,43 +238,6 @@ define([
 		},
 
 		/**
-		 * 创建模板中所有标记的子模块，子模块创建的目标容器即为标记的DOM节点
-		 * @param   {Object}   config  [多个子模块的配置集合]
-		 */
-		createTemplateModules: function(config) {
-			var c = this.getConfig();
-
-			// 收集子模块定义节点
-			var node, name;
-			var nodeList = this.queryAll('[module]');
-			var i = 0, leng = nodeList.length, cfg, Class;
-
-			for (; i < leng; i++) {
-				node = nodeList[i];
-				name = dom.getAttr(node, 'module');
-
-				// 去掉模块节点记录
-				if (c.tidyNode) {
-					dom.removeAttr(node, 'module');
-				}
-
-				cfg = config[name];
-
-				if (!cfg) {
-					util.warn('module: ' + name + 'is not define in config!');
-					continue;
-				}
-
-				Class = cfg.module;
-
-				if (util.isFunc(Class)) {
-					this.create(name, Class, util.extend(cfg.config, {'target': node}));
-				}
-
-			}
-		},
-
-		/**
 		 * 返回当前DOM中第一个匹配特定选择器的元素
 		 * @param  {String}     selector  [子元素选择器]
 		 * @return {DOMObject}
