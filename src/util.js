@@ -9,14 +9,14 @@ define(function() {
 	var hasOwn = OP.hasOwnProperty;
 
 	/**
-	 * 是否是对象自变量, {}或new Object()的形式
+	 * 是否是对象自变量, {} 或 new Object() 的形式
 	 */
 	function isObject(obj) {
 		return OP.toString.call(obj) === '[object Object]';
 	}
 
 	/**
-	 * 是否是真数组, []或new Array()的形式
+	 * 是否是真数组, [] 或 new Array() 的形式
 	 */
 	function isArray(obj) {
 		return OP.toString.call(obj) === '[object Array]';
@@ -65,7 +65,7 @@ define(function() {
 
 
 	/**
-	 * Util构造函数
+	 * Util 构造函数
 	 */
 	function Util() {
 		this.OP = OP;
@@ -82,7 +82,7 @@ define(function() {
 	}
 
 	var up = Util.prototype;
-	var util, cons = window.console;
+	var util, cons = WIN.console;
 
 
 	/**
@@ -114,7 +114,7 @@ define(function() {
 	}
 
 	/**
-	 * object定义或修改属性
+	 * object 定义或修改属性
 	 * @param   {Object|Array}  object        [数组或对象]
 	 * @param   {String}        property      [属性或数组下标]
 	 * @param   {Mix}           value         [属性的修改值/新值]
@@ -157,12 +157,12 @@ define(function() {
 			for (i = 0; i < items.length; i++) {
 				ret = callback.call(context, items[i], i);
 
-				// 回调返回false退出循环
+				// 回调返回 false 退出循环
 				if (ret === false) {
 					break;
 				}
 
-				// 回调返回null删除当前选项
+				// 回调返回 null 从原数组删除当前选项
 				if (ret === null) {
 					items.splice(i, 1);
 					i--;
@@ -178,12 +178,12 @@ define(function() {
 
 				ret = callback.call(context, items[i], i);
 
-				// 回调返回false退出循环
+				// 回调返回 false 退出循环
 				if (ret === false) {
 					break;
 				}
 
-				// 回调返回null删除当前选项
+				// 回调返回 null 从原对象删除当前选项
 				if (ret === null) {
 					delete items[i];
 				}
@@ -192,7 +192,7 @@ define(function() {
 	}
 
 	/**
-	 * 扩展合并对象，摘自jQuery
+	 * 扩展合并对象，摘自 jQuery
 	 */
 	up.extendObject = function() {
 		var options, name, src, copy, copyIsArray, clone;
@@ -339,7 +339,7 @@ define(function() {
 	}
 
 	/**
-	 * 字符JSON结构转为键值数组
+	 * 字符 json 结构转为键值数组
 	 * @param   {String}  jsonString
 	 * @return  {Array}
 	 */
@@ -363,7 +363,7 @@ define(function() {
 	}
 
 	/**
-	 * 创建一个空的dom元素
+	 * 创建一个空的 dom 元素
 	 * @param   {String}     tag  [元素标签名称]
 	 * @return  {DOMElemnt}
 	 */
@@ -380,7 +380,7 @@ define(function() {
 	}
 
 	/**
-	 * DOMElement的子节点转换成文档片段
+	 * DOMElement 的子节点转换成文档片段
 	 * @param   {DOMElement}  element
 	 */
 	up.nodeToFragment = function(element) {
@@ -396,7 +396,7 @@ define(function() {
 	}
 
 	/**
-	 * 字符串HTML转文档碎片
+	 * 字符串 html 转文档碎片
 	 * @param   {String}    html
 	 * @return  {Fragment}
 	 */

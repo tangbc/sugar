@@ -64,7 +64,7 @@ define([
 				'name': name,
 				// 子模块实例id
 				'id'  : cache.id++,
-				// 父模块实例id，0为顶级模块实例
+				// 父模块实例 id，0 为顶级模块实例
 				'pid' : cls.id || 0
 			}
 			instance._collections = info;
@@ -77,7 +77,7 @@ define([
 			cls['childArray'].push(instance);
 			cls['childMap'][name] = instance;
 
-			// 调用模块实例的init方法，传入配置参数和父模块
+			// 调用模块实例的 init 方法，传入配置参数和父模块
 			if (util.isFunc(instance.init)) {
 				instance.init(config, this);
 			}
@@ -194,7 +194,7 @@ define([
 			var self = this;
 			time = util.isNumber(time) ? time : 0;
 
-			// callback为属性值
+			// callback 为属性值
 			if (util.isString(callback)) {
 				callback = this[callback];
 			}
@@ -205,7 +205,7 @@ define([
 				return;
 			}
 
-			// 参数必须为数组或arguments对象
+			// 参数必须为数组或 arguments 对象
 			if (param && !util.isFunc(param.callee) && !util.isArray(param)) {
 				param = [param];
 			}
@@ -228,19 +228,19 @@ define([
 				return;
 			}
 
-			// 不传param
+			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
 				param = null;
 			}
 
-			// callback为属性值
+			// callback 为属性值
 			if (util.isString(callback)) {
 				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
-			// 不传callback
+			// 不传 callback
 			if (!callback) {
 				callback = null;
 			}
@@ -257,19 +257,19 @@ define([
 				return false;
 			}
 
-			// 不传param
+			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
 				param = null;
 			}
 
-			// callback为属性值
+			// callback 为属性值
 			if (util.isString(callback)) {
 				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
-			// 不传callback
+			// 不传 callback
 			if (!callback) {
 				callback = null;
 			}
@@ -295,19 +295,19 @@ define([
 				return false;
 			}
 
-			// 不传param
+			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
 				param = null;
 			}
 
-			// callback为属性值
+			// callback 为属性值
 			if (util.isString(callback)) {
 				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
-			// 不传callback
+			// 不传 callback
 			if (!callback) {
 				callback = null;
 			}

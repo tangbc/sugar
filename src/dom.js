@@ -1,11 +1,11 @@
 /**
- * dom操作模块
+ * dom 操作模块
  */
 define(function() {
 	var dom = Object.create(null);
 
 	/**
-	 * 清空element的所有子节点
+	 * 清空 element 的所有子节点
 	 * @param   {DOMElement}  element
 	 */
 	dom.empty = function(element) {
@@ -54,7 +54,7 @@ define(function() {
 	}
 
 	/**
-	 * 节点添加classname
+	 * 节点添加 classname
 	 * @param  {DOMElement}  node
 	 * @param  {String}      classname
 	 */
@@ -72,7 +72,7 @@ define(function() {
 	}
 
 	/**
-	 * 节点删除classname
+	 * 节点删除 classname
 	 * @param  {DOMElement}  node
 	 * @param  {String}      classname
 	 */

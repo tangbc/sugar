@@ -4,10 +4,11 @@
 define([
 	'../dom',
 	'./ajax',
+	'./sync',
 	'../util',
 	'./module',
 	'../mvvm/index'
-], function(dom, ajax, util, Module, MVVM) {
+], function(dom, ajax, sync, util, Module, MVVM) {
 
 	/**
 	 * Container 视图基础模块
@@ -22,21 +23,21 @@ define([
 			this._config = this.cover(config, {
 				// 模块目标容器
 				'target'  : null,
-				// DOM元素的标签
+				// dom 元素的标签
 				'tag'     : 'div',
-				// 元素的class
+				// 元素的 class
 				'class'   : '',
-				// 元素的css
+				// 元素的 css
 				'css'     : null,
-				// 元素的attr
+				// 元素的 attr
 				'attr'    : null,
 				// 视图布局内容
 				'html'    : '',
-				// 静态模板uri
+				// 静态模板 uri
 				'template': '',
 				// 模板拉取请求参数
 				'tplParam': null,
-				// mvvm数据模型对象
+				// mvvm 数据模型对象
 				'model'   : null,
 				// 视图渲染完成后的回调函数
 				'cbRender': 'viewReady',
@@ -44,11 +45,11 @@ define([
 				'tidyNode': true
 			});
 
-			// 通用dom处理方法
+			// 通用 dom 处理方法
 			this.$ = dom;
 			// 模块元素
 			this.el = null;
-			// mvvm对象
+			// mvvm 实例
 			this.vm = null;
 			// 模块是否已经创建完成
 			this._ready = false;
@@ -76,7 +77,8 @@ define([
 			var param = util.extend(c.tplParam, {
 				'ts': +new Date()
 			});
-
+			// 防止消息异步或者框架外的异步创建出现问题
+			sync.lock();
 			ajax.load(uri, param, function(err, data) {
 				var text;
 
@@ -90,6 +92,7 @@ define([
 
 				this.setConfig('html', text);
 				this._render();
+				sync.unlock();
 			}, this);
 		},
 
@@ -130,7 +133,7 @@ define([
 		 * 设置/读取配置对象
 		 * @param  {Object}  cData  [配置对象]
 		 * @param  {String}  name   [配置名称, 支持/分隔层次]
-		 * @param  {Mix}     value  [不传为读取配置信息, null为删除配置, 其他为设置值]
+		 * @param  {Mix}     value  [不传为读取配置信息, null 为删除配置, 其他为设置值]
 		 * @return {Mix}            [返回读取的配置值]
 		 */
 		config: function(cData, name, value) {
@@ -194,12 +197,12 @@ define([
 
 			var el = this.el = util.createElement(c.tag);
 
-			// 添加class
+			// 添加 class
 			if (c.class && util.isString(c.class)) {
 				dom.addClass(el, c.class);
 			}
 
-			// 添加css
+			// 添加 css
 			if (util.isObject(c.css)) {
 				util.each(c.css, function(value, property) {
 					el.style[property] = value;
@@ -218,7 +221,7 @@ define([
 				el.appendChild(util.stringToFragment(c.html));
 			}
 
-			// 初始化mvvm对象
+			// 初始化 mvvm 对象
 			var model = c.model;
 			if (util.isObject(model)) {
 				this.vm = new MVVM(el, model, this);
@@ -238,7 +241,7 @@ define([
 		},
 
 		/**
-		 * 返回当前DOM中第一个匹配特定选择器的元素
+		 * 返回当前 dom 中第一个匹配特定选择器的元素
 		 * @param  {String}     selector  [子元素选择器]
 		 * @return {DOMObject}
 		 */
@@ -247,7 +250,7 @@ define([
 		},
 
 		/**
-		 * 返回当前DOM中匹配一个特定选择器的所有的元素
+		 * 返回当前 dom 中匹配一个特定选择器的所有的元素
 		 * @param  {String}    selectors  [子元素选择器]
 		 * @return {NodeList}
 		 */
@@ -275,12 +278,12 @@ define([
 		afterDestroy: function() {
 			var vm = this.vm;
 			var el = this.el;
-			// 销毁MVVM对象
+			// 销毁 mvvm 实例
 			if (vm) {
 				vm.destroy();
 				vm = null;
 			}
-			// 销毁DOM对象
+			// 销毁 dom 对象
 			if (el) {
 				el.parentNode.removeChild(el);
 				el = null;

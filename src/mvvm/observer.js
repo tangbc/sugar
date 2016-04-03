@@ -32,7 +32,7 @@ define([
 		this.$arrayAction = 921;
 		// 避免触发下标的数组操作
 		this.$aviodArrayAction = ['shift', 'unshift', 'splice'];
-		// 重写的Array方法
+		// 重写的 Array 方法
 		this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 		// 路径层级分隔符
@@ -72,7 +72,7 @@ define([
 	}
 
 	/**
-	 * 检查paths是否在排除范围内
+	 * 检查 paths 是否在排除范围内
 	 * @param   {Array}    paths  [访问路径数组]
 	 * @return  {Boolean}
 	 */
@@ -134,7 +134,7 @@ define([
 	op.bindWatching = function(object, paths) {
 		var prop = paths[paths.length - 1];
 
-		// 定义object的getter和setter
+		// 定义 object 的 getter 和 setter
 		Object.defineProperty(object, prop, {
 			get: (function getter() {
 				return this.getCache(object, prop);
@@ -167,7 +167,7 @@ define([
 	}
 
 	/**
-	 * 重写指定的Array方法
+	 * 重写指定的 Array 方法
 	 * @param   {Array}  array  [目标数组]
 	 * @param   {Array}  paths  [访问路径数组]
 	 */
@@ -208,7 +208,7 @@ define([
 	}
 
 	/**
-	 * 触发object变化回调
+	 * 触发 object 变化回调
 	 * @param   {String}       path      [变更路径]
 	 * @param   {Mix}          last      [新值]
 	 * @param   {Mix|String}   old       [旧值/数组操作名称]

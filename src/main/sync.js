@@ -1,8 +1,8 @@
 /**
- * 异步状态锁(暂时弃用)
+ * 异步状态锁
  */
 define([
-	'./util'
+	'../util'
 ], function(util) {
 
 	/**

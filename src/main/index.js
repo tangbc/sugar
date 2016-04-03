@@ -1,12 +1,19 @@
 define([
-	'../util',
+	'./sync',
 	'./ajax',
 	'./core',
+	'../util',
 	'./module',
 	'./container'
-], function(util, ajax, core, Module, Container) {
+], function(sync, ajax, core, util, Module, Container) {
 
 	function Sugar() {
+		/**
+		 * 异步状态锁
+		 * @type  {Object}
+		 */
+		this.sync = sync;
+
 		/**
 		 * 工具方法
 		 * @type  {Object}

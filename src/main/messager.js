@@ -2,9 +2,10 @@
  * 模块消息通信 messager
  */
 define([
+	'./sync',
 	'../util',
 	'./cache'
-], function(util, cache) {
+], function(sync, util, cache) {
 
 	/**
 	 * Messager 通信使者（实现模块间通信）
@@ -70,7 +71,7 @@ define([
 		// 标识消息的发送目标
 		msg.to = receiver;
 
-		// 触发接收者的消息处理方法，若未定义则默认为onMessage
+		// 触发接收者的消息处理方法，若未定义则默认为 onMessage
 		if (util.isFunc(func)) {
 			returns = func.call(receiver, msg);
 			msg.count++;
@@ -92,12 +93,12 @@ define([
 	 * @param  {Object}    context   [执行环境]
 	 */
 	mp._notifySender = function(msg, callback, context) {
-		// callback未定义时触发默认事件
+		// callback 未定义时触发默认事件
 		if (!callback) {
 			callback = context.onMessageSendOut;
 		}
 
-		// callback为属性值
+		// callback 为属性值
 		if (util.isString(callback)) {
 			callback = context[callback];
 		}
@@ -150,9 +151,12 @@ define([
 		var type = 'fire';
 
 		// 是否处于忙碌状态
-		if (this.busy) {
+		if (this.busy || sync.count) {
 			this.queue.push([type, sender, name, param, callback, context]);
-			return false;
+			if (sync.count) {
+				sync.addQueue(this._sendQueue, this);
+			}
+			return;
 		}
 
 		this.busy = true;
@@ -165,7 +169,7 @@ define([
 
 		while (receiver) {
 			returns = this._trigger(receiver, msg);
-			// 接收消息方法返回false则不再继续冒泡
+			// 接收消息方法返回 false 则不再继续冒泡
 			if (returns === false) {
 				break;
 			}
@@ -184,9 +188,12 @@ define([
 		var type = 'broadcast';
 
 		// 是否处于忙碌状态
-		if (this.busy) {
+		if (this.busy || sync.count) {
 			this.queue.push([type, sender, name, param, callback, context]);
-			return false;
+			if (sync.count) {
+				sync.addQueue(this._sendQueue, this);
+			}
+			return;
 		}
 
 		this.busy = true;
@@ -200,7 +207,7 @@ define([
 		while (receivers.length) {
 			receiver = receivers.shift();
 			returns = this._trigger(receiver, msg);
-			// 接收消息方法返回false则不再继续广播
+			// 接收消息方法返回 false 则不再继续广播
 			if (returns === false) {
 				break;
 			}
@@ -224,9 +231,12 @@ define([
 		var type = 'notify';
 
 		// 是否处于忙碌状态
-		if (this.busy) {
+		if (this.busy || sync.count) {
 			this.queue.push([type, sender, receiver, name, param, callback, context]);
-			return false;
+			if (sync.count) {
+				sync.addQueue(this._sendQueue, this);
+			}
+			return;
 		}
 
 		this.busy = true;
@@ -243,7 +253,7 @@ define([
 			return target;
 		}
 
-		// 找到receiver，名称可能为superName.fatherName.childName的情况
+		// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
 		var ns = null, tmp, tar;
 		if (util.isString(receiver)) {
 			ns = receiver.split('.');
@@ -285,9 +295,12 @@ define([
 		var type = 'globalCast';
 
 		// 是否处于忙碌状态
-		if (this.busy) {
+		if (this.busy || sync.count) {
 			this.queue.push([type, name, param]);
-			return false;
+			if (sync.count) {
+				sync.addQueue(this._sendQueue, this);
+			}
+			return;
 		}
 
 		this.busy = false;

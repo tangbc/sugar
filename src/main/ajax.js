@@ -1,5 +1,5 @@
 /**
- * Ajax模块
+ * Ajax 模块
  */
 define([
 	'../util'
@@ -21,8 +21,8 @@ define([
 	var ap = Ajax.prototype;
 
 	/**
-	 * 执行一个http请求
-	 * @param   {String}    dataType  [回调数据类型json/text]
+	 * 执行一个 http 请求
+	 * @param   {String}    dataType  [回调数据类型 json/text ]
 	 * @param   {String}    url       [请求url]
 	 * @param   {String}    method    [请求类型]
 	 * @param   {String}    param     [请求参数]
@@ -81,7 +81,7 @@ define([
 	}
 
 	/**
-	 * get请求
+	 * get 请求
 	 */
 	ap.get = function(url, param, callback, context, dataType) {
 		var params = [];
@@ -106,7 +106,7 @@ define([
 	}
 
 	/**
-	 * post请求
+	 * post 请求
 	 */
 	ap.post = function(url, param, callback, context) {
 		this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);

@@ -24,9 +24,9 @@ define([
 	}
 
 	/**
-	 * 更新节点的html内容 realize v-html
-	 * isPlain用于判断v-html在纯文本节点使用{{{$index}}}的情况
-	 * 因为用了replaceChild后下标变更时将无法找回原有的节点进行更新下标
+	 * 更新节点的 html 内容 realize v-html
+	 * isPlain 用于判断 v-html 在纯文本节点使用 {{{$index}}} 的情况
+	 * 因为用了 replaceChild 后下标变更时将无法找回原有的节点进行更新下标
 	 * @param   {DOMElement}  node
 	 * @param   {String}      html
 	 * @param   {Boolean}     isPlain    [是否是纯文本节点]
@@ -71,8 +71,8 @@ define([
 
 	/**
 	 * 缓存节点行内样式值
-	 * 行内样式display=''不会影响由classname中的定义
-	 * _visible_display用于缓存节点行内样式的display显示值
+	 * 行内样式 display='' 不会影响由 classname 中的定义
+	 * _visible_display 用于缓存节点行内样式的 display 显示值
 	 * @param  {DOMElement}  node
 	 */
 	up.setNodeVisibleDisplay = function(node) {
@@ -139,7 +139,7 @@ define([
 	}
 
 	/**
-	 * 更新节点的attribute realize v-bind
+	 * 更新节点的 attribute realize v-bind
 	 * @param   {DOMElement}  node
 	 * @param   {String}      attribute
 	 * @param   {String}      value
@@ -149,7 +149,7 @@ define([
 			dom.removeAttr.apply(this, arguments);
 		}
 		else {
-			// setAttribute不适合用于表单元素的value
+			// setAttribute 不适合用于表单元素的 value
 			// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
 			if (attribute === 'value' && (this.vm.$inputs.indexOf(node.tagName.toLowerCase()) !== -1)) {
 				node.value = value;
@@ -161,14 +161,14 @@ define([
 	}
 
 	/**
-	 * 更新节点的classname realize v-bind:class
+	 * 更新节点的 classname realize v-bind:class
 	 * @param   {DOMElement}          node
 	 * @param   {String|Boolean}      newValue
 	 * @param   {String|Boolean}      oldValue
 	 * @param   {String}              classname
 	 */
 	up.updateNodeClassName = function(node, newValue, oldValue, classname) {
-		// 指定classname，变化值由newValue布尔值决定
+		// 指定 classname，变化值由 newValue 布尔值决定
 		if (classname) {
 			if (newValue === true) {
 				dom.addClass(node, classname);
@@ -177,7 +177,7 @@ define([
 				dom.removeClass(node, classname);
 			}
 		}
-		// 未指定classname，变化值由newValue的值决定
+		// 未指定 classname，变化值由 newValue 的值决定
 		else {
 			if (newValue) {
 				dom.addClass(node, newValue);
@@ -190,7 +190,7 @@ define([
 	}
 
 	/**
-	 * 更新节点的style realize v-bind:style
+	 * 更新节点的 style realize v-bind:style
 	 * @param   {DOMElement}  node
 	 * @param   {String}      propperty  [属性名称]
 	 * @param   {String}      value      [样式值]
@@ -207,13 +207,13 @@ define([
 	 * @param   {Function}    oldFunc  [旧回调函数]
 	 * @param   {Array}       params   [参数]
 	 * @param   {String}      field    [对应监测字段/路径]
-	 * @param   {Number}      index    [vfor下标]
+	 * @param   {Number}      index    [vfor 下标]
 	 */
 	up.updateNodeEvent = function(node, evt, func, oldFunc, params, field, index) {
 		var listeners = this.$listeners;
 		var modals, self, stop, prevent, capture = false;
 
-		// 支持4种事件修饰符.self.stop.prevent.capture
+		// 支持 4 种事件修饰符 .self.stop.prevent.capture
 		if (evt.indexOf('.') !== -1) {
 			modals = evt.split('.');
 			evt = modals.shift();
@@ -267,7 +267,7 @@ define([
 	}
 
 	/**
-	 * 更新text或textarea的value realize v-model
+	 * 更新 text 或 textarea 的 value realize v-model
 	 * @param   {Input}  text
 	 * @param   {String} value
 	 */
@@ -278,7 +278,7 @@ define([
 	}
 
 	/**
-	 * 更新radio的激活状态 realize v-model
+	 * 更新 radio 的激活状态 realize v-model
 	 * @param   {Input}  radio
 	 * @param   {String} value
 	 */
@@ -287,7 +287,7 @@ define([
 	}
 
 	/**
-	 * 更新checkbox的激活状态 realize v-model
+	 * 更新 checkbox 的激活状态 realize v-model
 	 * @param   {Input}          checkbox
 	 * @param   {Array|Boolean}  values      [激活数组或状态]
 	 */
@@ -300,7 +300,7 @@ define([
 	}
 
 	/**
-	 * 更新select的激活状态 realize v-model
+	 * 更新 select 的激活状态 realize v-model
 	 * @param   {Select}         select
 	 * @param   {Array|String}   selected  [选中值]
 	 * @param   {Boolean}        multi

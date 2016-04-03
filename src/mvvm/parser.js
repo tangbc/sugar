@@ -26,7 +26,7 @@ define([
 			splits = value.split('.');
 			alias = splits[0];
 
-			// vel在vfor循环中只能在当前循环体中赋值
+			// vel 在 vfor 循环中只能在当前循环体中赋值
 			if (alias !== fors[4]) {
 				util.warn('The directive \'v-el\' in v-for must be defined in current loop body!');
 				return;
@@ -46,7 +46,7 @@ define([
 	}
 
 	/**
-	 * v-text, {{text}} DOM文本
+	 * v-text, {{text}} DOM 文本
 	 */
 	pp.parseVText = function(node, value, name, fors) {
 		var access, replace;
@@ -66,7 +66,7 @@ define([
 				}, this);
 			}
 			else {
-				// 监测当前vfor对象的访问路径
+				// 监测当前 vfor 对象的访问路径
 				watcher.watchAccess(access, function(last) {
 					updater.updateNodeTextContent(node, last);
 				}, this);
@@ -83,7 +83,7 @@ define([
 	}
 
 	/**
-	 * v-html DOM布局
+	 * v-html DOM 布局
 	 */
 	pp.parseVHtml = function(node, value, name, fors) {
 		var access, replace, isPlain;
@@ -98,7 +98,7 @@ define([
 			if (replace) {
 				html = replace;
 				isPlain = true;
-				// v-html如果使用了下标替换则前缀和后缀将编译到与下标同一文本节点
+				// v-html 如果使用了下标替换则前缀和后缀将编译到与下标同一文本节点
 				watcher.watcherIndex(access, function(index) {
 					updater.updateNodeHtmlContent(node, this.replaceVforIndex(value, index), isPlain);
 				}, this);
@@ -169,46 +169,46 @@ define([
 	}
 
 	/**
-	 * v-else vshow和vif的else板块
+	 * v-else vshow 和 vif 的 else 板块
 	 */
 	pp.parseVElse = function(node) {
 		util.defineProperty(node, '_directive', 'v-else');
 	}
 
 	/**
-	 * v-bind 动态绑定一个或多个attribute
-	 * 除class外，一个attribute只能有一个value
+	 * v-bind 动态绑定一个或多个 attribute
+	 * 除 class 外，一个 attribute 只能有一个 value
 	 */
 	pp.parseVBind = function(node, value, attr, fors) {
 		var directive = util.removeSpace(attr);
 		var expression = util.removeSpace(value);
 		var val, props = util.jsonStringToArray(expression);
 
-		// 单个attribute v-bind:class="xxx"
+		// 单个 attribute v-bind:class="xxx"
 		if (directive.indexOf(':') !== -1) {
 			val = util.getStringKeyValue(directive);
 			// class
 			if (val === 'class') {
-				// 多个class的json结构
+				// 多个 class 的 json 结构
 				if (props.length) {
 					util.each(props, function(prop) {
 						this.bindClassName(node, prop.value, prop.name, fors);
 					}, this);
 				}
-				// 单个class，classname由expression的值决定
+				// 单个 class，classname 由 expression 的值决定
 				else {
 					this.bindClassName(node, expression, null, fors);
 				}
 			}
 			// 行内样式
 			else if (val === 'style') {
-				// 多个inline-style的json结构
+				// 多个 inline-style 的 json 结构
 				if (props.length) {
 					util.each(props, function(prop) {
 						this.bindInlineStyle(node, prop.value, prop.name, fors);
 					}, this);
 				}
-				// 单个inline-style
+				// 单个 inline-style
 				else {
 					this.bindInlineStyle(node, expression, null, fors);
 				}
@@ -218,7 +218,7 @@ define([
 				this.bindNormalAttribute(node, expression, val, fors);
 			}
 		}
-		// 多个attributes "v-bind={id:xxxx, name: yyy, data-id: zzz}"
+		// 多个 attributes "v-bind={id:xxxx, name: yyy, data-id: zzz}"
 		else {
 			util.each(props, function(prop) {
 				var name = prop.name;
@@ -237,7 +237,7 @@ define([
 	}
 
 	/**
-	 * 绑定节点class
+	 * 绑定节点 class
 	 * @param   {DOMElement}   node
 	 * @param   {String}       field
 	 * @param   {String}       classname
@@ -271,11 +271,11 @@ define([
 
 			this.watcher.add(field, function(path, last, old) {
 				if (isObject) {
-					// 替换整个classObject
+					// 替换整个 classObject
 					if (util.isObject(last)) {
 						this.bindClassNameObject(node, last, old);
 					}
-					// 只修改classObject的一个字段
+					// 只修改 classObject 的一个字段
 					else if (util.isBoolean(last)) {
 						updater.updateNodeClassName(node, last, null, path.split('*').pop());
 					}
@@ -296,7 +296,7 @@ define([
 		var value = this.getVforValue(field, fors);
 		var access = this.getVforAccess(field, fors);
 
-		// 指定classname，由field的布尔值决定是否添加
+		// 指定 classname，由 field 的布尔值决定是否添加
 		if (classname) {
 			watcher.watchAccess(access, function(last, old) {
 				updater.updateNodeClassName(node, last, old, classname);
@@ -316,10 +316,10 @@ define([
 			}
 			// classObject
 			else if (util.isObject(value)) {
-				// 监测classObject单个字段
+				// 监测 classObject 单个字段
 				this.watchClassNameObject(node, access, value);
 
-				// 监测替换整个classObject
+				// 监测替换整个 classObject
 				watcher.watchAccess(access, function(last, old) {
 					this.bindClassNameObject(node, last, old);
 					this.watchClassNameObject(node, access, last);
@@ -334,9 +334,9 @@ define([
 	}
 
 	/**
-	 * 监测classObject的每个字段
-	 * @todo: 这里当shift和unshift后无法在watcher的displaceCallback中正确的移位
-	 * 因为每条vfor数据的classObject的字段会不一样，watcher的移位判断规则需要改进，借助Object.keys
+	 * 监测 classObject 的每个字段
+	 * @todo: 这里当 shift 和 unshift 后无法在 watcher 的 displaceCallback 中正确的移位
+	 * 因为每条 vfor 数据的 classObject 的字段会不一样，watcher 的移位判断规则需要改进，借助 Object.keys
 	 * @param   {String}  access
 	 * @param   {Object}  classObject
 	 */
@@ -349,10 +349,10 @@ define([
 	}
 
 	/**
-	 * 通过classObject批量绑定/移除class
+	 * 通过 classObject 批量绑定/移除 class
 	 * @param   {DOMElement}  node
-	 * @param   {object}      newObject  [新classname对象]
-	 * @param   {Object}      oldObject  [旧classname对象]
+	 * @param   {object}      newObject  [新 classname 对象]
+	 * @param   {Object}      oldObject  [旧 classname 对象]
 	 */
 	pp.bindClassNameObject = function(node, newObject, oldObject) {
 		var updater = this.updater;
@@ -369,9 +369,9 @@ define([
 	}
 
 	/**
-	 * 绑定节点style
+	 * 绑定节点 style
 	 * @param   {DOMElement}  node
-	 * @param   {String}      field   [数据绑定字段]
+	 * @param   {String}      field       [数据绑定字段]
 	 * @param   {String}      propperty   [行内样式属性]
 	 * @param   {Array}       fors
 	 */
@@ -403,11 +403,11 @@ define([
 
 			this.watcher.add(field, function(path, last, old) {
 				if (isObject) {
-					// 替换整个styleObject
+					// 替换整个 styleObject
 					if (util.isObject(last)) {
 						this.bindInlineStyleObject(node, last, old);
 					}
-					// 只修改styleObject的一个字段
+					// 只修改 styleObject的一个字段
 					else if (util.isString(last)) {
 						updater.updateNodeStyle(node, path.split('*').pop(), last);
 					}
@@ -441,7 +441,7 @@ define([
 			// 监测单个字段修改
 			this.watchInlineStyleObject(node, access, style);
 
-			// 监测替换整个styleObject
+			// 监测替换整个 styleObject
 			watcher.watchAccess(access, function(last, old) {
 				this.bindInlineStyleObject(node, last, old);
 				this.watchInlineStyleObject(node, access, last);
@@ -455,8 +455,8 @@ define([
 	}
 
 	/**
-	 * 监测styleObject的每个字段
-	 * @todo: 问题同watchClassNameObject
+	 * 监测 styleObject的 每个字段
+	 * @todo: 问题同 watchClassNameObject
 	 * @param   {String}  access
 	 * @param   {Object}  classObject
 	 */
@@ -469,10 +469,10 @@ define([
 	}
 
 	/**
-	 * 通过styleObject批量绑定/移除行内样式
+	 * 通过 styleObject 批量绑定/移除行内样式
 	 * @param   {DOMElement}  node
-	 * @param   {object}      newObject  [新style对象]
-	 * @param   {object}      oldObject  [旧style对象]
+	 * @param   {object}      newObject  [新 style 对象]
+	 * @param   {object}      oldObject  [旧 style 对象]
 	 */
 	pp.bindInlineStyleObject = function(node, newObject, oldObject) {
 		var updater = this.updater;
@@ -504,7 +504,7 @@ define([
 
 		if (inFor) {
 			access = this.getVforAccess(field, fors);
-			// 除class和style外的属性可支持$index的替换
+			// 除 class 和 style 外的属性可支持 $index 的替换
 			replace = this.replaceVforIndex(field, fors[1]);
 			if (replace) {
 				value = replace;
@@ -554,7 +554,7 @@ define([
 
 	/**
 	 * 节点绑定事件
-	 * @todo: 存在$index时数组操作时同步更新参数中的下标
+	 * @todo: 存在 $index 时数组操作时同步更新参数中的下标
 	 */
 	pp.parseVOnEvent = function(node, field, args, evt, fors) {
 		var access;
@@ -575,7 +575,7 @@ define([
 			}, this);
 		}
 
-		// 即使不在vfor中取值也需要获取访问路径
+		// 即使不在 vfor 中取值也需要获取访问路径
 		if (fors && !access) {
 			field = fors[2] + '*' + evt;
 		}
@@ -636,7 +636,7 @@ define([
 	}
 
 	/**
-	 * text, textarea绑定数据监测事件
+	 * text, textarea 绑定数据监测事件
 	 * @param   {Input}    node
 	 * @param   {String}   field
 	 * @param   {Boolean}  inFor
@@ -645,7 +645,7 @@ define([
 	pp.bindVModelTextEvent = function(node, field, inFor, fors) {
 		var self = this, composeLock = false;
 
-		// 解决中文输入时input事件在未选择词组时的触发问题
+		// 解决中文输入时 input 事件在未选择词组时的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
 		dom.addEvent(node, 'compositionstart', function() {
 			composeLock = true;
@@ -654,14 +654,14 @@ define([
 			composeLock = false;
 		});
 
-		// input事件(实时触发)
+		// input 事件(实时触发)
 		dom.addEvent(node, 'input', function() {
 			if (!composeLock) {
 				self.setVModelValue(field, this.value, inFor, fors);
 			}
 		});
 
-		// change事件(失去焦点触发)
+		// change 事件(失去焦点触发)
 		dom.addEvent(node, 'change', function() {
 			self.setVModelValue(field, this.value, inFor, fors);
 		});
@@ -695,7 +695,7 @@ define([
 	}
 
 	/**
-	 * radio绑定数据监测事件
+	 * radio 绑定数据监测事件
 	 * @param   {Input}   node
 	 * @param   {String}  field
 	 */
@@ -739,7 +739,7 @@ define([
 	}
 
 	/**
-	 * checkbox绑定数据监测事件
+	 * checkbox 绑定数据监测事件
 	 * @param   {Input}    node
 	 * @param   {String}   field
 	 * @param   {Boolean}  inFor
@@ -758,7 +758,7 @@ define([
 			var index, value = this.value, checked = this.checked;
 			var array = inFor ? scope[alias][key] : self.vm.getValue(field);
 
-			// 多个checkbox
+			// 多个 checkbox
 			if (util.isArray(array)) {
 				index = array.indexOf(value);
 				if (checked) {
@@ -772,7 +772,7 @@ define([
 					}
 				}
 			}
-			// 单个checkbox
+			// 单个 checkbox
 			else if (util.isBoolean(array)) {
 				// scope[alias][key] = checked;
 				self.setVModelValue(field, checked, inFor, infos);
@@ -847,7 +847,7 @@ define([
 	}
 
 	/**
-	 * select绑定数据监测事件
+	 * select 绑定数据监测事件
 	 * @param   {Select}   node
 	 * @param   {String}   field
 	 * @param   {Boolean}  multi
@@ -863,7 +863,7 @@ define([
 	}
 
 	/**
-	 * 获取SELECT的选中值
+	 * 获取 select 的选中值
 	 * @param   {Select}  select
 	 * @return  {Array}
 	 */
@@ -880,7 +880,7 @@ define([
 	}
 
 	/**
-	 * 强制更新select/option在vfor中的值
+	 * 强制更新 select/option 在 vfor 中的值
 	 * @param   {Select}  select
 	 */
 	pp.froceUpdateOption = function(select, fors) {
@@ -891,7 +891,7 @@ define([
 	}
 
 	/**
-	 * 设置v-model对应数据模型字段的值
+	 * 设置 v-model 对应数据模型字段的值
 	 * @param  {String}   field
 	 * @param  {String}   value
 	 * @param  {Boolean}  inFor
@@ -942,7 +942,7 @@ define([
 			this.froceUpdateOption(parent, fors);
 		}
 
-		// differ数组信息
+		// differ 数组信息
 		infos = [field, scope, alias, level];
 
 		// 监测根列表数据的变化
@@ -958,7 +958,7 @@ define([
 				}
 			}, this);
 		}
-		// 嵌套vfor
+		// 嵌套 vfor
 		else {
 			watcher.watchAccess(field, function(last, old) {
 				this.differVfors(parent, node, last, old, infos);
@@ -988,7 +988,7 @@ define([
 			var cloneNode = node.cloneNode(true);
 			var fors = [item, index, path, scope, alias, level];
 
-			// 阻止重复编译除vfor以外的指令
+			// 阻止重复编译除 vfor 以外的指令
 			if (node._vfor_directives > 1) {
 				vm.blockCompileNode(node);
 			}
@@ -996,7 +996,7 @@ define([
 			// 可在编译过程中获取当前循环对象的所有信息
 			// 当编译结束之后别名对应的取值对象是循环体的最后一项
 			scope[alias] = item;
-			// 传入vfor数据编译板块
+			// 传入 vfor 数据编译板块
 			vm.complieElement(cloneNode, true, fors);
 			// 定义私有标记属性
 			util.defineProperty(cloneNode, '_vfor_alias', alias);
@@ -1008,12 +1008,12 @@ define([
 	}
 
 	/**
-	 * 数组操作同步更新vfor循环体
+	 * 数组操作同步更新 vfor 循环体
 	 * @param   {DOMElement}  parent    [父节点]
 	 * @param   {DOMElement}  node      [初始模板片段]
 	 * @param   {Array}       newArray  [新的数据重复列表]
 	 * @param   {String}      method    [数组操作]
-	 * @param   {Array}       infos    [differ信息]
+	 * @param   {Array}       infos     [differ 信息]
 	 */
 	pp.differVfors = function(parent, node, newArray, method, infos) {
 		var firstChild, lastChild;
@@ -1037,14 +1037,14 @@ define([
 				watcher.forwardArray(field);
 				parent.removeChild(firstChild);
 				break;
-			// @todo: splice, sort, reverse操作和直接赋值暂时都重新编译
+			// @todo: splice, sort, reverse 操作和直接赋值暂时都重新编译
 			default:
 				this.recompileVforArray.apply(this, arguments);
 		}
 	}
 
 	/**
-	 * 获取vfor循环体的第一个子节点
+	 * 获取 vfor 循环体的第一个子节点
 	 * @param   {DOMElement}  parent  [父节点]
 	 * @param   {String}      alias   [循环体对象别名]
 	 * @return  {FirstChild}
@@ -1063,7 +1063,7 @@ define([
 	}
 
 	/**
-	 * 获取vfor循环体的最后一个子节点
+	 * 获取 vfor 循环体的最后一个子节点
 	 * @param   {DOMElement}  parent   [父节点]
 	 * @param   {String}      alias    [循环体对象别名]
 	 * @return  {LastChild}
@@ -1160,9 +1160,9 @@ define([
 	}
 
 	/**
-	 * 是否是在vfor中取值
-	 * @param   {String}   field  [model字段或者vfor字段]
-	 * @param   {Array}    fors   [vfor数据]
+	 * 判断当前指令是否是在 vfor 中取值
+	 * @param   {String}   field  [model 字段或者 vfor 字段]
+	 * @param   {Array}    fors   [vfor 数据]
 	 * @return  {Boolean}
 	 */
 	pp.isForValue = function(field, fors) {
@@ -1172,7 +1172,7 @@ define([
 	}
 
 	/**
-	 * 获取vfor中循环对象的键名
+	 * 获取 vfor 中循环对象的键名
 	 * @param   {String}  field
 	 * @param   {Object}  item
 	 * @return  {String}
@@ -1183,7 +1183,7 @@ define([
 	}
 
 	/**
-	 * 获取vfor中循环对象的值，当前循环取值或跨层级取值
+	 * 获取 vfor 中循环对象的值，当前循环取值或跨层级取值
 	 */
 	pp.getVforValue = function(value, fors) {
 		var splits = value.split('.');
@@ -1194,7 +1194,7 @@ define([
 	}
 
 	/**
-	 * 获取vfor中当前循环对象的监测访问路径
+	 * 获取 vfor 中当前循环对象的监测访问路径
 	 */
 	pp.getVforAccess = function(value, fors) {
 		var path = fors[2], alias, access;
@@ -1217,7 +1217,7 @@ define([
 	}
 
 	/**
-	 * 替换vfor循环体表达式中的下标
+	 * 替换 vfor 循环体表达式中的下标
 	 * @param   {String}          expression
 	 * @param   {String|Number}   index
 	 * @return  {String}

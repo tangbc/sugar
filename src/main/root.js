@@ -6,8 +6,8 @@ define([
 ], function(util) {
 
 	/**
-	 * 对子类方法挂载Super
-	 * @param   {Function}  Super   [Super函数]
+	 * 对子类方法挂载 Super
+	 * @param   {Function}  Super   [Super 函数]
 	 * @param   {Mix}       method  [子类属性或者方法]
 	 * @return  {Mix}
 	 */

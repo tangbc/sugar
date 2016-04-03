@@ -54,7 +54,7 @@ define([
 
 	/**
 	 * 数据模型变化触发代理
-	 * 只触发数据模型定义的字段，数组内部变化通过triggerAccess手动触发
+	 * 只触发数据模型定义的字段，数组内部变化通过 triggerAccess 手动触发
 	 * @param   {String}  path  [触发字段访问路径]
 	 * @param   {Mix}     last  [新值]
 	 * @param   {Mix}     old   [旧值]
@@ -121,7 +121,7 @@ define([
 	}
 
 	/**
-	 * 访问路径回调延后一位，处理数组的unshift操作
+	 * 访问路径回调延后一位，处理数组的 unshift 操作
 	 */
 	wp.backwardArray = function(field) {
 		this.updateArrayAccess(field, true);
@@ -129,7 +129,7 @@ define([
 	}
 
 	/**
-	 * 访问路径回调提前一位，处理数组的shift操作
+	 * 访问路径回调提前一位，处理数组的 shift 操作
 	 */
 	wp.forwardArray = function(field) {
 		this.updateArrayAccess(field, false);
@@ -138,8 +138,8 @@ define([
 
 	/**
 	 * 更新访问路径和回调函数的对应关系
-	 * 处理数组的unshift/shift操作
-	 * vfor数组的回调监测分为访问路径和下标两种监测
+	 * 处理数组的 unshift/shift操作
+	 * vfor 数组的回调监测分为访问路径和下标两种监测
 	 * @param   {String}   field     [数组访问路径]
 	 * @param   {Boolean}  backward  [是否延后一位]
 	 */
@@ -175,14 +175,14 @@ define([
 			var first = prefix + 0 + suffix;
 			var next = prefix + (index + 1) + suffix;
 
-			// 延后一位，第一位将为undefined
+			// 延后一位，第一位将为 undefined
 			if (backward) {
 				callbacks[next] = cbCaches[current];
 				if (index === 0) {
 					callbacks[first] = udf;
 				}
 			}
-			// 提前一位，最后一位将为undefined
+			// 提前一位，最后一位将为 undefined
 			else {
 				callbacks[current] = cbCaches[next];
 			}

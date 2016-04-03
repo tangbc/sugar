@@ -8,8 +8,8 @@ define([
 ], function(dom, util, Parser) {
 
 	/**
-	 * VM编译模块
-	 * @param  {DOMElement}  element  [视图的挂载原生DOM]
+	 * VM 编译模块
+	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */
 	function VMCompiler(element, model) {
@@ -28,9 +28,9 @@ define([
 		// 元素转为文档碎片
 		this.$fragment = util.nodeToFragment(this.$element);
 
-		// VM数据模型
+		// VM 数据模型
 		this.$data = model;
-		// DOM对象注册索引
+		// DOM 对象注册索引
 		this.$data.$els = {};
 
 		// 未编译节点缓存队列
@@ -41,7 +41,7 @@ define([
 		// 解析器
 		this.parser = new Parser(this);
 
-		// vmodel限制使用的表单元素
+		// vmodel 限制使用的表单元素
 		this.$inputs = 'input|select|textarea'.split('|');
 
 		this.init();
@@ -129,7 +129,7 @@ define([
 		var atr, name, vfor, attrs = [], nodeAttrs;
 
 		if (this.isElementNode(node)) {
-			// node节点集合转为数组
+			// node 节点集合转为数组
 			nodeAttrs = node.attributes
 
 			for (var i = 0; i < nodeAttrs.length; i++) {
@@ -143,7 +143,7 @@ define([
 				}
 			}
 
-			// vfor编译时标记节点的指令数
+			// vfor 编译时标记节点的指令数
 			if (vfor) {
 				util.defineProperty(node, '_vfor_directives', attrs.length);
 				attrs = [vfor];
@@ -258,7 +258,7 @@ define([
 	}
 
 	/**
-	 * 停止编译节点的剩余指令，如vfor的根节点
+	 * 停止编译节点的剩余指令，如 vfor 的根节点
 	 * @param   {DOMElement}  node
 	 */
 	vp.blockCompileNode = function(node) {
@@ -298,7 +298,7 @@ define([
 
 	/**
 	 * 节点的子节点是否延迟编译
-	 * vif, vfor的子节点为处理指令时单独编译
+	 * vif, vfor 的子节点为处理指令时单独编译
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
@@ -345,15 +345,15 @@ define([
 
 
 	/**
-	 * MVVM构造函数，封装VMComplier
-	 * @param  {DOMElement}  element  [视图的挂载原生DOM]
+	 * MVVM 构造函数，封装 VMComplier
+	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
-	 * @param  {Function}    context  [VM事件及watch的回调上下文]
+	 * @param  {Function}    context  [VM 事件及 watch 的回调上下文]
 	 */
 	function MVVM(element, model, context) {
 		this.context = context;
 
-		// 将函数this指向调用者
+		// 将函数 this 指向调用者
 		util.each(model, function(value, key) {
 			if (util.isFunc(value)) {
 				model[key] = value.bind(context);
@@ -363,7 +363,7 @@ define([
 		// 初始数据备份
 		this._backup = util.copy(model);
 
-		// 内部MVVM实例
+		// 内部 MVVM 实例
 		this._vm = new VMCompiler(element, model);
 
 		// VM数据模型
@@ -382,7 +382,7 @@ define([
 	}
 
 	/**
-	 * 设置数据模型的值，key为JSON时则批量设置
+	 * 设置数据模型的值，key 为 json 时则批量设置
 	 * @param  {String}  key    [数据模型字段]
 	 * @param  {Mix}     value  [值]
 	 */
@@ -428,7 +428,7 @@ define([
 	/**
 	 * 对数据模型的字段添加监测
 	 * @param   {String}    model     [数据模型字段]
-	 * @param   {Function}  callback  [触发回调，参数为model, last, old]
+	 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
 	 */
 	mvp.watch = function(model, callback) {
 		this._vm.parser.watcher.add(model, function(path, last, old) {
