@@ -45,7 +45,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 					'current': this.getCurrent(),
 					'weeks'  : ['一', '二', '三', '四', '五', '六', '日'],
 					// 日期数据
-					'dates'  : [],
+					'dates'  : this.createDays(),
 					// 点击事件
 					'clickResultBtn' : this.clickResultBtn,
 					'clickPannel'    : this.clickPannel,
@@ -66,12 +66,6 @@ require(['../../dist/sugar.min'], function(Sugar) {
 					self.vm.set('showPannel', false);
 				}
 			});
-			// 监听 showPannel 的值变化
-			this.vm.watch('showPannel', function(path, last, old) {
-				if (last) {
-					self.updateDateValue();
-				}
-			});
 		},
 
 		// 点击面板记录事件时间戳
@@ -85,8 +79,8 @@ require(['../../dist/sugar.min'], function(Sugar) {
 			vm.showPannel = !vm.showPannel;
 			this.$timeStamp = e.timeStamp;
 
-			if (vm.showPannel) {
-				this.updateCurrentValue().highlightSelectDate();
+			if (vm.showPannel && !this.isToday()) {
+				this.updateDateValue().updateCurrentValue().highlightSelectDate();
 			}
 		},
 
@@ -139,7 +133,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 					'year' : year,
 					'month': month,
 					'date' : day,
-					'today': false
+					'today': this.isToday(day)
 				});
 			}
 
@@ -156,7 +150,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 
 			index = this.$.getAttr(elm, 'date-index');
 			selectDate = vm.dates[index];
-			this.updateDateValue(selectDate.year, selectDate.month, selectDate.date);
+			this.updateDateValue(selectDate.year, selectDate.month, selectDate.date).highlightSelectDate();
 
 			this.vm.set({
 				'showPannel': false,
@@ -164,11 +158,19 @@ require(['../../dist/sugar.min'], function(Sugar) {
 			});
 		},
 
+		// 是否是今天
+		isToday: function(day) {
+			var same = this.$date === this.$rDate && this.$month === this.$rMonth && this.$year === this.$rYear;
+			return day ? same && this.$date === day : same;
+		},
+
 		// 更新年月日的当前值和结果值
 		updateDateValue: function(year, month, date) {
-			this.$year = this.$rYear = year || this.$rYear;
-			this.$month = this.$rMonth = month || this.$rMonth;
-			this.$date = this.$rDate = date || this.$rDate;
+			var udf;
+			this.$year = this.$rYear = year === udf ? this.$rYear : year;
+			this.$month = this.$rMonth = month === udf ? this.$rMonth : month;
+			this.$date = this.$rDate = date === udf ? this.$rDate : date;
+			return this;
 		},
 
 		// 更新当前值和日期数组
