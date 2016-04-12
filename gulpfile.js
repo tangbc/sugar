@@ -3,7 +3,12 @@ var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 
 // 监听的js文件
-var jsFiles = ['src/*.js', 'src/main/*.js', 'src/mvvm/*.js'];
+var jsFiles = [
+	'src/*.js',
+	'src/main/*.js',
+	'src/mvvm/*.js',
+	'src/mvvm/parsers/*.js'
+];
 
 // js语法检测配置
 var jshintConfig = {
@@ -21,6 +26,8 @@ var jshintConfig = {
 	'laxcomma' : true,
 	'devel'    : true,
 	'smarttabs': true,
+	// Aviod warning The Function constructor is a form of eval.
+	'evil'     : true,
 	// Avoid warning The '__proto__' property is deprecated.
 	'proto'    : true,
 	'predef'   : ['module', 'require', 'define']

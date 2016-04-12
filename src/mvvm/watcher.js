@@ -9,225 +9,300 @@ define([
 	function Watcher(model) {
 		this.$model = model;
 
-		// 监测数据模型回调集合
-		this.$watchCallbacks = {};
+		// 数据模型订阅集合
+		this.$modelSubs = {};
 
-		// 监测访问路径回调集合
-		this.$accessCallbacks = {};
+		// 访问路径订阅集合
+		this.$accessSubs = {};
 
-		// 监测数组下标路径集合
-		this.$indexCallbacks = {};
+		// 数组下标订阅集合
+		this.$indexSubs = {};
 
-		this.observer = new Observer(model, ['$els'], 'triggerAgent', this);
+		this.observer = new Observer(model, ['$els'], 'change', this);
 	}
 
 	var wp = Watcher.prototype;
 
 	/**
-	 * 添加一个对数据模型字段的监测回调
-	 * @param  {String}    field     [监测字段]
-	 * @param  {Function}  callback  [变化回调]
-	 * @param  {Object}    context   [作用域]
-	 * @param  {Array}     args      [回调参数]
+	 * Observer 变化触发回调
+	 * @param   {String}  path
+	 * @param   {Mix}     last
+	 * @param   {Mix}     old
 	 */
-	wp.add = function(field, callback, context, args) {
-		var model = this.$model;
-		var callbacks = this.$watchCallbacks;
+	wp.change = function(path, last, old) {
+		var isAccess = path.indexOf('*') !== -1;
+		var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
+		this.trigger(subs, path, last, old);
+	}
 
-		if (!util.hasOwn(model, field)) {
-			util.warn('The field: ' + field + ' does not exist in model!');
+	/**
+	 * 触发订阅的所有回调
+	 * @param   {Array}   subs
+	 * @param   {String}  path
+	 * @param   {Mix}     last
+	 * @param   {Mix}     old
+	 * @param   {Array}   args
+	 */
+	wp.trigger = function(subs, path, last, old) {
+		util.each(subs, function(sub) {
+			sub.cb.call(sub.ct, path, last, old, sub.arg);
+		});
+	}
+
+	/**
+	 * 订阅一个依赖集合的变化回调 (顶层模型无 access)
+	 * @param   {Array}     depends
+	 * @param   {Function}  callback
+	 * @param   {Object}    context
+	 * @param   {Array}     args
+	 */
+	wp.watch = function(depends, callback, context, args) {
+		// 依赖的数据模型
+		var depModels = depends[0];
+		// 依赖的访问路径
+		var depAccess = depends[1];
+
+		util.each(depModels, function(model, index) {
+			var access = depAccess[index];
+
+			// 暂时只有这一个需要忽略的关键字
+			if (model === '$event') {
+				return;
+			}
+
+			// 下标取值
+			if (model === '$index') {
+				this.watchIndex(access, callback, context, args);
+				return;
+			}
+
+			// 嵌套数组/对象
+			if (access) {
+				this.watchAccess(access, callback, context, args);
+				return;
+			}
+
+			// 顶层数据模型
+			this.watchModel(util.getExpAlias(model), callback, context, args);
+
+		}, this);
+	}
+
+	/**
+	 * 订阅一个数据模型字段的变化回调
+	 * @param  {String}    field
+	 * @param  {Function}  callback
+	 * @param  {Object}    context
+	 * @param  {Array}     args
+	 */
+	wp.watchModel = function(field, callback, context, args) {
+		if (!util.hasOwn(this.$model, field)) {
+			util.warn('The field: "' + field + '" does not exist in model!');
 			return;
 		}
 
 		if (field.indexOf('*') !== -1) {
-			util.warn('model key cannot contain the character \'*\'!');
+			util.warn('Model key cannot contain the character "*"!');
 			return;
 		}
 
-		// 缓存回调函数
-		if (!callbacks[field]) {
-			callbacks[field] = [];
-		}
-
-		callbacks[field].push([callback, context, args]);
+		this.cacheSubs(this.$modelSubs, field, callback, context, args);
 	}
 
 	/**
-	 * 数据模型变化触发代理
-	 * 只触发数据模型定义的字段，数组内部变化通过 triggerAccess 手动触发
-	 * @param   {String}  path  [触发字段访问路径]
-	 * @param   {Mix}     last  [新值]
-	 * @param   {Mix}     old   [旧值]
-	 */
-	wp.triggerAgent = function(path, last, old) {
-		var pos = path.indexOf('*');
-		var field = pos === -1 ? path : path.substr(0, pos);
-
-		// 触发所有回调
-		util.each(this.$watchCallbacks[field], function(cbs) {
-			var callback = cbs[0], context = cbs[1], args = cbs[2];
-			callback.call(context, path, last, old, args);
-		}, this);
-	}
-
-	/**
-	 * 订阅数据模型多层访问路径回调
-	 * @param  {String}    access    [访问路径]
-	 * @param  {Function}  callback  [变化回调]
-	 * @param  {Object}    context   [作用域]
-	 * @param  {Array}     args      [回调参数]
+	 * 订阅多层访问路径变化回调
+	 * @param  {String}    access
+	 * @param  {Function}  callback
+	 * @param  {Object}    context
+	 * @param  {Array}     args
 	 */
 	wp.watchAccess = function(access, callback, context, args) {
-		var callbacks = this.$accessCallbacks;
-
-		// 缓存回调函数
-		if (!callbacks[access]) {
-			callbacks[access] = [];
-		}
-
-		callbacks[access].push([callback, context, args]);
+		this.cacheSubs(this.$accessSubs, access, callback, context, args);
 	}
 
 	/**
-	 * 触发多层访问路径变更回调
-	 * @param   {String}  access  [访问路径]
-	 * @param   {Mix}     last    [新值]
-	 * @param   {Mix}     old     [旧值]
+	 * 订阅 vfor 数组下标变化回调
+	 * @param  {String}    access
+	 * @param  {Function}  callback
+	 * @param  {Object}    context
+	 * @param  {Array}     args
 	 */
-	wp.triggerAccess = function(access, last, old) {
-		var callbacks = this.$accessCallbacks;
+	wp.watchIndex = function(access, callback, context, args) {
+		this.cacheSubs(this.$indexSubs, access, callback, context, args);
+	}
 
-		util.each(callbacks[access], function(cb) {
-			var callback = cb[0], context = cb[1], args = cb[2];
-			callback.call(context, last, old, args);
+	/**
+	 * 缓存订阅回调
+	 */
+	wp.cacheSubs = function(subs, identifier, callback, context, args) {
+		// 缓存回调函数
+		if (!subs[identifier]) {
+			subs[identifier] = [];
+		}
+
+		subs[identifier].push({
+			'cb' : callback,
+			'ct' : context,
+			'arg': args
 		});
 	}
 
 	/**
-	 * 订阅数组操作下标变更回调
-	 * @param  {String}    access    [访问路径]
-	 * @param  {Function}  callback  [变化回调]
-	 * @param  {Object}    context   [作用域]
+	 * 发生数组操作时处理订阅的移位
+	 * @param   {String}  field   [数组字段]
+	 * @param   {String}  method  [数组操作方法]
 	 */
-	wp.watcherIndex = function(access, callback, context) {
-		var callbacks = this.$indexCallbacks;
-
-		// 缓存回调函数
-		if (!callbacks[access]) {
-			callbacks[access] = [];
-		}
-
-		callbacks[access].push([callback, context]);
-	}
-
-	/**
-	 * 访问路径回调延后一位，处理数组的 unshift 操作
-	 */
-	wp.backwardArray = function(field) {
-		this.updateArrayAccess(field, true);
-		return this;
-	}
-
-	/**
-	 * 访问路径回调提前一位，处理数组的 shift 操作
-	 */
-	wp.forwardArray = function(field) {
-		this.updateArrayAccess(field, false);
-		return this;
-	}
-
-	/**
-	 * 更新访问路径和回调函数的对应关系
-	 * 处理数组的 unshift/shift操作
-	 * vfor 数组的回调监测分为访问路径和下标两种监测
-	 * @param   {String}   field     [数组访问路径]
-	 * @param   {Boolean}  backward  [是否延后一位]
-	 */
-	wp.updateArrayAccess = function(field, backward) {
+	wp.shiftSubs = function(field, method) {
+		// 数组字段标识
 		var prefix = field + '*';
-		this.displaceIndex(prefix, backward);
-		this.displaceCallback(prefix, backward);
+		// 移位下标
+		this.shiftIndex(prefix, method);
+		// 移位访问路径
+		this.shiftAccess(prefix, method);
 	}
 
 	/**
-	 * 移位访问路径的回调集合
-	 * @param   {String}   prefix    [移位路径的前缀]
-	 * @param   {Boolean}  backward
+	 * 获取指定相关访问路径和回调集合
+	 * @param   {String}  identifier  [目标标识符]
+	 * @param   {Array}   subs        [所有订阅]
+	 * @return  {Object}
 	 */
-	wp.displaceCallback = function(prefix, backward) {
-		var callbacks = this.$accessCallbacks;
-		var accesses = Object.keys(callbacks);
+	wp.getRelate = function(identifier, subs) {
+		var caches = {}, targets = [];
 
-		var targets = [], cbCaches = {};
-
-		// 需要移位的所有访问路径和回调
-		util.each(accesses, function(access) {
-			if (access.indexOf(prefix) === 0) {
-				targets.push(access);
-				cbCaches[access] = callbacks[access];
+		util.each(Object.keys(subs), function(key) {
+			if (key.indexOf(identifier) === 0) {
+				targets.push(key);
+				caches[key] = subs[key];
 			}
 		});
 
-		util.each(targets, function(current) {
-			var udf;
-			var index = +current.substr(prefix.length).charAt(0);
-			var suffix = current.substr(prefix.length + 1);
-			var first = prefix + 0 + suffix;
-			var next = prefix + (index + 1) + suffix;
-
-			// 延后一位，第一位将为 undefined
-			if (backward) {
-				callbacks[next] = cbCaches[current];
-				if (index === 0) {
-					callbacks[first] = udf;
-				}
-			}
-			// 提前一位，最后一位将为 undefined
-			else {
-				callbacks[current] = cbCaches[next];
-			}
-		}, this);
+		return {
+			'caches' : caches,
+			'targets': targets
+		}
 	}
 
 	/**
-	 * 移位下标监测的回调集合
-	 * @param   {String}   prefix    [移位路径的前缀]
-	 * @param   {Boolean}  backward
+	 * 移位下标的订阅回调
+	 * 移位的过程需要触发所有回调以更改每一个 $index
 	 */
-	wp.displaceIndex = function(prefix, backward) {
-		var indexCallbacks = this.$indexCallbacks;
-		var indexes = Object.keys(indexCallbacks);
+	wp.shiftIndex = function(prefix, method) {
+		var subs = this.$indexSubs;
+		// 需要移位的相关信息
+		var relate = this.getRelate(prefix, subs);
 
-		// 需要移位的下标监测
-		util.each(indexes, function(index) {
-			if (index.indexOf(prefix) !== 0) {
-				return;
+		if (!relate.targets.length) {
+			return;
+		}
+
+		switch (method) {
+			case 'shift':
+				this.shiftIndexForward(prefix, subs, relate);
+				break;
+			case 'unshift':
+				this.shiftIndexBackward(prefix, subs, relate);
+				break;
+		}
+	}
+
+	/**
+	 * 下标提前，shift 操作，最后一位为 undefined
+	 */
+	wp.shiftIndexForward = function(prefix, subs, relate) {
+		var targets = relate.targets, caches = relate.caches;
+
+		util.each(targets, function(access) {
+			var index = +access.substr(prefix.length).charAt(0);
+			var suffix = access.substr(prefix.length + 1);
+			var current = access, prev = prefix + (index + 1) + suffix;
+
+			subs[current] = caches[prev];
+
+			util.each(subs[current], function(sub) {
+				sub.cb.call(sub.ct, current, index, sub.arg);
+			});
+		});
+	}
+
+	/**
+	 * 下标延后，unshift 操作，第一位为 undefined
+	 */
+	wp.shiftIndexBackward = function(prefix, subs, relate) {
+		var targets = relate.targets, caches = relate.caches;
+
+		util.each(targets.reverse(), function(access) {
+			var udf, first = prefix + 0;
+			var index = +access.substr(prefix.length).charAt(0);
+			var suffix = access.substr(prefix.length + 1);
+			var current = access, prev = prefix + (index + 1) + suffix;
+
+			subs[prev] = caches[current];
+
+			util.each(subs[current], function(sub) {
+				sub.cb.call(sub.ct, current, index + 1, sub.arg);
+			});
+
+			if (index === 0) {
+				subs[first] = udf;
 			}
+		});
+	}
 
-			var udf;
-			var idx = +index.substr(prefix.length).charAt(0);
-			var suffix = index.substr(prefix.length + 1);
-			var first = prefix + 0;
-			var next = prefix + (idx + 1) + suffix;
+	/**
+	 * 移位访问路径的订阅回调
+	 * 移位的过程不需要触发回调
+	 */
+	wp.shiftAccess = function(prefix, method) {
+		var subs = this.$accessSubs;
+		// 需要移位的所有访问路径和回调
+		var relate = this.getRelate(prefix, subs);
 
-			// 延后一位
-			if (backward) {
-				indexCallbacks[next] = indexCallbacks[index];
-				if (index === 0) {
-					indexCallbacks[first] = udf;
-				}
+		if (!relate.targets.length) {
+			return;
+		}
 
-				util.each(indexCallbacks[index], function(cbs) {
-					cbs[0].call(cbs[1], idx);
-				});
-			}
-			// 提前一位
-			else {
-				indexCallbacks[index] = indexCallbacks[next];
+		switch (method) {
+			case 'shift':
+				this.shiftAccessForward(prefix, subs, relate);
+				break;
+			case 'unshift':
+				this.shiftAccessBackward(prefix, subs, relate);
+				break;
+		}
+	}
 
-				util.each(indexCallbacks[index], function(cbs) {
-					cbs[0].call(cbs[1], idx);
-				});
+	/**
+	 * 访问路径提前，shift 操作，最后一位为 undefined
+	 */
+	wp.shiftAccessForward = function(prefix, subs, relate) {
+		var targets = relate.targets, caches = relate.caches;
+
+		util.each(targets, function(access) {
+			var index = +access.substr(prefix.length).charAt(0);
+			var suffix = access.substr(prefix.length + 1);
+			var current = access, next = prefix + (index + 1) + suffix;
+
+			subs[current] = caches[next];
+		});
+	}
+
+	/**
+	 * 访问路径延后，unshift 操作，第一位为 undefined
+	 */
+	wp.shiftAccessBackward = function(prefix, subs, relate) {
+		var targets = relate.targets, caches = relate.caches;
+
+		util.each(targets, function(access) {
+			var index = +access.substr(prefix.length).charAt(0);
+			var suffix = access.substr(prefix.length + 1);
+			var udf, first = prefix + 0 + suffix;
+			var current = access, next = prefix + (index + 1) + suffix;
+
+			subs[next] = caches[current];
+
+			if (index === 0) {
+				subs[first] = udf;
 			}
 		});
 	}
