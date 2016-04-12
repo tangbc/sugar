@@ -15,12 +15,13 @@ module.exports = {
 	},
 	'plugins': [
 		// https://github.com/mishoo/UglifyJS2#compressor-options
+		// http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
 		new webpack.optimize.UglifyJsPlugin({
 			'compress': {
 				'warnings': false
 			}
 		}),
-		// http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
+		// http://webpack.github.io/docs/list-of-plugins.html#bannerplugin
 		new webpack.BannerPlugin(banner, {
 			'raw'      : false,
 			'entryOnly': false
