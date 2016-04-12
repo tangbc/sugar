@@ -82,7 +82,7 @@ define(function() {
 	}
 
 	var up = Util.prototype;
-	var util, cons = WIN.console;
+	var cons = WIN.console;
 
 
 	/**
@@ -321,45 +321,48 @@ define(function() {
 	 */
 	up.stringToParameters = function(expression) {
 		var ret, params, func;
-		var matches = expression.match(/(\(.*\))/);
+		var exp = this.removeSpace(expression);
+		var matches = exp.match(/(\(.*\))/);
 		var result = matches && matches[0];
 
 		// 有函数名和参数
 		if (result) {
 			params = result.substr(1, result.length - 2).split(',');
-			func = expression.substr(0, expression.indexOf(result));
+			func = exp.substr(0, exp.indexOf(result));
 			ret = [func, params];
 		}
 		// 只有函数名
 		else {
-			ret = [expression, params];
+			ret = [exp, params];
 		}
 
 		return ret;
 	}
 
 	/**
-	 * 字符 json 结构转为键值数组
+	 * 字符 json 结构转为可取值的对象
 	 * @param   {String}  jsonString
-	 * @return  {Array}
+	 * @return  {Object}
 	 */
-	up.jsonStringToArray = function(jsonString) {
-		var ret = [], props, leng = jsonString.length;
+	up.convertJsonString = function(jsonString) {
+		var info, props;
+		var string = jsonString.trim(), i = string.length;
 
-		if (jsonString.charAt(0) === '{' && jsonString.charAt(leng - 1) === '}') {
-			props = jsonString.substr(1, leng - 2).match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
+		if (/^\{.*\}$/.test(string)) {
+			info = {};
+			string = string.substr(1, i - 2).replace(/\s|'|"/g, '');
+			props = string.match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
+
 			this.each(props, function(prop) {
 				var vals = this.getStringKeyValue(prop, true);
 				var name = vals[0], value = vals[1];
 				if (name && value) {
-					ret.push({
-						'name' : name,
-						'value': value
-					});
+					info[name] = value;
 				}
 			}, this);
 		}
-		return ret;
+
+		return info;
 	}
 
 	/**
@@ -418,7 +421,27 @@ define(function() {
 		return fragment;
 	}
 
-	util = new Util();
+	/**
+	 * 获取指令表达式的别名/模型字段
+	 * eg. item.text -> item, items.length -> items
+	 * @param   {String}  expression
+	 * @return  {String}
+	 */
+	up.getExpAlias = function(expression) {
+		var pos = expression.indexOf('.');
+		return pos === -1 ? expression : expression.substr(0, pos);
+	}
 
-	return util;
+	/**
+	 * 获取指令表达式的取值字段，无返回空
+	 * eg. item.text -> text,
+	 * @param   {String}  expression
+	 * @return  {String}
+	 */
+	up.getExpKey = function(expression) {
+		var pos = expression.lastIndexOf('.');
+		return pos === -1 ? '' : expression.substr(pos + 1);
+	}
+
+	return new Util();
 });

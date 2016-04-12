@@ -57,7 +57,7 @@ define([
 	 * @param   {Boolean}     show    [是否显示]
 	 */
 	up.updateNodeDisplay = function(node, show) {
-		var siblingNode = node.nextSibling;
+		var siblingNode = this.getSiblingElementNode(node);
 
 		this.setNodeVisibleDisplay(node);
 		this.updateNodeStyle(node, 'display', show ? node._visible_display : 'none');
@@ -103,7 +103,7 @@ define([
 	 * @param   {Boolean}     isRender  [是否渲染]
 	 */
 	up.updateNodeRenderContent = function(node, isRender) {
-		var siblingNode = node.nextSibling;
+		var siblingNode = this.getSiblingElementNode(node);
 
 		this.setNodeRenderContent(node);
 		this.toggleNodeRenderContent.apply(this, arguments);
@@ -139,6 +139,28 @@ define([
 	}
 
 	/**
+	 * 获取节点的下一个兄弟元素节点
+	 */
+	up.getSiblingElementNode = function(node) {
+		var el = node.nextSibling;
+		var isElementNode = this.vm.isElementNode;
+
+		if (isElementNode(el)) {
+			return el;
+		}
+
+		while (el) {
+			el = el.nextSibling;
+
+			if (isElementNode(el)) {
+				return el;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * 更新节点的 attribute realize v-bind
 	 * @param   {DOMElement}  node
 	 * @param   {String}      attribute
@@ -163,28 +185,28 @@ define([
 	/**
 	 * 更新节点的 classname realize v-bind:class
 	 * @param   {DOMElement}          node
-	 * @param   {String|Boolean}      newValue
-	 * @param   {String|Boolean}      oldValue
+	 * @param   {String|Boolean}      newcls
+	 * @param   {String|Boolean}      oldcls
 	 * @param   {String}              classname
 	 */
-	up.updateNodeClassName = function(node, newValue, oldValue, classname) {
-		// 指定 classname，变化值由 newValue 布尔值决定
+	up.updateNodeClassName = function(node, newcls, oldcls, classname) {
+		// 指定 classname 变化值由 newcls 布尔值决定
 		if (classname) {
-			if (newValue === true) {
+			if (newcls === true) {
 				dom.addClass(node, classname);
 			}
-			else if (newValue === false) {
+			else if (newcls === false) {
 				dom.removeClass(node, classname);
 			}
 		}
-		// 未指定 classname，变化值由 newValue 的值决定
+		// 未指定 classname 变化值由 newcls 的值决定
 		else {
-			if (newValue) {
-				dom.addClass(node, newValue);
+			if (newcls) {
+				dom.addClass(node, newcls);
 			}
 
-			if (oldValue) {
-				dom.removeClass(node, oldValue);
+			if (oldcls) {
+				dom.removeClass(node, oldcls);
 			}
 		}
 	}
@@ -202,18 +224,17 @@ define([
 	/**
 	 * 更新节点绑定事件的回调函数 realize v-on
 	 * @param   {DOMElement}  node
-	 * @param   {String}      evt
-	 * @param   {Function}    func     [回调函数]
-	 * @param   {Function}    oldFunc  [旧回调函数]
-	 * @param   {Array}       params   [参数]
-	 * @param   {String}      field    [对应监测字段/路径]
-	 * @param   {Number}      index    [vfor 下标]
+	 * @param   {String}      evt          [事件名称]
+	 * @param   {Function}    func         [回调函数]
+	 * @param   {Function}    oldfunc      [旧回调函数，会被移除]
+	 * @param   {Array}       params       [参数]
+	 * @param   {String}      identifier   [对应监测字段/路径]
 	 */
-	up.updateNodeEvent = function(node, evt, func, oldFunc, params, field, index) {
+	up.updateNodeEvent = function(node, evt, func, oldfunc, params, identifier) {
 		var listeners = this.$listeners;
 		var modals, self, stop, prevent, capture = false;
 
-		// 支持 4 种事件修饰符 .self.stop.prevent.capture
+		// 支持 4 种事件修饰符 .self .stop .prevent .capture
 		if (evt.indexOf('.') !== -1) {
 			modals = evt.split('.');
 			evt = modals.shift();
@@ -223,13 +244,13 @@ define([
 			capture = modals && modals.indexOf('capture') !== -1;
 		}
 
-		if (oldFunc) {
-			dom.removeEvent(node, evt, listeners[field], capture);
+		if (oldfunc) {
+			dom.removeEvent(node, evt, listeners[identifier], capture);
 		}
 
 		if (util.isFunc(func)) {
 			// 缓存事件回调
-			listeners[field] = function _listener(e) {
+			listeners[identifier] = function _listener(e) {
 				var args = [];
 
 				// 是否限定只能在当前节点触发事件
@@ -239,7 +260,7 @@ define([
 
 				// 组合事件参数
 				util.each(params, function(param) {
-					args.push(param === '$event' ? e : param === '$index' ? index : param);
+					args.push(param === '$event' ? e : param);
 				});
 
 				// 未指定参数，则原生事件对象作为唯一参数
@@ -259,10 +280,10 @@ define([
 				}
 			}
 
-			dom.addEvent(node, evt, listeners[field], capture);
+			dom.addEvent(node, evt, listeners[identifier], capture);
 		}
 		else {
-			util.warn('The model: ' + field + '\'s value for using v-on must be a type of Function!');
+			util.warn('The model: ' + identifier + '\'s value for using v-on must be a type of Function!');
 		}
 	}
 
