@@ -58,7 +58,7 @@ var Page = sugar.Container.extend({
 
 
 ## 3. 视图模块创建
-将视图模块创建到DOM的方式有两种：
+将视图模块创建到 DOM 的方式有两种：
 
 1. 通过核心实例 `sugar.core` 创建顶层模块：
 	```javascript

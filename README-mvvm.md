@@ -1,9 +1,17 @@
 # mvvm.js
 **说明：mvvm.js 对 sugar.js 没有任何依赖，是一个独立的库，只是为了项目完整性把他们放到一个仓库下 ~**
 
-mvvm 源代码都放在 `src/mvvm/` 目录下：`index.js` (入口/编译模块)，`observer.js` (数据监测模块)，`parser.js` (指令解析模块)， `updater.js` (视图刷新模块)， `watcher.js` (数据订阅模块)
+mvvm.js 的源代码都放在 `src/mvvm/` 目录下：
 
-指令列表：
+* `index.js` mvvm 入口/构造函数
+* `compiler.js` 指令编译模块
+* `observer.js` 数据监测模块
+* `parser.js` 指令解析模块 
+* `updater.js` 视图刷新模块
+* `watcher.js` 数据订阅模块
+* `src/mvvm/parsers/` 每个指令单独的解析模块目录
+
+### 指令列表：
 
 * [v-el](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-el)
 * [v-text](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-text)
@@ -23,7 +31,7 @@ mvvm 源代码都放在 `src/mvvm/` 目录下：`index.js` (入口/编译模块)
 * [v-for](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-for)
 
 
-## 1. 定义一个vm实例
+## 1. 定义一个 mvvm 实例
 ```javascript
 /*
  * element 接受一个 DOM 元素，作为编译的起点
@@ -236,6 +244,15 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 	绑定 `class` 到一个字段，通过 vm.$.cls = 'class-a' 切换 classname：
 	```html
 	<div class="static" v-bind:class="cls"></div>
+	```
+	
+	绑定 `class` 到一个数组：
+	```javascript
+	'classA': 'oneClass',
+	'classB': 'twoClass'
+	```
+	```html
+	<div v-bind:class="[classA, classB]"></div>
 	```
 
 	绑定 `class` 到一个对象，键名作为 classname，键值作为是否添加的布尔值：

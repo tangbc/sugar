@@ -2,18 +2,18 @@
 # 1. 介绍
 * sugar 是一个创建可继承、可复用和可拓展前端模块&组件的轻量级 javascript 框架
 
-* 特点：简单优雅的模块化开发方式；视图模块自带模板功能和 mvvm 模式
+* 特点：简单优雅的模块化开发方式；视图模块自带模板功能(支持异步请求)和 mvvm 模式
 
-* 项目分为两个独立的部分：**`sugar`** (实现模块化) 和 **`mvvm`** (实现数据与视图同步)
+* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`mvvm`** (实现数据与视图同步)
 
 # 2. 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-new" width="666">
 
 
 # 3. 项目结构
-* `demos/` 用 sugar.js 做的几个完整例子
+* `demos/` 用 sugar.js 做的一些完整例子
 
-* `test/` 测试文件目录，暂无unit，都是肉测
+* `test/` 测试文件目录，暂无 unit，都是肉测
 
 * `build/` 打包配置文件目录，打包工具为 webpack
 
@@ -21,9 +21,9 @@
 
 * `src/` 源代码文件目录：
 
-	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细 API 参见: [README-sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
+	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
-	* **`src/mvvm/`** 为一个简单 mvvm 库（其实只是个数据绑定+视图刷新的 ViewModel），支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [README-mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
+	* **`src/mvvm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
 
 
 # 4. 举个栗子
@@ -32,7 +32,7 @@
 var sugar = require('dist/sugar.min');
 
 /*
- * 定义 Page 模块，从 sugar.Container (约定了视图模块基础功能和 API)继承
+ * 定义 Page 模块，从 sugar.Container (约定了视图模块基础功能和 API) 继承
  * Page 相当于获得了一个独立的视图，展现形式、数据和逻辑行为都可灵活自定义
  */
 var Page = sugar.Container.extend({
@@ -63,7 +63,7 @@ var mod = sugar.core.create('pageName', Page, {
 ```
 
 # 5. 完整示例
-**`demos/`**  目录有完整的示例，也可在 github.io 上在线预览效果：
+**`demos/`**  目录做了些示例，也可在 github.io 上在线预览效果：
 
 * [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
 * [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
@@ -79,3 +79,11 @@ var mod = sugar.core.create('pageName', Page, {
 
 # 7. 改进&建议
 水平有限，必然存在很多不足之处，欢迎各种吐槽、意见、 issues 和 pull request ！
+
+
+# 8. 主要更新日志
+* `v1.0`
+	* `sugar` 基础的模块系统和组织方式
+	* `mvvm` 支持基础数据模型指令（静态表达式）
+* `v2.0`
+	* `mvvm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
