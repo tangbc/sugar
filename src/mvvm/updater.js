@@ -145,7 +145,7 @@ define([
 		var el = node.nextSibling;
 		var isElementNode = this.vm.isElementNode;
 
-		if (isElementNode(el)) {
+		if (el && isElementNode(el)) {
 			return el;
 		}
 

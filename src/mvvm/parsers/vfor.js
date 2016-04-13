@@ -21,16 +21,16 @@ define([
 		var watcher = vm.watcher;
 		var match = expression.match(/(.*) in (.*)/);
 		var alias = match[1];
-		var field = match[2];
+		var iterator = match[2];
 
 		// 取值信息
-		var scope = this.getScope(vm, fors, field);
-		var getter = this.getEvalFunc(fors, field);
+		var scope = this.getScope(vm, fors, iterator);
+		var getter = this.getEvalFunc(fors, iterator);
 		var array = getter.call(scope, scope);
 
 		// 循环数组的访问路径
-		var loopAccess = field;
-		var key = util.getExpKey(field);
+		var loopAccess = iterator;
+		var key = util.getExpKey(iterator);
 
 		// 循环层级
 		var level = -1;
@@ -354,6 +354,9 @@ define([
 		var childNodes = parent.childNodes;
 		var template, alias = up.alias;
 		var listArgs = [node, newArray, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
+
+		// 移除旧的监测
+		this.vm.watcher.removeSubs(up.access);
 
 		// 重新构建循环板块
 		template = this.buildList.apply(this, listArgs);

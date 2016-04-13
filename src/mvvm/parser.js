@@ -17,6 +17,8 @@ define([
 	var regSaveConst = /"(\d+)"/g;
 	// 只含有 true 或 false
 	var regBool = /^(true|false)$/;
+	// 匹配循环下标
+	var regIndex = /^\$index|\W\$\bindex\b/;
 	// 匹配表达式中的常量
 	var regReplaceConst = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g;
 	// 匹配表达式中的取值域
@@ -79,7 +81,7 @@ define([
 		var alias;
 
 		// $index or item in items {{item}}
-		if (expression === '$index' || expression === fors.alias) {
+		if (expression === fors.alias || regIndex.test(expression)) {
 			return fors.alias;
 		}
 
@@ -161,6 +163,10 @@ define([
 		if (fors) {
 			alias = getAlias(fors, expression);
 
+			if (alias === expression) {
+				return 'scope';
+			}
+
 			if (fors.aliases.indexOf(alias) !== -1) {
 				reg = new RegExp('\\b' + alias + '\\.', 'g');
 				exp = exp.replace(reg, '');
@@ -207,20 +213,20 @@ define([
 			return vm.$data;
 		}
 
-		// 取 vfor 循环的下标
-		if (expression === '$index') {
-			scope.$index = fors.index;
-			return scope;
-		}
-
 		// 当前域取值
 		if (alias === fors.alias) {
-			return fors.scope;
+			scope = fors.scope;
+			// 取 vfor 循环的下标
+			if (regIndex.test(expression)) {
+				scope.$index = fors.index;
+			}
 		}
 		// 跨循环层级取值
 		else {
-			return fors.scopes[alias];
+			scope = fors.scopes[alias];
 		}
+
+		return scope;
 	}
 
 	/**
@@ -259,19 +265,32 @@ define([
 	 * @return  {Array}
 	 */
 	p.getDependents = function(fors, expression) {
-		var udf, deps = [], paths = [];
+		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 
 		exp.replace(regReplaceScope, function(dep) {
 			var model = dep.substr(1);
-			// 取值域别名
-			var alias = util.getExpAlias(model);
-			// 取值字段
-			var key = util.getExpKey(model);
-			// 取值访问路径
-			var access = fors && (fors.accesses[fors.aliases.indexOf(alias)] || fors.access);
+			var key, access, valAccess
+
+			// 取值域别名或 items.length -> items
+			if (fors) {
+				alias = getAlias(fors, expression);
+				// 取值域路径
+				access = fors.accesses[fors.aliases.indexOf(alias)];
+			}
+			else {
+				alias = util.getExpAlias(model);
+			}
+
 			// 取值字段访问路径
-			var valAccess = key ? (access + '*' + key) : (model === '$index' ? access : udf);
+			if (model === '$index' || model === alias) {
+				valAccess = access;
+			}
+			else {
+				if (access) {
+					valAccess = access + '*' + util.getExpKey(model);
+				}
+			}
 
 			deps.push(model);
 			paths.push(valAccess);

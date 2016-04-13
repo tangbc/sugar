@@ -148,6 +148,17 @@ define([
 	}
 
 	/**
+	 * 移除指定的访问路径订阅(重新编译 vfor)
+	 */
+	wp.removeSubs = function(field) {
+		util.each(this.$accessSubs, function(sub, access) {
+			if (access.indexOf(field) === 0) {
+				return null;
+			}
+		}, this);
+	}
+
+	/**
 	 * 发生数组操作时处理订阅的移位
 	 * @param   {String}  field   [数组字段]
 	 * @param   {String}  method  [数组操作方法]
