@@ -1,21 +1,23 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var von = Object.create(parser);
+	function Von(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var von = Von.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-on 指令
-	 * @param   {Object}      vm          [VM 对象]
 	 * @param   {Object}      fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 * @param   {String}      directive   [指令名称]
 	 */
-	von.parse = function(vm, fors, node, expression, directive) {
-		this.vm = vm;
-
+	von.parse = function(fors, node, expression, directive) {
+		var vm = this.vm;
 		var watcher = this.vm.watcher;
 		var jsonDeps = [], jsonAccess = [];
 
@@ -135,5 +137,5 @@ define([
 		updater.updateNodeEvent.apply(updater, arguments);
 	}
 
-	return von;
+	return Von;
 });

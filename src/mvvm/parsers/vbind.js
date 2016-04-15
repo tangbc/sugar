@@ -1,21 +1,23 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var vbind = Object.create(parser);
+	function Vbind(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vbind = Vbind.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-bind 指令
-	 * @param   {Object}      vm          [VM 对象]
 	 * @param   {Array}       fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 * @param   {String}      directive   [指令名称]
 	 */
-	vbind.parse = function(vm, fors, node, expression, directive) {
-		this.watcher = vm.watcher;
-		this.updater = vm.updater;
+	vbind.parse = function(fors, node, expression, directive) {
+		var vm = this.vm;
 
 		var deps = this.getDependents(fors, expression);
 		var scope = this.getScope(vm, fors, expression);
@@ -72,7 +74,7 @@ define([
 	 * @param   {String}               expression
 	 */
 	vbind.parseClass = function(node, classes, deps, expression) {
-		var watcher = this.watcher;
+		var watcher = this.vm.watcher;
 		var isObject = util.isObject(classes);
 		var map, jsonDeps = [], jsonAccess = [], cache = {};
 
@@ -99,7 +101,7 @@ define([
 					model = map[cls];
 					access = deps[1][deps[0].indexOf(model)];
 				}
-				// classobject
+				// classObject
 				else {
 					model = expression;
 					access = deps[1][deps[0].indexOf(model)];
@@ -131,7 +133,7 @@ define([
 	 * 刷新节点 classname
 	 */
 	vbind.updateClass = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeClassName.apply(updater, arguments);
 	}
 
@@ -144,7 +146,7 @@ define([
 	 * @param   {String}       expression
 	 */
 	vbind.parseStyle = function(node, styles, deps, expression) {
-		var watcher = this.watcher;
+		var watcher = this.vm.watcher;
 		var cache = {}, jsonDeps = [], jsonAccess = [];
 		var isJson = /^\{.*\}$/.test(expression.trim());
 
@@ -202,7 +204,7 @@ define([
 	 * 刷新节点行内样式 inlineStyle
 	 */
 	vbind.updateStyle = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeStyle.apply(updater, arguments);
 	}
 
@@ -217,7 +219,7 @@ define([
 		this.updateAttr(node, attr, value);
 
 		// 监测依赖
-		this.watcher.watch(deps, function(path, last, old) {
+		this.vm.watcher.watch(deps, function(path, last, old) {
 			this.updateAttr(node, attr, last);
 		}, this);
 	}
@@ -226,9 +228,9 @@ define([
 	 * 刷新节点的属性 attribute
 	 */
 	vbind.updateAttr = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeAttribute.apply(updater, arguments);
 	}
 
-	return vbind;
+	return Vbind;
 });

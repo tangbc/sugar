@@ -1,13 +1,16 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var vshow = Object.create(parser);
+	function Vshow(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vshow = Vshow.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-show 指令
-	 * @param   {Object}      vm          [VM 对象]
 	 * @param   {Array}       fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
@@ -22,9 +25,9 @@ define([
 	 * @param   {Boolean}      isShow
 	 */
 	vshow.update = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeDisplay.apply(updater, arguments);
 	}
 
-	return vshow;
+	return Vshow;
 });

@@ -46,7 +46,7 @@ define([
 	wp.trigger = function(subs, path, last, old) {
 		util.each(subs, function(sub) {
 			sub.cb.call(sub.ct, path, last, old, sub.arg);
-		});
+		}, this);
 	}
 
 	/**
@@ -186,7 +186,7 @@ define([
 				targets.push(key);
 				caches[key] = subs[key];
 			}
-		});
+		}, this);
 
 		return {
 			'caches' : caches,
@@ -232,8 +232,8 @@ define([
 
 			util.each(subs[current], function(sub) {
 				sub.cb.call(sub.ct, current, index, sub.arg);
-			});
-		});
+			}, this);
+		}, this);
 	}
 
 	/**
@@ -252,12 +252,12 @@ define([
 
 			util.each(subs[current], function(sub) {
 				sub.cb.call(sub.ct, current, index + 1, sub.arg);
-			});
+			}, this);
 
 			if (index === 0) {
 				subs[first] = udf;
 			}
-		});
+		}, this);
 	}
 
 	/**
@@ -295,7 +295,7 @@ define([
 			var current = access, next = prefix + (index + 1) + suffix;
 
 			subs[current] = caches[next];
-		});
+		}, this);
 	}
 
 	/**
@@ -315,7 +315,7 @@ define([
 			if (index === 0) {
 				subs[first] = udf;
 			}
-		});
+		}, this);
 	}
 
 	return Watcher;

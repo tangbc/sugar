@@ -2,20 +2,22 @@ define([
 	'../parser',
 	'../../dom',
 	'../../util'
-], function(parser, dom, util) {
+], function(Parser, dom, util) {
 
-	var vmodel = Object.create(parser);
+	function Vmodel(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vmodel = Vmodel.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-model 指令
-	 * @param   {Object}      vm      [VM 对象]
 	 * @param   {Array}       fors    [vfor 数据]
 	 * @param   {DOMElement}  node    [指令节点]
 	 * @param   {String}      field   [双向绑定的字段]
 	 */
-	vmodel.parse = function(vm, fors, node, field) {
-		this.vm = vm;
-
+	vmodel.parse = function(fors, node, field) {
+		var vm = this.vm;
 		var inputs = vm.$inputs;
 		var tagName = node.tagName.toLowerCase();
 		var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
@@ -266,5 +268,5 @@ define([
 		return sels;
 	}
 
-	return vmodel;
+	return Vmodel;
 });

@@ -23,13 +23,13 @@ define([
 		});
 
 		// 初始数据备份
-		this._backup = util.copy(model);
+		this.backup = util.copy(model);
 
-		// 内部 MVVM 实例
-		this._vm = new Compiler(element, model);
+		// ViewModel 实例
+		this.vm = new Compiler(element, model);
 
-		// VM 数据模型
-		this.$ = this._vm.$data;
+		// 数据模型
+		this.$ = this.vm.$data;
 	}
 
 	var mvp = MVVM.prototype;
@@ -67,7 +67,7 @@ define([
 	 */
 	mvp.reset = function(key) {
 		var vm = this.$;
-		var backup = this._backup;
+		var backup = this.backup;
 
 		// 重置单个
 		if (util.isString(key)) {
@@ -95,7 +95,7 @@ define([
 	mvp.watch = function(model, callback) {
 		var deps = [[model], [undefined]];
 
-		this._vm.watcher.add(deps, function(path, last, old) {
+		this.vm.watcher.add(deps, function(path, last, old) {
 			callback.call(this, path, last, old);
 		}, this.context);
 	}

@@ -99,20 +99,19 @@ define([
 
 
 	/**
-	 * Parser 解析器通用方法
+	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
 	 */
 	function Parser() {}
 	var p = Parser.prototype;
 
 	/**
 	 * 绑定监测 & 初始化视图
-	 * @param   {Object}      vm
 	 * @param   {Array}       fors
 	 * @param   {DOMElement}  node
 	 * @param   {String}      expression
 	 */
-	p.bind = function(vm, fors, node, expression) {
-		this.updater = vm.updater;
+	p.bind = function(fors, node, expression) {
+		var vm = this.vm;
 
 		// 提取依赖
 		var deps = this.getDependents(fors, expression);
@@ -270,7 +269,7 @@ define([
 
 		exp.replace(regReplaceScope, function(dep) {
 			var model = dep.substr(1);
-			var key, access, valAccess
+			var alias, access, valAccess;
 
 			// 取值域别名或 items.length -> items
 			if (fors) {
@@ -299,5 +298,5 @@ define([
 		return [deps, paths];
 	}
 
-	return p;
+	return Parser;
 });

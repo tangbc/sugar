@@ -1,13 +1,16 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var vtext = Object.create(parser);
+	function Vtext(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vtext = Vtext.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-text, {{text}} 指令
-	 * @param   {Object}      vm          [VM 对象]
 	 * @param   {Array}       fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
@@ -22,9 +25,9 @@ define([
 	 * @param   {String}      text
 	 */
 	vtext.update = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeTextContent.apply(updater, arguments);
 	}
 
-	return vtext;
+	return Vtext;
 });

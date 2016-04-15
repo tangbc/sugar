@@ -1,18 +1,21 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var vel = Object.create(parser);
+	function Vel(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vel = Vel.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-el 指令 (不需要在 model 中声明)
-	 * @param   {Object}      vm      [VM 对象]
 	 * @param   {Array}       fors    [vfor 数据]
 	 * @param   {DOMElement}  node    [注册节点]
 	 * @param   {String}      value   [注册字段]
 	 */
-	vel.parse = function(vm, fors, node, value) {
+	vel.parse = function(fors, node, value) {
 		var key, alias, scope;
 
 		if (fors) {
@@ -32,9 +35,9 @@ define([
 			}
 		}
 		else {
-			vm.$data.$els[value] = node;
+			this.vm.$data.$els[value] = node;
 		}
 	}
 
-	return vel;
+	return Vel;
 });

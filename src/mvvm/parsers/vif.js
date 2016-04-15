@@ -1,13 +1,16 @@
 define([
 	'../parser',
 	'../../util'
-], function(parser, util) {
+], function(Parser, util) {
 
-	var vif = Object.create(parser);
+	function Vif(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vif = Vif.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-if 指令
-	 * @param   {Object}      vm          [VM 对象]
 	 * @param   {Array}       fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
@@ -22,9 +25,9 @@ define([
 	 * @param   {Boolean}      isRender
 	 */
 	vif.update = function() {
-		var updater = this.updater;
+		var updater = this.vm.updater;
 		updater.updateNodeRenderContent.apply(updater, arguments);
 	}
 
-	return vif;
+	return Vif;
 });

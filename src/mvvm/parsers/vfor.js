@@ -2,26 +2,29 @@ define([
 	'../parser',
 	'../../dom',
 	'../../util'
-], function(parser, dom, util) {
+], function(Parser, dom, util) {
 
-	var vfor = Object.create(parser);
+	function Vfor(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vfor = Vfor.prototype = Object.create(Parser.prototype);
 
 	/**
 	 * 解析 v-for 指令
-	 * @param   {Object}      vm          [VM对象]
 	 * @param   {Object}      fors        [vfor数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vfor.parse = function(vm, fors, node, expression) {
-		this.vm = vm;
-		var parent = node.parentNode;
-		var isOption = node.tagName === 'OPTION';
-
-		var watcher = vm.watcher;
+	vfor.parse = function(fors, node, expression) {
+		var vm = this.vm;
 		var match = expression.match(/(.*) in (.*)/);
 		var alias = match[1];
 		var iterator = match[2];
+
+		var watcher = vm.watcher;
+		var parent = node.parentNode;
+		var isOption = node.tagName === 'OPTION';
 
 		// 取值信息
 		var scope = this.getScope(vm, fors, iterator);
@@ -30,6 +33,7 @@ define([
 
 		// 循环数组的访问路径
 		var loopAccess = iterator;
+		var listArgs, template, updates;
 		var key = util.getExpKey(iterator);
 
 		// 循环层级
@@ -38,7 +42,7 @@ define([
 		var scopes = {};
 		// 别名集合
 		var aliases = [];
-		// 访问路径集合
+		// 取值域路径集合
 		var accesses = [];
 
 		// 嵌套 vfor
@@ -56,8 +60,8 @@ define([
 			return;
 		}
 
-		var listArgs = [node, array, loopAccess, alias, aliases, accesses, scopes, ++level];
-		var template = this.buildList.apply(this, listArgs);
+		listArgs = [node, array, loopAccess, alias, aliases, accesses, scopes, ++level];
+		template = this.buildList.apply(this, listArgs);
 
 		node.parentNode.replaceChild(template, node);
 
@@ -66,7 +70,7 @@ define([
 		}
 
 		// 数组更新信息
-		var updates = {
+		updates = {
 			'alias'   : alias,
 			'aliases' : aliases,
 			'access'  : loopAccess,
@@ -383,5 +387,5 @@ define([
 		}
 	}
 
-	return vfor;
+	return Vfor;
 });

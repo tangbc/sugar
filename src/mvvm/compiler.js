@@ -7,17 +7,16 @@ define([
 	'./updater',
 	'./watcher',
 	// parse directive modules
+	'./parsers/von',
 	'./parsers/vel',
+	'./parsers/vif',
+	'./parsers/vfor',
 	'./parsers/vtext',
 	'./parsers/vhtml',
 	'./parsers/vshow',
-	'./parsers/vif',
-	'./parsers/velse',
 	'./parsers/vbind',
-	'./parsers/von',
-	'./parsers/vmodel',
-	'./parsers/vfor'
-], function(dom, util, Updater, Watcher, vel, vtext, vhtml, vshow, vif, velse, vbind, von, vmodel, vfor) {
+	'./parsers/vmodel'
+], function(dom, util, Updater, Watcher, Von, Vel, Vif, Vfor, Vtext, Vhtml, Vshow, Vbind,  Vmodel) {
 
 	/**
 	 * VM 编译模块
@@ -54,8 +53,18 @@ define([
 		this.updater = new Updater(this);
 		// 数据订阅模块
 		this.watcher = new Watcher(this.$data);
+		// 指令解析模块
+		this.von = new Von(this);
+		this.vel = new Vel(this);
+		this.vif = new Vif(this);
+		this.vfor = new Vfor(this);
+		this.vtext = new Vtext(this);
+		this.vhtml = new Vhtml(this);
+		this.vshow = new Vshow(this);
+		this.vbind = new Vbind(this);
+		this.vmodel = new Vmodel(this);
 
-		// vmodel 限制使用的表单元素
+		// v-model 限制使用的表单元素
 		this.$inputs = 'input|select|textarea'.split('|');
 
 		this.init();
@@ -183,7 +192,7 @@ define([
 	vp.compile = function(node, attr, fors) {
 		var dir = attr.name;
 		var exp = attr.value;
-		var args = [this, fors, node, exp, dir];
+		var args = [fors, node, exp, dir];
 
 		// 移除指令标记
 		dom.removeAttr(node, dir);
@@ -195,38 +204,38 @@ define([
 
 		// 动态指令：v-bind:xxx
 		if (dir.indexOf('v-bind') === 0) {
-			vbind.parse.apply(vbind, args);
+			this.vbind.parse.apply(this.vbind, args);
 		}
 		// 动态指令：v-on:xxx
 		else if (dir.indexOf('v-on') === 0) {
-			von.parse.apply(von, args);
+			this.von.parse.apply(this.von, args);
 		}
 		// 静态指令
 		else {
 			switch (dir) {
 				case 'v-el':
-					vel.parse.apply(vel, args);
+					this.vel.parse.apply(this.vel, args);
 					break;
 				case 'v-text':
-					vtext.parse.apply(vtext, args);
+					this.vtext.parse.apply(this.vtext, args);
 					break;
 				case 'v-html':
-					vhtml.parse.apply(vhtml, args);
+					this.vhtml.parse.apply(this.vhtml, args);
 					break;
 				case 'v-show':
-					vshow.parse.apply(vshow, args);
+					this.vshow.parse.apply(this.vshow, args);
 					break;
 				case 'v-if':
-					vif.parse.apply(vif, args);
+					this.vif.parse.apply(this.vif, args);
 					break;
 				case 'v-else':
-					velse.apply(velse, args);
+					util.defineProperty(node, '_directive', 'v-else');
 					break;
 				case 'v-model':
-					vmodel.parse.apply(vmodel, args);
+					this.vmodel.parse.apply(this.vmodel, args);
 					break;
 				case 'v-for':
-					vfor.parse.apply(vfor, args);
+					this.vfor.parse.apply(this.vfor, args);
 					break;
 				default: util.warn(dir + ' is an unknown directive!');
 			}
@@ -263,10 +272,10 @@ define([
 		node._vm_text_suffix = splits[splits.length - 1];
 
 		if (htmlCompile) {
-			vhtml.parse.call(vhtml, this, fors, node, field);
+			this.vhtml.parse.call(this.vhtml, fors, node, field);
 		}
 		else {
-			vtext.parse.call(vtext, this, fors, node, field);
+			this.vtext.parse.call(this.vtext, fors, node, field);
 		}
 	}
 
