@@ -73,7 +73,7 @@ define([
 
 	/**
 	 * 获取取值表达式的 vfor 取值域别名
-	 * @param   {Array}   fors         <必选>
+	 * @param   {Object}  fors         <必选>
 	 * @param   {String}  expression   <必选>
 	 * @return  {String}
 	 */
@@ -106,7 +106,7 @@ define([
 
 	/**
 	 * 绑定监测 & 初始化视图
-	 * @param   {Array}       fors
+	 * @param   {Object}      fors
 	 * @param   {DOMElement}  node
 	 * @param   {String}      expression
 	 */
@@ -192,7 +192,7 @@ define([
 	/**
 	 * 获取表达式的取值域
 	 * @param   {Object}  vm
-	 * @param   {Array}   fors
+	 * @param   {Object}  fors
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
@@ -259,7 +259,7 @@ define([
 
 	/**
 	 * 获取表达式的所有依赖（取值模型+访问路径）
-	 * @param   {Array}   fors        [vfor 数据]
+	 * @param   {Object}  fors        [vfor 数据]
 	 * @param   {String}  expression
 	 * @return  {Array}
 	 */

@@ -12,7 +12,7 @@ define([
 
 	/**
 	 * 解析 v-model 指令
-	 * @param   {Array}       fors    [vfor 数据]
+	 * @param   {Object}      fors    [vfor 数据]
 	 * @param   {DOMElement}  node    [指令节点]
 	 * @param   {String}      field   [双向绑定的字段]
 	 */

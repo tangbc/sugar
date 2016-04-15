@@ -11,7 +11,7 @@ define([
 
 	/**
 	 * 解析 v-el 指令 (不需要在 model 中声明)
-	 * @param   {Array}       fors    [vfor 数据]
+	 * @param   {Object}      fors    [vfor 数据]
 	 * @param   {DOMElement}  node    [注册节点]
 	 * @param   {String}      value   [注册字段]
 	 */

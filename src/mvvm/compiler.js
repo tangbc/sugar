@@ -80,7 +80,7 @@ define([
 	 * 编译文档碎片/节点
 	 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
 	 * @param   {Boolean}              root      [是否是编译根节点]
-	 * @param   {Array}                fors      [vfor数据]
+	 * @param   {Object}               fors      [vfor 数据]
 	 */
 	vp.complieElement = function(element, root, fors) {
 		var node, childNodes = element.childNodes;
@@ -245,7 +245,7 @@ define([
 	/**
 	 * 编译文本节点
 	 * @param   {DOMElement}   node
-	 * @param   {Array}        fors
+	 * @param   {Object}       fors
 	 */
 	vp.compileTextNode = function(node, fors) {
 		var text = node.textContent;
@@ -345,24 +345,6 @@ define([
 		dom.empty(element);
 		this.$rootComplied = true;
 		element.appendChild(this.$fragment);
-	}
-
-	/**
-	 * 设置VM数据值
-	 * @param  {String}  field
-	 * @param  {Mix}     value
-	 */
-	vp.setValue = function(field, value) {
-		this.$data[field] = value;
-	}
-
-	/**
-	 * 获取当前VM数据值
-	 * @param  {String}  field
-	 * @param  {Mix}     value
-	 */
-	vp.getValue = function(field) {
-		return this.$data[field];
 	}
 
 	return VMCompiler;

@@ -11,7 +11,7 @@ define([
 
 	/**
 	 * 解析 v-bind 指令
-	 * @param   {Array}       fors        [vfor 数据]
+	 * @param   {Object}      fors        [vfor 数据]
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 * @param   {String}      directive   [指令名称]

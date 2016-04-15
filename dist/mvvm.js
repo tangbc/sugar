@@ -705,7 +705,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 编译文档碎片/节点
 		 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
 		 * @param   {Boolean}              root      [是否是编译根节点]
-		 * @param   {Array}                fors      [vfor数据]
+		 * @param   {Object}               fors      [vfor 数据]
 		 */
 		vp.complieElement = function(element, root, fors) {
 			var node, childNodes = element.childNodes;
@@ -870,7 +870,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 编译文本节点
 		 * @param   {DOMElement}   node
-		 * @param   {Array}        fors
+		 * @param   {Object}       fors
 		 */
 		vp.compileTextNode = function(node, fors) {
 			var text = node.textContent;
@@ -972,24 +972,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			element.appendChild(this.$fragment);
 		}
 
-		/**
-		 * 设置VM数据值
-		 * @param  {String}  field
-		 * @param  {Mix}     value
-		 */
-		vp.setValue = function(field, value) {
-			this.$data[field] = value;
-		}
-
-		/**
-		 * 获取当前VM数据值
-		 * @param  {String}  field
-		 * @param  {Mix}     value
-		 */
-		vp.getValue = function(field) {
-			return this.$data[field];
-		}
-
 		return VMCompiler;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1011,7 +993,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-for 指令
-		 * @param   {Object}      fors        [vfor数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 */
@@ -1468,7 +1450,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 获取取值表达式的 vfor 取值域别名
-		 * @param   {Array}   fors         <必选>
+		 * @param   {Object}  fors         <必选>
 		 * @param   {String}  expression   <必选>
 		 * @return  {String}
 		 */
@@ -1501,7 +1483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 绑定监测 & 初始化视图
-		 * @param   {Array}       fors
+		 * @param   {Object}      fors
 		 * @param   {DOMElement}  node
 		 * @param   {String}      expression
 		 */
@@ -1587,7 +1569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 获取表达式的取值域
 		 * @param   {Object}  vm
-		 * @param   {Array}   fors
+		 * @param   {Object}  fors
 		 * @param   {String}  expression
 		 * @return  {Object}
 		 */
@@ -1654,7 +1636,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 获取表达式的所有依赖（取值模型+访问路径）
-		 * @param   {Array}   fors        [vfor 数据]
+		 * @param   {Object}  fors        [vfor 数据]
 		 * @param   {String}  expression
 		 * @return  {Array}
 		 */
@@ -2880,7 +2862,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-el 指令 (不需要在 model 中声明)
-		 * @param   {Array}       fors    [vfor 数据]
+		 * @param   {Object}      fors    [vfor 数据]
 		 * @param   {DOMElement}  node    [注册节点]
 		 * @param   {String}      value   [注册字段]
 		 */
@@ -2928,7 +2910,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-if 指令
-		 * @param   {Array}       fors        [vfor 数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 */
@@ -2966,7 +2948,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-text, {{text}} 指令
-		 * @param   {Array}       fors        [vfor 数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 */
@@ -3004,7 +2986,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-html, {{{html}}} 指令
-		 * @param   {Array}       fors        [vfor 数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 */
@@ -3042,7 +3024,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-show 指令
-		 * @param   {Array}       fors        [vfor 数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 */
@@ -3080,7 +3062,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-bind 指令
-		 * @param   {Array}       fors        [vfor 数据]
+		 * @param   {Object}      fors        [vfor 数据]
 		 * @param   {DOMElement}  node        [指令节点]
 		 * @param   {String}      expression  [指令表达式]
 		 * @param   {String}      directive   [指令名称]
@@ -3322,7 +3304,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 解析 v-model 指令
-		 * @param   {Array}       fors    [vfor 数据]
+		 * @param   {Object}      fors    [vfor 数据]
 		 * @param   {DOMElement}  node    [指令节点]
 		 * @param   {String}      field   [双向绑定的字段]
 		 */
