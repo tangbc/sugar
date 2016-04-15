@@ -16,7 +16,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 			'</ul>',
 			// 日期容器
 			'<ul class="date-list" v-on:click="clickSelectDate">',
-				'<li class="date-item" v-for="date in dates" v-bind:class="{seize: date.seize, today: date.today}" v-bind="{date-index: $index, date-value: date.date}">',
+				'<li class="date-item" v-for="date in dates" v-bind:class="{\'seize\': date.seize, \'today\': date.today}" v-bind="{\'data-index\': $index}">',
 					'{{date.date}}',
 				'</li>',
 			'</ul>',
@@ -104,8 +104,8 @@ require(['../../dist/sugar.min'], function(Sugar) {
 
 		// 根据当前年份&月份，输出该月排好序的日期数组
 		createDays: function() {
-			var year = this.$year, month = this.$month;
 			var i = 1, day, days = [];
+			var year = this.$year, month = this.$month;
 			var date, nextMonth, beginWeek, monthDays, seizes, isSeize, amount;
 
 			// 从输入月份 1 号开始的时间对象
@@ -148,7 +148,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 				return;
 			}
 
-			index = this.$.getAttr(elm, 'date-index');
+			index = this.$.getAttr(elm, 'data-index');
 			selectDate = vm.dates[index];
 			this.updateDateValue(selectDate.year, selectDate.month, selectDate.date).highlightSelectDate();
 
