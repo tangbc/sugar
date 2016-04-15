@@ -13,10 +13,10 @@ define([
 	 */
 	var Module = Root.extend({
 		/**
-		 * _collections 记录模块信息
+		 * _ 记录模块信息
 		 * @type {Object}
 		 */
-		_collections: {},
+		_: {},
 
 		/**
 		 * 创建一个子模块实例
@@ -39,7 +39,7 @@ define([
 				return;
 			}
 
-			var cls = this._collections;
+			var cls = this._;
 
 			// 建立模块关系信息
 			if (!util.hasOwn(cls, 'childArray')) {
@@ -67,7 +67,7 @@ define([
 				// 父模块实例 id，0 为顶级模块实例
 				'pid' : cls.id || 0
 			}
-			instance._collections = info;
+			instance._ = info;
 
 			// 存入系统实例缓存队列
 			cache[info.id] = instance;
@@ -89,7 +89,7 @@ define([
 		 * 获取当前模块的父模块实例（模块创建者）
 		 */
 		getParent: function() {
-			var cls = this._collections;
+			var cls = this._;
 			var pid = cls && cls.pid;
 			return cache[pid] || null;
 		},
@@ -100,7 +100,7 @@ define([
 		 * @return {Object}
 		 */
 		getChild: function(name) {
-			var cls = this._collections;
+			var cls = this._;
 			return cls && cls['childMap'] && cls['childMap'][name] || null;
 		},
 
@@ -110,7 +110,7 @@ define([
 		 * @return {Mix}
 		 */
 		getChilds: function(returnArray) {
-			var cls = this._collections;
+			var cls = this._;
 			returnArray = util.isBoolean(returnArray) && returnArray;
 			return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
 		},
@@ -121,7 +121,7 @@ define([
 		 * @return {Boolean}
 		 */
 		_removeChild: function(name) {
-			var cls = this._collections;
+			var cls = this._;
 			var cMap = cls['childMap'] || {};
 			var cArray = cls['childArray'] || [];
 			var child = cMap[name];
@@ -144,7 +144,7 @@ define([
 		 * @param  {Mix}  notify  [是否向父模块发送销毁消息]
 		 */
 		destroy: function(notify) {
-			var cls = this._collections;
+			var cls = this._;
 			var name = cls.name;
 
 			// 调用销毁前函数，可进行必要的数据保存
