@@ -21,9 +21,9 @@ require(['../../dist/sugar.min'], function(Sugar) {
 				'full' : full, // 满分星数
 				'def'  : def,  // 默认星数
 				'html' : [     // 渲染布局
-					'<ul>',
-						'<li v-for="star in stars" v-on:click="clickStar($index)">',
-							'<i class="fa" v-bind:class="star.iconCls"></i>',
+					'<ul v-on:click="clickStar">',
+						'<li v-for="star in stars">',
+							'<i class="fa" v-bind="{\'class\': star.iconCls, \'data-index\': $index}"></i>',
 						'</li>',
 					'</ul>',
 					'<h4 class="result">{{score}} 分</h4>'
@@ -37,7 +37,14 @@ require(['../../dist/sugar.min'], function(Sugar) {
 			// 调用父类Sugar.Container的init方法进行视图渲染
 			this.Super('init', arguments);
 		},
-		eventClickStar: function(i) {
+		eventClickStar: function(e) {
+			var el = e.target;
+
+			if (el.tagName !== 'I') {
+				return;
+			}
+
+			var i = +this.$.getAttr(el, 'data-index');
 			var stars = this.vm.get('stars');
 			var index = this.$scores.indexOf(stars[i].iconCls);
 			var next = ++index % 3;
