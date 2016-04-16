@@ -46,9 +46,7 @@ var Page = sugar.Container.extend({
 			// mvvm 数据模型对象
 			'model'   : null,
 			// 视图渲染完成后的回调函数
-			'cbRender': 'viewReady',
-			// 移除节点子模块标记
-			'tidyNode': true
+			'cbRender': 'viewReady'
 		});
 		// 调用父类 (sugar.Container) 的 init 方法来完成视图的渲染
 		this.Super('init', arguments);

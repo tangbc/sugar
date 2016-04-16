@@ -6,7 +6,7 @@ mvvm.js 的源代码都放在 `src/mvvm/` 目录下：
 * `index.js` mvvm 入口/构造函数
 * `compiler.js` 指令编译模块
 * `observer.js` 数据监测模块
-* `parser.js` 指令解析模块 
+* `parser.js` 指令解析基础模块
 * `updater.js` 视图刷新模块
 * `watcher.js` 数据订阅模块
 * `src/mvvm/parsers/` 每个指令单独的解析模块目录
@@ -235,7 +235,7 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 
 	绑定多个：
 	```html
-	<div v-bind="{id: vid, data-id: vdid, class: classObject, style: styleObject}"></div>
+	<div v-bind="{'id': vid, 'data-id': vdid, 'class': classObject, 'style': styleObject}"></div>
 	```
 
 ### v-bind:class
@@ -245,7 +245,7 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 	```html
 	<div class="static" v-bind:class="cls"></div>
 	```
-	
+
 	绑定 `class` 到一个数组：
 	```javascript
 	'classA': 'oneClass',
@@ -268,7 +268,7 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 
 	绑定多个 `class` 的 json 结构：
 	```html
-	<div v-bind:class="{class-a: isA, class-b: isB}"></div>
+	<div v-bind:class="{'class-a': isA, 'class-b': isB}"></div>
 	```
 
 ### v-bind:style
@@ -287,13 +287,13 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 
 	绑定 `style` 的 json 结构：
 	```html
-	<div v-bind:style="{display: vdsp, border: vbrd, padding: vpd}"></div>
+	<div v-bind:style="{'display': vdsp, 'border': vbrd, 'padding': vpd}"></div>
 	```
 
 ### v-on
 * 说明：
 
-	事件的绑定方式是 `addEventListener` 支持4种事件修饰符：只在当前元素触发 `.self` 、 阻止冒泡 `.stop` 、 阻止默认事件 `.prevent` 和 使用捕获 `.capture` 可以指定事件回调的参数(默认为原生事件对象 e )，比如 `$event` 替换为 e，在 `v-for` 循环中 `$index` 替换为数组下标
+	事件的绑定方式是 `addEventListener` 支持4种事件修饰符：只在当前元素触发 `.self` 、 阻止冒泡 `.stop` 、 阻止默认事件 `.prevent` 和 使用捕获 `.capture` 可以指定事件回调的参数(默认为原生事件对象 e )，比如 `$event` 替换为 e
 
 * 示例：
 
@@ -301,25 +301,25 @@ vm.watch('title', callback); // 实现对数据模型的观察 callback 参数�
 	```html
 	<div class="outSide" v-on:click.self="clickOutside">
 		<p class="inSide" v-on:click.stop="clickInside">
-			<input type="checkbox" v-on:click.stop.prevent="clickRadio"> 点击不会勾上也不会冒泡
+			<input type="checkbox" v-on:click.stop.prevent="clickCheckbox"> 点击不会勾上也不会冒泡
 		</p>
 	</div>
 	```
 
 	传参数：
 	```html
-	<button v-on:click="clickBtn($event, 123, 456)"></button>
+	<button v-on:click="clickBtn($event, 123, 'abc')"></button>
 	```
 
 	一次绑定多个事件：
 	```html
-	<button v-on="{click: clickBtn, mouseover: overBtn(123, $event), mouseleave: leaveBtn}"></button>
+	<button v-on="{'click': clickBtn, 'mouseover': overBtn(123, $event), 'mouseleave': leaveBtn}"></button>
 	```
 
 ### v-for
 * 说明：
 
-	构建基于源数据重复的动态列表，语法为: `alias in array` 支持 `push,pop,shift,unshift,splice,sort,reverse` 数组操作，支持下标操作，支持内嵌指令，嵌套 v-for ，在循环体中 `v-text`, `v-html` 以及 `v-bind` 的非 class 和 style 均可支持 `$index` 替换
+	构建基于源数据重复的动态列表，语法为: `alias in array` 支持 `push, pop, shift, unshift, splice, sort, reverse` 数组操作，支持下标操作，支持内嵌指令，嵌套 v-for ，在循环体中 `$index` 将会替换为数组下标
 
 * 示例：
 
