@@ -2929,7 +2929,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 在表达式中匹配 alias.xxx
 			util.each(fors.aliases, function(al) {
-				var reg = new RegExp('\\b'+ al +'\\.');
+				var reg = new RegExp('\\b' + al + '\\b|\\b'+ al +'\\.');
 				if (reg.test(expression)) {
 					alias = al;
 					return false;
@@ -2998,7 +2998,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {String}
 		 */
 		p.replaceScope = function(fors, expression) {
-			var exp = expression, alias, reg;
+			var exp = expression, alias;
+			var regOnlyAlias, regReplaceAlias;
 
 			// vfor 循环替换取值别名
 			if (fors) {
@@ -3009,8 +3010,15 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				if (fors.aliases.indexOf(alias) !== -1) {
-					reg = new RegExp('\\b' + alias + '\\.', 'g');
-					exp = exp.replace(reg, '');
+					// 输出结果只有别名，且要考虑存在 $index 的情况，直接替换
+					regOnlyAlias = new RegExp('\\b' + alias + '\\b', 'g');
+					if (regOnlyAlias.test(exp)) {
+						return exp.replace(regOnlyAlias, 'scope').replace(/\$index/g, fors.index);
+					}
+					else {
+						regReplaceAlias = new RegExp('\\b'+ alias +'\\.', 'g');
+						exp = exp.replace(regReplaceAlias, '');
+					}
 				}
 			}
 
@@ -3039,7 +3047,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {Object}
 		 */
 		p.getScope = function(vm, fors, expression) {
-			var alias, scope = {};
+			var alias, scope;
 
 			// 顶层数据模型
 			if (!fors) {
