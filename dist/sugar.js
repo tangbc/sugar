@@ -3301,7 +3301,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			while (el) {
 				el = el.nextSibling;
 
-				if (isElementNode(el)) {
+				if (el && isElementNode(el)) {
 					return el;
 				}
 			}
