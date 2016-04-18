@@ -1,18 +1,17 @@
 require(['../../../src/mvvm/index'], function(VM) {
 	var body = document.querySelector('body');
 
-	body.innerHTML = [
-		'<h1 v-text="name"></h1>',
-		'<ul>',
-			'<li v-for="item in items">',
-				'号码：{{$index}}，名字：<span v-text="name"></span>',
-				'<p style="text-indent:2em;" v-for="p in item.ps">',
-					'<b>{{p.text}}</b> | ',
-					'<i>{{item.number}}</i>',
-				'</p>',
-			'</li>',
-		'</ul>'
-	].join('');
+	body.innerHTML =
+	`<h1 v-text="name"></h1>
+	<ul>
+		<li v-for="item in items">
+			号码：{{$index}}，名字：<span v-text="name"></span>
+			<p style="text-indent:2em;" v-for="p in item.ps">
+				<b>{{p.text}}</b> |
+				<i>{{item.number}}</i>
+			</p>
+		</li>
+	</ul>`
 
 	var vm = new VM(body, {
 		'name': '金州勇士',

@@ -1,16 +1,15 @@
 require(['../../../src/mvvm/index'], function(VM) {
 	var body = document.querySelector('body');
 
-	body.innerHTML = [
-		'<ul>',
-			'<li v-for="item in items">',
-				'<b v-text="item.text"></b>',
-				'<div v-for="p in item.ps">',
-					'<span v-el="p.el">{{p.number}}</span>',
-				'</div>',
-			'</li>',
-		'</ul>'
-	].join('');
+	body.innerHTML =
+	`<ul>
+		<li v-for="item in items">
+			<b v-el="item.el">{{item.text}}</b>
+			<div v-for="p in item.ps">
+				<span v-el="p.el">{{p.number}}</span>
+			</div>
+		</li>
+	</ul>`
 
 	var vm = new VM(body, {
 		'items': [

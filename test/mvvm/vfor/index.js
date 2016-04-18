@@ -24,12 +24,16 @@ require(['../../../src/mvvm/index'], function(VM) {
 		// '</ul>',
 
 		// double vfor test
-		'<div v-for="item in items" v-bind="{data-id: did, id: item.id}">',
-			'<i>{{item.text}}</i>',
+		'<div>',
+			'<div v-for="item in items" v-bind="{\'data-id\': did, \'id\': item.id}">',
+				'<i>{{item.text}}</i>',
+			'</div>',
 		'</div>',
-		'<p v-for="item in items" v-bind="{id: item.id, data-id: did}">',
-			'<b>{{item.text}}</b>',
-		'</p>',
+		'<div>',
+			'<p v-for="item in items" v-bind="{\'id\': item.id, \'data-id\': did}">',
+				'<b>{{item.text}}</b>',
+			'</p>',
+		'</div>'
 	].join('');
 
 	var vm = new VM(body, {
