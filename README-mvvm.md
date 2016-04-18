@@ -34,9 +34,9 @@ mvvm.js 的源代码都放在 `src/mvvm/` 目录下：
 ## 1. 定义一个 mvvm 实例
 ```javascript
 /*
- * element 接受一个 DOM 元素，作为编译的起点 <必选>
- * model 接受一个 {} 作为数据模型，模型字段不能包含*字符 <必选>
- * context 接受一个 v-on 事件回调函数 this 指向的执行上下文 <可选>
+ * element 接受一个 DOM 元素，作为编译的起点
+ * model 接受一个 {} 作为数据模型，模型字段不能包含*字符
+ * context 接受一个 v-on 事件回调函数 this 指向的执行上下文
  */
 var vm = new MVVM(element, {
   'title': '初始标题',
