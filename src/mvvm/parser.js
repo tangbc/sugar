@@ -27,7 +27,7 @@ define([
 	var regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 
 	/**
-	 * 是否是常规指令表达式（无运算符）
+	 * 是否是常规指令表达式
 	 * @param   {String}   expression
 	 * @return  {Boolean}
 	 */
@@ -78,17 +78,17 @@ define([
 	 * @return  {String}
 	 */
 	function getAlias(fors, expression) {
-		var alias;
+		var alias, exp = expression.replace(/(\(.*\))/g, '');
 
 		// $index or item in items {{item}}
-		if (expression === fors.alias || regIndex.test(expression)) {
+		if (exp === fors.alias || regIndex.test(exp)) {
 			return fors.alias;
 		}
 
 		// 在表达式中匹配 alias.xxx
 		util.each(fors.aliases, function(al) {
 			var reg = new RegExp('\\b' + al + '\\b|\\b'+ al +'\\.');
-			if (reg.test(expression)) {
+			if (reg.test(exp)) {
 				alias = al;
 				return false;
 			}
@@ -148,37 +148,24 @@ define([
 	 * 获取表达式的取值函数
 	 */
 	p.getEvalFunc = function(fors, expression) {
-		return this.createGetter(this.replaceScope.apply(this, arguments));
+		var alias, regScope;
+		var exp = this.replaceScope(expression);
+
+		if (fors) {
+			alias = getAlias(fors, expression);
+			regScope = new RegExp('scope.' + alias, 'g');
+			exp = exp.replace(regScope, 'scope');
+		}
+
+		return this.createGetter(exp);
 	}
 
 	/**
 	 * 替换表达式的 scope 取值域
 	 * @return  {String}
 	 */
-	p.replaceScope = function(fors, expression) {
-		var exp = expression, alias;
-		var regOnlyAlias, regReplaceAlias;
-
-		// vfor 循环替换取值别名
-		if (fors) {
-			alias = getAlias(fors, expression);
-
-			if (alias === expression) {
-				return 'scope';
-			}
-
-			if (fors.aliases.indexOf(alias) !== -1) {
-				// 输出结果只有别名，且要考虑存在 $index 的情况，直接替换
-				regOnlyAlias = new RegExp('\\b' + alias + '\\b', 'g');
-				if (regOnlyAlias.test(exp)) {
-					return exp.replace(regOnlyAlias, 'scope').replace(/\$index/g, fors.index);
-				}
-				else {
-					regReplaceAlias = new RegExp('\\b'+ alias +'\\.', 'g');
-					exp = exp.replace(regReplaceAlias, '');
-				}
-			}
-		}
+	p.replaceScope = function(expression) {
+		var exp = expression;
 
 		// 常规指令
 		if (isNormal(exp)) {
@@ -205,7 +192,7 @@ define([
 	 * @return  {Object}
 	 */
 	p.getScope = function(vm, fors, expression) {
-		var alias, scope;
+		var alias, scope, index;
 
 		// 顶层数据模型
 		if (!fors) {
@@ -223,9 +210,17 @@ define([
 		// 当前域取值
 		if (alias === fors.alias) {
 			scope = fors.scope;
-			// 取 vfor 循环的下标
+
+			// 取 vfor 循环下标
 			if (regIndex.test(expression)) {
-				scope.$index = fors.index;
+				index = fors.index;
+
+				if (util.isObject(scope)) {
+					scope.$index = index;
+				}
+				else {
+					scope = {'$index': index};
+				}
 			}
 		}
 		// 跨循环层级取值
@@ -283,18 +278,20 @@ define([
 			if (fors) {
 				alias = getAlias(fors, expression);
 				// 取值域路径
-				access = fors.accesses[fors.aliases.indexOf(alias)];
+				if (model.indexOf(alias) !== -1 || model === '$index') {
+					access = fors.accesses[fors.aliases.indexOf(alias)];
+				}
 			}
 			else {
 				alias = util.getExpAlias(model);
 			}
 
-			// 取值字段访问路径
+			// 取值字段访问路径，输出别名和下标
 			if (model === '$index' || model === alias) {
-				valAccess = access;
+				valAccess = access || fors && fors.access;
 			}
 			else {
-				if (access) {
+				if (access && model !== '$event') {
 					valAccess = access + '*' + util.getExpKey(model);
 				}
 			}

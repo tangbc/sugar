@@ -17,66 +17,87 @@ define([
 	 * @param   {String}      directive   [指令名称]
 	 */
 	von.parse = function(fors, node, expression, directive) {
-		var vm = this.vm;
-		var watcher = this.vm.watcher;
-		var jsonDeps = [], jsonAccess = [];
-
 		var deps = this.getDependents(fors, expression);
-		var scope = this.getScope(vm, fors, expression);
-
-		var evt = util.removeSpace(directive);
-		var events, cache = {}, type, info, name, params;
+		var dir = util.removeSpace(directive);
 
 		// 单个事件 v-on:click
-		if (evt.indexOf(':') !== -1) {
-			// 事件类型
-			type = util.getStringKeyValue(evt);
-			// 事件信息
-			info = util.stringToParameters(expression);
-			// 事件名称
-			name = info[0];
-			// 事件参数
-			params = this.evalParams(fors, info[1]);
-
-			this.bindEvent(node, fors, scope, type, name, params);
-
-			// 监测依赖变化，绑定新回调，旧回调将被移除
-			watcher.watch(deps, function(path, last, old) {
-				this.update(node, type, last, old, params, path);
-			}, this);
+		if (dir.indexOf(':') !== -1) {
+			this.parseSingle(node, expression, dir, fors, deps);
 		}
 		// 多个事件 v-on="{click: xxx, mouseenter: yyy, mouseleave: zzz}"
 		else {
-			events = util.convertJsonString(expression);
-
-			util.each(events, function(fn, ev) {
-				var access;
-
-				// 事件信息
-				info = util.stringToParameters(fn);
-				// 事件名称
-				name = info[0] || fn;
-				// 事件参数
-				params = this.evalParams(fors, info[1]);
-				// 访问路径
-				access = deps[1][deps[0].indexOf(name)];
-
-				jsonDeps.push(name);
-				jsonAccess.push(access);
-				cache[access] = {
-					'type'  : ev,
-					'params': params,
-				}
-
-				this.bindEvent(node, fors, scope, ev, name, params);
-			}, this);
-
-			// 监测依赖变化，绑定新回调，旧回调将被移除
-			watcher.watch([jsonDeps, jsonAccess], function(path, last, old) {
-				var ev = cache[path];
-				this.update(node, ev.type, last, old, ev.params, path);
-			}, this);
+			this.parseMulti(node, expression, fors, deps);
 		}
+	}
+
+	/**
+	 * 解析单个 v-on:type
+	 * @param   {DOMElement}  node
+	 * @param   {String}      expression
+	 * @param   {String}      directive
+	 * @param   {Object}      fors
+	 * @param   {Array}       deps
+	 */
+	von.parseSingle = function(node, expression, directive, fors, deps) {
+		var vm = this.vm;
+		// 取值域
+		var scope = this.getScope(vm, fors, expression);
+		// 事件类型
+		var type = util.getStringKeyValue(directive);
+		// 事件信息
+		var info = util.stringToParameters(expression);
+		// 事件取值字段名称
+		var field = info[0];
+		// 事件参数
+		var params = this.evalParams(fors, info[1]);
+
+		this.bindEvent(node, fors, scope, type, field, params, deps);
+
+		// 监测依赖变化，绑定新回调，旧回调将被移除
+		vm.watcher.watch(deps, function(path, last, old) {
+			this.update(node, type, last, old, params, path);
+		}, this);
+	}
+
+	/**
+	 * 解析多个 v-on=eventJson
+	 * @param   {DOMElement}  node
+	 * @param   {String}      expression
+	 * @param   {Object}      fors
+	 * @param   {Array}       deps
+	 */
+	von.parseMulti = function(node, expression, fors, deps) {
+		var vm = this.vm;
+		var cache = {}, jsonDeps = [], jsonAccess = [];
+		var events = util.convertJsonString(expression);
+
+		util.each(events, function(fn, ev) {
+			// 事件信息
+			var info = util.stringToParameters(fn);
+			// 事件取值字段名称
+			var field = info[0] || fn;
+			// 事件参数
+			var params = this.evalParams(fors, info[1]);
+			// 访问路径
+			var access = deps[1][deps[0].indexOf(field)];
+			// 取值域
+			var scope = this.getScope(vm, fors, field);
+
+			jsonDeps.push(field);
+			jsonAccess.push(access);
+			cache[access] = {
+				'type'  : ev,
+				'params': params,
+			}
+
+			this.bindEvent(node, fors, scope, ev, field, params, deps);
+		}, this);
+
+		// 监测依赖变化，绑定新回调，旧回调将被移除
+		vm.watcher.watch([jsonDeps, jsonAccess], function(path, last, old) {
+			var ev = cache[path];
+			this.update(node, ev.type, last, old, ev.params, path);
+		}, this);
 	}
 
 	/**
@@ -85,16 +106,17 @@ define([
 	 * @param   {Object}      fors
 	 * @param   {Object}      scope
 	 * @param   {String}      type
-	 * @param   {String}      name
+	 * @param   {String}      field
 	 * @param   {Array}       params
+	 * @param   {Array}       deps
 	 */
-	von.bindEvent = function(node, fors, scope, type, name, params) {
+	von.bindEvent = function(node, fors, scope, type, field, params, deps) {
 		// 取值函数
-		var getter = this.getEvalFunc(fors, name);
+		var getter = this.getEvalFunc(fors, field);
 		// 事件函数
 		var func = getter.call(scope, scope);
 		// 访问路径，用于解绑
-		var access = fors && (fors.access + '*') + util.getExpKey(name) || name;
+		var access = deps[1][deps[0].indexOf(field)] || field;
 
 		this.update(node, type, func, null, params, access);
 	}
@@ -113,8 +135,8 @@ define([
 		util.each(params, function(param) {
 			var p = param, exp, getter, scope;
 
-			if (p !== '$event') {
-				exp = this.replaceScope(fors, p);
+			if (util.isString(p) && p !== '$event') {
+				exp = this.replaceScope(p);
 
 				if (exp.indexOf('scope.') !== -1) {
 					scope = this.getScope(vm, fors, p);

@@ -252,7 +252,7 @@ define([
 		var regtext = new RegExp('{{(.+?)}}', 'g');
 		var regHtml = new RegExp('{{{(.+?)}}}', 'g');
 		var matches = text.match(regHtml);
-		var match, splits, field, htmlCompile;
+		var match, splits, prefix, suffix, field, htmlCompile;
 
 		// html match
 		if (matches) {
@@ -268,13 +268,19 @@ define([
 		}
 
 		splits = text.split(match);
-		node._vm_text_prefix = splits[0];
-		node._vm_text_suffix = splits[splits.length - 1];
+		prefix = splits[0];
+		suffix = splits[splits.length - 1];
 
 		if (htmlCompile) {
+			if (prefix || suffix) {
+				util.warn('{{{html}}} can not have a prefix or suffix textNode!');
+				return;
+			}
 			this.vhtml.parse.call(this.vhtml, fors, node, field);
 		}
 		else {
+			node._vm_text_prefix = prefix;
+			node._vm_text_suffix = suffix;
 			this.vtext.parse.call(this.vtext, fors, node, field);
 		}
 	}

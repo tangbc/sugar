@@ -6,11 +6,11 @@ define([
 ], function(util) {
 
 	/**
-	 * @param  {Object}        object    [VM数据模型]
-	 * @param  {Array}         ignores   [忽略监测的字段]
-	 * @param  {Function}      callback  [变化回调函数]
-	 * @param  {Object}        context   [执行上下文]
-	 * @param  {Object}        args      [<可选>回调参数]
+	 * @param  {Object}     object    [VM 数据模型]
+	 * @param  {Array}      ignores   [忽略监测的字段]
+	 * @param  {Function}   callback  [变化回调函数]
+	 * @param  {Object}     context   [执行上下文]
+	 * @param  {Object}     args      [<可选>回调参数]
 	 */
 	function Observer(object, ignores, callback, context, args) {
 		if (util.isString(callback)) {
@@ -127,7 +127,7 @@ define([
 	}
 
 	/**
-	 * 对属性绑定监测方法
+	 * 拦截对象属性存取描述符（绑定监测）
 	 * @param   {Object|Array}  object  [对象或数组]
 	 * @param   {Array}         paths   [访问路径数组]
 	 */
@@ -203,8 +203,6 @@ define([
 		}, this);
 
 		array.__proto__ = arrayMethods;
-
-		return this;
 	}
 
 	/**

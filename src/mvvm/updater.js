@@ -25,13 +25,11 @@ define([
 
 	/**
 	 * 更新节点的 html 内容 realize v-html
-	 * isPlain 用于判断 v-html 在纯文本节点使用 {{{$index}}} 的情况
-	 * 因为用了 replaceChild 后下标变更时将无法找回原有的节点进行更新下标
 	 * @param   {DOMElement}  node
 	 * @param   {String}      html
 	 * @param   {Boolean}     isPlain    [是否是纯文本节点]
 	 */
-	up.updateNodeHtmlContent = function(node, html, isPlain) {
+	up.updateNodeHtmlContent = function(node, html) {
 		var vm = this.vm;
 		html = String(html);
 
@@ -40,14 +38,7 @@ define([
 			node.appendChild(util.stringToFragment(html));
 		}
 		else if (vm.isTextNode(node)) {
-			if (isPlain) {
-				this.updateNodeTextContent(node, html);
-			}
-			else {
-				html = (node._vm_text_prefix || '') + html + (node._vm_text_suffix || '');
-				// @todo: <p>****{{{html}}}***</p> 这种与文本参杂的情况也将无法找回原有节点
-				node.parentNode.replaceChild(util.stringToFragment(html), node);
-			}
+			node.parentNode.replaceChild(util.stringToFragment(html), node);
 		}
 	}
 
@@ -57,14 +48,14 @@ define([
 	 * @param   {Boolean}     show    [是否显示]
 	 */
 	up.updateNodeDisplay = function(node, show) {
-		var siblingNode = this.getSiblingElementNode(node);
+		var siblingNode = this.getSibling(node);
 
-		this.setNodeVisibleDisplay(node);
+		this.setVisibleDisplay(node);
 		this.updateNodeStyle(node, 'display', show ? node._visible_display : 'none');
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
-			this.setNodeVisibleDisplay(siblingNode);
+			this.setVisibleDisplay(siblingNode);
 			this.updateNodeStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
 		}
 	}
@@ -75,7 +66,7 @@ define([
 	 * _visible_display 用于缓存节点行内样式的 display 显示值
 	 * @param  {DOMElement}  node
 	 */
-	up.setNodeVisibleDisplay = function(node) {
+	up.setVisibleDisplay = function(node) {
 		var inlineStyle, styles, display;
 
 		if (!node._visible_display) {
@@ -103,14 +94,14 @@ define([
 	 * @param   {Boolean}     isRender  [是否渲染]
 	 */
 	up.updateNodeRenderContent = function(node, isRender) {
-		var siblingNode = this.getSiblingElementNode(node);
+		var siblingNode = this.getSibling(node);
 
-		this.setNodeRenderContent(node);
+		this.setRenderContent(node);
 		this.toggleNodeRenderContent.apply(this, arguments);
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
-			this.setNodeRenderContent(siblingNode);
+			this.setRenderContent(siblingNode);
 			this.toggleNodeRenderContent(siblingNode, !isRender);
 		}
 	}
@@ -118,7 +109,7 @@ define([
 	/**
 	 * 缓存节点渲染内容并清空
 	 */
-	up.setNodeRenderContent = function(node) {
+	up.setRenderContent = function(node) {
 		if (!node._render_content) {
 			node._render_content = node.innerHTML;
 		}
@@ -141,7 +132,7 @@ define([
 	/**
 	 * 获取节点的下一个兄弟元素节点
 	 */
-	up.getSiblingElementNode = function(node) {
+	up.getSibling = function(node) {
 		var el = node.nextSibling;
 		var isElementNode = this.vm.isElementNode;
 
@@ -152,7 +143,7 @@ define([
 		while (el) {
 			el = el.nextSibling;
 
-			if (isElementNode(el)) {
+			if (el && isElementNode(el)) {
 				return el;
 			}
 		}
