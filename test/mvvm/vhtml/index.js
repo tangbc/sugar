@@ -1,22 +1,20 @@
 require(['../../../src/mvvm/index'], function(VM) {
 	var body = document.querySelector('body');
 
-	body.innerHTML = [
-		'<h1 v-html="html"></h1>',
-		'<ul>',
-			'<li v-for="item in items">',
-				'前缀{{item.text}}后缀',
-				'<br>',
-				'<span>I love you {{{$index}}} times</span>',
-				// '<span v-text="$index"></span>',
-				'<span v-text="item.text"></span>',
-				'<div v-for="p in item.ps">',
-					'<p>___{{{p.hp}}}___</p>',
-					'<p>****{{{item.html}}}***</p>',
-				'</div>',
-			'</li>',
-		'</ul>'
-	].join('');
+	body.innerHTML =
+	`<h1 v-html="html"></h1>
+	<ul>
+		<li v-for="item in items">
+			前缀{{item.text}}后缀
+			<br>
+			<span v-text="item.text"></span>
+			<span>{{{$index}}</span>
+			<div v-for="p in item.ps">
+				<p>{{{p.hp}}}</p>
+				<p>{{{item.html}}}</p>
+			</div>
+		</li>
+	</ul>`
 
 	var vm = new VM(body, {
 		'html': '<i>呵呵哒~<i>',

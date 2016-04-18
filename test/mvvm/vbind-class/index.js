@@ -3,16 +3,16 @@ require(['../../../src/mvvm/index'], function(VM) {
 
 	body.innerHTML = [
 		// single
-		// '<div class="static" v-bind:class="outCls"></div>',
-		// '<ul>',
-		// 	'<li v-for="item in items">',
-		// 		'<h1 class="static" v-bind:class="outCls"></h1>',
-		// 		'<p v-for="p in item.ps">',
-		// 			'<b v-bind:class="p.cls"></b>',
-		// 			'<i v-bind:class="outCls"></i>',
-		// 		'</p>',
-		// 	'</li>',
-		// '</ul>'
+		'<div class="static" v-bind:class="outCls"></div>',
+		'<ul>',
+			'<li v-for="item in items">',
+				'<h1 class="static" v-bind:class="outCls"></h1>',
+				'<p v-for="p in item.ps">',
+					'<b v-bind:class="p.cls"></b>',
+					'<i v-bind:class="outCls"></i>',
+				'</p>',
+			'</li>',
+		'</ul>'
 
 		// classobj
 		// '<h1 class="static" v-bind:class="outClsObjs"></h1>',
@@ -54,36 +54,35 @@ require(['../../../src/mvvm/index'], function(VM) {
 		// '</ul>'
 
 		// mutil property with classobj
-		'<h1 class="static" v-bind="{class: outClsObj, id: pid}"></h1>',
-		'<ul>',
-			'<li v-for="item in items">',
-				'<h1 class="static" v-bind="{class:outClsObj, id: item.pid}"></h1>',
-				// '<h1 class="static" v-bind="{class: item.clsobj, id: item.pid}"></h1>',
-				'<p v-for="p in item.ps">',
-					'<b v-bind="{class: p.clsobj, id: p.pid}"></b>',
-					'<i v-bind="{class: outClsObj, id: p.pid}"></i>',
-				'</p>',
-			'</li>',
-		'</ul>'
+		// '<h1 class="static" v-bind="{class: outClsObj, id: pid}"></h1>',
+		// '<ul>',
+		// 	'<li v-for="item in items">',
+		// 		'<h1 class="static" v-bind="{class:outClsObj, id: item.pid}"></h1>',
+		// 		// '<h1 class="static" v-bind="{class: item.clsobj, id: item.pid}"></h1>',
+		// 		'<p v-for="p in item.ps">',
+		// 			'<b v-bind="{class: p.clsobj, id: p.pid}"></b>',
+		// 			'<i v-bind="{class: outClsObj, id: p.pid}"></i>',
+		// 		'</p>',
+		// 	'</li>',
+		// '</ul>'
 	].join('');
 
 	var vm = new VM(body, {
 		'outCls': 'outsideClass',
 
 		// single
-		// 'cls': 'curry',
-		// 'items': [
-		// 	{'cls': 'curry', 'ps': [{'cls': 'aa'},{'cls': 'bb'}]},
-		// 	{'cls': 'kelay', 'ps': [{'cls': 'cc'},{'cls': 'dd'}]},
-		// 	{'cls': 'green', 'ps': [{'cls': 'ee'},{'cls': 'ff'}]}
-		// ]
+		'cls': 'curry',
+		'items': [
+			{'cls': 'curry', 'ps': [{'cls': 'aa'},{'cls': 'bb'}]},
+			{'cls': 'kelay', 'ps': [{'cls': 'cc'},{'cls': 'dd'}]},
+			{'cls': 'green', 'ps': [{'cls': 'ee'},{'cls': 'ff'}]}
+		]
 
 		// classobj
 		// 'obj': {
 		// 	'curry': false,
 		// 	'kelay': false
 		// }
-		// @todo: shift和unshift后无法在watcher的displaceCallback中正确的移位clsobj定义的类
 		// 'outClsObjs': {
 		// 	'out1': true,
 		// 	'out2': true
@@ -110,16 +109,16 @@ require(['../../../src/mvvm/index'], function(VM) {
 		// ]
 
 		// mutil property with classobj
-		'outClsObj': {
-			'curry': true,
-			'kelay': true,
-			'green': true
-		},
-		'pid': '-',
-		'items': [
-			{'clsobj': {'aa': true, 'bb': false}, 'pid': 1, 'ps': [{'clsobj': {'xx': true}, 'pid': 11}]},
-			{'clsobj': {'cc': false, 'dd': true}, 'pid': 2, 'ps': [{'clsobj': {'yy': true}, 'pid': 22}]}
-		]
+		// 'outClsObj': {
+		// 	'curry': true,
+		// 	'kelay': true,
+		// 	'green': true
+		// },
+		// 'pid': '-',
+		// 'items': [
+		// 	{'clsobj': {'aa': true, 'bb': false}, 'pid': 1, 'ps': [{'clsobj': {'xx': true}, 'pid': 11}]},
+		// 	{'clsobj': {'cc': false, 'dd': true}, 'pid': 2, 'ps': [{'clsobj': {'yy': true}, 'pid': 22}]}
+		// ]
 
 	});
 

@@ -21,11 +21,11 @@ require(['../../../src/mvvm/index'], function(VM) {
 		// '</ul>'
 
 		// multi attribute
-		'<h3 v-bind="{id: bid, name: bname, data-id: did}"></h3>',
+		'<h3 v-bind="{\'id\': bid, \'name\': bname, \'data-id\': did}"></h3>',
 		'<ul>',
 			'<li v-for="item in items">',
-				'<h3 v-bind="{id: $index_a, name: item.bname, data-id: item.did}"></h3>',
-				'<h3 v-bind="{id: $index_a, name: bname, data-id: did}"></h3>',
+				'<h3 v-bind="{\'id\': $index, \'name\': item.bname, \'data-id\': item.did}"></h3>',
+				'<h3 v-bind="{\'id\': $index, \'name\': bname, \'data-id\': did}"></h3>',
 			'</li>',
 		'</ul>'
 	].join('');
