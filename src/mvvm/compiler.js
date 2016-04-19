@@ -19,11 +19,11 @@ define([
 ], function(dom, util, Updater, Watcher, Von, Vel, Vif, Vfor, Vtext, Vhtml, Vshow, Vbind,  Vmodel) {
 
 	/**
-	 * VM 编译模块
+	 * 编译模块
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */
-	function VMCompiler(element, model) {
+	function Compiler(element, model) {
 		if (!this.isElementNode(element)) {
 			util.error('element must be a type of DOMElement: ', element);
 			return;
@@ -70,7 +70,7 @@ define([
 		this.init();
 	}
 
-	var vp = VMCompiler.prototype;
+	var vp = Compiler.prototype;
 
 	vp.init = function() {
 		this.complieElement(this.$fragment, true);
@@ -96,13 +96,13 @@ define([
 				this.$unCompileNodes.push([node, fors]);
 			}
 
-			if (node.childNodes.length && !this.isLateCompileNode(node)) {
+			if (node.childNodes.length && !this.isLateCompile(node)) {
 				this.complieElement(node, false, fors);
 			}
 		}
 
 		if (root) {
-			this.compileAllNodes();
+			this.compileAll();
 		}
 	}
 
@@ -134,7 +134,7 @@ define([
 	/**
 	 * 编译节点缓存队列
 	 */
-	vp.compileAllNodes = function() {
+	vp.compileAll = function() {
 		util.each(this.$unCompileNodes, function(info) {
 			this.complieDirectives(info);
 			return null;
@@ -168,7 +168,7 @@ define([
 
 			// vfor 编译时标记节点的指令数
 			if (_vfor) {
-				util.defineProperty(node, '_vfor_directives', attrs.length);
+				util.def(node, '_vfor_directives', attrs.length);
 				attrs = [_vfor];
 				_vfor = null;
 			}
@@ -179,7 +179,7 @@ define([
 			}, this);
 		}
 		else if (this.isTextNode(node)) {
-			this.compileTextNode(node, fors);
+			this.compileText(node, fors);
 		}
 	}
 
@@ -229,7 +229,7 @@ define([
 					this.vif.parse.apply(this.vif, args);
 					break;
 				case 'v-else':
-					util.defineProperty(node, '_directive', 'v-else');
+					util.def(node, '_directive', 'v-else');
 					break;
 				case 'v-model':
 					this.vmodel.parse.apply(this.vmodel, args);
@@ -247,7 +247,7 @@ define([
 	 * @param   {DOMElement}   node
 	 * @param   {Object}       fors
 	 */
-	vp.compileTextNode = function(node, fors) {
+	vp.compileText = function(node, fors) {
 		var text = node.textContent;
 		var regtext = new RegExp('{{(.+?)}}', 'g');
 		var regHtml = new RegExp('{{{(.+?)}}}', 'g');
@@ -289,7 +289,7 @@ define([
 	 * 停止编译节点的剩余指令，如 vfor 的根节点
 	 * @param   {DOMElement}  node
 	 */
-	vp.blockCompileNode = function(node) {
+	vp.blockCompile = function(node) {
 		util.each(this.$unCompileNodes, function(info) {
 			if (node === info[0]) {
 				return null;
@@ -330,7 +330,7 @@ define([
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
-	vp.isLateCompileNode = function(node) {
+	vp.isLateCompile = function(node) {
 		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for');
 	}
 
@@ -339,19 +339,19 @@ define([
 	 */
 	vp.checkCompleted = function() {
 		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
-			this.rootComplieCompleted();
+			this.rootCompleted();
 		}
 	}
 
 	/**
 	 * 根节点编译完成，更新视图
 	 */
-	vp.rootComplieCompleted = function() {
+	vp.rootCompleted = function() {
 		var element = this.$element;
 		dom.empty(element);
 		this.$rootComplied = true;
 		element.appendChild(this.$fragment);
 	}
 
-	return VMCompiler;
+	return Compiler;
 });

@@ -19,7 +19,7 @@ define([
 	 * @param   {DOMElement}  node
 	 * @param   {String}      text
 	 */
-	up.updateNodeTextContent = function(node, text) {
+	up.updateTextContent = function(node, text) {
 		node.textContent = (node._vm_text_prefix || '') + String(text) + (node._vm_text_suffix || '');
 	}
 
@@ -29,7 +29,7 @@ define([
 	 * @param   {String}      html
 	 * @param   {Boolean}     isPlain    [是否是纯文本节点]
 	 */
-	up.updateNodeHtmlContent = function(node, html) {
+	up.updateHtmlContent = function(node, html) {
 		var vm = this.vm;
 		html = String(html);
 
@@ -47,16 +47,16 @@ define([
 	 * @param   {DOMElement}  node
 	 * @param   {Boolean}     show    [是否显示]
 	 */
-	up.updateNodeDisplay = function(node, show) {
+	up.updateDisplay = function(node, show) {
 		var siblingNode = this.getSibling(node);
 
-		this.setVisibleDisplay(node);
-		this.updateNodeStyle(node, 'display', show ? node._visible_display : 'none');
+		this.setVisible(node);
+		this.updateStyle(node, 'display', show ? node._visible_display : 'none');
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
-			this.setVisibleDisplay(siblingNode);
-			this.updateNodeStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
+			this.setVisible(siblingNode);
+			this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
 		}
 	}
 
@@ -66,7 +66,7 @@ define([
 	 * _visible_display 用于缓存节点行内样式的 display 显示值
 	 * @param  {DOMElement}  node
 	 */
-	up.setVisibleDisplay = function(node) {
+	up.setVisible = function(node) {
 		var inlineStyle, styles, display;
 
 		if (!node._visible_display) {
@@ -77,7 +77,7 @@ define([
 
 				util.each(styles, function(style) {
 					if (style.indexOf('display') !== -1) {
-						display = util.getStringKeyValue(style);
+						display = util.getKeyValue(style);
 					}
 				});
 			}
@@ -93,23 +93,23 @@ define([
 	 * @param   {DOMElement}  node
 	 * @param   {Boolean}     isRender  [是否渲染]
 	 */
-	up.updateNodeRenderContent = function(node, isRender) {
+	up.updateRenderContent = function(node, isRender) {
 		var siblingNode = this.getSibling(node);
 
-		this.setRenderContent(node);
-		this.toggleNodeRenderContent.apply(this, arguments);
+		this.setRender(node);
+		this.toggleRender.apply(this, arguments);
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
-			this.setRenderContent(siblingNode);
-			this.toggleNodeRenderContent(siblingNode, !isRender);
+			this.setRender(siblingNode);
+			this.toggleRender(siblingNode, !isRender);
 		}
 	}
 
 	/**
 	 * 缓存节点渲染内容并清空
 	 */
-	up.setRenderContent = function(node) {
+	up.setRender = function(node) {
 		if (!node._render_content) {
 			node._render_content = node.innerHTML;
 		}
@@ -119,7 +119,7 @@ define([
 	/**
 	 * 切换节点内容渲染
 	 */
-	up.toggleNodeRenderContent = function(node, isRender) {
+	up.toggleRender = function(node, isRender) {
 		var fragment;
 		// 渲染
 		if (isRender) {
@@ -157,7 +157,7 @@ define([
 	 * @param   {String}      attribute
 	 * @param   {String}      value
 	 */
-	up.updateNodeAttribute = function(node, attribute, value) {
+	up.updateAttribute = function(node, attribute, value) {
 		if (value === null) {
 			dom.removeAttr.apply(this, arguments);
 		}
@@ -180,7 +180,7 @@ define([
 	 * @param   {String|Boolean}      oldcls
 	 * @param   {String}              classname
 	 */
-	up.updateNodeClassName = function(node, newcls, oldcls, classname) {
+	up.updateClassName = function(node, newcls, oldcls, classname) {
 		// 指定 classname 变化值由 newcls 布尔值决定
 		if (classname) {
 			if (newcls === true) {
@@ -208,7 +208,7 @@ define([
 	 * @param   {String}      propperty  [属性名称]
 	 * @param   {String}      value      [样式值]
 	 */
-	up.updateNodeStyle = function(node, propperty, value) {
+	up.updateStyle = function(node, propperty, value) {
 		node.style[propperty] = value;
 	}
 
@@ -221,7 +221,7 @@ define([
 	 * @param   {Array}       params       [参数]
 	 * @param   {String}      identifier   [对应监测字段/路径]
 	 */
-	up.updateNodeEvent = function(node, evt, func, oldfunc, params, identifier) {
+	up.updateEvent = function(node, evt, func, oldfunc, params, identifier) {
 		var listeners = this.$listeners;
 		var modals, self, stop, prevent, capture = false;
 
@@ -283,7 +283,7 @@ define([
 	 * @param   {Input}  text
 	 * @param   {String} value
 	 */
-	up.updateNodeFormTextValue = function(text, value) {
+	up.updateTextValue = function(text, value) {
 		if (text.value !== value) {
 			text.value = value;
 		}
@@ -294,7 +294,7 @@ define([
 	 * @param   {Input}  radio
 	 * @param   {String} value
 	 */
-	up.updateNodeFormRadioChecked = function(radio, value) {
+	up.updateRadioChecked = function(radio, value) {
 		radio.checked = radio.value === (util.isNumber(value) ? String(value) : value);
 	}
 
@@ -303,7 +303,7 @@ define([
 	 * @param   {Input}          checkbox
 	 * @param   {Array|Boolean}  values      [激活数组或状态]
 	 */
-	up.updateNodeFormCheckboxChecked = function(checkbox, values) {
+	up.updateCheckboxChecked = function(checkbox, values) {
 		if (!util.isArray(values) && !util.isBoolean(values)) {
 			util.warn('checkbox v-model value must be a type of Boolean or Array!');
 			return;
@@ -317,7 +317,7 @@ define([
 	 * @param   {Array|String}   selected  [选中值]
 	 * @param   {Boolean}        multi
 	 */
-	up.updateNodeFormSelectChecked = function(select, selected, multi) {
+	up.updateSelectChecked = function(select, selected, multi) {
 		var options = select.options;
 		var i, option, value, leng = options.length;
 

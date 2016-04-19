@@ -43,9 +43,9 @@ define([
 		// 取值域
 		var scope = this.getScope(vm, fors, expression);
 		// 事件类型
-		var type = util.getStringKeyValue(directive);
+		var type = util.getKeyValue(directive);
 		// 事件信息
-		var info = util.stringToParameters(expression);
+		var info = util.stringToParams(expression);
 		// 事件取值字段名称
 		var field = info[0];
 		// 事件参数
@@ -69,17 +69,17 @@ define([
 	von.parseMulti = function(node, expression, fors, deps) {
 		var vm = this.vm;
 		var cache = {}, jsonDeps = [], jsonAccess = [];
-		var events = util.convertJsonString(expression);
+		var events = util.convertJson(expression);
 
 		util.each(events, function(fn, ev) {
 			// 事件信息
-			var info = util.stringToParameters(fn);
+			var info = util.stringToParams(fn);
 			// 事件取值字段名称
 			var field = info[0] || fn;
 			// 事件参数
 			var params = this.evalParams(fors, info[1]);
 			// 访问路径
-			var access = deps[1][deps[0].indexOf(field)];
+			var access = deps.acc[deps.dep.indexOf(field)];
 			// 取值域
 			var scope = this.getScope(vm, fors, field);
 
@@ -94,7 +94,10 @@ define([
 		}, this);
 
 		// 监测依赖变化，绑定新回调，旧回调将被移除
-		vm.watcher.watch([jsonDeps, jsonAccess], function(path, last, old) {
+		vm.watcher.watch({
+			'dep': jsonDeps,
+			'acc': jsonAccess
+		}, function(path, last, old) {
 			var ev = cache[path];
 			this.update(node, ev.type, last, old, ev.params, path);
 		}, this);
@@ -116,7 +119,7 @@ define([
 		// 事件函数
 		var func = getter.call(scope, scope);
 		// 访问路径，用于解绑
-		var access = deps[1][deps[0].indexOf(field)] || field;
+		var access = deps.acc[deps.dep.indexOf(field)] || field;
 
 		this.update(node, type, func, null, params, access);
 	}
@@ -156,7 +159,7 @@ define([
 	 */
 	von.update = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeEvent.apply(updater, arguments);
+		updater.updateEvent.apply(updater, arguments);
 	}
 
 	return Von;

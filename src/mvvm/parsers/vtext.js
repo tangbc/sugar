@@ -26,7 +26,7 @@ define([
 	 */
 	vtext.update = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeTextContent.apply(updater, arguments);
+		updater.updateTextContent.apply(updater, arguments);
 	}
 
 	return Vtext;

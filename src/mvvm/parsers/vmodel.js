@@ -27,7 +27,7 @@ define([
 			return;
 		}
 
-		util.defineProperty(node, '_vmodel', field);
+		util.def(node, '_vmodel', field);
 
 		var deps = this.getDependents(fors, field);
 		var scope = this.getScope(vm, fors, field);
@@ -55,11 +55,11 @@ define([
 		var updater = vm.updater;
 
 		// 更新视图
-		updater.updateNodeFormTextValue(node, value);
+		updater.updateTextValue(node, value);
 
 		// 订阅依赖监听
 		vm.watcher.watch(deps, function(path, last) {
-			updater.updateNodeFormTextValue(node, last);
+			updater.updateTextValue(node, last);
 		}, this);
 
 		// 绑定事件
@@ -105,11 +105,11 @@ define([
 		var updater = vm.updater;
 
 		// 更新视图
-		updater.updateNodeFormRadioChecked(node, value);
+		updater.updateRadioChecked(node, value);
 
 		// 订阅依赖监听
 		vm.watcher.watch(deps, function(path, last) {
-			updater.updateNodeFormRadioChecked(node, last);
+			updater.updateRadioChecked(node, last);
 		}, this);
 
 		// 绑定事件
@@ -136,11 +136,11 @@ define([
 		var updater = vm.updater;
 
 		// 更新视图
-		updater.updateNodeFormCheckboxChecked(node, value);
+		updater.updateCheckboxChecked(node, value);
 
 		// 订阅依赖监听
 		vm.watcher.watch(deps, function(path, last) {
-			updater.updateNodeFormCheckboxChecked(node, last);
+			updater.updateCheckboxChecked(node, last);
 		}, this);
 
 		// 绑定事件
@@ -211,7 +211,7 @@ define([
 
 		// 数据模型中定义初始的选中状态
 		if (isDefined) {
-			updater.updateNodeFormSelectChecked(node, value, multi);
+			updater.updateSelectChecked(node, value, multi);
 		}
 		// 模板中定义初始状态
 		else {
@@ -227,7 +227,7 @@ define([
 
 		// 订阅依赖监测
 		this.vm.watcher.watch(deps, function(path, last) {
-			updater.updateNodeFormSelectChecked(node, last, multi);
+			updater.updateSelectChecked(node, last, multi);
 		});
 
 		// 绑定事件

@@ -264,7 +264,7 @@ define([
 	 * 获取表达式的所有依赖（取值模型+访问路径）
 	 * @param   {Object}  fors        [vfor 数据]
 	 * @param   {String}  expression
-	 * @return  {Array}
+	 * @return  {Object}
 	 */
 	p.getDependents = function(fors, expression) {
 		var deps = [], paths = [];
@@ -300,7 +300,10 @@ define([
 			paths.push(valAccess);
 		});
 
-		return [deps, paths];
+		return {
+			'dep': deps,
+			'acc': paths
+		}
 	}
 
 	return Parser;

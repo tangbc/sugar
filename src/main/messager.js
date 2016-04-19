@@ -8,6 +8,14 @@ define([
 ], function(sync, util, cache) {
 
 	/**
+	 * 字符串首字母大写
+	 */
+	function ucFirst(str) {
+		var first = str.charAt(0).toUpperCase();
+		return first + str.substr(1);
+	}
+
+	/**
 	 * Messager 通信使者（实现模块间通信）
 	 * 默认接收消息onMessage, 默认全部发送完毕回调onMessageSendOut
 	 */
@@ -51,7 +59,7 @@ define([
 			// 消息参数
 			'param'  : param,
 			// 接收消息模块的调用方法 on + 首字母大写
-			'method' : 'on' + util.ucFirst(name),
+			'method' : 'on' + ucFirst(name),
 			// 接收消息模块的返回值
 			'returns': null
 		}

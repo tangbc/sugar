@@ -178,7 +178,7 @@ define([
 
 		util.each(this.$fixArrayMethods, function(method) {
 			var self = this, original = arrayProto[method];
-			util.defineProperty(arrayMethods, method, function _redefineArrayMethod() {
+			util.def(arrayMethods, method, function _redefineArrayMethod() {
 				var i = arguments.length, result;
 				var args = new Array(i);
 

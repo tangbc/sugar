@@ -236,7 +236,6 @@ define([
 
 			// callback 为属性值
 			if (util.isString(callback)) {
-				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
@@ -265,7 +264,6 @@ define([
 
 			// callback 为属性值
 			if (util.isString(callback)) {
-				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 
@@ -303,7 +301,6 @@ define([
 
 			// callback 为属性值
 			if (util.isString(callback)) {
-				// callback = 'on' + util.ucFirst(callback);
 				callback = this[callback];
 			}
 

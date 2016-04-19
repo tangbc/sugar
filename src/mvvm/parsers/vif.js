@@ -26,7 +26,7 @@ define([
 	 */
 	vif.update = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeRenderContent.apply(updater, arguments);
+		updater.updateRenderContent.apply(updater, arguments);
 	}
 
 	return Vif;

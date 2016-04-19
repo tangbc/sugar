@@ -26,7 +26,7 @@ define([
 		// 单个 attribute: v-bind:class="xxx"
 		if (dir.indexOf(':') !== -1) {
 			// 属性类型
-			type = util.getStringKeyValue(dir);
+			type = util.getKeyValue(dir);
 
 			switch (type) {
 				case 'class':
@@ -41,7 +41,7 @@ define([
 		}
 		// 多个 attributes: "v-bind={id:xxxx, name: yyy, data-id: zzz}"
 		else {
-			attrs = util.convertJsonString(expression);
+			attrs = util.convertJson(expression);
 
 			util.each(attrs, function(exp, attr) {
 				var model = exp;
@@ -74,9 +74,8 @@ define([
 		var exp = expression.trim();
 		var isJson = regJson.test(exp);
 
-		var map, watchDef;
-		var scope, getter, value;
-		var jsonDeps = [], jsonAccess = [], cache = {};
+		var map, scope, getter, value;
+		var cache = {}, jsonDeps = [], jsonAccess = [];
 
 		// 不是 classJson
 		if (!isJson) {
@@ -86,39 +85,41 @@ define([
 
 			// 单个变化的字段 cls
 			if (util.isString(value)) {
-				watchDef = true;
 				this.updateClass(node, value);
 			}
 			// 数组形式 ['cls-a', 'cls-b']
 			else if (util.isArray(value)) {
-				watchDef = true;
 				util.each(value, function(cls) {
 					this.updateClass(node, cls);
 				}, this);
 			}
 			// 对象形式 classObject
 			else if (util.isObject(value)) {
-				util.each(value, function(isAdd, cls) {
-					var model = exp;
-					var access = deps[1][deps[0].indexOf(model)];
-					var valAccess = access ? (access + '*' + cls) : (model + '*' + cls);
+				this.parseClassObject(node, value, deps, exp);
 
-					jsonDeps.push(model);
-					jsonAccess.push(valAccess);
-					cache[valAccess] = cls;
+				// 监测整个 classObject 被替换
+				watcher.watch(deps, function(path, newObject, oldObject) {
+					// 移除旧的 class
+					util.each(oldObject, function(b, cls) {
+						this.updateClass(node, false, false, cls);
+					}, this);
 
-					this.updateClass(node, isAdd, false, cls);
+					// 重新绑定
+					this.parseClassObject(node, newObject, deps, exp);
 				}, this);
+
+				// 已在 parseClassObject 做监测
+				return;
 			}
 		}
 		// classJson
 		else {
 			// classname 与取值字段的映射
-			map = util.convertJsonString(exp);
+			map = util.convertJson(exp);
 
 			util.each(map, function(field, cls) {
 				var isAdd, model = map[cls];
-				var access = deps[1][deps[0].indexOf(model)];
+				var access = deps.acc[deps.dep.indexOf(model)];
 
 				scope = this.getScope(vm, fors, field);
 				getter = this.getEvalFunc(fors, field);
@@ -136,17 +137,59 @@ define([
 
 
 		// cls 和 [clsa, clsb] 的依赖监测
-		if (watchDef) {
+		if (!isJson) {
 			watcher.watch(deps, function(path, last, old) {
 				this.updateClass(node, last, old);
 			}, this);
 		}
-		// classObject 和 classJson 的依赖监测
+		// classJson 的依赖监测
 		else {
-			watcher.watch([jsonDeps, jsonAccess], function(path, last, old) {
-				this.updateClass(node, last, old, cache[path]);
-			}, this);
+			this.watchClassObject(node, {
+				'dep': jsonDeps,
+				'acc': jsonAccess
+			}, cache);
 		}
+	}
+
+	/**
+	 * 绑定 classObject
+	 * @param   {DOMElement}   node
+	 * @param   {Object}       obj
+	 * @param   {Object}       deps
+	 * @param   {String}       exp
+	 */
+	vbind.parseClassObject = function(node, obj, deps, exp) {
+		var cache = {}, jsonDeps = [], jsonAccess = [];
+
+		util.each(obj, function(isAdd, cls) {
+			var model = exp;
+			var access = deps.acc[deps.dep.indexOf(model)];
+			var valAccess = access ? (access + '*' + cls) : (model + '*' + cls);
+
+			jsonDeps.push(model);
+			jsonAccess.push(valAccess);
+			cache[valAccess] = cls;
+
+			this.updateClass(node, isAdd, false, cls);
+		}, this);
+
+		// 监测依赖变化
+		this.watchClassObject(node, {
+			'dep': jsonDeps,
+			'acc': jsonAccess
+		}, cache);
+	}
+
+	/**
+	 * 监测 classObject 或 classJson 的依赖
+	 * @param   {DOMElement}   node
+	 * @param   {Object}       deps
+	 * @param   {Object}       cache
+	 */
+	vbind.watchClassObject = function(node, deps, cache) {
+		this.vm.watcher.watch(deps, function(path, last, old) {
+			this.updateClass(node, last, old, cache[path]);
+		}, this);
 	}
 
 	/**
@@ -154,7 +197,7 @@ define([
 	 */
 	vbind.updateClass = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeClassName.apply(updater, arguments);
+		updater.updateClassName.apply(updater, arguments);
 	}
 
 	/**
@@ -171,8 +214,8 @@ define([
 		var exp = expression.trim();
 		var isJson = regJson.test(exp);
 
-		var scope, getter, styles;
-		var map, cache = {}, jsonDeps = [], jsonAccess = [];
+		var map, cache = {};
+		var scope, getter, styles
 
 		// styleObject
 		if (!isJson) {
@@ -180,31 +223,27 @@ define([
 			getter = this.getEvalFunc(fors, exp);
 			styles = getter.call(scope, scope);
 
-			util.each(styles, function(property, style) {
-				var model = deps[0][0];
-				var access = deps[1][deps[0].indexOf(model)] || model;
-				var valAccess = access + '*' + style;
+			this.parseStyleObject(node, styles, deps);
 
-				jsonDeps.push(model);
-				jsonAccess.push(valAccess);
-				cache[valAccess] = style;
+			// 监测整个 styleObject 被替换
+			watcher.watch(deps, function(path, newObject, oldObject) {
+				// 移除旧的 style
+				util.each(oldObject, function(property, style) {
+					this.updateStyle(node, style, null);
+				}, this);
 
-				this.updateStyle(node, style, property);
-			}, this);
-
-			// styleObject 依赖监测
-			watcher.watch([jsonDeps, jsonAccess], function(path, last, old) {
-				this.updateStyle(node, cache[path], last);
+				// 重新绑定
+				this.parseStyleObject(node, newObject, deps);
 			}, this);
 		}
 		// styleJson
 		else {
 			// style 与取值字段的映射
-			map = util.convertJsonString(exp);
+			map = util.convertJson(exp);
 
 			util.each(map, function(field, style) {
 				var model = field, property;
-				var access = deps[1][deps[0].indexOf(model)];
+				var access = deps.acc[deps.dep.indexOf(model)];
 
 				scope = this.getScope(vm, fors, model);
 				getter = this.getEvalFunc(fors, model);
@@ -225,11 +264,41 @@ define([
 	}
 
 	/**
+	 * 绑定 styleObject
+	 * @param   {DOMElement}  node
+	 * @param   {Object}      styles
+	 * @param   {Object}      deps
+	 */
+	vbind.parseStyleObject = function(node, styles, deps) {
+		var cache = {}, jsonDeps = [], jsonAccess = [];
+
+		util.each(styles, function(property, style) {
+			var model = deps.dep[0];
+			var access = deps.acc[0] || model;
+			var valAccess = access + '*' + style;
+
+			jsonDeps.push(model);
+			jsonAccess.push(valAccess);
+			cache[valAccess] = style;
+
+			this.updateStyle(node, style, property);
+		}, this);
+
+		// styleObject 依赖监测
+		this.vm.watcher.watch({
+			'dep': jsonDeps,
+			'acc': jsonAccess
+		}, function(path, last, old) {
+			this.updateStyle(node, cache[path], last);
+		}, this);
+	}
+
+	/**
 	 * 刷新节点行内样式 inlineStyle
 	 */
 	vbind.updateStyle = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeStyle.apply(updater, arguments);
+		updater.updateStyle.apply(updater, arguments);
 	}
 
 	/**
@@ -259,7 +328,7 @@ define([
 	 */
 	vbind.updateAttr = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeAttribute.apply(updater, arguments);
+		updater.updateAttribute.apply(updater, arguments);
 	}
 
 	return Vbind;

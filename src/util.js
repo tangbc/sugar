@@ -122,7 +122,7 @@ define(function() {
 	 * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
 	 * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
 	 */
-	up.defineProperty = function(object, property, value, writable, enumerable, configurable) {
+	up.def = function(object, property, value, writable, enumerable, configurable) {
 		return Object.defineProperty(object, property, {
 			'value'       : value,
 			'writable'    : !!writable,
@@ -287,14 +287,6 @@ define(function() {
 	}
 
 	/**
-	 * 字符串首字母大写
-	 */
-	up.ucFirst = function(str) {
-		var first = str.charAt(0).toUpperCase();
-		return first + str.substr(1);
-	}
-
-	/**
 	 * 去掉字符串中所有空格
 	 * @param   {String}  string
 	 * @return  {String}
@@ -309,7 +301,7 @@ define(function() {
 	 * @param   {Boolean}       both         [是否返回键和值]
 	 * @return  {String|Array}
 	 */
-	up.getStringKeyValue = function(expression, both) {
+	up.getKeyValue = function(expression, both) {
 		var array = expression.split(':');
 		return both ? array : array.pop();
 	}
@@ -319,7 +311,7 @@ define(function() {
 	 * @param   {String}  expression
 	 * @return  {Array}
 	 */
-	up.stringToParameters = function(expression) {
+	up.stringToParams = function(expression) {
 		var ret, params, func;
 		var exp = this.removeSpace(expression);
 		var matches = exp.match(/(\(.*\))/);
@@ -344,7 +336,7 @@ define(function() {
 	 * @param   {String}  jsonString
 	 * @return  {Object}
 	 */
-	up.convertJsonString = function(jsonString) {
+	up.convertJson = function(jsonString) {
 		var info, props;
 		var string = jsonString.trim(), i = string.length;
 
@@ -354,7 +346,7 @@ define(function() {
 			props = string.match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
 
 			this.each(props, function(prop) {
-				var vals = this.getStringKeyValue(prop, true);
+				var vals = this.getKeyValue(prop, true);
 				var name = vals[0], value = vals[1];
 				if (name && value) {
 					info[name] = value;

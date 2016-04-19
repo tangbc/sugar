@@ -103,7 +103,7 @@ define([
 		var getter = this.getEvalFunc(fors, model);
 		var scope = this.getScope(this.vm, fors, model);
 		var value = getter.call(scope, scope);
-		this.vm.updater.updateNodeFormSelectChecked(select, value, dom.hasAttr(select, 'multiple'));
+		this.vm.updater.updateSelectChecked(select, value, dom.hasAttr(select, 'multiple'));
 	}
 
 	/**
@@ -151,7 +151,7 @@ define([
 
 			// 阻止重复编译除 vfor 以外的指令
 			if (node._vfor_directives > 1) {
-				vm.blockCompileNode(node);
+				vm.blockCompile(node);
 			}
 
 			this.signAlias(cloneNode, alias);
@@ -171,7 +171,7 @@ define([
 	 * @param   {String}      alias
 	 */
 	vfor.signAlias = function(node, alias) {
-		util.defineProperty(node, '_vfor_alias', alias);
+		util.def(node, '_vfor_alias', alias);
 	}
 
 	/**

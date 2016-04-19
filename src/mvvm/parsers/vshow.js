@@ -26,7 +26,7 @@ define([
 	 */
 	vshow.update = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeDisplay.apply(updater, arguments);
+		updater.updateDisplay.apply(updater, arguments);
 	}
 
 	return Vshow;

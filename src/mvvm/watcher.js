@@ -50,17 +50,17 @@ define([
 	}
 
 	/**
-	 * 订阅一个依赖集合的变化回调 (顶层模型无 access)
-	 * @param   {Array}     depends
+	 * 订阅一个依赖集合的变化回调 (顶层模型 access 为 undefined)
+	 * @param   {Object}    depends
 	 * @param   {Function}  callback
 	 * @param   {Object}    context
 	 * @param   {Array}     args
 	 */
 	wp.watch = function(depends, callback, context, args) {
 		// 依赖的数据模型
-		var depModels = depends[0];
+		var depModels = depends.dep;
 		// 依赖的访问路径
-		var depAccess = depends[1];
+		var depAccess = depends.acc;
 
 		util.each(depModels, function(model, index) {
 			var access = depAccess[index];

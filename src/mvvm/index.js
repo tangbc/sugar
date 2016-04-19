@@ -93,9 +93,10 @@ define([
 	 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
 	 */
 	mvp.watch = function(model, callback) {
-		var deps = [[model], [undefined]];
-
-		this.vm.watcher.add(deps, function(path, last, old) {
+		this.vm.watcher.add({
+			'dep': [model],
+			'acc': [undefined]
+		}, function(path, last, old) {
 			callback.call(this, path, last, old);
 		}, this.context);
 	}

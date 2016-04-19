@@ -26,7 +26,7 @@ define([
 	 */
 	vhtml.update = function() {
 		var updater = this.vm.updater;
-		updater.updateNodeHtmlContent.apply(updater, arguments);
+		updater.updateHtmlContent.apply(updater, arguments);
 	}
 
 	return Vhtml;
