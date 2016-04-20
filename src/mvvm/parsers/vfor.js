@@ -27,8 +27,8 @@ define([
 		var isOption = node.tagName === 'OPTION';
 
 		// 取值信息
-		var scope = this.getScope(vm, fors, iterator);
-		var getter = this.getEvalFunc(fors, iterator);
+		var scope = this.getScope(fors, iterator);
+		var getter = this.getEval(fors, iterator);
 		var array = getter.call(scope, scope);
 
 		// 循环数组的访问路径
@@ -100,8 +100,8 @@ define([
 	 */
 	vfor.froceUpdateOption = function(select, fors) {
 		var model = select._vmodel;
-		var getter = this.getEvalFunc(fors, model);
-		var scope = this.getScope(this.vm, fors, model);
+		var getter = this.getEval(fors, model);
+		var scope = this.getScope(fors, model);
 		var value = getter.call(scope, scope);
 		this.vm.updater.updateSelectChecked(select, value, dom.hasAttr(select, 'multiple'));
 	}

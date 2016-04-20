@@ -29,9 +29,9 @@ define([
 
 		util.def(node, '_vmodel', field);
 
-		var deps = this.getDependents(fors, field);
-		var scope = this.getScope(vm, fors, field);
-		var getter = this.getEvalFunc(fors, field);
+		var deps = this.getDeps(fors, field);
+		var scope = this.getScope(fors, field);
+		var getter = this.getEval(fors, field);
 
 		var value = getter.call(scope, scope);
 		var bind = util.getExpKey(field) || field;

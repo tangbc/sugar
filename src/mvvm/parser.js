@@ -114,11 +114,11 @@ define([
 		var vm = this.vm;
 
 		// 提取依赖
-		var deps = this.getDependents(fors, expression);
+		var deps = this.getDeps(fors, expression);
 		// 获取取值域
-		var scope = this.getScope(vm, fors, expression);
+		var scope = this.getScope(fors, expression);
 		// 生成取值函数
-		var getter = this.getEvalFunc(fors, expression);
+		var getter = this.getEval(fors, expression);
 
 		// 监测所有依赖变化
 		vm.watcher.watch(deps, function(path, last) {
@@ -147,7 +147,7 @@ define([
 	/**
 	 * 获取表达式的取值函数
 	 */
-	p.getEvalFunc = function(fors, expression) {
+	p.getEval = function(fors, expression) {
 		var alias, regScope;
 		var exp = this.replaceScope(expression);
 
@@ -186,17 +186,17 @@ define([
 
 	/**
 	 * 获取表达式的取值域
-	 * @param   {Object}  vm
 	 * @param   {Object}  fors
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getScope = function(vm, fors, expression) {
+	p.getScope = function(fors, expression) {
 		var alias, scope, index;
+		var model = this.vm.$data;
 
 		// 顶层数据模型
 		if (!fors) {
-			return vm.$data;
+			return model;
 		}
 		else {
 			alias = getAlias(fors, expression);
@@ -204,7 +204,7 @@ define([
 
 		// 无别名(vfor 中取顶层值)
 		if (!alias) {
-			return vm.$data;
+			return model;
 		}
 
 		// 当前域取值
@@ -266,7 +266,7 @@ define([
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getDependents = function(fors, expression) {
+	p.getDeps = function(fors, expression) {
 		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 

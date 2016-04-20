@@ -20,7 +20,7 @@ define([
 	 * @param   {String}      directive   [指令名称]
 	 */
 	vbind.parse = function(fors, node, expression, directive) {
-		var deps = this.getDependents(fors, expression);
+		var deps = this.getDeps(fors, expression);
 		var type, attrs, dir = util.removeSpace(directive);
 
 		// 单个 attribute: v-bind:class="xxx"
@@ -45,7 +45,7 @@ define([
 
 			util.each(attrs, function(exp, attr) {
 				var model = exp;
-				var newDeps = this.getDependents(fors, model);
+				var newDeps = this.getDeps(fors, model);
 
 				switch (attr) {
 					case 'class':
@@ -79,8 +79,8 @@ define([
 
 		// 不是 classJson
 		if (!isJson) {
-			scope = this.getScope(vm, fors, exp);
-			getter = this.getEvalFunc(fors, exp);
+			scope = this.getScope(fors, exp);
+			getter = this.getEval(fors, exp);
 			value = getter.call(scope, scope);
 
 			// 单个变化的字段 cls
@@ -121,8 +121,8 @@ define([
 				var isAdd, model = map[cls];
 				var access = deps.acc[deps.dep.indexOf(model)];
 
-				scope = this.getScope(vm, fors, field);
-				getter = this.getEvalFunc(fors, field);
+				scope = this.getScope(fors, field);
+				getter = this.getEval(fors, field);
 				isAdd = getter.call(scope, scope);
 
 				jsonDeps.push(model);
@@ -219,8 +219,8 @@ define([
 
 		// styleObject
 		if (!isJson) {
-			scope = this.getScope(vm, fors, exp);
-			getter = this.getEvalFunc(fors, exp);
+			scope = this.getScope(fors, exp);
+			getter = this.getEval(fors, exp);
 			styles = getter.call(scope, scope);
 
 			this.parseStyleObject(node, styles, deps);
@@ -245,8 +245,8 @@ define([
 				var model = field, property;
 				var access = deps.acc[deps.dep.indexOf(model)];
 
-				scope = this.getScope(vm, fors, model);
-				getter = this.getEvalFunc(fors, model);
+				scope = this.getScope(fors, model);
+				getter = this.getEval(fors, model);
 				property = getter.call(scope, scope);
 
 				cache[access || model] = style;
@@ -311,8 +311,8 @@ define([
 	 */
 	vbind.parseAttr = function(node, fors, attr, deps, expression) {
 		var vm = this.vm;
-		var scope = this.getScope(vm, fors, expression);
-		var getter = this.getEvalFunc(fors, expression);
+		var scope = this.getScope(fors, expression);
+		var getter = this.getEval(fors, expression);
 		var value = getter.call(scope, scope);
 
 		this.updateAttr(node, attr, value);

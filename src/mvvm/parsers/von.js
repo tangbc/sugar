@@ -17,7 +17,7 @@ define([
 	 * @param   {String}      directive   [指令名称]
 	 */
 	von.parse = function(fors, node, expression, directive) {
-		var deps = this.getDependents(fors, expression);
+		var deps = this.getDeps(fors, expression);
 		var dir = util.removeSpace(directive);
 
 		// 单个事件 v-on:click
@@ -41,7 +41,7 @@ define([
 	von.parseSingle = function(node, expression, directive, fors, deps) {
 		var vm = this.vm;
 		// 取值域
-		var scope = this.getScope(vm, fors, expression);
+		var scope = this.getScope(fors, expression);
 		// 事件类型
 		var type = util.getKeyValue(directive);
 		// 事件信息
@@ -81,7 +81,7 @@ define([
 			// 访问路径
 			var access = deps.acc[deps.dep.indexOf(field)];
 			// 取值域
-			var scope = this.getScope(vm, fors, field);
+			var scope = this.getScope(fors, field);
 
 			jsonDeps.push(field);
 			jsonAccess.push(access);
@@ -115,7 +115,7 @@ define([
 	 */
 	von.bindEvent = function(node, fors, scope, type, field, params, deps) {
 		// 取值函数
-		var getter = this.getEvalFunc(fors, field);
+		var getter = this.getEval(fors, field);
 		// 事件函数
 		var func = getter.call(scope, scope);
 		// 访问路径，用于解绑
@@ -142,7 +142,7 @@ define([
 				exp = this.replaceScope(p);
 
 				if (exp.indexOf('scope.') !== -1) {
-					scope = this.getScope(vm, fors, p);
+					scope = this.getScope(fors, p);
 					getter = this.createGetter(exp);
 					p = getter.call(scope, scope);
 				}
