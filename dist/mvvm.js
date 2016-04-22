@@ -183,14 +183,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		var hasOwn = OP.hasOwnProperty;
 
 		/**
-		 * 是否是对象自变量, {} 或 new Object() 的形式
+		 * 是否是对象自面量, {} 或 new Object()
 		 */
 		function isObject(obj) {
 			return OP.toString.call(obj) === '[object Object]';
 		}
 
 		/**
-		 * 是否是真数组, [] 或 new Array() 的形式
+		 * 是否是真数组, [] 或 new Array()
 		 */
 		function isArray(obj) {
 			return OP.toString.call(obj) === '[object Array]';
@@ -207,21 +207,21 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 是否是字符串
 		 */
 		function isString(str) {
-			return typeof(str) === 'string';
+			return typeof str === 'string';
 		}
 
 		/**
 		 * 是否是布尔值
 		 */
-		function isBoolean(bool) {
-			return typeof(bool) === 'boolean';
+		function isBool(bool) {
+			return typeof bool === 'boolean';
 		}
 
 		/**
 		 * 是否是数字
 		 */
 		function isNumber(num) {
-			return typeof(num) === 'number' && !isNaN(num);
+			return typeof num === 'number' && !isNaN(num);
 		}
 
 		/**
@@ -252,19 +252,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.isNumber = isNumber;
 			this.isObject = isObject;
 			this.isString = isString;
-			this.isBoolean = isBoolean;
+			this.isBool = isBool;
 		}
 
 		var up = Util.prototype;
 		var cons = WIN.console;
-
-
-		/**
-		 * 打印日志
-		 */
-		up.log = function() {
-			cons.log.apply(cons, arguments);
-		}
 
 		/**
 		 * 打印错误
@@ -368,12 +360,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 扩展合并对象，摘自 jQuery
 		 */
-		up.extendObject = function() {
+		up.extend = function() {
 			var options, name, src, copy, copyIsArray, clone;
 			var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
 			// Handle a deep copy situation
-			if (isBoolean(target)) {
+			if (isBool(target)) {
 				deep = target;
 				target = arguments[i] || {};
 				i++;
@@ -415,7 +407,7 @@ return /******/ (function(modules) { // webpackBootstrap
 							}
 
 							// Never move original objects, clone them
-							target[name] = this.extendObject(deep, clone, copy);
+							target[name] = this.extend(deep, clone, copy);
 						}
 						// Don't bring in undefined values
 						else if (copy !== undefined) {
@@ -430,16 +422,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 合并对象，只返回合并后的对象副本
-		 * @return  {Object}
-		 */
-		up.extend = function() {
-			var args = AP.slice.call(arguments);
-			args.unshift({});
-			return this.extendObject.apply(this, args);
-		}
-
-		/**
 		 * 复制对象或数组
 		 * @param   {Object|Array}  target
 		 * @return  {Mix}
@@ -451,7 +433,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				ret = target.slice(0);
 			}
 			else if (isObject(target)) {
-				ret = this.extendObject(true, {}, target);
+				ret = this.extend(true, {}, target);
 			}
 			else {
 				ret = target;
@@ -1007,8 +989,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			var isOption = node.tagName === 'OPTION';
 
 			// 取值信息
-			var scope = this.getScope(vm, fors, iterator);
-			var getter = this.getEvalFunc(fors, iterator);
+			var scope = this.getScope(fors, iterator);
+			var getter = this.getEval(fors, iterator);
 			var array = getter.call(scope, scope);
 
 			// 循环数组的访问路径
@@ -1080,8 +1062,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		vfor.froceUpdateOption = function(select, fors) {
 			var model = select._vmodel;
-			var getter = this.getEvalFunc(fors, model);
-			var scope = this.getScope(this.vm, fors, model);
+			var getter = this.getEval(fors, model);
+			var scope = this.getScope(fors, model);
 			var value = getter.call(scope, scope);
 			this.vm.updater.updateSelectChecked(select, value, dom.hasAttr(select, 'multiple'));
 		}
@@ -1155,7 +1137,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 数组操作更新 vfor 循环体
+		 * 数组操作更新 vfor 循环列表
 		 * @param   {DOMElement}  parent    [父节点]
 		 * @param   {DOMElement}  node      [初始模板片段]
 		 * @param   {Array}       newArray  [新的数据重复列表]
@@ -1165,16 +1147,16 @@ return /******/ (function(modules) { // webpackBootstrap
 		vfor.update = function(parent, node, newArray, method, updates) {
 			switch (method) {
 				case 'push':
-					this.pushArray.apply(this, arguments);
+					this.push.apply(this, arguments);
 					break;
 				case 'pop':
-					this.popArray.apply(this, arguments);
+					this.pop.apply(this, arguments);
 					break;
 				case 'unshift':
-					this.unshiftArray.apply(this, arguments);
+					this.unshift.apply(this, arguments);
 					break;
 				case 'shift':
-					this.shiftArray.apply(this, arguments);
+					this.shift.apply(this, arguments);
 					break;
 				// @todo: splice, sort, reverse 操作和直接赋值暂时都重新编译
 				default: this.recompileArray.apply(this, arguments);
@@ -1182,9 +1164,36 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
+		 * 获取数组操作对应列表下标变化的关系
+		 * @param   {String}  method  [数组操作]
+		 * @param   {Number}  length  [新数组长度]
+		 * @return  {Object}          [新数组下标的变化映射]
+		 */
+		vfor.getChanges = function(method, length) {
+			var i, udf, map = {};
+
+			switch (method) {
+				case 'unshift':
+					map[0] = udf;
+					for (i = 1; i < length; i++) {
+						map[i] = i - 1;
+					}
+					break;
+				case 'shift':
+					for (i = 0; i < length + 1; i++) {
+						map[i] = i + 1;
+					}
+					map[length] = udf;
+					break;
+			}
+
+			return map;
+		}
+
+		/**
 		 * 在循环体的最后追加一条数据 array.push
 		 */
-		vfor.pushArray = function(parent, node, newArray, method, updates) {
+		vfor.push = function(parent, node, newArray, method, updates) {
 			var fragment = util.createFragment();
 			var cloneNode = node.cloneNode(true);
 			var lastChild, last = newArray.length - 1;
@@ -1213,7 +1222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.vm.complieElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
-			lastChild = this.getLastChild(parent, alias);
+			lastChild = this.getLast(parent, alias);
 
 			// empty list
 			if (!lastChild) {
@@ -1227,8 +1236,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 移除循环体的最后一条数据 array.pop
 		 */
-		vfor.popArray = function(parent, node, newArray, method, updates) {
-			var lastChild = this.getLastChild(parent, updates.alias);
+		vfor.pop = function(parent, node, newArray, method, updates) {
+			var lastChild = this.getLast(parent, updates.alias);
 			if (lastChild) {
 				parent.removeChild(lastChild)
 			}
@@ -1237,17 +1246,18 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 在循环体最前面追加一条数据 array.unshift
 		 */
-		vfor.unshiftArray = function(parent, node, newArray, method, updates) {
-			var vm = this.vm, firstChild;
+		vfor.unshift = function(parent, node, newArray, method, updates) {
+			var vm = this.vm, firstChild, map;
 			var fragment = util.createFragment();
 			var cloneNode = node.cloneNode(true);
-
-			// 移位相关的订阅回调
-			vm.watcher.shiftSubs(updates.access, method);
 
 			var alias = updates.alias;
 			var level = updates.level;
 			var fors, access = updates.access + '*' + 0;
+
+			// 移位相关的订阅回调
+			map = this.getChanges(method, newArray.length);
+			vm.watcher.moveSubs(updates.access, map);
 
 			updates.scopes[alias] = newArray[0];
 			updates.accesses[level] = access;
@@ -1269,21 +1279,22 @@ return /******/ (function(modules) { // webpackBootstrap
 			vm.complieElement(cloneNode, true, fors);
 			fragment.appendChild(cloneNode);
 
-			firstChild = this.getFirstChild(parent, alias);
+			firstChild = this.getFirst(parent, alias);
 
-			// 当 firstChild 为 null 时会自动添加到父节点
+			// 当 firstChild 为 null 时也会添加到父节点
 			parent.insertBefore(fragment, firstChild);
 		}
 
 		/**
 		 * 移除循环体的第一条数据 array.shift
 		 */
-		vfor.shiftArray = function(parent, node, newArray, method, updates) {
-			var firstChild = this.getFirstChild(parent, updates.alias);
+		vfor.shift = function(parent, node, newArray, method, updates) {
+			var map = this.getChanges(method, newArray.length);
+			var firstChild = this.getFirst(parent, updates.alias);
 			if (firstChild) {
 				parent.removeChild(firstChild);
 				// 移位相关的订阅回调
-				this.vm.watcher.shiftSubs(updates.access, method);
+				this.vm.watcher.moveSubs(updates.access, map);
 			}
 
 		}
@@ -1294,7 +1305,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      alias   [循环体对象别名]
 		 * @return  {FirstChild}
 		 */
-		vfor.getFirstChild = function(parent, alias) {
+		vfor.getFirst = function(parent, alias) {
 			var i, firstChild = null, child;
 			var childNodes = parent.childNodes;
 
@@ -1315,7 +1326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      alias    [循环体对象别名]
 		 * @return  {LastChild}
 		 */
-		vfor.getLastChild = function(parent, alias) {
+		vfor.getLast = function(parent, alias) {
 			var i, lastChild = null, child;
 			var childNodes = parent.childNodes;
 
@@ -1340,7 +1351,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var listArgs = [node, newArray, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
 
 			// 移除旧的监测
-			this.vm.watcher.removeSubs(up.access);
+			// this.vm.watcher.removeSubs(up.access);
 
 			// 重新构建循环板块
 			template = this.buildList.apply(this, listArgs);
@@ -1490,11 +1501,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			var vm = this.vm;
 
 			// 提取依赖
-			var deps = this.getDependents(fors, expression);
+			var deps = this.getDeps(fors, expression);
 			// 获取取值域
-			var scope = this.getScope(vm, fors, expression);
+			var scope = this.getScope(fors, expression);
 			// 生成取值函数
-			var getter = this.getEvalFunc(fors, expression);
+			var getter = this.getEval(fors, expression);
 
 			// 监测所有依赖变化
 			vm.watcher.watch(deps, function(path, last) {
@@ -1523,7 +1534,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 获取表达式的取值函数
 		 */
-		p.getEvalFunc = function(fors, expression) {
+		p.getEval = function(fors, expression) {
 			var alias, regScope;
 			var exp = this.replaceScope(expression);
 
@@ -1562,17 +1573,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 获取表达式的取值域
-		 * @param   {Object}  vm
 		 * @param   {Object}  fors
 		 * @param   {String}  expression
 		 * @return  {Object}
 		 */
-		p.getScope = function(vm, fors, expression) {
+		p.getScope = function(fors, expression) {
 			var alias, scope, index;
+			var model = this.vm.$data;
 
 			// 顶层数据模型
 			if (!fors) {
-				return vm.$data;
+				return model;
 			}
 			else {
 				alias = getAlias(fors, expression);
@@ -1580,7 +1591,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 无别名(vfor 中取顶层值)
 			if (!alias) {
-				return vm.$data;
+				return model;
 			}
 
 			// 当前域取值
@@ -1642,7 +1653,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}  expression
 		 * @return  {Object}
 		 */
-		p.getDependents = function(fors, expression) {
+		p.getDeps = function(fors, expression) {
 			var deps = [], paths = [];
 			var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 
@@ -2117,11 +2128,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Array|Boolean}  values      [激活数组或状态]
 		 */
 		up.updateCheckboxChecked = function(checkbox, values) {
-			if (!util.isArray(values) && !util.isBoolean(values)) {
+			if (!util.isArray(values) && !util.isBool(values)) {
 				util.warn('checkbox v-model value must be a type of Boolean or Array!');
 				return;
 			}
-			checkbox.checked = util.isBoolean(values) ? values : (values.indexOf(checkbox.value) !== -1);
+			checkbox.checked = util.isBool(values) ? values : (values.indexOf(checkbox.value) !== -1);
 		}
 
 		/**
@@ -2174,7 +2185,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var wp = Watcher.prototype;
 
 		/**
-		 * Observer 变化触发回调
+		 * 变化触发回调
 		 * @param   {String}  path
 		 * @param   {Mix}     last
 		 * @param   {Mix}     old
@@ -2196,7 +2207,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		wp.trigger = function(subs, path, last, old) {
 			util.each(subs, function(sub) {
 				sub.cb.call(sub.ct, path, last, old, sub.arg);
-			}, this);
+			});
 		}
 
 		/**
@@ -2256,7 +2267,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
-			this.cacheSubs(this.$modelSubs, field, callback, context, args);
+			this.addSubs(this.$modelSubs, field, callback, context, args);
 		}
 
 		/**
@@ -2267,7 +2278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Array}     args
 		 */
 		wp.watchAccess = function(access, callback, context, args) {
-			this.cacheSubs(this.$accessSubs, access, callback, context, args);
+			this.addSubs(this.$accessSubs, access, callback, context, args);
 		}
 
 		/**
@@ -2278,13 +2289,13 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Array}     args
 		 */
 		wp.watchIndex = function(access, callback, context, args) {
-			this.cacheSubs(this.$indexSubs, access, callback, context, args);
+			this.addSubs(this.$indexSubs, access, callback, context, args);
 		}
 
 		/**
 		 * 缓存订阅回调
 		 */
-		wp.cacheSubs = function(subs, identifier, callback, context, args) {
+		wp.addSubs = function(subs, identifier, callback, context, args) {
 			// 缓存回调函数
 			if (!subs[identifier]) {
 				subs[identifier] = [];
@@ -2298,174 +2309,120 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 移除指定的访问路径订阅(重新编译 vfor)
+		 * 移除指定的访问路径/下标订阅(重新编译 vfor)
 		 */
 		wp.removeSubs = function(field) {
+			// 下标
+			util.each(this.$indexSubs, function(sub, index) {
+				if (index.indexOf(field) === 0) {
+					return null;
+				}
+			});
+			// 访问路径
 			util.each(this.$accessSubs, function(sub, access) {
 				if (access.indexOf(field) === 0) {
 					return null;
 				}
-			}, this);
+			});
 		}
 
 		/**
 		 * 发生数组操作时处理订阅的移位
-		 * @param   {String}  field   [数组字段]
-		 * @param   {String}  method  [数组操作方法]
+		 * @param   {String}  field     [数组字段]
+		 * @param   {String}  moveMap   [移位的映射关系]
 		 */
-		wp.shiftSubs = function(field, method) {
+		wp.moveSubs = function(field, moveMap, method) {
 			// 数组字段标识
 			var prefix = field + '*';
 			// 移位下标
-			this.shiftIndex(prefix, method);
+			this.moveIndex(prefix, moveMap);
 			// 移位访问路径
-			this.shiftAccess(prefix, method);
+			this.moveAccess(prefix, moveMap);
 		}
 
 		/**
-		 * 获取指定相关访问路径和回调集合
-		 * @param   {String}  identifier  [目标标识符]
-		 * @param   {Array}   subs        [所有订阅]
-		 * @return  {Object}
-		 */
-		wp.getRelate = function(identifier, subs) {
-			var caches = {}, targets = [];
-
-			util.each(Object.keys(subs), function(key) {
-				if (key.indexOf(identifier) === 0) {
-					targets.push(key);
-					caches[key] = subs[key];
-				}
-			}, this);
-
-			return {
-				'caches' : caches,
-				'targets': targets
-			}
-		}
-
-		/**
-		 * 移位下标的订阅回调
+		 * 移位下标订阅集合
 		 * 移位的过程需要触发所有回调以更改每一个 $index
 		 */
-		wp.shiftIndex = function(prefix, method) {
+		wp.moveIndex = function(prefix, moveMap) {
+			var dest = {};
 			var subs = this.$indexSubs;
-			// 需要移位的相关信息
-			var relate = this.getRelate(prefix, subs);
+			var caches = util.copy(subs);
 
-			if (!relate.targets.length) {
-				return;
-			}
+			// 根据结果映射 移位下标
+			util.each(moveMap, function(move, index) {
+				var udf;
+				var nowIndex = prefix + index;
+				var moveIndex = prefix + move;
 
-			switch (method) {
-				case 'shift':
-					this.shiftIndexForward(prefix, subs, relate);
-					break;
-				case 'unshift':
-					this.shiftIndexBackward(prefix, subs, relate);
-					break;
-			}
-		}
+				dest[nowIndex] = caches[moveIndex];
 
-		/**
-		 * 下标提前，shift 操作，最后一位为 undefined
-		 */
-		wp.shiftIndexForward = function(prefix, subs, relate) {
-			var targets = relate.targets, caches = relate.caches;
-
-			util.each(targets, function(access) {
-				var index = +access.substr(prefix.length).charAt(0);
-				var suffix = access.substr(prefix.length + 1);
-				var current = access, prev = prefix + (index + 1) + suffix;
-
-				subs[current] = caches[prev];
-
-				util.each(subs[current], function(sub) {
-					sub.cb.call(sub.ct, current, index, sub.arg);
-				}, this);
-			}, this);
-		}
-
-		/**
-		 * 下标延后，unshift 操作，第一位为 undefined
-		 */
-		wp.shiftIndexBackward = function(prefix, subs, relate) {
-			var targets = relate.targets, caches = relate.caches;
-
-			util.each(targets.reverse(), function(access) {
-				var udf, first = prefix + 0;
-				var index = +access.substr(prefix.length).charAt(0);
-				var suffix = access.substr(prefix.length + 1);
-				var current = access, prev = prefix + (index + 1) + suffix;
-
-				subs[prev] = caches[current];
-
-				util.each(subs[current], function(sub) {
-					sub.cb.call(sub.ct, current, index + 1, sub.arg);
-				}, this);
-
-				if (index === 0) {
-					subs[first] = udf;
+				// 被挤掉的设为 undefined
+				if (move === udf) {
+					subs[nowIndex] = udf;
 				}
-			}, this);
+			});
+
+			// 触发 $index 变更
+			util.each(dest, function(subs, index) {
+				var i = +index.substr(prefix.length);
+				util.each(subs, function(sub) {
+					sub.cb.call(sub.ct, index, i, sub.arg);
+				});
+			});
+
+			// 合并移位结果
+			util.extend(subs, dest);
+
+			dest = caches = null;
 		}
 
 		/**
-		 * 移位访问路径的订阅回调
+		 * 移位访问路径订阅集合
 		 * 移位的过程不需要触发回调
 		 */
-		wp.shiftAccess = function(prefix, method) {
+		wp.moveAccess = function(prefix, moveMap) {
+			var dest = {};
 			var subs = this.$accessSubs;
-			// 需要移位的所有访问路径和回调
-			var relate = this.getRelate(prefix, subs);
+			var caches = util.copy(subs);
 
-			if (!relate.targets.length) {
-				return;
-			}
+			// 根据结果映射 移位访问路径
+			util.each(moveMap, function(move, index) {
+				var udf;
+				var befores = [], afters = [];
+				var nowIndex = prefix + index;
+				var moveIndex = prefix + move;
 
-			switch (method) {
-				case 'shift':
-					this.shiftAccessForward(prefix, subs, relate);
-					break;
-				case 'unshift':
-					this.shiftAccessBackward(prefix, subs, relate);
-					break;
-			}
-		}
+				// 提取出替换前后的访问路径集合
+				util.each(subs, function(sub, access) {
+					if (move === udf && access.indexOf(nowIndex) === 0) {
+						afters.push(udf);
+						befores.push(access);
+					}
+					else if (access.indexOf(moveIndex) === 0) {
+						afters.push(access);
+						befores.push(access.replace(moveIndex, nowIndex));
+					}
+				});
 
-		/**
-		 * 访问路径提前，shift 操作，最后一位为 undefined
-		 */
-		wp.shiftAccessForward = function(prefix, subs, relate) {
-			var targets = relate.targets, caches = relate.caches;
+				// 进行替换
+				util.each(befores, function(before, index) {
+					var after = afters[index];
 
-			util.each(targets, function(access) {
-				var index = +access.substr(prefix.length).charAt(0);
-				var suffix = access.substr(prefix.length + 1);
-				var current = access, next = prefix + (index + 1) + suffix;
+					// 被挤掉的设为 undefined
+					if (after === udf) {
+						subs[before] = udf;
+					}
+					else {
+						dest[before] = caches[after];
+					}
+				});
+			});
 
-				subs[current] = caches[next];
-			}, this);
-		}
+			// 合并移位结果
+			util.extend(subs, dest);
 
-		/**
-		 * 访问路径延后，unshift 操作，第一位为 undefined
-		 */
-		wp.shiftAccessBackward = function(prefix, subs, relate) {
-			var targets = relate.targets, caches = relate.caches;
-
-			util.each(targets, function(access) {
-				var index = +access.substr(prefix.length).charAt(0);
-				var suffix = access.substr(prefix.length + 1);
-				var udf, first = prefix + 0 + suffix;
-				var current = access, next = prefix + (index + 1) + suffix;
-
-				subs[next] = caches[current];
-
-				if (index === 0) {
-					subs[first] = udf;
-				}
-			}, this);
+			dest = caches = null;
 		}
 
 		return Watcher;
@@ -2506,14 +2463,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.$valuesMap = {'0': util.copy(object)};
 
 			// 记录当前数组操作
-			this.$arrayAction = 921;
+			this.$action = 921;
 			// 避免触发下标的数组操作
-			this.$aviodArrayAction = ['shift', 'unshift', 'splice'];
+			this.$aviod = ['shift', 'unshift', 'splice'];
 			// 重写的 Array 方法
-			this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
-
-			// 路径层级分隔符
-			this.$separator = '*';
+			this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 			this.observe(object);
 		}
@@ -2527,7 +2481,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		op.observe = function(object, paths) {
 			if (util.isArray(object)) {
-				this.rewriteArrayMethods(object, paths);
+				this.rewriteMethods(object, paths);
 			}
 
 			util.each(object, function(value, property) {
@@ -2540,7 +2494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				if (!this.isIgnore(copies)) {
-					this.setCache(object, value, property).bindWatching(object, copies);
+					this.setCache(object, value, property).bindWatch(object, copies);
 				}
 
 			}, this);
@@ -2554,7 +2508,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {Boolean}
 		 */
 		op.isIgnore = function(paths) {
-			var ret, path = paths.join(this.$separator);
+			var ret, path = paths.join('*');
 
 			util.each(this.$ignores, function(ignore) {
 				if (ignore.indexOf(path) === 0) {
@@ -2608,7 +2562,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Object|Array}  object  [对象或数组]
 		 * @param   {Array}         paths   [访问路径数组]
 		 */
-		op.bindWatching = function(object, paths) {
+		op.bindWatch = function(object, paths) {
 			var prop = paths[paths.length - 1];
 
 			// 定义 object 的 getter 和 setter
@@ -2628,8 +2582,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 						this.setCache(object, newValue, prop);
 
-						if (this.$aviodArrayAction.indexOf(this.$arrayAction) === -1) {
-							this.triggerChange(paths.join(this.$separator), newValue, oldValue);
+						if (this.$aviod.indexOf(this.$action) === -1) {
+							this.triggerChange(paths.join('*'), newValue, oldValue);
 						}
 					}
 				}).bind(this)
@@ -2648,12 +2602,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Array}  array  [目标数组]
 		 * @param   {Array}  paths  [访问路径数组]
 		 */
-		op.rewriteArrayMethods = function(array, paths) {
+		op.rewriteMethods = function(array, paths) {
 			var arrayProto = util.AP;
 			var arrayMethods = Object.create(arrayProto);
-			var path = paths && paths.join(this.$separator);
+			var path = paths && paths.join('*');
 
-			util.each(this.$fixArrayMethods, function(method) {
+			util.each(this.$methods, function(method) {
 				var self = this, original = arrayProto[method];
 				util.def(arrayMethods, method, function _redefineArrayMethod() {
 					var i = arguments.length, result;
@@ -2663,11 +2617,11 @@ return /******/ (function(modules) { // webpackBootstrap
 						args[i] = arguments[i];
 					}
 
-					self.$arrayAction = method;
+					self.$action = method;
 
 					result = original.apply(this, args);
 
-					self.$arrayAction = 921;
+					self.$action = 921;
 
 					// 重新监测
 					self.observe(this, paths);
@@ -2718,7 +2672,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      directive   [指令名称]
 		 */
 		von.parse = function(fors, node, expression, directive) {
-			var deps = this.getDependents(fors, expression);
+			var deps = this.getDeps(fors, expression);
 			var dir = util.removeSpace(directive);
 
 			// 单个事件 v-on:click
@@ -2742,7 +2696,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		von.parseSingle = function(node, expression, directive, fors, deps) {
 			var vm = this.vm;
 			// 取值域
-			var scope = this.getScope(vm, fors, expression);
+			var scope = this.getScope(fors, expression);
 			// 事件类型
 			var type = util.getKeyValue(directive);
 			// 事件信息
@@ -2782,7 +2736,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				// 访问路径
 				var access = deps.acc[deps.dep.indexOf(field)];
 				// 取值域
-				var scope = this.getScope(vm, fors, field);
+				var scope = this.getScope(fors, field);
 
 				jsonDeps.push(field);
 				jsonAccess.push(access);
@@ -2816,7 +2770,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		von.bindEvent = function(node, fors, scope, type, field, params, deps) {
 			// 取值函数
-			var getter = this.getEvalFunc(fors, field);
+			var getter = this.getEval(fors, field);
 			// 事件函数
 			var func = getter.call(scope, scope);
 			// 访问路径，用于解绑
@@ -2827,14 +2781,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 对函数参数求值
-		 * @param   {Object}  vm
 		 * @param   {Object}  fors
 		 * @param   {Object}  scope
 		 * @param   {Array}   params
 		 * @return  {Array}
 		 */
 		von.evalParams = function(fors, params) {
-			var _params = [], vm = this.vm;
+			var _params = [];
 
 			util.each(params, function(param) {
 				var p = param, exp, getter, scope;
@@ -2843,7 +2796,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					exp = this.replaceScope(p);
 
 					if (exp.indexOf('scope.') !== -1) {
-						scope = this.getScope(vm, fors, p);
+						scope = this.getScope(fors, p);
 						getter = this.createGetter(exp);
 						p = getter.call(scope, scope);
 					}
@@ -3077,6 +3030,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// 匹配 {'class': xxx} 形式
 		var regJson = /^\{.*\}$/;
+		// 获取访问路径的最后一值
+		function getLastValue(access) {
+			return access.substr(access.lastIndexOf('*') + 1, access.length);
+		}
 
 		function Vbind(vm) {
 			this.vm = vm;
@@ -3092,7 +3049,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      directive   [指令名称]
 		 */
 		vbind.parse = function(fors, node, expression, directive) {
-			var deps = this.getDependents(fors, expression);
+			var deps = this.getDeps(fors, expression);
 			var type, attrs, dir = util.removeSpace(directive);
 
 			// 单个 attribute: v-bind:class="xxx"
@@ -3117,7 +3074,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				util.each(attrs, function(exp, attr) {
 					var model = exp;
-					var newDeps = this.getDependents(fors, model);
+					var newDeps = this.getDeps(fors, model);
 
 					switch (attr) {
 						case 'class':
@@ -3151,8 +3108,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 不是 classJson
 			if (!isJson) {
-				scope = this.getScope(vm, fors, exp);
-				getter = this.getEvalFunc(fors, exp);
+				scope = this.getScope(fors, exp);
+				getter = this.getEval(fors, exp);
 				value = getter.call(scope, scope);
 
 				// 单个变化的字段 cls
@@ -3193,13 +3150,13 @@ return /******/ (function(modules) { // webpackBootstrap
 					var isAdd, model = map[cls];
 					var access = deps.acc[deps.dep.indexOf(model)];
 
-					scope = this.getScope(vm, fors, field);
-					getter = this.getEvalFunc(fors, field);
+					scope = this.getScope(fors, field);
+					getter = this.getEval(fors, field);
 					isAdd = getter.call(scope, scope);
 
 					jsonDeps.push(model);
 					jsonAccess.push(access);
-					cache[access || model] = cls;
+					cache[util.getExpKey(model) || model] = cls;
 
 					this.updateClass(node, isAdd, false, cls);
 
@@ -3231,7 +3188,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}       exp
 		 */
 		vbind.parseClassObject = function(node, obj, deps, exp) {
-			var cache = {}, jsonDeps = [], jsonAccess = [];
+			var jsonDeps = [], jsonAccess = [];
 
 			util.each(obj, function(isAdd, cls) {
 				var model = exp;
@@ -3240,7 +3197,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				jsonDeps.push(model);
 				jsonAccess.push(valAccess);
-				cache[valAccess] = cls;
 
 				this.updateClass(node, isAdd, false, cls);
 			}, this);
@@ -3249,7 +3205,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.watchClassObject(node, {
 				'dep': jsonDeps,
 				'acc': jsonAccess
-			}, cache);
+			});
 		}
 
 		/**
@@ -3260,7 +3216,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		vbind.watchClassObject = function(node, deps, cache) {
 			this.vm.watcher.watch(deps, function(path, last, old) {
-				this.updateClass(node, last, old, cache[path]);
+				var lasValue =  getLastValue(path);
+				var classname = cache ? cache[lasValue] : lasValue;
+				this.updateClass(node, last, old, classname);
 			}, this);
 		}
 
@@ -3286,13 +3244,12 @@ return /******/ (function(modules) { // webpackBootstrap
 			var exp = expression.trim();
 			var isJson = regJson.test(exp);
 
-			var map, cache = {};
-			var scope, getter, styles
+			var map, scope, getter, styles
 
 			// styleObject
 			if (!isJson) {
-				scope = this.getScope(vm, fors, exp);
-				getter = this.getEvalFunc(fors, exp);
+				scope = this.getScope(fors, exp);
+				getter = this.getEval(fors, exp);
 				styles = getter.call(scope, scope);
 
 				this.parseStyleObject(node, styles, deps);
@@ -3315,13 +3272,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				util.each(map, function(field, style) {
 					var model = field, property;
-					var access = deps.acc[deps.dep.indexOf(model)];
 
-					scope = this.getScope(vm, fors, model);
-					getter = this.getEvalFunc(fors, model);
+					scope = this.getScope(fors, model);
+					getter = this.getEval(fors, model);
 					property = getter.call(scope, scope);
-
-					cache[access || model] = style;
 
 					this.updateStyle(node, style, property);
 
@@ -3330,7 +3284,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				// styleJson 依赖监测
 				watcher.watch(deps, function(path, last, old) {
-					this.updateStyle(node, cache[path], last);
+					this.updateStyle(node, getLastValue(path), last);
 				}, this);
 			}
 		}
@@ -3342,7 +3296,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Object}      deps
 		 */
 		vbind.parseStyleObject = function(node, styles, deps) {
-			var cache = {}, jsonDeps = [], jsonAccess = [];
+			var jsonDeps = [], jsonAccess = [];
 
 			util.each(styles, function(property, style) {
 				var model = deps.dep[0];
@@ -3351,7 +3305,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				jsonDeps.push(model);
 				jsonAccess.push(valAccess);
-				cache[valAccess] = style;
 
 				this.updateStyle(node, style, property);
 			}, this);
@@ -3361,7 +3314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				'dep': jsonDeps,
 				'acc': jsonAccess
 			}, function(path, last, old) {
-				this.updateStyle(node, cache[path], last);
+				this.updateStyle(node, getLastValue(path), last);
 			}, this);
 		}
 
@@ -3383,8 +3336,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		vbind.parseAttr = function(node, fors, attr, deps, expression) {
 			var vm = this.vm;
-			var scope = this.getScope(vm, fors, expression);
-			var getter = this.getEvalFunc(fors, expression);
+			var scope = this.getScope(fors, expression);
+			var getter = this.getEval(fors, expression);
 			var value = getter.call(scope, scope);
 
 			this.updateAttr(node, attr, value);
@@ -3441,9 +3394,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			util.def(node, '_vmodel', field);
 
-			var deps = this.getDependents(fors, field);
-			var scope = this.getScope(vm, fors, field);
-			var getter = this.getEvalFunc(fors, field);
+			var deps = this.getDeps(fors, field);
+			var scope = this.getScope(fors, field);
+			var getter = this.getEval(fors, field);
 
 			var value = getter.call(scope, scope);
 			var bind = util.getExpKey(field) || field;
@@ -3570,7 +3523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			dom.addEvent(node, 'change', function() {
 				var index, checked = this.checked, val = this.value;
 
-				if (util.isBoolean(value)) {
+				if (util.isBool(value)) {
 					scope[field] = checked;
 				}
 				else if (util.isArray(value)) {

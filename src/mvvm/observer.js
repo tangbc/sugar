@@ -29,14 +29,11 @@ define([
 		this.$valuesMap = {'0': util.copy(object)};
 
 		// 记录当前数组操作
-		this.$arrayAction = 921;
+		this.$action = 921;
 		// 避免触发下标的数组操作
-		this.$aviodArrayAction = ['shift', 'unshift', 'splice'];
+		this.$aviod = ['shift', 'unshift', 'splice'];
 		// 重写的 Array 方法
-		this.$fixArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
-
-		// 路径层级分隔符
-		this.$separator = '*';
+		this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 		this.observe(object);
 	}
@@ -50,7 +47,7 @@ define([
 	 */
 	op.observe = function(object, paths) {
 		if (util.isArray(object)) {
-			this.rewriteArrayMethods(object, paths);
+			this.rewriteMethods(object, paths);
 		}
 
 		util.each(object, function(value, property) {
@@ -63,7 +60,7 @@ define([
 			}
 
 			if (!this.isIgnore(copies)) {
-				this.setCache(object, value, property).bindWatching(object, copies);
+				this.setCache(object, value, property).bindWatch(object, copies);
 			}
 
 		}, this);
@@ -77,7 +74,7 @@ define([
 	 * @return  {Boolean}
 	 */
 	op.isIgnore = function(paths) {
-		var ret, path = paths.join(this.$separator);
+		var ret, path = paths.join('*');
 
 		util.each(this.$ignores, function(ignore) {
 			if (ignore.indexOf(path) === 0) {
@@ -131,7 +128,7 @@ define([
 	 * @param   {Object|Array}  object  [对象或数组]
 	 * @param   {Array}         paths   [访问路径数组]
 	 */
-	op.bindWatching = function(object, paths) {
+	op.bindWatch = function(object, paths) {
 		var prop = paths[paths.length - 1];
 
 		// 定义 object 的 getter 和 setter
@@ -151,8 +148,8 @@ define([
 
 					this.setCache(object, newValue, prop);
 
-					if (this.$aviodArrayAction.indexOf(this.$arrayAction) === -1) {
-						this.triggerChange(paths.join(this.$separator), newValue, oldValue);
+					if (this.$aviod.indexOf(this.$action) === -1) {
+						this.triggerChange(paths.join('*'), newValue, oldValue);
 					}
 				}
 			}).bind(this)
@@ -171,12 +168,12 @@ define([
 	 * @param   {Array}  array  [目标数组]
 	 * @param   {Array}  paths  [访问路径数组]
 	 */
-	op.rewriteArrayMethods = function(array, paths) {
+	op.rewriteMethods = function(array, paths) {
 		var arrayProto = util.AP;
 		var arrayMethods = Object.create(arrayProto);
-		var path = paths && paths.join(this.$separator);
+		var path = paths && paths.join('*');
 
-		util.each(this.$fixArrayMethods, function(method) {
+		util.each(this.$methods, function(method) {
 			var self = this, original = arrayProto[method];
 			util.def(arrayMethods, method, function _redefineArrayMethod() {
 				var i = arguments.length, result;
@@ -186,11 +183,11 @@ define([
 					args[i] = arguments[i];
 				}
 
-				self.$arrayAction = method;
+				self.$action = method;
 
 				result = original.apply(this, args);
 
-				self.$arrayAction = 921;
+				self.$action = 921;
 
 				// 重新监测
 				self.observe(this, paths);

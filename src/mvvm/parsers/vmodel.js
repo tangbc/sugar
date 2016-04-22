@@ -158,7 +158,7 @@ define([
 		dom.addEvent(node, 'change', function() {
 			var index, checked = this.checked, val = this.value;
 
-			if (util.isBoolean(value)) {
+			if (util.isBool(value)) {
 				scope[field] = checked;
 			}
 			else if (util.isArray(value)) {

@@ -111,7 +111,7 @@ define([
 		 */
 		getChilds: function(returnArray) {
 			var cls = this._;
-			returnArray = util.isBoolean(returnArray) && returnArray;
+			returnArray = util.isBool(returnArray) && returnArray;
 			return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
 		},
 

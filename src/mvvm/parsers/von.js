@@ -126,14 +126,13 @@ define([
 
 	/**
 	 * 对函数参数求值
-	 * @param   {Object}  vm
 	 * @param   {Object}  fors
 	 * @param   {Object}  scope
 	 * @param   {Array}   params
 	 * @return  {Array}
 	 */
 	von.evalParams = function(fors, params) {
-		var _params = [], vm = this.vm;
+		var _params = [];
 
 		util.each(params, function(param) {
 			var p = param, exp, getter, scope;

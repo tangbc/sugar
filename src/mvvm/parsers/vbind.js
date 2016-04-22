@@ -5,6 +5,10 @@ define([
 
 	// 匹配 {'class': xxx} 形式
 	var regJson = /^\{.*\}$/;
+	// 获取访问路径的最后一值
+	function getLastValue(access) {
+		return access.substr(access.lastIndexOf('*') + 1, access.length);
+	}
 
 	function Vbind(vm) {
 		this.vm = vm;
@@ -127,7 +131,7 @@ define([
 
 				jsonDeps.push(model);
 				jsonAccess.push(access);
-				cache[access || model] = cls;
+				cache[util.getExpKey(model) || model] = cls;
 
 				this.updateClass(node, isAdd, false, cls);
 
@@ -159,7 +163,7 @@ define([
 	 * @param   {String}       exp
 	 */
 	vbind.parseClassObject = function(node, obj, deps, exp) {
-		var cache = {}, jsonDeps = [], jsonAccess = [];
+		var jsonDeps = [], jsonAccess = [];
 
 		util.each(obj, function(isAdd, cls) {
 			var model = exp;
@@ -168,7 +172,6 @@ define([
 
 			jsonDeps.push(model);
 			jsonAccess.push(valAccess);
-			cache[valAccess] = cls;
 
 			this.updateClass(node, isAdd, false, cls);
 		}, this);
@@ -177,7 +180,7 @@ define([
 		this.watchClassObject(node, {
 			'dep': jsonDeps,
 			'acc': jsonAccess
-		}, cache);
+		});
 	}
 
 	/**
@@ -188,7 +191,9 @@ define([
 	 */
 	vbind.watchClassObject = function(node, deps, cache) {
 		this.vm.watcher.watch(deps, function(path, last, old) {
-			this.updateClass(node, last, old, cache[path]);
+			var lasValue =  getLastValue(path);
+			var classname = cache ? cache[lasValue] : lasValue;
+			this.updateClass(node, last, old, classname);
 		}, this);
 	}
 
@@ -214,8 +219,7 @@ define([
 		var exp = expression.trim();
 		var isJson = regJson.test(exp);
 
-		var map, cache = {};
-		var scope, getter, styles
+		var map, scope, getter, styles
 
 		// styleObject
 		if (!isJson) {
@@ -243,13 +247,10 @@ define([
 
 			util.each(map, function(field, style) {
 				var model = field, property;
-				var access = deps.acc[deps.dep.indexOf(model)];
 
 				scope = this.getScope(fors, model);
 				getter = this.getEval(fors, model);
 				property = getter.call(scope, scope);
-
-				cache[access || model] = style;
 
 				this.updateStyle(node, style, property);
 
@@ -258,7 +259,7 @@ define([
 
 			// styleJson 依赖监测
 			watcher.watch(deps, function(path, last, old) {
-				this.updateStyle(node, cache[path], last);
+				this.updateStyle(node, getLastValue(path), last);
 			}, this);
 		}
 	}
@@ -270,7 +271,7 @@ define([
 	 * @param   {Object}      deps
 	 */
 	vbind.parseStyleObject = function(node, styles, deps) {
-		var cache = {}, jsonDeps = [], jsonAccess = [];
+		var jsonDeps = [], jsonAccess = [];
 
 		util.each(styles, function(property, style) {
 			var model = deps.dep[0];
@@ -279,7 +280,6 @@ define([
 
 			jsonDeps.push(model);
 			jsonAccess.push(valAccess);
-			cache[valAccess] = style;
 
 			this.updateStyle(node, style, property);
 		}, this);
@@ -289,7 +289,7 @@ define([
 			'dep': jsonDeps,
 			'acc': jsonAccess
 		}, function(path, last, old) {
-			this.updateStyle(node, cache[path], last);
+			this.updateStyle(node, getLastValue(path), last);
 		}, this);
 	}
 

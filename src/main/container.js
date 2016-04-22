@@ -74,7 +74,7 @@ define([
 		_loadTemplate: function() {
 			var c = this.getConfig();
 			var uri = c.template;
-			var param = util.extend(c.tplParam, {
+			var param = util.extend(true, {}, c.tplParam, {
 				'ts': +new Date()
 			});
 			// 防止消息异步或者框架外的异步创建出现问题
@@ -109,7 +109,7 @@ define([
 			if (!util.isObject(parent)) {
 				parent = {};
 			}
-			return util.extend(parent, child);
+			return util.extend(true, {}, parent, child);
 		},
 
 		/**

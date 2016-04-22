@@ -175,7 +175,7 @@ define([
 	}
 
 	/**
-	 * 数组操作更新 vfor 循环体
+	 * 数组操作更新 vfor 循环列表
 	 * @param   {DOMElement}  parent    [父节点]
 	 * @param   {DOMElement}  node      [初始模板片段]
 	 * @param   {Array}       newArray  [新的数据重复列表]
@@ -185,16 +185,16 @@ define([
 	vfor.update = function(parent, node, newArray, method, updates) {
 		switch (method) {
 			case 'push':
-				this.pushArray.apply(this, arguments);
+				this.push.apply(this, arguments);
 				break;
 			case 'pop':
-				this.popArray.apply(this, arguments);
+				this.pop.apply(this, arguments);
 				break;
 			case 'unshift':
-				this.unshiftArray.apply(this, arguments);
+				this.unshift.apply(this, arguments);
 				break;
 			case 'shift':
-				this.shiftArray.apply(this, arguments);
+				this.shift.apply(this, arguments);
 				break;
 			// @todo: splice, sort, reverse 操作和直接赋值暂时都重新编译
 			default: this.recompileArray.apply(this, arguments);
@@ -202,9 +202,36 @@ define([
 	}
 
 	/**
+	 * 获取数组操作对应列表下标变化的关系
+	 * @param   {String}  method  [数组操作]
+	 * @param   {Number}  length  [新数组长度]
+	 * @return  {Object}          [新数组下标的变化映射]
+	 */
+	vfor.getChanges = function(method, length) {
+		var i, udf, map = {};
+
+		switch (method) {
+			case 'unshift':
+				map[0] = udf;
+				for (i = 1; i < length; i++) {
+					map[i] = i - 1;
+				}
+				break;
+			case 'shift':
+				for (i = 0; i < length + 1; i++) {
+					map[i] = i + 1;
+				}
+				map[length] = udf;
+				break;
+		}
+
+		return map;
+	}
+
+	/**
 	 * 在循环体的最后追加一条数据 array.push
 	 */
-	vfor.pushArray = function(parent, node, newArray, method, updates) {
+	vfor.push = function(parent, node, newArray, method, updates) {
 		var fragment = util.createFragment();
 		var cloneNode = node.cloneNode(true);
 		var lastChild, last = newArray.length - 1;
@@ -233,7 +260,7 @@ define([
 		this.vm.complieElement(cloneNode, true, fors);
 		fragment.appendChild(cloneNode);
 
-		lastChild = this.getLastChild(parent, alias);
+		lastChild = this.getLast(parent, alias);
 
 		// empty list
 		if (!lastChild) {
@@ -247,8 +274,8 @@ define([
 	/**
 	 * 移除循环体的最后一条数据 array.pop
 	 */
-	vfor.popArray = function(parent, node, newArray, method, updates) {
-		var lastChild = this.getLastChild(parent, updates.alias);
+	vfor.pop = function(parent, node, newArray, method, updates) {
+		var lastChild = this.getLast(parent, updates.alias);
 		if (lastChild) {
 			parent.removeChild(lastChild)
 		}
@@ -257,17 +284,18 @@ define([
 	/**
 	 * 在循环体最前面追加一条数据 array.unshift
 	 */
-	vfor.unshiftArray = function(parent, node, newArray, method, updates) {
-		var vm = this.vm, firstChild;
+	vfor.unshift = function(parent, node, newArray, method, updates) {
+		var vm = this.vm, firstChild, map;
 		var fragment = util.createFragment();
 		var cloneNode = node.cloneNode(true);
-
-		// 移位相关的订阅回调
-		vm.watcher.shiftSubs(updates.access, method);
 
 		var alias = updates.alias;
 		var level = updates.level;
 		var fors, access = updates.access + '*' + 0;
+
+		// 移位相关的订阅回调
+		map = this.getChanges(method, newArray.length);
+		vm.watcher.moveSubs(updates.access, map);
 
 		updates.scopes[alias] = newArray[0];
 		updates.accesses[level] = access;
@@ -289,21 +317,22 @@ define([
 		vm.complieElement(cloneNode, true, fors);
 		fragment.appendChild(cloneNode);
 
-		firstChild = this.getFirstChild(parent, alias);
+		firstChild = this.getFirst(parent, alias);
 
-		// 当 firstChild 为 null 时会自动添加到父节点
+		// 当 firstChild 为 null 时也会添加到父节点
 		parent.insertBefore(fragment, firstChild);
 	}
 
 	/**
 	 * 移除循环体的第一条数据 array.shift
 	 */
-	vfor.shiftArray = function(parent, node, newArray, method, updates) {
-		var firstChild = this.getFirstChild(parent, updates.alias);
+	vfor.shift = function(parent, node, newArray, method, updates) {
+		var map = this.getChanges(method, newArray.length);
+		var firstChild = this.getFirst(parent, updates.alias);
 		if (firstChild) {
 			parent.removeChild(firstChild);
 			// 移位相关的订阅回调
-			this.vm.watcher.shiftSubs(updates.access, method);
+			this.vm.watcher.moveSubs(updates.access, map);
 		}
 
 	}
@@ -314,7 +343,7 @@ define([
 	 * @param   {String}      alias   [循环体对象别名]
 	 * @return  {FirstChild}
 	 */
-	vfor.getFirstChild = function(parent, alias) {
+	vfor.getFirst = function(parent, alias) {
 		var i, firstChild = null, child;
 		var childNodes = parent.childNodes;
 
@@ -335,7 +364,7 @@ define([
 	 * @param   {String}      alias    [循环体对象别名]
 	 * @return  {LastChild}
 	 */
-	vfor.getLastChild = function(parent, alias) {
+	vfor.getLast = function(parent, alias) {
 		var i, lastChild = null, child;
 		var childNodes = parent.childNodes;
 
@@ -360,7 +389,7 @@ define([
 		var listArgs = [node, newArray, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
 
 		// 移除旧的监测
-		this.vm.watcher.removeSubs(up.access);
+		// this.vm.watcher.removeSubs(up.access);
 
 		// 重新构建循环板块
 		template = this.buildList.apply(this, listArgs);

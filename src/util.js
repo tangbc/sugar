@@ -9,14 +9,14 @@ define(function() {
 	var hasOwn = OP.hasOwnProperty;
 
 	/**
-	 * 是否是对象自变量, {} 或 new Object() 的形式
+	 * 是否是对象自面量, {} 或 new Object()
 	 */
 	function isObject(obj) {
 		return OP.toString.call(obj) === '[object Object]';
 	}
 
 	/**
-	 * 是否是真数组, [] 或 new Array() 的形式
+	 * 是否是真数组, [] 或 new Array()
 	 */
 	function isArray(obj) {
 		return OP.toString.call(obj) === '[object Array]';
@@ -33,21 +33,21 @@ define(function() {
 	 * 是否是字符串
 	 */
 	function isString(str) {
-		return typeof(str) === 'string';
+		return typeof str === 'string';
 	}
 
 	/**
 	 * 是否是布尔值
 	 */
-	function isBoolean(bool) {
-		return typeof(bool) === 'boolean';
+	function isBool(bool) {
+		return typeof bool === 'boolean';
 	}
 
 	/**
 	 * 是否是数字
 	 */
 	function isNumber(num) {
-		return typeof(num) === 'number' && !isNaN(num);
+		return typeof num === 'number' && !isNaN(num);
 	}
 
 	/**
@@ -78,19 +78,11 @@ define(function() {
 		this.isNumber = isNumber;
 		this.isObject = isObject;
 		this.isString = isString;
-		this.isBoolean = isBoolean;
+		this.isBool = isBool;
 	}
 
 	var up = Util.prototype;
 	var cons = WIN.console;
-
-
-	/**
-	 * 打印日志
-	 */
-	up.log = function() {
-		cons.log.apply(cons, arguments);
-	}
 
 	/**
 	 * 打印错误
@@ -194,12 +186,12 @@ define(function() {
 	/**
 	 * 扩展合并对象，摘自 jQuery
 	 */
-	up.extendObject = function() {
+	up.extend = function() {
 		var options, name, src, copy, copyIsArray, clone;
 		var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
 		// Handle a deep copy situation
-		if (isBoolean(target)) {
+		if (isBool(target)) {
 			deep = target;
 			target = arguments[i] || {};
 			i++;
@@ -241,7 +233,7 @@ define(function() {
 						}
 
 						// Never move original objects, clone them
-						target[name] = this.extendObject(deep, clone, copy);
+						target[name] = this.extend(deep, clone, copy);
 					}
 					// Don't bring in undefined values
 					else if (copy !== undefined) {
@@ -256,16 +248,6 @@ define(function() {
 	}
 
 	/**
-	 * 合并对象，只返回合并后的对象副本
-	 * @return  {Object}
-	 */
-	up.extend = function() {
-		var args = AP.slice.call(arguments);
-		args.unshift({});
-		return this.extendObject.apply(this, args);
-	}
-
-	/**
 	 * 复制对象或数组
 	 * @param   {Object|Array}  target
 	 * @return  {Mix}
@@ -277,7 +259,7 @@ define(function() {
 			ret = target.slice(0);
 		}
 		else if (isObject(target)) {
-			ret = this.extendObject(true, {}, target);
+			ret = this.extend(true, {}, target);
 		}
 		else {
 			ret = target;

@@ -304,11 +304,11 @@ define([
 	 * @param   {Array|Boolean}  values      [激活数组或状态]
 	 */
 	up.updateCheckboxChecked = function(checkbox, values) {
-		if (!util.isArray(values) && !util.isBoolean(values)) {
+		if (!util.isArray(values) && !util.isBool(values)) {
 			util.warn('checkbox v-model value must be a type of Boolean or Array!');
 			return;
 		}
-		checkbox.checked = util.isBoolean(values) ? values : (values.indexOf(checkbox.value) !== -1);
+		checkbox.checked = util.isBool(values) ? values : (values.indexOf(checkbox.value) !== -1);
 	}
 
 	/**
