@@ -1,6 +1,6 @@
 {
   "name": "sugar",
-  "version": "2.0.2",
+  "version": "1.0.2",
   "description": "A javascript framework for building modular and component frontend projects.",
   "keywords": [
     "mvvm",
