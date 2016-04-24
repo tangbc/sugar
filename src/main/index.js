@@ -4,8 +4,8 @@ define([
 	'./core',
 	'../util',
 	'./module',
-	'./container'
-], function(sync, ajax, core, util, Module, Container) {
+	'./component'
+], function(sync, ajax, core, util, Module, Component) {
 
 	function Sugar() {
 		/**
@@ -39,10 +39,10 @@ define([
 		this.Module = Module;
 
 		/**
-		 * 视图基础模块类
+		 * 视图组件基础模块
 		 * @type  {Class}
 		 */
-		this.Container = Container;
+		this.Component = Component;
 	}
 
 	return new Sugar();

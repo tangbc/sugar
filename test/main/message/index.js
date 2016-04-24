@@ -1,6 +1,6 @@
 require(['../../../src/main/index'], function(sugar) {
 
-	var Subpage = sugar.Container.extend({
+	var Subpage = sugar.Component.extend({
 		init: function(config) {
 			config = this.cover(config, {
 				'class': 'sub-page',
@@ -21,7 +21,7 @@ require(['../../../src/main/index'], function(sugar) {
 
 
 
-	var MainPage = sugar.Container.extend({
+	var MainPage = sugar.Component.extend({
 		init: function(config) {
 			config = this.cover(config, {
 				'template': 'layout.html'

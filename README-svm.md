@@ -14,22 +14,22 @@ svm.js 的源代码都放在 `src/svm/` 目录下：
 
 ### 指令列表：
 
-* [v-el](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-el)
-* [v-text](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-text)
-* [v-html](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-html)
-* [v-show](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-show)
-* [v-if](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-if)
-* [v-else](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-else)
-* [v-model](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-model)
-	* [v-model for text & textarea](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-model-for-text--textarea)
-	* [v-model for radio](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-model-for-radio)
-	* [v-model for checkbox](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-model-for-checkbox)
-	* [v-model for select](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-model-for-select)
-* [v-bind](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-bind)
-	* [v-bind:class](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-bindclass)
-	* [v-bind:style](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-bindstyle)
-* [v-on](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-on)
-* [v-for](https://github.com/tangbc/sugar/blob/master/README-mvvm.md#v-for)
+* [v-el](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-el)
+* [v-text](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-text)
+* [v-html](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-html)
+* [v-show](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-show)
+* [v-if](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-if)
+* [v-else](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-else)
+* [v-model](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-model)
+	* [v-model for text & textarea](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-model-for-text--textarea)
+	* [v-model for radio](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-model-for-radio)
+	* [v-model for checkbox](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-model-for-checkbox)
+	* [v-model for select](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-model-for-select)
+* [v-bind](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-bind)
+	* [v-bind:class](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-bindclass)
+	* [v-bind:style](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-bindstyle)
+* [v-on](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-on)
+* [v-for](https://github.com/tangbc/sugar/blob/master/README-svm.md#v-for)
 
 
 ## 1. 定义一个 svm 实例

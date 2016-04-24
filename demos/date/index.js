@@ -26,7 +26,7 @@ require(['../../dist/sugar.min'], function(Sugar) {
 	/**
 	 * 简单的日期选择模块
 	 */
-	var DatePicker = Sugar.Container.extend({
+	var DatePicker = Sugar.Component.extend({
 		init: function(config) {
 			// 记录当前时间
 			var now = new Date();

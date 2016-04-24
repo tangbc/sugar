@@ -67,7 +67,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		__webpack_require__(2),
 		__webpack_require__(6),
 		__webpack_require__(9)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(sync, ajax, core, util, Module, Container) {
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(sync, ajax, core, util, Module, Component) {
 
 		function Sugar() {
 			/**
@@ -101,10 +101,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.Module = Module;
 
 			/**
-			 * 视图基础模块类
+			 * 视图组件基础模块
 			 * @type  {Class}
 			 */
-			this.Container = Container;
+			this.Component = Component;
 		}
 
 		return new Sugar();
@@ -1547,9 +1547,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, ajax, sync, util, Module, SVM) {
 
 		/**
-		 * Container 视图基础模块
+		 * Component 视图组件基础模块
 		 */
-		var Container = Module.extend({
+		var Component = Module.extend({
 			/**
 			 * init 模块初始化方法
 			 * @param  {Object}  config  [模块参数配置]
@@ -1825,7 +1825,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		});
 
-		return Container;
+		return Component;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },

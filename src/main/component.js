@@ -11,9 +11,9 @@ define([
 ], function(dom, ajax, sync, util, Module, SVM) {
 
 	/**
-	 * Container 视图基础模块
+	 * Component 视图组件基础模块
 	 */
-	var Container = Module.extend({
+	var Component = Module.extend({
 		/**
 		 * init 模块初始化方法
 		 * @param  {Object}  config  [模块参数配置]
@@ -289,5 +289,5 @@ define([
 		}
 	});
 
-	return Container;
+	return Component;
 });

@@ -1,6 +1,6 @@
 
 # 介绍
-* sugar 是一个创建可继承、可复用和可拓展前端模块 & 组件的轻量级 JavaScript 框架
+* sugar 是一个创建可继承、可复用和可拓展前端组件 & 模块的轻量级 javascript 框架
 
 * 特点：简单优雅的模块化开发方式；视图模块自带模板功能(支持异步请求)和 mvvm 模式
 
@@ -21,7 +21,7 @@
 
 * `src/` 源代码文件目录：
 
-	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
+	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用和创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
 	* **`src/svm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [svm.md](https://github.com/tangbc/sugar/blob/master/README-svm.md)
 
@@ -32,12 +32,12 @@
 var sugar = require('dist/sugar.min');
 
 /*
- * 定义 Page 模块，从 sugar.Container (约定了视图模块基础功能和 API) 继承
+ * 定义 Page 组件，从 sugar.Component (约定了视图组件基础功能和 API) 继承.
  * Page 相当于获得了一个独立的视图，展现形式、数据和逻辑行为都可灵活自定义
  */
-var Page = sugar.Container.extend({
+var Page = sugar.Component.extend({
 	init: function(config) {
-		// 在 config 里定义模块的初始状态和数据：
+		// 在 config 里定义组件的初始状态和数据：
 		config = this.cover(config, {
 			'html'    : '<h1 v-text="title"></h1>',
 			// 也可指定视图的模板，sugar 会用 ajax 请求模板地址
@@ -46,7 +46,7 @@ var Page = sugar.Container.extend({
 				'title': 'hello sugar~'
 			}
 		});
-		// 调用父类 (sugar.Container) 的 init 方法并传入配置进行视图的渲染
+		// 调用父类 (sugar.Component) 的 init 方法并传入配置进行视图的渲染
 		this.Super('init', arguments);
 	},
 	// 当视图渲染完毕之后会立即调用自身的 viewReady 方法，可在这里开始业务逻辑
@@ -56,12 +56,15 @@ var Page = sugar.Container.extend({
 });
 
 /*
- * 再将定义好的 Page 模块生成实例 mod 并添加到页面
- * mod 是 Page 的一个实例(拥有 Page 的所有属性和方法)
- * 一个 Page 模块可生成 N 个实例，可以近似地认为: mod = new Page();
+ * 再将定义好的 Page 组件生成实例 comp 并添加到页面
+ * comp 是 Page 的一个实例，定义一个 Page 组件可生成 N 个实例，可以近似地认为: comp = new Page();
  */
-var mod = sugar.core.create('pageName', Page, {
-	'target': document.querySelector('body')
+var comp1 = sugar.core.create('component1', Page, {
+	'target': document.querySelector('#demo1')
+});
+
+var comp2 = sugar.core.create('component2', Page, {
+	'target': document.querySelector('#demo2')
 });
 ```
 
@@ -84,7 +87,7 @@ var mod = sugar.core.create('pageName', Page, {
 
 # 主要更新日志
 * `v1.0`
-	* `sugar` 基础的模块/组件系统和创建方式
+	* `sugar` 基础的组件系统和模块化创建方式
 	* `svm` 支持基础数据模型指令（静态表达式）
-* `v2.0`
+* `v1.0.2`
 	* `svm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`

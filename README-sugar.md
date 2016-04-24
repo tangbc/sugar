@@ -1,13 +1,13 @@
 # sugar.js
 
-## 1. 模块化机制
+## 1. 组件模块化机制
 根函数模块 `src/main/root.js` 实现 sugar 底层模块的继承方法 `extend`，每个模块都是从 `Root` 为根源继承而来， `extend` 是一个通过原型实现的类式继承（单继承），对传入的每个子类方法会挂载一个 `Super` 来实现对父类的调用。
 
 
 系统基础模块 `Module` 的定义在 `src/main/module.js` 中，`Module` 继承于 `Root`，定义了 sugar 的模块系统和基本形态，实现系统模块的管理、创建和消息通信等基础功能。
 
 
-视图基础模块 `Container` (`src/main/container.js`) 继承于 `Module` ，在 `Module` 的基础上扩展成一个视图容器类（构造函数），实现容器的生成、模板的拉取、视图的渲染。以 `Container` 为基础可以继承出各种自定义形态的视图模块。
+视图组件基础模块 `Component` (`src/main/component.js`) 继承于 `Module` ，在 `Module` 的基础上扩展成一个视图容器类（构造函数），实现容器的生成、模板的拉取、视图的渲染。以 `Component` 为基础可以继承出自定义形态的视图组件。
 
 
 sugar 的模块继承关系：
@@ -15,13 +15,13 @@ sugar 的模块继承关系：
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-extend">
 
 
-## 2. 视图模块定义
-sugar 的视图模块都是从 `Container` 继承而来，通过 `init` 方法来定义视图的初始数据和状态：
+## 2. 视图组件定义
+sugar 的视图组件都是从 `Component` 继承而来，通过 `init` 方法来定义视图的初始数据和状态：
 
 ```javascript
 var sugar = reuqire('dist/sugar.min');
 
-var Page = sugar.Container.extend({
+var Page = sugar.Component.extend({
 	// 配置字段可以缺省也可以自定义
 	// `init` 传入的参数 config 是生成(创建) Page 实例时的配置
 	// 生成实例时如有定义 config 将会覆盖掉原有配置，从而实现功能相似模块的复用
@@ -48,21 +48,21 @@ var Page = sugar.Container.extend({
 			// 视图渲染完成后的回调函数
 			'cbRender': 'viewReady'
 		});
-		// 调用父类 (sugar.Container) 的 init 方法来完成视图的渲染
+		// 调用父类 (sugar.Component) 的 init 方法来完成视图的渲染
 		this.Super('init', arguments);
 	}
 });
 ```
 
 
-## 3. 视图模块创建
-将视图模块创建到 DOM 的方式有两种：
+## 3. 视图组件创建
+将视图组件创建到 DOM 的方式有两种：
 
 1. 通过核心实例 `sugar.core` 创建顶层模块：
 	```javascript
 	var sugar = reuqire('dist/sugar.min');
 
-	var Page = sugar.Container.extend({
+	var Page = sugar.Component.extend({
 		init: function() {
 			// ...
 		}
@@ -73,24 +73,24 @@ var Page = sugar.Container.extend({
 	});
 	```
 
-2. 在视图模块内部创建子视图模块：
+2. 在视图组件内部创建子视图组件：
 
 
 	调用自身 `create` 方法创建：
 	```javascript
 	var sugar = reuqire('dist/sugar.min');
 
-	var SubPage = sugar.Container.extend({
+	var SubPage = sugar.Component.extend({
 		init: function() {
 			// ...
 		}
 	});
 
-	var Page = sugar.Container.extend({
+	var Page = sugar.Component.extend({
 		init: function() {
 			// ...
 		},
-		// 每个视图模块渲染完成之后默认调用 viewReady 方法
+		// 每个视图组件渲染完成之后默认调用 viewReady 方法
 		viewReady: function() {
 			// 创建 SubPage 到当前视图容器
 			this.create('subpage', SubPage, {
@@ -116,7 +116,7 @@ var Page = sugar.Container.extend({
 	* 参数说明：
 		```
 		{String}   name   <必选> [子模块名称]
-		{Function} Class  <必选> [用于创建子模块实例的类（生成函数），通常是继承于 sugar.Container 的类]
+		{Function} Class  <必选> [用于创建子模块实例的类（生成函数），通常是继承于 sugar.Component 的类]
 		{Object}   config <可选> [子模块的配置参数]
 		```
 
@@ -124,10 +124,10 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// sugar.Container 为视图基础模块的类，继承于 sugar.Module ，用于定义视图模块
+		// sugar.Component 为视图组件基础模块的类，继承于 sugar.Module ，用于定义视图组件
 
-		var Page = sugar.Container.extend({
-			// 定义视图模块
+		var Page = sugar.Component.extend({
+			// 定义视图组件
 		});
 		// 或者采用引入方式：var Page = require('/path/to/page');
 
@@ -145,16 +145,16 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// 定义 header 视图模块
-		var Header = sugar.Container.extend({
-			// viewReady 为每个视图模块创建完毕后默认调用的方法
+		// 定义 header 视图组件
+		var Header = sugar.Component.extend({
+			// viewReady 为每个视图组件创建完毕后默认调用的方法
 			viewReady: function() {
 				var parent = this.getParent(); // => Page实例
 			}
 		});
 
-		// 定义页面视图模块
-		var Page = sugar.Container.extend({
+		// 定义页面视图组件
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				// 创建头部模块
 				this.create('header', Header, {
@@ -183,11 +183,11 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// 定义 header 视图模块
-		var Header = sugar.Container.extend({/* 定义视图模块…… */});
+		// 定义 header 视图组件
+		var Header = sugar.Component.extend({/* 定义视图组件…… */});
 
-		// 定义页面视图模块
-		var Page = sugar.Container.extend({
+		// 定义页面视图组件
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				// 创建头部模块
 				this.create('header', Header, {
@@ -211,17 +211,17 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// 定义 header 视图模块
-		var Header = sugar.Container.extend({/* …… */});
+		// 定义 header 视图组件
+		var Header = sugar.Component.extend({/* …… */});
 
-		// 定义 footer 视图模块
-		var Footer = sugar.Container.extend({/* …… */});
+		// 定义 footer 视图组件
+		var Footer = sugar.Component.extend({/* …… */});
 
-		// 定义 sidebar 视图模块
-		var Sidebar = sugar.Container.extend({/* …… */});
+		// 定义 sidebar 视图组件
+		var Sidebar = sugar.Component.extend({/* …… */});
 
 		// 定义页面模块类
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				// 创建三个子模块
 				this.create('header', Header);
@@ -256,7 +256,7 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				this.$name = 'SUGAR';
 
@@ -286,8 +286,8 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// 定义导航视图模块
-		var Nav = sugar.Container.extend({
+		// 定义导航视图组件
+		var Nav = sugar.Component.extend({
 			viewReady: function() {
 				// 向父模块发送消息，将会冒泡到每一层父模块
 				this.fire('navCreated', 123);
@@ -299,8 +299,8 @@ var Page = sugar.Container.extend({
 			}
 		});
 
-		// 定义 Header 视图模块
-		var Header = sugar.Container.extend({
+		// 定义 Header 视图组件
+		var Header = sugar.Component.extend({
 			viewReady: function() {
 				// 创建导航
 				this.create('nav', Nav);
@@ -313,7 +313,7 @@ var Page = sugar.Container.extend({
 		});
 
 		// 定义 Page 模块
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				// 创建头部模块
 				this.create('header', Header);
@@ -342,16 +342,16 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		// 定义导航视图模块
-		var Nav = sugar.Container.extend({
+		// 定义导航视图组件
+		var Nav = sugar.Component.extend({
 			// Nav 是 Header 的子模块，能接收到 pageReady 消息
 			onPageReady: function(ev) {
 				// ev.param => 456
 			}
 		});
 
-		// 定义 LOGO 视图模块
-		var LOGO = sugar.Container.extend({
+		// 定义 LOGO 视图组件
+		var LOGO = sugar.Component.extend({
 			// LOGO 是 Header 的子模块，能接收到 pageReady 消息
 			onPageReady: function(ev) {
 				// ev.param => 456
@@ -359,7 +359,7 @@ var Page = sugar.Container.extend({
 		});
 
 		// 定义 Header 子模块
-		var Header = sugar.Container.extend({
+		var Header = sugar.Component.extend({
 			viewReady: function() {
 				// 创建导航
 				this.create('nav', Nav);
@@ -374,7 +374,7 @@ var Page = sugar.Container.extend({
 		});
 
 		// 定义 Page 模块
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				// 创建头部模块
 				this.create('header', Header);
@@ -409,13 +409,13 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		var PageA = sugar.Container.extend({
+		var PageA = sugar.Component.extend({
 			viewReady: function() {
 				this.notify('page_b', 'helloFromA', 'Are you ok?');
 			}
 		});
 
-		var PageB = sugar.Container.extend({
+		var PageB = sugar.Component.extend({
 			onHelloFromA: function(ev) {
 				// ev.param => 'Are you ok?'
 			}
@@ -438,7 +438,7 @@ var Page = sugar.Container.extend({
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({/* …… */});
+		var Page = sugar.Component.extend({/* …… */});
 
 		var page = sugar.core.create('page', Page);
 
@@ -479,25 +479,25 @@ core 是由 sugar 中的核心实例（继承于 Module 类），所以拥有以
 		```
 
 
-## 3、Container 视图模块实例方法
-Container 类继承于 Module类，所以 Container 的实例也有基础模块实例的所有方法，另外为了完善视图操作，自身拓展了一些方法和属性
+## 3、Component 视图组件实例方法
+Component 类继承于 Module 类，所以 Component 的实例也有基础模块实例的所有方法。为了完善视图操作，自身拓展了一些方法和属性
 
-* ##### _视图模块状态/参数初始化：_ `init(config, parent)`
+* ##### _视图组件状态/参数初始化：_ `init(config, parent)`
 
 	* 参数说明：
 		```
-		{Object} config [视图模块生成实例的配置参数，可以覆盖和拓展 Container 类的参数]
+		{Object} config [视图组件生成实例的配置参数，可以覆盖和拓展 Component 类的参数]
 		{Object} parent [父模块实例，没特殊需求基本上用不到]
 		```
 
 	* 返回值：无
 
-	* 特殊说明：init 方法的作用是定义整个视图模块的初始状态、配置参数、MVVM 视图层初始化的，不建议在 init 方法里面含有任何业务逻辑的代码（虽然可以有）。视图模块在被创建成实例之后会默认调用 init 方法（详见 Module 的 create 方法实现）， init 方法会根据配置参数进行视图布局的渲染，在渲染完成后会调用 cbRender 参数指定的方法（默认为 viewReady ），业务逻辑比如事件绑定、数据加载等建议在 viewReady 中处理
+	* 特殊说明：init 方法的作用是定义整个视图组件的初始状态、配置参数、MVVM 视图层初始化的，不建议在 init 方法里面含有任何业务逻辑的代码（虽然可以有）。视图组件在被创建成实例之后会默认调用 init 方法（详见 Module 的 create 方法实现）， init 方法会根据配置参数进行视图布局的渲染，在渲染完成后会调用 cbRender 参数指定的方法（默认为 viewReady ），业务逻辑比如事件绑定、数据加载等建议在 viewReady 中处理
 
 	* 用法示例：
 		```javascript
-		// 这里的 Page 只是定义一个 Page 类（生成函数），这个 Page 类是继承于 Container 类的
-		var Page = sugar.Container.extend({
+		// 这里的 Page 只是定义一个 Page 类（生成函数），这个 Page 类是继承于 Component 类的
+		var Page = sugar.Component.extend({
 			init: function(config) {
 				// sugar.cover(子, 父)：子模块覆盖父模块参数
 				config = sugar.cover(config, {
@@ -508,7 +508,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 					'cbRender': 'afterRender'
 				});
 
-				// Super 方法为调用父类方法，这里就是调用 sugar.Container.init(config)
+				// Super 方法为调用父类方法，这里就是调用 sugar.Component.init(config)
 				this.Super('init', [config]);
 			},
 			afterRender: function() {
@@ -552,7 +552,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			init: function(config) {
 				config = sugar.cover({
 					'target': document.querySelector('body')
@@ -585,7 +585,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			init: function(config) {
 				config = sugar.cover({
 					'target': document.querySelector('body')
@@ -607,7 +607,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 
 
 ---
-* ##### _获取/查找视图模块的DOM元素：_ `query(selector)`
+* ##### _获取/查找视图组件的DOM元素：_ `query(selector)`
 
 	* 参数说明：
 		```
@@ -618,7 +618,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			init: function(config) {
 				config = sugar.cover(config, {
 					'target': document.querySelector('body')
@@ -636,7 +636,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 		```
 
 ---
-* ##### _获取/查找视图模块的DOM元素：_ `queryAll(selectors)`
+* ##### _获取/查找视图组件的DOM元素：_ `queryAll(selectors)`
 
 	* 参数说明：
 		```
@@ -675,7 +675,7 @@ Container 类继承于 Module类，所以 Container 的实例也有基础模块�
 
 	* 用法示例：
 		```javascript
-		var Page = sugar.Container.extend({
+		var Page = sugar.Component.extend({
 			viewReady: function() {
 				var param = {'page': 1, 'limit': 10};
 				sugar.ajax.get('/article/list.php', param, this.dataBack);

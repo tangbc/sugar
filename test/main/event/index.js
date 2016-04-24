@@ -1,6 +1,6 @@
 require(['../../../src/main/index'], function(sugar) {
 
-	var MainPage = sugar.Container.extend({
+	var MainPage = sugar.Component.extend({
 		init: function(config) {
 			config = this.cover(config, {
 				'template': 'tpl.html'
