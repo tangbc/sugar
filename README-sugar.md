@@ -12,7 +12,7 @@
 
 sugar 的模块继承关系：
 
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-extend">
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-extend-cp">
 
 
 ## 2. 视图组件定义
