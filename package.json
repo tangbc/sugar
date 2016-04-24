@@ -16,11 +16,11 @@
   },
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
-    "pack-vm": "webpack --config build/vm.config.js",
-    "pack-vm-uglify": "webpack --config build/vm.uglify.config.js",
-    "pack-sugar": "webpack --config build/sugar.config.js",
-    "pack-sugar-uglify": "webpack --config build/sugar.uglify.config.js",
-    "pack-all": "npm run pack-sugar & npm run pack-sugar-uglify & npm run pack-vm & npm run pack-vm-uglify"
+    "pack-svm": "webpack --config build/webpack.svm.config.js",
+    "pack-svm-uglify": "webpack --config build/webpack.svm.min.config.js",
+    "pack-sugar": "webpack --config build/webpack.sugar.config.js",
+    "pack-sugar-uglify": "webpack --config build/webpack.sugar.min.config.js",
+    "pack-all": "npm run pack-sugar & npm run pack-sugar-uglify & npm run pack-svm & npm run pack-svm-uglify"
   },
   "author": "TANG",
   "license": "MIT",

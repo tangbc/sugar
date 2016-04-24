@@ -14,11 +14,9 @@ module.exports = {
 		repository,
 		released
 	].join('\n'),
-	'vm': [
-		'mvvm.js',
-		'mvvm library for sugar',
+	'svm': [
+		'svm.js v' + version,
 		author,
-		'this library can be used independently (without sugar)',
 		repository,
 		released
 	].join('\n')

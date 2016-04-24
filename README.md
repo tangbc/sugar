@@ -4,7 +4,7 @@
 
 * 特点：简单优雅的模块化开发方式；视图模块自带模板功能(支持异步请求)和 mvvm 模式
 
-* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`mvvm`** (实现数据与视图同步)
+* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`svm`** (一个简单的 mvvm 库)
 
 # 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-new" width="666">
@@ -17,13 +17,13 @@
 
 * `build/` 打包配置文件目录，打包工具为 webpack
 
-* `dist/` 存放打包好的 sugar.js 和 mvvm.js 以及各自的压缩版本
+* `dist/` 存放打包好的 sugar.js 和 svm.js 以及各自的压缩版本
 
 * `src/` 源代码文件目录：
 
 	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 container.js (视图容器基础模块)，模块之间可以相互创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
-	* **`src/mvvm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
+	* **`src/svm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [svm.md](https://github.com/tangbc/sugar/blob/master/README-svm.md)
 
 
 # 举个栗子
@@ -75,9 +75,9 @@ var mod = sugar.core.create('pageName', Page, {
 
 
 # 引用 & 环境
-* 引用方式：`cmd` `amd` 以及 `script` 标签
+* 引用方式：`sugar.js` 和 `svm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
 	* `sugar (约 41 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (约 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `svm (约 31 kb)` http://tangbc.github.io/sugar/dist/svm.min.js
 
 * 浏览器支持：不支持低版本 IE (用了 `Object.defineProperty` 和 `Function.bind` 等)
 
@@ -85,6 +85,6 @@ var mod = sugar.core.create('pageName', Page, {
 # 主要更新日志
 * `v1.0`
 	* `sugar` 基础的模块/组件系统和创建方式
-	* `mvvm` 支持基础数据模型指令（静态表达式）
+	* `svm` 支持基础数据模型指令（静态表达式）
 * `v2.0`
-	* `mvvm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
+	* `svm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`

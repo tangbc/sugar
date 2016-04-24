@@ -7,8 +7,8 @@ define([
 	'./sync',
 	'../util',
 	'./module',
-	'../mvvm/index'
-], function(dom, ajax, sync, util, Module, MVVM) {
+	'../svm/index'
+], function(dom, ajax, sync, util, Module, SVM) {
 
 	/**
 	 * Container 视图基础模块
@@ -40,9 +40,7 @@ define([
 				// mvvm 数据模型对象
 				'model'   : null,
 				// 视图渲染完成后的回调函数
-				'cbRender': 'viewReady',
-				// 移除节点子模块标记
-				'tidyNode': true
+				'cbRender': 'viewReady'
 			});
 
 			// 通用 dom 处理方法
@@ -224,7 +222,7 @@ define([
 			// 初始化 mvvm 对象
 			var model = c.model;
 			if (util.isObject(model)) {
-				this.vm = new MVVM(el, model, this);
+				this.vm = new SVM(el, model, this);
 			}
 
 			// 追加到目标容器
