@@ -3,14 +3,14 @@
  */
 
 var webpack = require('webpack');
-var banner = require('./banner').svm;
+var banner = require('./banner').mvvm;
 
 module.exports = {
-	'entry' : './src/svm/index',
+	'entry' : './src/mvvm/index',
 	'output': {
 		'path'         : './dist',
-		'library'      : 'SVM',
-		'filename'     : 'svm.js',
+		'library'      : 'MVVM',
+		'filename'     : 'mvvm.js',
 		'libraryTarget': 'umd'
 	},
 	'plugins': [

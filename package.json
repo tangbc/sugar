@@ -1,12 +1,13 @@
 {
   "name": "sugar",
-  "version": "1.0.2",
-  "description": "A javascript framework for building modular and component frontend projects.",
+  "version": "1.0.4",
+  "description": "A lightweight JavaScript framework (mvvm & template) for building modular Front-end UI components.",
   "keywords": [
+    "framework",
     "mvvm",
+    "template",
     "modular",
     "frontend",
-    "framework",
     "component"
   ],
   "main": "dist/sugar.js",
@@ -16,11 +17,11 @@
   },
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
-    "pack-svm": "webpack --config build/webpack.svm.config.js",
-    "pack-svm-uglify": "webpack --config build/webpack.svm.min.config.js",
+    "pack-mvvm": "webpack --config build/webpack.mvvm.config.js",
+    "pack-mvvm-uglify": "webpack --config build/webpack.mvvm.min.config.js",
     "pack-sugar": "webpack --config build/webpack.sugar.config.js",
     "pack-sugar-uglify": "webpack --config build/webpack.sugar.min.config.js",
-    "pack-all": "npm run pack-sugar & npm run pack-sugar-uglify & npm run pack-svm & npm run pack-svm-uglify"
+    "pack-all": "npm run pack-sugar & npm run pack-sugar-uglify & npm run pack-mvvm & npm run pack-mvvm-uglify"
   },
   "author": "TANG",
   "license": "MIT",

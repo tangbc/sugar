@@ -14,8 +14,8 @@ module.exports = {
 		repository,
 		released
 	].join('\n'),
-	'svm': [
-		'svm.js v' + version,
+	'mvvm': [
+		'mvvm.js v' + version,
 		author,
 		repository,
 		released
