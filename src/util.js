@@ -63,6 +63,21 @@ define(function() {
 		return true;
 	}
 
+	/**
+	 * 是否是空对象
+	 * @param   {Object}   target
+	 * @return  {Boolean}
+	 */
+	function isEmpty(target) {
+		for (var i in target) {
+			if (hasOwn.call(target, i)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 
 	/**
 	 * Util 构造函数
@@ -73,12 +88,13 @@ define(function() {
 		this.WIN = WIN;
 		this.DOC = DOC;
 
+		this.isBool = isBool;
 		this.isFunc = isFunc;
 		this.isArray = isArray;
+		this.isEmpty = isEmpty;
 		this.isNumber = isNumber;
 		this.isObject = isObject;
 		this.isString = isString;
-		this.isBool = isBool;
 	}
 
 	var up = Util.prototype;

@@ -2,9 +2,9 @@
 # 介绍
 * sugar 是一个创建可继承、可复用和可拓展前端组件 & 模块的轻量级 javascript 框架
 
-* 特点：简单优雅的模块化开发方式；视图模块自带模板功能(支持异步请求)和 mvvm 模式
+* 特点：简单优雅的模块化开发方式；视图组件自带模板功能(支持异步请求)和 mvvm 模式
 
-* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`svm`** (一个简单的 mvvm 库)
+* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`mvvm`** (实现数据绑定 + 视图刷新)
 
 # 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-new" width="666">
@@ -17,13 +17,13 @@
 
 * `build/` 打包配置文件目录，打包工具为 webpack
 
-* `dist/` 存放打包好的 sugar.js 和 svm.js 以及各自的压缩版本
+* `dist/` 存放打包好的 sugar.js 和 mvvm.js 以及各自的压缩版本
 
 * `src/` 源代码文件目录：
 
-	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用和创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
+	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
 
-	* **`src/svm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [svm.md](https://github.com/tangbc/sugar/blob/master/README-svm.md)
+	* **`src/mvvm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
 
 
 # 举个栗子
@@ -39,10 +39,10 @@ var Page = sugar.Component.extend({
 	init: function(config) {
 		// 在 config 里定义组件的初始状态和数据：
 		config = this.cover(config, {
-			'html'    : '<h1 v-text="title"></h1>',
+			'html' : '<h1 v-text="title"></h1>',
 			// 也可指定视图的模板，sugar 会用 ajax 请求模板地址
 			// 'template': 'tpl/page.html',
-			'model'   : {
+			'model': {
 				'title': 'hello sugar~'
 			}
 		});
@@ -56,8 +56,8 @@ var Page = sugar.Component.extend({
 });
 
 /*
- * 再将定义好的 Page 组件生成实例 comp 并添加到页面
- * comp 是 Page 的一个实例，定义一个 Page 组件可生成 N 个实例，可以近似地认为: comp = new Page();
+ * 再将定义好的 Page 组件生成实例并添加到页面
+ * comp1, comp2 都是 Page 的实例，定义一个 Page 组件可生成多个实例，可以近似地认为: comp = new Page();
  */
 var comp1 = sugar.core.create('component1', Page, {
 	'target': document.querySelector('#demo1')
@@ -78,9 +78,9 @@ var comp2 = sugar.core.create('component2', Page, {
 
 
 # 引用 & 环境
-* 引用方式：`sugar.js` 和 `svm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
+* 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
 	* `sugar (约 41 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `svm (约 31 kb)` http://tangbc.github.io/sugar/dist/svm.min.js
+	* `mvvm (约 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * 浏览器支持：不支持低版本 IE (用了 `Object.defineProperty` 和 `Function.bind` 等)
 
@@ -88,6 +88,8 @@ var comp2 = sugar.core.create('component2', Page, {
 # 主要更新日志
 * `v1.0`
 	* `sugar` 基础的组件系统和模块化创建方式
-	* `svm` 支持基础数据模型指令（静态表达式）
+	* `mvvm` 支持基础数据模型指令（静态表达式）
 * `v1.0.2`
-	* `svm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
+	* `mvvm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
+* `v1.0.4`
+	* `mvvm` 完善 v-for 指令的 `splice` 操作，实现删除或新增数组选项的同时尽量少的 dom 视图更新成本

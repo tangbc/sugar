@@ -7,7 +7,7 @@ define([
 	'./sync',
 	'../util',
 	'./module',
-	'../svm/index'
+	'../mvvm/index'
 ], function(dom, ajax, sync, util, Module, SVM) {
 
 	/**

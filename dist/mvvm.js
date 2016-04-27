@@ -1,5 +1,5 @@
 /*!
- * sugar.js v1.0.4
+ * mvvm.js v1.0.4
  * (c) 2016 TANG
  * https://github.com/tangbc/sugar
  * released under the MIT license.
@@ -10,9 +10,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["Sugar"] = factory();
+		exports["MVVM"] = factory();
 	else
-		root["Sugar"] = factory();
+		root["MVVM"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -60,143 +60,114 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+	 * 简单的数据绑定视图层库
+	 */
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(1),
-		__webpack_require__(3),
-		__webpack_require__(4),
-		__webpack_require__(2),
-		__webpack_require__(6),
-		__webpack_require__(9)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(sync, ajax, core, util, Module, Component) {
+		__webpack_require__(2)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, Compiler) {
 
-		function Sugar() {
-			/**
-			 * 异步状态锁
-			 * @type  {Object}
-			 */
-			this.sync = sync;
+		/**
+		 * MVVM 构造函数，封装 Complier
+		 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
+		 * @param  {Object}      model    [数据模型对象]
+		 * @param  {Function}    context  [事件及 watch 的回调上下文]
+		 */
+		function MVVM(element, model, context) {
+			this.context = context;
 
-			/**
-			 * 工具方法
-			 * @type  {Object}
-			 */
-			this.util = util;
+			// 将函数 this 指向调用者
+			util.each(model, function(value, key) {
+				if (util.isFunc(value)) {
+					model[key] = value.bind(context);
+				}
+			});
 
-			/**
-			 * Ajax
-			 * @type  {Object}
-			 */
-			this.ajax = ajax;
+			// 初始数据备份
+			this.backup = util.copy(model);
 
-			/**
-			 * 系统核心模块实例
-			 * @type  {Object}
-			 */
-			this.core = core;
+			// ViewModel 实例
+			this.vm = new Compiler(element, model);
 
-			/**
-			 * 基础模块类
-			 * @type  {Class}
-			 */
-			this.Module = Module;
-
-			/**
-			 * 视图组件基础模块
-			 * @type  {Class}
-			 */
-			this.Component = Component;
+			// 数据模型
+			this.$ = this.vm.$data;
 		}
 
-		return new Sugar();
+		var mvp = MVVM.prototype;
+
+		/**
+		 * 获取指定数据模型
+		 * @param   {String}  key  [数据模型字段]
+		 * @return  {Mix}
+		 */
+		mvp.get = function(key) {
+			return util.isString(key) ? this.$[key] : this.$;
+		}
+
+		/**
+		 * 设置数据模型的值，key 为 json 时则批量设置
+		 * @param  {String}  key    [数据模型字段]
+		 * @param  {Mix}     value  [值]
+		 */
+		mvp.set = function(key, value) {
+			var vm = this.$;
+			// 批量设置
+			if (util.isObject(key)) {
+				util.each(key, function(v, k) {
+					vm[k] = v;
+				});
+			}
+			else if (util.isString(key)) {
+				vm[key] = value;
+			}
+		}
+
+		/**
+		 * 重置数据模型至初始状态
+		 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
+		 */
+		mvp.reset = function(key) {
+			var vm = this.$;
+			var backup = this.backup;
+
+			// 重置单个
+			if (util.isString(key)) {
+				vm[key] = backup[key];
+			}
+			// 重置多个
+			else if (util.isArray(key)) {
+				util.each(key, function(v, k) {
+					vm[k] = backup[k];
+				});
+			}
+			// 重置所有
+			else {
+				util.each(vm, function(v, k) {
+					vm[k] = backup[k];
+				});
+			}
+		}
+
+		/**
+		 * 对数据模型的字段添加监测
+		 * @param   {String}    model     [数据模型字段]
+		 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
+		 */
+		mvp.watch = function(model, callback) {
+			this.vm.watcher.add({
+				'dep': [model],
+				'acc': [undefined]
+			}, function(path, last, old) {
+				callback.call(this, path, last, old);
+			}, this.context);
+		}
+
+		return MVVM;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 异步状态锁
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
-
-		/**
-		 * 异步状态锁，处理模块创建的异步回调和通信，实现回调函数按队列触发
-		 */
-		function Sync() {
-			/**
-			 * 异步计数
-			 * @type  {Number}
-			 */
-			this.count = 0;
-
-			/**
-			 * 回调队列
-			 * @type  {Array}
-			 */
-			this.queue = [];
-		}
-
-		var sp = Sync.prototype;
-
-		/**
-		 * 加锁异步计数
-		 */
-		sp.lock = function() {
-			this.count++;
-		}
-
-		/**
-		 * 解锁异步计数
-		 */
-		sp.unlock = function() {
-			this.count--;
-			this._checkQueue();
-		}
-
-		/**
-		 * 添加一个回调到队列
-		 * @param  {Function}  callback  [回调函数]
-		 * @param  {Function}  context   [上下文]
-		 * @param  {Array}     args      [回调参数]
-		 */
-		sp.addQueue = function(callback, context, args) {
-			this.queue.push([callback, context, args]);
-		}
-
-		/**
-		 * 检查回调队列是否空闲
-		 */
-		sp._checkQueue = function() {
-			var sync, callback, context, args;
-
-			// 依次从最后的回调开始处理
-			while (this.count === 0 && this.queue.length) {
-				sync = this.queue.pop();
-
-				// 回调函数
-				callback = sync[0];
-				// 执行环境
-				context = sync[1];
-				// 回调参数
-				args = sync[2];
-
-				if (util.isString(callback)) {
-					callback = context[callback];
-				}
-
-				if (util.isFunc(callback)) {
-					callback.apply(context, args);
-				}
-			}
-		}
-
-		return new Sync();
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -638,1466 +609,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Ajax 模块
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
-
-		/**
-			readyState:
-			0: 请求未初始化
-			1: 服务器连接已建立
-			2: 请求已接收
-			3: 请求处理中
-			4: 请求已完成，且响应已就绪
-		 */
-
-		function Ajax() {
-			this.xmlHttp = new XMLHttpRequest();
-		}
-
-		var ap = Ajax.prototype;
-
-		/**
-		 * 执行一个 http 请求
-		 * @param   {String}    dataType  [回调数据类型 json/text ]
-		 * @param   {String}    url       [请求url]
-		 * @param   {String}    method    [请求类型]
-		 * @param   {String}    param     [请求参数]
-		 * @param   {Function}  callback  [回调函数]
-		 * @param   {Function}  context   [作用域]
-		 */
-		ap._execute = function(dataType, url, method, param, callback, context) {
-			var xmlHttp = this.xmlHttp;
-			var ct = context || util.WIN;
-
-			// 初始化请求
-			xmlHttp.open(method, url, true);
-
-			// 状态变化回调
-			xmlHttp.onreadystatechange = function() {
-				var response;
-				var result = null, error = null, status = xmlHttp.status;
-
-				// 请求完成
-				if (xmlHttp.readyState === 4) {
-					response = xmlHttp.responseText;
-
-					// 返回数据类型
-					if (dataType !== 'text') {
-						try {
-							response = JSON.parse(response);
-						}
-						catch (e) {}
-					}
-
-					// 请求响应成功
-					if (status === 200) {
-						result = {
-							'success': true,
-							'result' : response
-						}
-					}
-					// 响应失败
-					else {
-						error = {
-							'result' : null,
-							'success': false,
-							'status' : status
-						}
-					}
-
-					callback.call(ct, error, result);
-				}
-			}
-
-			if (param) {
-				xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			}
-
-			xmlHttp.send(param);
-		}
-
-		/**
-		 * get 请求
-		 */
-		ap.get = function(url, param, callback, context, dataType) {
-			var params = [];
-
-			if (util.isFunc(param)) {
-				dataType = context;
-				context = callback;
-				callback = param;
-				param = null;
-			}
-
-			// 格式化参数对象
-			util.each(param, function(val, key) {
-				params.push(key + '=' + encodeURIComponent(val));
-			});
-
-			if (params.length) {
-				url = url + '?' + params.join('&');
-			}
-
-			this._execute(dataType || 'json', url, 'GET', null, callback, context);
-		}
-
-		/**
-		 * post 请求
-		 */
-		ap.post = function(url, param, callback, context) {
-			this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
-		}
-
-		/**
-		 * 拉取静态模板
-		 */
-		ap.load = function(url, param, callback, context) {
-			this.get(url, param, callback, context, 'text');
-		}
-
-		return new Ajax();
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * sugar 顶层模块实例
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
-		__webpack_require__(5),
-		__webpack_require__(6),
-		__webpack_require__(8)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, cache, Module, messager) {
-
-		/**
-		 * Core 核心模块，用于顶层模块的创建
-		 */
-		var Core = Module.extend({
-			/**
-			 * 获取顶级模块实例
-			 * @param  {String}  name  [模块实例名称]
-			 * @return {Object}
-			 */
-			get: function(name) {
-				return this.getChild(name);
-			},
-
-			/**
-			 * 全局广播消息，由 core 模块发出，系统全部实例接收
-			 * @param  {String}   name   [发送的消息名称]
-			 * @param  {Mix}      param  [<可选>附加消息参数]
-			 * @return {Boolean}
-			 */
-			globalCast: function(name, param) {
-				if (!util.isString(name)) {
-					util.error('message\'s name must be a type of String: ', name);
-					return;
-				}
-
-				messager.globalCast(name, param);
-			}
-		});
-
-		var core = cache['0'] = new Core();
-
-		return core;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * cache 系统模块实例缓存队列
-	 * 模块唯一 id 与全部模块实例的对应关系
-	 */
-	!(module.exports = {'id': 1, 'length': 0});
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 底层模块定义
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(7),
-		__webpack_require__(5),
-		__webpack_require__(2),
-		__webpack_require__(8)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Root, cache, util, messager) {
-
-		/**
-		 * Module 系统模块基础类，实现所有模块的通用方法
-		 */
-		var Module = Root.extend({
-			/**
-			 * _ 记录模块信息
-			 * @type {Object}
-			 */
-			_: {},
-
-			/**
-			 * 创建一个子模块实例
-			 * @param  {String}  name    [子模块名称，同一模块下创建的子模块名称不能重复]
-			 * @param  {Class}   Class   [生成子模块实例的类]
-			 * @param  {Object}  config  [<可选>子模块配置参数]
-			 * @return {Object}          [返回创建的子模块实例]
-			 */
-			create: function(name, Class, config) {
-				if (!util.isString(name)) {
-					util.error('module\'s name must be a type of String: ', name);
-					return;
-				}
-				if (!util.isFunc(Class)) {
-					util.error('module\'s Class must be a type of Function: ', Class);
-					return;
-				}
-				if (config && !util.isObject(config)) {
-					util.error('module\'s config must be a type of Object: ', config);
-					return;
-				}
-
-				var cls = this._;
-
-				// 建立模块关系信息
-				if (!util.hasOwn(cls, 'childArray')) {
-					// 子模块实例缓存数组
-					cls['childArray'] = [];
-					// 子模块命名索引
-					cls['childMap'] = {};
-				}
-
-				// 判断是否已经创建过
-				if (cls['childMap'][name]) {
-					util.error('Module\'s name already exists: ', name);
-					return;
-				}
-
-				// 生成子模块实例
-				var instance = new Class(config);
-
-				// 记录子模块实例信息和父模块实例的对应关系
-				var info = {
-					// 子模块实例名称
-					'name': name,
-					// 子模块实例id
-					'id'  : cache.id++,
-					// 父模块实例 id，0 为顶级模块实例
-					'pid' : cls.id || 0
-				}
-				instance._ = info;
-
-				// 存入系统实例缓存队列
-				cache[info.id] = instance;
-				cache.length++;
-
-				// 缓存子模块实例
-				cls['childArray'].push(instance);
-				cls['childMap'][name] = instance;
-
-				// 调用模块实例的 init 方法，传入配置参数和父模块
-				if (util.isFunc(instance.init)) {
-					instance.init(config, this);
-				}
-
-				return instance;
-			},
-
-			/**
-			 * 获取当前模块的父模块实例（模块创建者）
-			 */
-			getParent: function() {
-				var cls = this._;
-				var pid = cls && cls.pid;
-				return cache[pid] || null;
-			},
-
-			/**
-			 * 获取当前模块创建的指定名称的子模块实例
-			 * @param  {String}  name  [子模块名称]
-			 * @return {Object}
-			 */
-			getChild: function(name) {
-				var cls = this._;
-				return cls && cls['childMap'] && cls['childMap'][name] || null;
-			},
-
-			/**
-			 * 返回当前模块的所有子模块实例
-			 * @param  {Boolean}  returnArray  [返回的集合是否为数组形式，否则返回映射结构]
-			 * @return {Mix}
-			 */
-			getChilds: function(returnArray) {
-				var cls = this._;
-				returnArray = util.isBool(returnArray) && returnArray;
-				return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
-			},
-
-			/**
-			 * 移除当前模块实例下的指定子模块的记录
-			 * @param  {String}   name  [子模块名称]
-			 * @return {Boolean}
-			 */
-			_removeChild: function(name) {
-				var cls = this._;
-				var cMap = cls['childMap'] || {};
-				var cArray = cls['childArray'] || [];
-				var child = cMap[name];
-
-				if (!child) {
-					return;
-				}
-
-				for (var i = 0, len = cArray.length; i < len; i++) {
-					if (cArray[i].id === child.id) {
-						delete cMap[name];
-						cArray.splice(i, 1);
-						break;
-					}
-				}
-			},
-
-			/**
-			 * 模块销毁函数，只删除缓存队列中的记录和所有子模块集合
-			 * @param  {Mix}  notify  [是否向父模块发送销毁消息]
-			 */
-			destroy: function(notify) {
-				var cls = this._;
-				var name = cls.name;
-
-				// 调用销毁前函数，可进行必要的数据保存
-				if (util.isFunc(this.beforeDestroy)) {
-					this.beforeDestroy();
-				}
-
-				// 递归调用子模块的销毁函数
-				var childs = this.getChilds(true);
-				util.each(childs, function(child) {
-					if (util.isFunc(child.destroy)) {
-						child.destroy(-1);
-					}
-				});
-
-				// 从父模块删除（递归调用时不需要）
-				var parent = this.getParent();
-				if (notify !== -1 && parent) {
-					parent._removeChild(name);
-				}
-
-				// 从系统缓存队列中销毁相关记录
-				var id = cls.id;
-				if (util.hasOwn(cache, id)) {
-					delete cache[id];
-					cache.length--;
-				}
-
-				// 调用销毁后函数，可进行销毁界面和事件
-				if (util.isFunc(this.afterDestroy)) {
-					this.afterDestroy();
-				}
-
-				// 向父模块通知销毁消息
-				if (notify === true) {
-					this.fire('subDestroyed', name);
-				}
-			},
-
-			/**
-			 * 当前模块作用域的定时器
-			 * @param {Function}  callback  [定时器回调函数]
-			 * @param {Number}    time      [<可选>回调等待时间（毫秒）不填为0]
-			 * @param {Array}     param     [<可选>回调函数的参数]
-			 */
-			setTimeout: function(callback, time, param) {
-				var self = this;
-				time = util.isNumber(time) ? time : 0;
-
-				// callback 为属性值
-				if (util.isString(callback)) {
-					callback = this[callback];
-				}
-
-				// 不合法的回调函数
-				if (!util.isFunc(callback)) {
-					util.error('callback must be a type of Function: ', callback);
-					return;
-				}
-
-				// 参数必须为数组或 arguments 对象
-				if (param && !util.isFunc(param.callee) && !util.isArray(param)) {
-					param = [param];
-				}
-
-				return setTimeout(function() {
-					callback.apply(self, param);
-					self = callback = time = param = null;
-				}, time);
-			},
-
-			/**
-			 * 冒泡（由下往上）方式发送消息，由子模块发出，逐层父模块接收
-			 * @param  {String}    name      [发送的消息名称]
-			 * @param  {Mix}       param     [<可选>附加消息参数]
-			 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-			 */
-			fire: function(name, param, callback) {
-				if (!util.isString(name)) {
-					util.error('message\'s name must be a type of String: ', name);
-					return;
-				}
-
-				// 不传 param
-				if (util.isFunc(param)) {
-					callback = param;
-					param = null;
-				}
-
-				// callback 为属性值
-				if (util.isString(callback)) {
-					callback = this[callback];
-				}
-
-				// 不传 callback
-				if (!callback) {
-					callback = null;
-				}
-
-				messager.fire(this, name, param, callback, this);
-			},
-
-			/**
-			 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
-			 */
-			broadcast: function(name, param, callback) {
-				if (!util.isString(name)) {
-					util.error('message\'s name must be a type of String: ', name);
-					return false;
-				}
-
-				// 不传 param
-				if (util.isFunc(param)) {
-					callback = param;
-					param = null;
-				}
-
-				// callback 为属性值
-				if (util.isString(callback)) {
-					callback = this[callback];
-				}
-
-				// 不传 callback
-				if (!callback) {
-					callback = null;
-				}
-
-				messager.broadcast(this, name, param, callback, this);
-			},
-
-			/**
-			 * 向指定模块实例发送消息
-			 * @param   {String}    receiver  [消息接受模块实例的名称以.分隔，要求完整的层级]
-			 * @param   {String}    name      [发送的消息名称]
-			 * @param   {Mix}       param     [<可选>附加消息参数]
-			 * @param   {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]]
-			 */
-			notify: function(receiver, name, param, callback) {
-				if (!util.isString(receiver)) {
-					util.error('receiver\'s name must be a type of String: ', name);
-					return false;
-				}
-
-				if (!util.isString(name)) {
-					util.error('message\'s name must be a type of String: ', name);
-					return false;
-				}
-
-				// 不传 param
-				if (util.isFunc(param)) {
-					callback = param;
-					param = null;
-				}
-
-				// callback 为属性值
-				if (util.isString(callback)) {
-					callback = this[callback];
-				}
-
-				// 不传 callback
-				if (!callback) {
-					callback = null;
-				}
-
-				messager.notify(this, receiver, name, param, callback, this);
-			}
-		});
-
-		return Module;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 类式继承根函数
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
-
-		/**
-		 * 对子类方法挂载 Super
-		 * @param   {Function}  Super   [Super 函数]
-		 * @param   {Mix}       method  [子类属性或者方法]
-		 * @return  {Mix}
-		 */
-		function bindSuper(Super, method) {
-			if (util.isFunc(method) && /\b\.Super\b/.test(Function.prototype.toString.call(method))) {
-				return function() {
-					this.Super = Super;
-					method.apply(this, arguments);
-				}
-			}
-			else {
-				return method;
-			}
-		}
-
-		/*
-		 * Root 根函数，实现类式继承
-		 * @param  {Object}    proto  [生成类的新原型属性或方法]
-		 * @return {Function}  Class  [继承后的类]
-		 */
-		function Root() {}
-		Root.extend = function(proto) {
-			var parent = this.prototype;
-
-			/**
-			 * 子类对父类的调用
-			 * @param {String}  method  [调用的父类方法]
-			 * @param {Array}   args    [调用参数]
-			 */
-			function Super(method, args) {
-				var func = parent[method];
-				if (util.isFunc(func)) {
-					func.apply(this, args);
-				}
-			}
-
-			/**
-			 * 返回(继承后)的类
-			 */
-			function Class() {}
-			var classProto = Class.prototype = Object.create(parent);
-
-			util.each(proto, function(value, property) {
-				classProto[property] = bindSuper(Super, value);
-			});
-
-			proto = null;
-			Class.extend = this.extend;
-			classProto.constructor = Class;
-
-			return Class;
-		}
-
-		return Root;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 模块消息通信 messager
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(1),
-		__webpack_require__(2),
-		__webpack_require__(5)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(sync, util, cache) {
-
-		/**
-		 * 字符串首字母大写
-		 */
-		function ucFirst(str) {
-			var first = str.charAt(0).toUpperCase();
-			return first + str.substr(1);
-		}
-
-		/**
-		 * Messager 通信使者（实现模块间通信）
-		 * 默认接收消息onMessage, 默认全部发送完毕回调onMessageSendOut
-		 */
-		function Messager() {
-			/**
-			 * 是否正在发送消息
-			 * @type {Bool}
-			 */
-			this.busy = false;
-
-			/**
-			 * 等待发送的消息队列
-			 * @type {Array}
-			 */
-			this.queue = [];
-		}
-
-		var messager;
-		var mp = Messager.prototype;
-
-		/**
-		 * 创建一条消息
-		 * @param  {String}  type    [消息类型]
-		 * @param  {Object}  sender  [发送消息的模块实例]
-		 * @param  {String}  name    [发送的消息名称]
-		 * @param  {Mix}     param   [<可选>附加消息参数]
-		 * @return {Object}
-		 */
-		mp._create = function(type, sender, name, param) {
-			return {
-				// 消息类型
-				'type'   : type,
-				// 消息发起模块实例
-				'from'   : sender,
-				// 消息目标模块实例
-				'to'     : null,
-				// 消息被传递的次数
-				'count'  : 0,
-				// 消息名称
-				'name'   : name,
-				// 消息参数
-				'param'  : param,
-				// 接收消息模块的调用方法 on + 首字母大写
-				'method' : 'on' + ucFirst(name),
-				// 接收消息模块的返回值
-				'returns': null
-			}
-		}
-
-		/**
-		 * 触发接收消息模块实例的处理方法
-		 * @param  {Object}  receiver  [接收消息的模块实例]
-		 * @param  {Mix}     msg       [消息体（内容）]
-		 * @param  {Mix}     returns   [返回给发送者的数据]
-		 * @return {Mix}
-		 */
-		mp._trigger = function(receiver, msg, returns) {
-			// 接收者对该消息的接收方法
-			var func = receiver[msg.method];
-
-			// 标识消息的发送目标
-			msg.to = receiver;
-
-			// 触发接收者的消息处理方法，若未定义则默认为 onMessage
-			if (util.isFunc(func)) {
-				returns = func.call(receiver, msg);
-				msg.count++;
-			}
-			else if (util.isFunc(receiver.onMessage)) {
-				returns = receiver.onMessage.call(receiver, msg);
-				msg.count++;
-			}
-
-			msg.returns = returns;
-
-			return returns;
-		}
-
-		/**
-		 * 通知发送者消息已被全部接收完毕
-		 * @param  {Mix}       msg       [消息体（内容）]
-		 * @param  {Function}  callback  [通知发送者的回调函数]
-		 * @param  {Object}    context   [执行环境]
-		 */
-		mp._notifySender = function(msg, callback, context) {
-			// callback 未定义时触发默认事件
-			if (!callback) {
-				callback = context.onMessageSendOut;
-			}
-
-			// callback 为属性值
-			if (util.isString(callback)) {
-				callback = context[callback];
-			}
-
-			// 合法的回调函数
-			if (util.isFunc(callback)) {
-				callback.call(context, msg);
-			}
-
-			// 继续发送队列中未完成的消息
-			if (this.queue.length) {
-				setTimeout(this._sendQueue, 0);
-			}
-			else {
-				this.busy = false;
-			}
-		}
-
-		/**
-		 * 发送消息队列
-		 */
-		mp._sendQueue = function() {
-			var request = messager.queue.shift();
-
-			messager.busy = false;
-
-			if (!request) {
-				return false;
-			}
-
-			// 消息类型
-			var type = request.shift();
-			// 消息方法
-			var func = messager[type];
-
-			if (util.isFunc(func)) {
-				func.apply(messager, request);
-			}
-		}
-
-		/**
-		 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
-		 * @param  {Object}    sender    [发送消息的子模块实例]
-		 * @param  {String}    name      [发送的消息名称]
-		 * @param  {Mix}       param     [<可选>附加消息参数]
-		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}    context   [执行环境]
-		 */
-		mp.fire = function(sender, name, param, callback, context) {
-			var type = 'fire';
-
-			// 是否处于忙碌状态
-			if (this.busy || sync.count) {
-				this.queue.push([type, sender, name, param, callback, context]);
-				if (sync.count) {
-					sync.addQueue(this._sendQueue, this);
-				}
-				return;
-			}
-
-			this.busy = true;
-
-			// 创建消息
-			var msg = this._create(type, sender, name, param);
-			// 消息接收者，先从自身开始接收
-			var receiver = sender;
-			var returns;
-
-			while (receiver) {
-				returns = this._trigger(receiver, msg);
-				// 接收消息方法返回 false 则不再继续冒泡
-				if (returns === false) {
-					break;
-				}
-
-				msg.from = receiver;
-				receiver = receiver.getParent();
-			}
-
-			this._notifySender(msg, callback, context);
-		}
-
-		/**
-		 * 广播（由上往下）方式发送消息，由父模块实例发出，逐层子模块实例接收
-		 */
-		mp.broadcast = function(sender, name, param, callback, context) {
-			var type = 'broadcast';
-
-			// 是否处于忙碌状态
-			if (this.busy || sync.count) {
-				this.queue.push([type, sender, name, param, callback, context]);
-				if (sync.count) {
-					sync.addQueue(this._sendQueue, this);
-				}
-				return;
-			}
-
-			this.busy = true;
-
-			// 创建消息
-			var msg = this._create(type, sender, name, param);
-			// 消息接收者集合，先从自身开始接收
-			var receivers = [sender];
-			var receiver, returns;
-
-			while (receivers.length) {
-				receiver = receivers.shift();
-				returns = this._trigger(receiver, msg);
-				// 接收消息方法返回 false 则不再继续广播
-				if (returns === false) {
-					break;
-				}
-
-				receivers.push.apply(receivers, receiver.getChilds(true));
-			}
-
-			this._notifySender(msg, callback, context);
-		}
-
-		/**
-		 * 向指定模块实例发送消息
-		 * @param  {Object}    sender    [发送消息的模块实例]
-		 * @param  {String}    receiver  [接受消息的模块实例名称支持.分层级]
-		 * @param  {String}    name      [发送的消息名称]
-		 * @param  {Mix}       param     [<可选>附加消息参数]
-		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
-		 * @param  {Object}    context   [执行环境]
-		 */
-		mp.notify = function(sender, receiver, name, param, callback, context) {
-			var type = 'notify';
-
-			// 是否处于忙碌状态
-			if (this.busy || sync.count) {
-				this.queue.push([type, sender, receiver, name, param, callback, context]);
-				if (sync.count) {
-					sync.addQueue(this._sendQueue, this);
-				}
-				return;
-			}
-
-			this.busy = true;
-
-			// 根据名称获取系统实例
-			function _getInstanceByName(name) {
-				var target = null;
-				util.each(cache, function(cache) {
-					if ((cache._collections && cache._collections.name) === name) {
-						target = cache;
-						return false;
-					}
-				});
-				return target;
-			}
-
-			// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
-			var ns = null, tmp, tar;
-			if (util.isString(receiver)) {
-				ns = receiver.split('.');
-
-				// 有层级
-				while (ns.length > 0) {
-					if (!tmp) {
-						tmp = _getInstanceByName(ns.shift());
-						tar = ns.length === 0 ? tmp : (tmp ? tmp.getChild(ns[0]) : null);
-					}
-					else {
-						tar = tmp.getChild(ns.shift());
-					}
-				}
-
-				if (util.isObject(tar)) {
-					receiver = tar;
-				}
-			}
-
-			if (!util.isObject(receiver)) {
-				util.error('module: \'' + receiver + '\' is not found in cache!');
-				return false;
-			}
-
-			var msg = this._create(type, sender, name, param);
-
-			this._trigger(receiver, msg);
-
-			this._notifySender(msg, callback, context);
-		}
-
-		/**
-		 * 全局广播发消息，系统全部实例接受
-		 * @param  {String}  name   [发送的消息名称]
-		 * @param  {Mix}     param  [<可选>附加消息参数]
-		 */
-		mp.globalCast = function(name, param) {
-			var type = 'globalCast';
-
-			// 是否处于忙碌状态
-			if (this.busy || sync.count) {
-				this.queue.push([type, name, param]);
-				if (sync.count) {
-					sync.addQueue(this._sendQueue, this);
-				}
-				return;
-			}
-
-			this.busy = false;
-
-			var msg = this._create(type, 'core', name, param);
-
-			util.each(cache, function(receiver) {
-				this._trigger(receiver, msg);
-			});
-		}
-
-		messager = new Messager();
-
-		return messager;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 基础视图模块
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(10),
-		__webpack_require__(3),
-		__webpack_require__(1),
-		__webpack_require__(2),
-		__webpack_require__(6),
-		__webpack_require__(11)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, ajax, sync, util, Module, SVM) {
-
-		/**
-		 * Component 视图组件基础模块
-		 */
-		var Component = Module.extend({
-			/**
-			 * init 模块初始化方法
-			 * @param  {Object}  config  [模块参数配置]
-			 * @param  {Object}  parent  [父模块对象]
-			 */
-			init: function(config, parent) {
-				this._config = this.cover(config, {
-					// 模块目标容器
-					'target'  : null,
-					// dom 元素的标签
-					'tag'     : 'div',
-					// 元素的 class
-					'class'   : '',
-					// 元素的 css
-					'css'     : null,
-					// 元素的 attr
-					'attr'    : null,
-					// 视图布局内容
-					'html'    : '',
-					// 静态模板 uri
-					'template': '',
-					// 模板拉取请求参数
-					'tplParam': null,
-					// mvvm 数据模型对象
-					'model'   : null,
-					// 视图渲染完成后的回调函数
-					'cbRender': 'viewReady'
-				});
-
-				// 通用 dom 处理方法
-				this.$ = dom;
-				// 模块元素
-				this.el = null;
-				// mvvm 实例
-				this.vm = null;
-				// 模块是否已经创建完成
-				this._ready = false;
-
-				// 调用渲染前函数
-				if (util.isFunc(this.beforeRender)) {
-					this.beforeRender();
-				}
-
-				// 拉取模板
-				if (this.getConfig('template')) {
-					this._loadTemplate();
-				}
-				else {
-					this._render();
-				}
-			},
-
-			/**
-			 * 加载模板
-			 */
-			_loadTemplate: function() {
-				var c = this.getConfig();
-				var uri = c.template;
-				var param = util.extend(true, {}, c.tplParam, {
-					'ts': +new Date()
-				});
-				// 防止消息异步或者框架外的异步创建出现问题
-				sync.lock();
-				ajax.load(uri, param, function(err, data) {
-					var text;
-
-					if (err) {
-						text = err.status + ': ' + uri;
-						util.error(err);
-					}
-					else {
-						text = data.result;
-					}
-
-					this.setConfig('html', text);
-					this._render();
-					sync.unlock();
-				}, this);
-			},
-
-			/**
-			 * 模块配置参数合并、覆盖
-			 * @param  {Object}  child   [子类模块配置参数]
-			 * @param  {Object}  parent  [父类模块配置参数]
-			 * @return {Object}          [合并后的配置参数]
-			 */
-			cover: function(child, parent) {
-				if (!util.isObject(child)) {
-					child = {};
-				}
-				if (!util.isObject(parent)) {
-					parent = {};
-				}
-				return util.extend(true, {}, parent, child);
-			},
-
-			/**
-			 * 获取模块配置参数
-			 * @param  {String}  name  [参数字段名称，支持/层级]
-			 */
-			getConfig: function(name) {
-				return this.config(this._config, name);
-			},
-
-			/**
-			 * 设置模块配置参数
-			 * @param {String}  name   [配置字段名]
-			 * @param {Mix}     value  [值]
-			 */
-			setConfig: function(name, value) {
-				return this.config(this._config, name, value);
-			},
-
-			/**
-			 * 设置/读取配置对象
-			 * @param  {Object}  cData  [配置对象]
-			 * @param  {String}  name   [配置名称, 支持/分隔层次]
-			 * @param  {Mix}     value  [不传为读取配置信息, null 为删除配置, 其他为设置值]
-			 * @return {Mix}            [返回读取的配置值]
-			 */
-			config: function(cData, name, value) {
-				// 不传cData配置对象
-				if (util.isString(cData) || arguments.length === 0) {
-					value = name;
-					name = cData;
-					cData = {};
-				}
-
-				var udf, data = cData;
-				var set = (value !== udf);
-				var remove = (value === null);
-
-				if (name) {
-					var ns = name.split('/');
-					while (ns.length > 1 && util.hasOwn(data, ns[0])) {
-						data = data[ns.shift()];
-					}
-					if (ns.length > 1) {
-						if (set) {
-							return false;
-						}
-						if (remove)	{
-							return true;
-						}
-						return udf;
-					}
-					name = ns[0];
-				}
-				else {
-					return data;
-				}
-
-				if (set) {
-					data[name] = value;
-					return true;
-				}
-				else if (remove) {
-					data[name] = null;
-					delete data[name];
-					return true;
-				}
-				else {
-					return data[name];
-				}
-			},
-
-			/**
-			 * 渲染视图、初始化配置
-			 */
-			_render: function() {
-				// 判断是否已创建过
-				if (this._ready) {
-					return this;
-				}
-
-				this._ready = true;
-
-				var c = this.getConfig();
-
-				var el = this.el = util.createElement(c.tag);
-
-				// 添加 class
-				if (c.class && util.isString(c.class)) {
-					dom.addClass(el, c.class);
-				}
-
-				// 添加 css
-				if (util.isObject(c.css)) {
-					util.each(c.css, function(value, property) {
-						el.style[property] = value;
-					});
-				}
-
-				// 添加attr
-				if (util.isObject(c.attr)) {
-					util.each(c.attr, function(value, name) {
-						dom.setAttr(el, name, value);
-					});
-				}
-
-				// 添加页面布局
-				if (c.html) {
-					el.appendChild(util.stringToFragment(c.html));
-				}
-
-				// 初始化 mvvm 对象
-				var model = c.model;
-				if (util.isObject(model)) {
-					this.vm = new SVM(el, model, this);
-				}
-
-				// 追加到目标容器
-				var target = c.target;
-				if (target) {
-					target.appendChild(el);
-				}
-
-				// 调用模块的(视图渲染完毕)后续回调方法
-				var cb = this[c.cbRender];
-				if (util.isFunc(cb)) {
-					cb.call(this);
-				}
-			},
-
-			/**
-			 * 返回当前 dom 中第一个匹配特定选择器的元素
-			 * @param  {String}     selector  [子元素选择器]
-			 * @return {DOMObject}
-			 */
-			query: function(selector) {
-				return this.el.querySelector(selector);
-			},
-
-			/**
-			 * 返回当前 dom 中匹配一个特定选择器的所有的元素
-			 * @param  {String}    selectors  [子元素选择器]
-			 * @return {NodeList}
-			 */
-			queryAll: function(selectors) {
-				return this.el.querySelectorAll(selectors);
-			},
-
-			/**
-			 * 元素添加绑定事件
-			 */
-			bind: function() {
-				return dom.addEvent.apply(dom, arguments);
-			},
-
-			/**
-			 * 元素解除绑定事件
-			 */
-			unbind: function() {
-				return dom.removeEvent.apply(dom, arguments);
-			},
-
-			/**
-			 * 模块销毁后的回调函数
-			 */
-			afterDestroy: function() {
-				var vm = this.vm;
-				var el = this.el;
-				// 销毁 mvvm 实例
-				if (vm) {
-					vm.destroy();
-					vm = null;
-				}
-				// 销毁 dom 对象
-				if (el) {
-					el.parentNode.removeChild(el);
-					el = null;
-				}
-			}
-		});
-
-		return Component;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * dom 操作模块
-	 */
-	!(module.exports = {
-		/**
-		 * 清空 element 的所有子节点
-		 * @param   {DOMElement}  element
-		 */
-		empty: function(element) {
-			while (element.firstChild) {
-				element.removeChild(element.firstChild);
-			}
-		},
-
-		/**
-		 * 设置节点属性
-		 * @param   {DOMElement}  node
-		 * @param   {String}      name
-		 * @param   {String}      value
-		 */
-		setAttr: function(node, name, value) {
-			node.setAttribute(name, value);
-		},
-
-		/**
-		 * 获取节点属性值
-		 * @param   {DOMElement}  node
-		 * @param   {String}      name
-		 * @return  {String}
-		 */
-		getAttr: function(node, name) {
-			return node.getAttribute(name) || '';
-		},
-
-		/**
-		 * 判断节点是否存在属性
-		 * @param   {DOMElement}  node
-		 * @param   {String}      name
-		 * @return  {Boolean}
-		 */
-		hasAttr: function(node, name) {
-			return node.hasAttribute(name);
-		},
-
-		/**
-		 * 移除节点属性
-		 * @param   {DOMElement}  node
-		 * @param   {String}      name
-		 */
-		removeAttr: function(node, name) {
-			node.removeAttribute(name);
-		},
-
-		/**
-		 * 节点添加 classname
-		 * @param  {DOMElement}  node
-		 * @param  {String}      classname
-		 */
-		addClass: function(node, classname) {
-			var current, list = node.classList;
-			if (list) {
-				list.add(classname);
-			}
-			else {
-				current = ' ' + this.getAttr(node, 'class') + ' ';
-				if (current.indexOf(' ' + classname + ' ') === -1) {
-					this.setAttr(node, 'class', (current + classname).trim());
-				}
-			}
-		},
-
-		/**
-		 * 节点删除 classname
-		 * @param  {DOMElement}  node
-		 * @param  {String}      classname
-		 */
-		removeClass: function(node, classname) {
-			var current, target, list = node.classList;
-			if (list) {
-				list.remove(classname);
-			}
-			else {
-				target = ' ' + classname + ' ';
-				current = ' ' + this.getAttr(node, 'class') + ' ';
-				while (current.indexOf(target) !== -1) {
-					current = current.replace(target, ' ');
-				}
-				this.setAttr(node, 'class', current.trim());
-			}
-
-			if (!node.className) {
-				this.removeAttr(node, 'class');
-			}
-		},
-
-		/**
-		 * 节点事件绑定
-		 * @param   {DOMElement}   node
-		 * @param   {String}       evt
-		 * @param   {Function}     callback
-		 * @param   {Boolean}      capture
-		 */
-		addEvent: function(node, evt, callback, capture) {
-			node.addEventListener(evt, callback, capture);
-		},
-
-		/**
-		 * 解除节点事件绑定
-		 * @param   {DOMElement}   node
-		 * @param   {String}       evt
-		 * @param   {Function}     callback
-		 * @param   {Boolean}      capture
-		 */
-		removeEvent: function(node, evt, callback, capture) {
-			node.removeEventListener(evt, callback, capture);
-		}
-	});
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 简单的数据绑定视图层库
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
-		__webpack_require__(12)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, Compiler) {
-
-		/**
-		 * MVVM 构造函数，封装 Complier
-		 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
-		 * @param  {Object}      model    [数据模型对象]
-		 * @param  {Function}    context  [事件及 watch 的回调上下文]
-		 */
-		function MVVM(element, model, context) {
-			this.context = context;
-
-			// 将函数 this 指向调用者
-			util.each(model, function(value, key) {
-				if (util.isFunc(value)) {
-					model[key] = value.bind(context);
-				}
-			});
-
-			// 初始数据备份
-			this.backup = util.copy(model);
-
-			// ViewModel 实例
-			this.vm = new Compiler(element, model);
-
-			// 数据模型
-			this.$ = this.vm.$data;
-		}
-
-		var mvp = MVVM.prototype;
-
-		/**
-		 * 获取指定数据模型
-		 * @param   {String}  key  [数据模型字段]
-		 * @return  {Mix}
-		 */
-		mvp.get = function(key) {
-			return util.isString(key) ? this.$[key] : this.$;
-		}
-
-		/**
-		 * 设置数据模型的值，key 为 json 时则批量设置
-		 * @param  {String}  key    [数据模型字段]
-		 * @param  {Mix}     value  [值]
-		 */
-		mvp.set = function(key, value) {
-			var vm = this.$;
-			// 批量设置
-			if (util.isObject(key)) {
-				util.each(key, function(v, k) {
-					vm[k] = v;
-				});
-			}
-			else if (util.isString(key)) {
-				vm[key] = value;
-			}
-		}
-
-		/**
-		 * 重置数据模型至初始状态
-		 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
-		 */
-		mvp.reset = function(key) {
-			var vm = this.$;
-			var backup = this.backup;
-
-			// 重置单个
-			if (util.isString(key)) {
-				vm[key] = backup[key];
-			}
-			// 重置多个
-			else if (util.isArray(key)) {
-				util.each(key, function(v, k) {
-					vm[k] = backup[k];
-				});
-			}
-			// 重置所有
-			else {
-				util.each(vm, function(v, k) {
-					vm[k] = backup[k];
-				});
-			}
-		}
-
-		/**
-		 * 对数据模型的字段添加监测
-		 * @param   {String}    model     [数据模型字段]
-		 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
-		 */
-		mvp.watch = function(model, callback) {
-			this.vm.watcher.add({
-				'dep': [model],
-				'acc': [undefined]
-			}, function(path, last, old) {
-				callback.call(this, path, last, old);
-			}, this.context);
-		}
-
-		return MVVM;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 12 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * compiler 元素编译/指令提取模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(10),
-		__webpack_require__(2),
-		__webpack_require__(15),
-		__webpack_require__(16),
+		__webpack_require__(5),
+		__webpack_require__(1),
+		__webpack_require__(6),
+		__webpack_require__(7),
 		// parse directive modules
-		__webpack_require__(18),
-		__webpack_require__(19),
-		__webpack_require__(20),
+		__webpack_require__(9),
+		__webpack_require__(10),
+		__webpack_require__(11),
+		__webpack_require__(3),
+		__webpack_require__(12),
 		__webpack_require__(13),
-		__webpack_require__(21),
-		__webpack_require__(22),
-		__webpack_require__(23),
-		__webpack_require__(24),
-		__webpack_require__(25)
+		__webpack_require__(14),
+		__webpack_require__(15),
+		__webpack_require__(16)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util, Updater, Watcher, Von, Vel, Vif, Vfor, Vtext, Vhtml, Vshow, Vbind,  Vmodel) {
 
 		/**
@@ -2439,12 +971,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 13 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vfor(vm) {
@@ -3000,14 +1532,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 14 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * parser 指令解析模块（部分正则借鉴于 vue）
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
 		// 表达式中允许的关键字
@@ -3315,15 +1847,137 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 15 */
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * dom 操作模块
+	 */
+	!(module.exports = {
+		/**
+		 * 清空 element 的所有子节点
+		 * @param   {DOMElement}  element
+		 */
+		empty: function(element) {
+			while (element.firstChild) {
+				element.removeChild(element.firstChild);
+			}
+		},
+
+		/**
+		 * 设置节点属性
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
+		 * @param   {String}      value
+		 */
+		setAttr: function(node, name, value) {
+			node.setAttribute(name, value);
+		},
+
+		/**
+		 * 获取节点属性值
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
+		 * @return  {String}
+		 */
+		getAttr: function(node, name) {
+			return node.getAttribute(name) || '';
+		},
+
+		/**
+		 * 判断节点是否存在属性
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
+		 * @return  {Boolean}
+		 */
+		hasAttr: function(node, name) {
+			return node.hasAttribute(name);
+		},
+
+		/**
+		 * 移除节点属性
+		 * @param   {DOMElement}  node
+		 * @param   {String}      name
+		 */
+		removeAttr: function(node, name) {
+			node.removeAttribute(name);
+		},
+
+		/**
+		 * 节点添加 classname
+		 * @param  {DOMElement}  node
+		 * @param  {String}      classname
+		 */
+		addClass: function(node, classname) {
+			var current, list = node.classList;
+			if (list) {
+				list.add(classname);
+			}
+			else {
+				current = ' ' + this.getAttr(node, 'class') + ' ';
+				if (current.indexOf(' ' + classname + ' ') === -1) {
+					this.setAttr(node, 'class', (current + classname).trim());
+				}
+			}
+		},
+
+		/**
+		 * 节点删除 classname
+		 * @param  {DOMElement}  node
+		 * @param  {String}      classname
+		 */
+		removeClass: function(node, classname) {
+			var current, target, list = node.classList;
+			if (list) {
+				list.remove(classname);
+			}
+			else {
+				target = ' ' + classname + ' ';
+				current = ' ' + this.getAttr(node, 'class') + ' ';
+				while (current.indexOf(target) !== -1) {
+					current = current.replace(target, ' ');
+				}
+				this.setAttr(node, 'class', current.trim());
+			}
+
+			if (!node.className) {
+				this.removeAttr(node, 'class');
+			}
+		},
+
+		/**
+		 * 节点事件绑定
+		 * @param   {DOMElement}   node
+		 * @param   {String}       evt
+		 * @param   {Function}     callback
+		 * @param   {Boolean}      capture
+		 */
+		addEvent: function(node, evt, callback, capture) {
+			node.addEventListener(evt, callback, capture);
+		},
+
+		/**
+		 * 解除节点事件绑定
+		 * @param   {DOMElement}   node
+		 * @param   {String}       evt
+		 * @param   {Function}     callback
+		 * @param   {Boolean}      capture
+		 */
+		removeEvent: function(node, evt, callback, capture) {
+			node.removeEventListener(evt, callback, capture);
+		}
+	});
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * updater 视图刷新模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(10),
-		__webpack_require__(2)
+		__webpack_require__(5),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util) {
 
 		function Updater(vm) {
@@ -3653,15 +2307,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 16 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * watcher 数据订阅模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2),
-		__webpack_require__(17)
+		__webpack_require__(1),
+		__webpack_require__(8)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, Observer) {
 
 		function Watcher(model) {
@@ -3927,14 +2581,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 17 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * observer 数据变化监测模块
 	 */
 	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(2)
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
 		/**
@@ -4147,12 +2801,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 18 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Von(vm) {
@@ -4317,12 +2971,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 19 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vel(vm) {
@@ -4365,12 +3019,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 20 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vif(vm) {
@@ -4403,12 +3057,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 21 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vtext(vm) {
@@ -4441,12 +3095,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 22 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vhtml(vm) {
@@ -4479,12 +3133,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 23 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		function Vshow(vm) {
@@ -4517,12 +3171,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 24 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
 
 		// 匹配 {'class': xxx} 形式
@@ -4857,13 +3511,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 25 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(10),
-		__webpack_require__(2)
+		__webpack_require__(4),
+		__webpack_require__(5),
+		__webpack_require__(1)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, dom, util) {
 
 		function Vmodel(vm) {
