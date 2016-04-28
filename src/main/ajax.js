@@ -14,9 +14,7 @@ define([
 		4: 请求已完成，且响应已就绪
 	 */
 
-	function Ajax() {
-		this.xmlHttp = new XMLHttpRequest();
-	}
+	function Ajax() {}
 
 	var ap = Ajax.prototype;
 
@@ -30,8 +28,8 @@ define([
 	 * @param   {Function}  context   [作用域]
 	 */
 	ap._execute = function(dataType, url, method, param, callback, context) {
-		var xmlHttp = this.xmlHttp;
 		var ct = context || util.WIN;
+		var xmlHttp = new XMLHttpRequest();
 
 		// 初始化请求
 		xmlHttp.open(method, url, true);
