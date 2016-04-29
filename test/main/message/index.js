@@ -16,6 +16,10 @@ require(['../../../src/main/index'], function(sugar) {
 
 		onParentCast: function(ev) {
 			console.log(ev);
+		},
+
+		onNotify: function() {
+			console.log('notify ~~~');
 		}
 	});
 
@@ -36,6 +40,8 @@ require(['../../../src/main/index'], function(sugar) {
 				'class': 'sss',
 				'tang': 'bc'
 			});
+
+			this.notify('mainPage.sub', 'notify');
 		},
 
 		onSubCreate: function() {

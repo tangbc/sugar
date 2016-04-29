@@ -1471,9 +1471,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 根据名称获取系统实例
 			function _getInstanceByName(name) {
 				var target = null;
-				util.each(cache, function(cache) {
-					if ((cache._collections && cache._collections.name) === name) {
-						target = cache;
+				util.each(cache, function(instance) {
+					if ((instance._ && instance._.name) === name) {
+						target = instance;
 						return false;
 					}
 				});
