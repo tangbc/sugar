@@ -317,7 +317,7 @@ define([
 
 		util.each(cache, function(receiver) {
 			this._trigger(receiver, msg);
-		});
+		}, this);
 	}
 
 	messager = new Messager();
