@@ -4,7 +4,7 @@
 
 * 特点：简单优雅的模块化开发方式；视图组件自带模板功能(支持异步请求)和 mvvm 模式
 
-* 项目分为两个独立的部分：**`sugar`** (实现组件模块化) 和 **`mvvm`** (实现数据绑定 + 视图刷新)
+* 项目分为两个独立的部分：**`sugar`** (实现组件系统) 和 **`mvvm`** (实现数据绑定 + 视图刷新)
 
 # 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-new" width="666">
@@ -21,9 +21,9 @@
 
 * `src/` 源代码文件目录：
 
-	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、创建和消息通信，详细参见: [sugar.md](https://github.com/tangbc/sugar/blob/master/README-sugar.md)
+	* `src/main/` 为 sugar 的核心模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、创建和消息通信，详细参见: [sugar api](http://tangbc.github.io/sugar/sugar.html)
 
-	* **`src/mvvm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [mvvm.md](https://github.com/tangbc/sugar/blob/master/README-mvvm.md)
+	* **`src/mvvm/`** 为一个简单 mvvm 库，支持 v-text, v-model, v-bind, v-on 和 v-for 等几个常用的指令，**mvvm 与 sugar 没有任何依赖和耦合，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
 
 
 # 举个栗子
@@ -73,6 +73,7 @@ var comp2 = sugar.core.create('component2', Page, {
 
 * [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
 * [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
+* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
 
 其他常用组件会后续更新……
 
