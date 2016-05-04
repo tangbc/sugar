@@ -89,7 +89,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.ajax = ajax;
 
 			/**
-			 * 系统核心模块实例
+			 * 系统核心实例
 			 * @type  {Object}
 			 */
 			this.core = core;
@@ -114,15 +114,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 异步状态锁
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
 		/**
-		 * 异步状态锁，处理模块创建的异步回调和通信，实现回调函数按队列触发
+		 * 异步状态锁，处理模块创建的异步回调和通信，实现异步回调按队列触发
 		 */
 		function Sync() {
 			/**
@@ -641,10 +638,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * Ajax 模块
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
@@ -657,6 +651,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			4: 请求已完成，且响应已就绪
 		 */
 
+		/**
+		 * Ajax 模块
+		 */
 		function Ajax() {}
 
 		var ap = Ajax.prototype;
@@ -767,10 +764,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * sugar 顶层模块实例
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2),
 		__webpack_require__(5),
 		__webpack_require__(6),
@@ -778,12 +772,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util, cache, Module, messager) {
 
 		/**
-		 * Core 核心模块，用于顶层模块的创建
+		 * Core 核心模块，用于顶层组件模块的创建
 		 */
 		var Core = Module.extend({
 			/**
-			 * 获取顶级模块实例
-			 * @param  {String}  name  [模块实例名称]
+			 * 获取顶级组件实例
+			 * @param  {String}  name  [组件实例名称]
 			 * @return {Object}
 			 */
 			get: function(name) {
@@ -791,7 +785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 全局广播消息，由 core 模块发出，系统全部实例接收
+			 * 全局广播消息，由 core 实例发出，系统全部实例接收
 			 * @param  {String}   name   [发送的消息名称]
 			 * @param  {Mix}      param  [<可选>附加消息参数]
 			 * @return {Boolean}
@@ -816,8 +810,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * cache 系统模块实例缓存队列
-	 * 模块唯一 id 与全部模块实例的对应关系
+	 * cache 系统组件实例缓存
+	 * 组件唯一 id 与组件实例的对应关系
 	 */
 	!(module.exports = {'id': 1, 'length': 0});
 
@@ -825,10 +819,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 底层模块定义
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(7),
 		__webpack_require__(5),
 		__webpack_require__(2),
@@ -836,7 +827,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Root, cache, util, messager) {
 
 		/**
-		 * Module 系统模块基础类，实现所有模块的通用方法
+		 * Module 系统组件模块基础类，实现所有模块的通用方法
 		 */
 		var Module = Root.extend({
 			/**
@@ -1147,10 +1138,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 类式继承根函数
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(2)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(util) {
 
@@ -1173,7 +1161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/*
-		 * Root 根函数，实现类式继承
+		 * Root 实现类式继承
 		 * @param  {Object}    proto  [生成类的新原型属性或方法]
 		 * @return {Function}  Class  [继承后的类]
 		 */
@@ -1217,10 +1205,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 模块消息通信 messager
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(1),
 		__webpack_require__(2),
 		__webpack_require__(5)
@@ -1235,8 +1220,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * Messager 通信使者（实现模块间通信）
-		 * 默认接收消息onMessage, 默认全部发送完毕回调onMessageSendOut
+		 * Messager 实现组件消息通信
+		 * 默认接收消息 onMessage, 默认全部发送完毕回调 onMessageSent
 		 */
 		function Messager() {
 			/**
@@ -1258,7 +1243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 创建一条消息
 		 * @param  {String}  type    [消息类型]
-		 * @param  {Object}  sender  [发送消息的模块实例]
+		 * @param  {Object}  sender  [发送消息的组件实例]
 		 * @param  {String}  name    [发送的消息名称]
 		 * @param  {Mix}     param   [<可选>附加消息参数]
 		 * @return {Object}
@@ -1267,9 +1252,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			return {
 				// 消息类型
 				'type'   : type,
-				// 消息发起模块实例
+				// 消息发起组件实例
 				'from'   : sender,
-				// 消息目标模块实例
+				// 消息目标组件实例
 				'to'     : null,
 				// 消息被传递的次数
 				'count'  : 0,
@@ -1277,16 +1262,16 @@ return /******/ (function(modules) { // webpackBootstrap
 				'name'   : name,
 				// 消息参数
 				'param'  : param,
-				// 接收消息模块的调用方法 on + 首字母大写
+				// 接收消息组件的调用方法 on + 首字母大写
 				'method' : 'on' + ucFirst(name),
-				// 接收消息模块的返回值
+				// 接收消息组件的返回值
 				'returns': null
 			}
 		}
 
 		/**
-		 * 触发接收消息模块实例的处理方法
-		 * @param  {Object}  receiver  [接收消息的模块实例]
+		 * 触发接收消息组件实例的处理方法
+		 * @param  {Object}  receiver  [接收消息的组件实例]
 		 * @param  {Mix}     msg       [消息体（内容）]
 		 * @param  {Mix}     returns   [返回给发送者的数据]
 		 * @return {Mix}
@@ -1322,7 +1307,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		mp._notifySender = function(msg, callback, context) {
 			// callback 未定义时触发默认事件
 			if (!callback) {
-				callback = context.onMessageSendOut;
+				callback = context.onMessageSent;
 			}
 
 			// callback 为属性值
@@ -1367,8 +1352,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
-		 * @param  {Object}    sender    [发送消息的子模块实例]
+		 * 冒泡（由下往上）方式发送消息，由子组件实例发出，逐层父组件实例接收
+		 * @param  {Object}    sender    [发送消息的子组件实例]
 		 * @param  {String}    name      [发送的消息名称]
 		 * @param  {Mix}       param     [<可选>附加消息参数]
 		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -1409,7 +1394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 广播（由上往下）方式发送消息，由父模块实例发出，逐层子模块实例接收
+		 * 广播（由上往下）方式发送消息，由父组件实例发出，逐层子组件实例接收
 		 */
 		mp.broadcast = function(sender, name, param, callback, context) {
 			var type = 'broadcast';
@@ -1446,9 +1431,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 向指定模块实例发送消息
-		 * @param  {Object}    sender    [发送消息的模块实例]
-		 * @param  {String}    receiver  [接受消息的模块实例名称支持.分层级]
+		 * 向指定组件实例发送消息
+		 * @param  {Object}    sender    [发送消息的组件实例]
+		 * @param  {String}    receiver  [接受消息的组件实例名称支持.分层级]
 		 * @param  {String}    name      [发送的消息名称]
 		 * @param  {Mix}       param     [<可选>附加消息参数]
 		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -1514,7 +1499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 全局广播发消息，系统全部实例接受
+		 * 全局广播发消息，系统全部组件实例接受
 		 * @param  {String}  name   [发送的消息名称]
 		 * @param  {Mix}     param  [<可选>附加消息参数]
 		 */
@@ -1548,30 +1533,27 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
-	 * 基础视图模块
-	 */
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
 		__webpack_require__(10),
 		__webpack_require__(3),
 		__webpack_require__(1),
 		__webpack_require__(2),
 		__webpack_require__(6),
 		__webpack_require__(11)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, ajax, sync, util, Module, SVM) {
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, ajax, sync, util, Module, MVVM) {
 
 		/**
-		 * Component 视图组件基础模块
+		 * Component 基础视图组件
 		 */
 		var Component = Module.extend({
 			/**
-			 * init 模块初始化方法
-			 * @param  {Object}  config  [模块参数配置]
-			 * @param  {Object}  parent  [父模块对象]
+			 * init 组件初始化方法
+			 * @param  {Object}  config  [组件参数配置]
+			 * @param  {Object}  parent  [父组件对象]
 			 */
 			init: function(config, parent) {
 				this._config = this.cover(config, {
-					// 模块目标容器
+					// 组件目标容器
 					'target'  : null,
 					// dom 元素的标签
 					'tag'     : 'div',
@@ -1595,11 +1577,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				// 通用 dom 处理方法
 				this.$ = dom;
-				// 模块元素
+				// 组件元素
 				this.el = null;
 				// mvvm 实例
 				this.vm = null;
-				// 模块是否已经创建完成
+				// 组件是否已经创建完成
 				this._ready = false;
 
 				// 调用渲染前函数
@@ -1617,17 +1599,15 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 加载模板
+			 * 加载模板布局文件
 			 */
 			_loadTemplate: function() {
 				var c = this.getConfig();
 				var uri = c.template;
-				var param = util.extend(true, {}, c.tplParam, {
-					'ts': +new Date()
-				});
+
 				// 防止消息异步或者框架外的异步创建出现问题
 				sync.lock();
-				ajax.load(uri, param, function(err, data) {
+				ajax.load(uri, c.tplParam, function(err, data) {
 					var text;
 
 					if (err) {
@@ -1645,9 +1625,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 模块配置参数合并、覆盖
-			 * @param  {Object}  child   [子类模块配置参数]
-			 * @param  {Object}  parent  [父类模块配置参数]
+			 * 组件配置参数合并、覆盖
+			 * @param  {Object}  child   [子类组件配置参数]
+			 * @param  {Object}  parent  [父类组件配置参数]
 			 * @return {Object}          [合并后的配置参数]
 			 */
 			cover: function(child, parent) {
@@ -1661,7 +1641,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 获取模块配置参数
+			 * 获取组件配置参数
 			 * @param  {String}  name  [参数字段名称，支持/层级]
 			 */
 			getConfig: function(name) {
@@ -1669,7 +1649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 设置模块配置参数
+			 * 设置组件配置参数
 			 * @param {String}  name   [配置字段名]
 			 * @param {Mix}     value  [值]
 			 */
@@ -1731,7 +1711,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 渲染视图、初始化配置
+			 * 渲染组件视图、初始化配置
 			 */
 			_render: function() {
 				// 判断是否已创建过
@@ -1746,8 +1726,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				var el = this.el = util.createElement(c.tag);
 
 				// 添加 class
-				if (c.class && util.isString(c.class)) {
-					dom.addClass(el, c.class);
+				var cls = c.class;
+				if (cls && util.isString(cls)) {
+					util.each(cls.split(' '), function(classname) {
+						dom.addClass(el, classname);
+					});
 				}
 
 				// 添加 css
@@ -1772,7 +1755,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				// 初始化 mvvm 对象
 				var model = c.model;
 				if (util.isObject(model)) {
-					this.vm = new SVM(el, model, this);
+					this.vm = new MVVM(el, model, this);
 				}
 
 				// 追加到目标容器
@@ -1781,7 +1764,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					target.appendChild(el);
 				}
 
-				// 调用模块的(视图渲染完毕)后续回调方法
+				// 组件视图渲染完成回调方法
 				var cb = this[c.cbRender];
 				if (util.isFunc(cb)) {
 					cb.call(this);
@@ -1821,7 +1804,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 
 			/**
-			 * 模块销毁后的回调函数
+			 * 组件销毁后的回调函数
 			 */
 			afterDestroy: function() {
 				var vm = this.vm;

@@ -27,7 +27,7 @@ define([
 		this.ajax = ajax;
 
 		/**
-		 * 系统核心模块实例
+		 * 系统核心实例
 		 * @type  {Object}
 		 */
 		this.core = core;

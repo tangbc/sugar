@@ -1,6 +1,3 @@
-/**
- * 类式继承根函数
- */
 define([
 	'../util'
 ], function(util) {
@@ -24,7 +21,7 @@ define([
 	}
 
 	/*
-	 * Root 根函数，实现类式继承
+	 * Root 实现类式继承
 	 * @param  {Object}    proto  [生成类的新原型属性或方法]
 	 * @return {Function}  Class  [继承后的类]
 	 */

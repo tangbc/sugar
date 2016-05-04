@@ -1,6 +1,3 @@
-/**
- * 模块消息通信 messager
- */
 define([
 	'./sync',
 	'../util',
@@ -16,8 +13,8 @@ define([
 	}
 
 	/**
-	 * Messager 通信使者（实现模块间通信）
-	 * 默认接收消息onMessage, 默认全部发送完毕回调onMessageSendOut
+	 * Messager 实现组件消息通信
+	 * 默认接收消息 onMessage, 默认全部发送完毕回调 onMessageSent
 	 */
 	function Messager() {
 		/**
@@ -39,7 +36,7 @@ define([
 	/**
 	 * 创建一条消息
 	 * @param  {String}  type    [消息类型]
-	 * @param  {Object}  sender  [发送消息的模块实例]
+	 * @param  {Object}  sender  [发送消息的组件实例]
 	 * @param  {String}  name    [发送的消息名称]
 	 * @param  {Mix}     param   [<可选>附加消息参数]
 	 * @return {Object}
@@ -48,9 +45,9 @@ define([
 		return {
 			// 消息类型
 			'type'   : type,
-			// 消息发起模块实例
+			// 消息发起组件实例
 			'from'   : sender,
-			// 消息目标模块实例
+			// 消息目标组件实例
 			'to'     : null,
 			// 消息被传递的次数
 			'count'  : 0,
@@ -58,16 +55,16 @@ define([
 			'name'   : name,
 			// 消息参数
 			'param'  : param,
-			// 接收消息模块的调用方法 on + 首字母大写
+			// 接收消息组件的调用方法 on + 首字母大写
 			'method' : 'on' + ucFirst(name),
-			// 接收消息模块的返回值
+			// 接收消息组件的返回值
 			'returns': null
 		}
 	}
 
 	/**
-	 * 触发接收消息模块实例的处理方法
-	 * @param  {Object}  receiver  [接收消息的模块实例]
+	 * 触发接收消息组件实例的处理方法
+	 * @param  {Object}  receiver  [接收消息的组件实例]
 	 * @param  {Mix}     msg       [消息体（内容）]
 	 * @param  {Mix}     returns   [返回给发送者的数据]
 	 * @return {Mix}
@@ -103,7 +100,7 @@ define([
 	mp._notifySender = function(msg, callback, context) {
 		// callback 未定义时触发默认事件
 		if (!callback) {
-			callback = context.onMessageSendOut;
+			callback = context.onMessageSent;
 		}
 
 		// callback 为属性值
@@ -148,8 +145,8 @@ define([
 	}
 
 	/**
-	 * 冒泡（由下往上）方式发送消息，由子模块实例发出，逐层父模块实例接收
-	 * @param  {Object}    sender    [发送消息的子模块实例]
+	 * 冒泡（由下往上）方式发送消息，由子组件实例发出，逐层父组件实例接收
+	 * @param  {Object}    sender    [发送消息的子组件实例]
 	 * @param  {String}    name      [发送的消息名称]
 	 * @param  {Mix}       param     [<可选>附加消息参数]
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -190,7 +187,7 @@ define([
 	}
 
 	/**
-	 * 广播（由上往下）方式发送消息，由父模块实例发出，逐层子模块实例接收
+	 * 广播（由上往下）方式发送消息，由父组件实例发出，逐层子组件实例接收
 	 */
 	mp.broadcast = function(sender, name, param, callback, context) {
 		var type = 'broadcast';
@@ -227,9 +224,9 @@ define([
 	}
 
 	/**
-	 * 向指定模块实例发送消息
-	 * @param  {Object}    sender    [发送消息的模块实例]
-	 * @param  {String}    receiver  [接受消息的模块实例名称支持.分层级]
+	 * 向指定组件实例发送消息
+	 * @param  {Object}    sender    [发送消息的组件实例]
+	 * @param  {String}    receiver  [接受消息的组件实例名称支持.分层级]
 	 * @param  {String}    name      [发送的消息名称]
 	 * @param  {Mix}       param     [<可选>附加消息参数]
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
@@ -295,7 +292,7 @@ define([
 	}
 
 	/**
-	 * 全局广播发消息，系统全部实例接受
+	 * 全局广播发消息，系统全部组件实例接受
 	 * @param  {String}  name   [发送的消息名称]
 	 * @param  {Mix}     param  [<可选>附加消息参数]
 	 */

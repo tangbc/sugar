@@ -1,6 +1,3 @@
-/**
- * 基础视图模块
- */
 define([
 	'../dom',
 	'./ajax',
@@ -8,20 +5,20 @@ define([
 	'../util',
 	'./module',
 	'../mvvm/index'
-], function(dom, ajax, sync, util, Module, SVM) {
+], function(dom, ajax, sync, util, Module, MVVM) {
 
 	/**
-	 * Component 视图组件基础模块
+	 * Component 基础视图组件
 	 */
 	var Component = Module.extend({
 		/**
-		 * init 模块初始化方法
-		 * @param  {Object}  config  [模块参数配置]
-		 * @param  {Object}  parent  [父模块对象]
+		 * init 组件初始化方法
+		 * @param  {Object}  config  [组件参数配置]
+		 * @param  {Object}  parent  [父组件对象]
 		 */
 		init: function(config, parent) {
 			this._config = this.cover(config, {
-				// 模块目标容器
+				// 组件目标容器
 				'target'  : null,
 				// dom 元素的标签
 				'tag'     : 'div',
@@ -45,11 +42,11 @@ define([
 
 			// 通用 dom 处理方法
 			this.$ = dom;
-			// 模块元素
+			// 组件元素
 			this.el = null;
 			// mvvm 实例
 			this.vm = null;
-			// 模块是否已经创建完成
+			// 组件是否已经创建完成
 			this._ready = false;
 
 			// 调用渲染前函数
@@ -67,17 +64,15 @@ define([
 		},
 
 		/**
-		 * 加载模板
+		 * 加载模板布局文件
 		 */
 		_loadTemplate: function() {
 			var c = this.getConfig();
 			var uri = c.template;
-			var param = util.extend(true, {}, c.tplParam, {
-				'ts': +new Date()
-			});
+
 			// 防止消息异步或者框架外的异步创建出现问题
 			sync.lock();
-			ajax.load(uri, param, function(err, data) {
+			ajax.load(uri, c.tplParam, function(err, data) {
 				var text;
 
 				if (err) {
@@ -95,9 +90,9 @@ define([
 		},
 
 		/**
-		 * 模块配置参数合并、覆盖
-		 * @param  {Object}  child   [子类模块配置参数]
-		 * @param  {Object}  parent  [父类模块配置参数]
+		 * 组件配置参数合并、覆盖
+		 * @param  {Object}  child   [子类组件配置参数]
+		 * @param  {Object}  parent  [父类组件配置参数]
 		 * @return {Object}          [合并后的配置参数]
 		 */
 		cover: function(child, parent) {
@@ -111,7 +106,7 @@ define([
 		},
 
 		/**
-		 * 获取模块配置参数
+		 * 获取组件配置参数
 		 * @param  {String}  name  [参数字段名称，支持/层级]
 		 */
 		getConfig: function(name) {
@@ -119,7 +114,7 @@ define([
 		},
 
 		/**
-		 * 设置模块配置参数
+		 * 设置组件配置参数
 		 * @param {String}  name   [配置字段名]
 		 * @param {Mix}     value  [值]
 		 */
@@ -181,7 +176,7 @@ define([
 		},
 
 		/**
-		 * 渲染视图、初始化配置
+		 * 渲染组件视图、初始化配置
 		 */
 		_render: function() {
 			// 判断是否已创建过
@@ -196,8 +191,11 @@ define([
 			var el = this.el = util.createElement(c.tag);
 
 			// 添加 class
-			if (c.class && util.isString(c.class)) {
-				dom.addClass(el, c.class);
+			var cls = c.class;
+			if (cls && util.isString(cls)) {
+				util.each(cls.split(' '), function(classname) {
+					dom.addClass(el, classname);
+				});
 			}
 
 			// 添加 css
@@ -222,7 +220,7 @@ define([
 			// 初始化 mvvm 对象
 			var model = c.model;
 			if (util.isObject(model)) {
-				this.vm = new SVM(el, model, this);
+				this.vm = new MVVM(el, model, this);
 			}
 
 			// 追加到目标容器
@@ -231,7 +229,7 @@ define([
 				target.appendChild(el);
 			}
 
-			// 调用模块的(视图渲染完毕)后续回调方法
+			// 组件视图渲染完成回调方法
 			var cb = this[c.cbRender];
 			if (util.isFunc(cb)) {
 				cb.call(this);
@@ -271,7 +269,7 @@ define([
 		},
 
 		/**
-		 * 模块销毁后的回调函数
+		 * 组件销毁后的回调函数
 		 */
 		afterDestroy: function() {
 			var vm = this.vm;

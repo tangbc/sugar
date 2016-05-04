@@ -1,6 +1,3 @@
-/**
- * 底层模块定义
- */
 define([
 	'./root',
 	'./cache',
@@ -9,7 +6,7 @@ define([
 ], function(Root, cache, util, messager) {
 
 	/**
-	 * Module 系统模块基础类，实现所有模块的通用方法
+	 * Module 系统组件模块基础类，实现所有模块的通用方法
 	 */
 	var Module = Root.extend({
 		/**

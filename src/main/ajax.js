@@ -1,6 +1,3 @@
-/**
- * Ajax 模块
- */
 define([
 	'../util'
 ], function(util) {
@@ -14,6 +11,9 @@ define([
 		4: 请求已完成，且响应已就绪
 	 */
 
+	/**
+	 * Ajax 模块
+	 */
 	function Ajax() {}
 
 	var ap = Ajax.prototype;
