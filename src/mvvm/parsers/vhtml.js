@@ -1,7 +1,6 @@
 define([
-	'../parser',
-	'../../util'
-], function(Parser, util) {
+	'../parser'
+], function(Parser) {
 
 	function Vhtml(vm) {
 		this.vm = vm;

@@ -202,7 +202,7 @@ define([
 				this.splice.apply(this, arguments);
 				break;
 			// sort、reverse 操作或直接赋值都重新编译
-			default: this.recompileArray.apply(this, arguments);
+			default: this.recompile.apply(this, arguments);
 		}
 	}
 
@@ -376,7 +376,7 @@ define([
 			}
 
 			if (util.isEmpty(map)) {
-				this.recompileArray.apply(this, arguments);
+				this.recompile.apply(this, arguments);
 				return;
 			}
 			else {
@@ -396,7 +396,7 @@ define([
 			}
 
 			if (util.isEmpty(map) || start === 0 && deleteCont > length) {
-				this.recompileArray.apply(this, arguments);
+				this.recompile.apply(this, arguments);
 				return;
 			}
 			else {
@@ -518,7 +518,7 @@ define([
 	/**
 	 * 重新编译循环体
 	 */
-	vfor.recompileArray = function(parent, node, newArray, method, up) {
+	vfor.recompile = function(parent, node, newArray, method, up) {
 		var child, scapegoat;
 		var template, alias = up.alias;
 		var childNodes = parent.childNodes;

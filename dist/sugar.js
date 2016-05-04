@@ -2627,7 +2627,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.splice.apply(this, arguments);
 					break;
 				// sort、reverse 操作或直接赋值都重新编译
-				default: this.recompileArray.apply(this, arguments);
+				default: this.recompile.apply(this, arguments);
 			}
 		}
 
@@ -2801,7 +2801,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				if (util.isEmpty(map)) {
-					this.recompileArray.apply(this, arguments);
+					this.recompile.apply(this, arguments);
 					return;
 				}
 				else {
@@ -2821,7 +2821,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				if (util.isEmpty(map) || start === 0 && deleteCont > length) {
-					this.recompileArray.apply(this, arguments);
+					this.recompile.apply(this, arguments);
 					return;
 				}
 				else {
@@ -2943,7 +2943,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 重新编译循环体
 		 */
-		vfor.recompileArray = function(parent, node, newArray, method, up) {
+		vfor.recompile = function(parent, node, newArray, method, up) {
 			var child, scapegoat;
 			var template, alias = up.alias;
 			var childNodes = parent.childNodes;
@@ -4350,9 +4350,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
+		__webpack_require__(14)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser) {
 
 		function Vif(vm) {
 			this.vm = vm;
@@ -4388,9 +4387,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
+		__webpack_require__(14)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser) {
 
 		function Vtext(vm) {
 			this.vm = vm;
@@ -4426,9 +4424,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
+		__webpack_require__(14)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser) {
 
 		function Vhtml(vm) {
 			this.vm = vm;
@@ -4464,9 +4461,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [
-		__webpack_require__(14),
-		__webpack_require__(2)
-	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser, util) {
+		__webpack_require__(14)
+	], __WEBPACK_AMD_DEFINE_RESULT__ = function(Parser) {
 
 		function Vshow(vm) {
 			this.vm = vm;
