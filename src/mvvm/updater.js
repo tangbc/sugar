@@ -20,26 +20,17 @@ define([
 	 * @param   {String}      text
 	 */
 	up.updateTextContent = function(node, text) {
-		node.textContent = (node._vm_text_prefix || '') + String(text) + (node._vm_text_suffix || '');
+		node.textContent = String(text);
 	}
 
 	/**
 	 * 更新节点的 html 内容 realize v-html
+	 * 处理 {{{html}}} 指令时 node 为文本的父节点
 	 * @param   {DOMElement}  node
 	 * @param   {String}      html
-	 * @param   {Boolean}     isPlain    [是否是纯文本节点]
 	 */
 	up.updateHtmlContent = function(node, html) {
-		var vm = this.vm;
-		html = String(html);
-
-		if (vm.isElementNode(node)) {
-			dom.empty(node);
-			node.appendChild(util.stringToFragment(html));
-		}
-		else if (vm.isTextNode(node)) {
-			node.parentNode.replaceChild(util.stringToFragment(html), node);
-		}
+		dom.empty(node).appendChild(util.stringToFragment(String(html)));
 	}
 
 	/**

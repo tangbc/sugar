@@ -70,9 +70,9 @@ define([
 		this.init();
 	}
 
-	var vp = Compiler.prototype;
+	var cp = Compiler.prototype;
 
-	vp.init = function() {
+	cp.init = function() {
 		this.complieElement(this.$fragment, true);
 	}
 
@@ -82,7 +82,7 @@ define([
 	 * @param   {Boolean}              root      [是否是编译根节点]
 	 * @param   {Object}               fors      [vfor 数据]
 	 */
-	vp.complieElement = function(element, root, fors) {
+	cp.complieElement = function(element, root, fors) {
 		var node, childNodes = element.childNodes;
 
 		if (root && this.hasDirective(element)) {
@@ -111,7 +111,7 @@ define([
 	 * @param   {DOMElement}  node
 	 * @return  {Number}
 	 */
-	vp.hasDirective = function(node) {
+	cp.hasDirective = function(node) {
 		var result, nodeAttrs;
 		var text = node.textContent;
 		var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
@@ -134,7 +134,7 @@ define([
 	/**
 	 * 编译节点缓存队列
 	 */
-	vp.compileAll = function() {
+	cp.compileAll = function() {
 		util.each(this.$unCompileNodes, function(info) {
 			this.complieDirectives(info);
 			return null;
@@ -147,7 +147,7 @@ define([
 	 * 收集并编译节点指令
 	 * @param   {Array}  info   [node, fors]
 	 */
-	vp.complieDirectives = function(info) {
+	cp.complieDirectives = function(info) {
 		var node = info[0], fors = info[1];
 		var atr, name, _vfor, attrs = [], nodeAttrs;
 
@@ -189,7 +189,7 @@ define([
 	 * @param   {Object}       attr
 	 * @param   {Array}        fors
 	 */
-	vp.compile = function(node, attr, fors) {
+	cp.compile = function(node, attr, fors) {
 		var dir = attr.name;
 		var exp = attr.value;
 		var args = [fors, node, exp, dir];
@@ -243,45 +243,48 @@ define([
 	}
 
 	/**
-	 * 编译文本节点
+	 * 编译文本节点 {{text}} or {{{html}}}
 	 * @param   {DOMElement}   node
 	 * @param   {Object}       fors
 	 */
-	vp.compileText = function(node, fors) {
-		var text = node.textContent;
-		var regtext = new RegExp('{{(.+?)}}', 'g');
-		var regHtml = new RegExp('{{{(.+?)}}}', 'g');
-		var matches = text.match(regHtml);
-		var match, splits, prefix, suffix, field, htmlCompile;
+	cp.compileText = function(node, fors) {
+		var text = node.textContent.trim().replace(/\n/g, '');
+		var exp, match, matches, formatStr, pieces, tokens = [];
+		var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
+		var isText = regtext.test(text), isHtml = reghtml.test(text);
 
 		// html match
-		if (matches) {
+		if (isHtml) {
+			matches = text.match(reghtml);
 			match = matches[0];
-			htmlCompile = true;
-			field = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
-		}
-		// text match
-		else {
-			matches = text.match(regtext);
-			match = matches[0];
-			field = match.replace(/\s|\{|\{|\}|\}/g, '');
-		}
-
-		splits = text.split(match);
-		prefix = splits[0];
-		suffix = splits[splits.length - 1];
-
-		if (htmlCompile) {
-			if (prefix || suffix) {
-				util.warn('{{{html}}} can not have a prefix or suffix textNode!');
+			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
+			if (match.length !== text.length) {
+				util.warn(match + ' compile for HTML can not have a prefix or suffix!');
 				return;
 			}
-			this.vhtml.parse.call(this.vhtml, fors, node, field);
+			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 		}
-		else {
-			node._vm_text_prefix = prefix;
-			node._vm_text_suffix = suffix;
-			this.vtext.parse.call(this.vtext, fors, node, field);
+		// text match
+		else if (isText) {
+			formatStr = text.replace(regtext, function(m) {
+				return '_%su' + m + '_$su';
+			});
+			pieces = formatStr.split(/\_\%su(.+?)\_\$su/g);
+
+			// 文本节点转化为常量和变量的组合表达式
+			// 'a {{b}} c' => '"a " + b + " c"'
+			util.each(pieces, function(piece) {
+				// {{text}}
+				if (regtext.test(piece)) {
+					tokens.push(piece.replace(/\s\{|\{|\}|\}/g, ''));
+				}
+				// 字符常量
+				else {
+					tokens.push('"' + piece + '"');
+				}
+			});
+
+			this.vtext.parse.call(this.vtext, fors, node, tokens.join('+'));
 		}
 	}
 
@@ -289,7 +292,7 @@ define([
 	 * 停止编译节点的剩余指令，如 vfor 的根节点
 	 * @param   {DOMElement}  node
 	 */
-	vp.blockCompile = function(node) {
+	cp.blockCompile = function(node) {
 		util.each(this.$unCompileNodes, function(info) {
 			if (node === info[0]) {
 				return null;
@@ -302,7 +305,7 @@ define([
 	 * @param   {DOMElement}   element
 	 * @return  {Boolean}
 	 */
-	vp.isElementNode = function(element) {
+	cp.isElementNode = function(element) {
 		return element.nodeType === 1;
 	}
 
@@ -311,7 +314,7 @@ define([
 	 * @param   {DOMElement}   element
 	 * @return  {Boolean}
 	 */
-	vp.isTextNode = function(element) {
+	cp.isTextNode = function(element) {
 		return element.nodeType === 3;
 	}
 
@@ -320,7 +323,7 @@ define([
 	 * @param   {String}   directive
 	 * @return  {Boolean}
 	 */
-	vp.isDirective = function(directive) {
+	cp.isDirective = function(directive) {
 		return directive.indexOf('v-') === 0;
 	}
 
@@ -330,14 +333,14 @@ define([
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
-	vp.isLateCompile = function(node) {
+	cp.isLateCompile = function(node) {
 		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for');
 	}
 
 	/**
 	 * 检查根节点是否编译完成
 	 */
-	vp.checkCompleted = function() {
+	cp.checkCompleted = function() {
 		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
 			this.rootCompleted();
 		}
@@ -346,11 +349,10 @@ define([
 	/**
 	 * 根节点编译完成，更新视图
 	 */
-	vp.rootCompleted = function() {
+	cp.rootCompleted = function() {
 		var element = this.$element;
-		dom.empty(element);
 		this.$rootComplied = true;
-		element.appendChild(this.$fragment);
+		dom.empty(element).appendChild(this.$fragment);
 	}
 
 	return Compiler;

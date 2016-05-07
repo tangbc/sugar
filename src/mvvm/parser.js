@@ -13,11 +13,13 @@ define([
 	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
+	// 匹配纯数字
+	var regNumber = /^[0-9]*$/;
 	// 匹配常量缓存序号 "1"
 	var regSaveConst = /"(\d+)"/g;
 	// 只含有 true 或 false
 	var regBool = /^(true|false)$/;
-	// 匹配循环下标
+	// 匹配循环下标别名
 	var regIndex = /^\$index|\W\$\bindex\b/;
 	// 匹配表达式中的常量
 	var regReplaceConst = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g;
@@ -240,24 +242,17 @@ define([
 	 * @return  {Mix}
 	 */
 	p.updateScope = function(scope, expression, path, last) {
-		var nScope = scope, key, field;
-
 		// scope === alias
 		if (typeof scope !== 'object') {
-			nScope = last;
+			return last;
 		}
 
-		// 下标
-		if (expression === '$index') {
-			nScope.$index = last;
-		}
-		else {
-			key = util.getExpKey(expression);
-			field = key && path !== expression && path.lastIndexOf(key) === (path.length - key.length) ? key : path;
-			nScope[field] = last;
+		// 更新下标
+		if (regNumber.test(path.charAt(path.length -1)) && regIndex.test(expression)) {
+			scope.$index = last;
 		}
 
-		return nScope;
+		return scope;
 	}
 
 	/**

@@ -8,7 +8,7 @@ require(['../../../src/mvvm/index'], function(VM) {
 			前缀{{item.text}}后缀
 			<br>
 			<span v-text="item.text"></span>
-			<span>{{{$index}}</span>
+			<span>{{$index}}</span>
 			<div v-for="p in item.ps">
 				<p>{{{p.hp}}}</p>
 				<p>{{{item.html}}}</p>

@@ -14,8 +14,8 @@ define([
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vhtml.parse = function() {
-		this.bind.apply(this, arguments);
+	vhtml.parse = function(fors, node, expression) {
+		this.bind.apply(this, [fors, (this.vm.isTextNode(node) ? node.parentNode : node), expression]);
 	}
 
 	/**
