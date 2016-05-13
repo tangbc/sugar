@@ -36,13 +36,15 @@ define([
 
 		// 缓存根节点
 		this.$element = element;
-		// 元素转为文档碎片
+		// 根节点转文档碎片
 		this.$fragment = util.nodeToFragment(this.$element);
 
-		// VM 数据模型
+		// 数据模型对象
 		this.$data = model;
-		// DOM 对象注册索引
+		// DOM 注册索引
 		this.$data.$els = {};
+		// 子取值域索引
+		this.$data.$scope = {};
 
 		// 未编译节点缓存队列
 		this.$unCompileNodes = [];
@@ -276,10 +278,10 @@ define([
 			util.each(pieces, function(piece) {
 				// {{text}}
 				if (regtext.test(piece)) {
-					tokens.push(piece.replace(/\s\{|\{|\}|\}/g, ''));
+					tokens.push('(' + piece.replace(/\s\{|\{|\}|\}/g, '') + ')');
 				}
 				// 字符常量
-				else {
+				else if (piece) {
 					tokens.push('"' + piece + '"');
 				}
 			});

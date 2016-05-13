@@ -39,6 +39,8 @@ define([
 		var level = -1;
 		// 取值域集合
 		var scopes = {};
+		// 取值域与数组字段映射
+		var maps = {};
 		// 别名集合
 		var aliases = [];
 		// 取值域路径集合
@@ -46,8 +48,8 @@ define([
 
 		// 嵌套 vfor
 		if (fors) {
+			maps = fors.maps;
 			level = fors.level;
-			// 取值域集合一定是引用而不是拷贝
 			scopes = fors.scopes;
 			aliases = fors.aliases.slice(0);
 			accesses = fors.accesses.slice(0);
@@ -59,7 +61,7 @@ define([
 			return;
 		}
 
-		listArgs = [node, array, 0, loopAccess, alias, aliases, accesses, scopes, ++level];
+		listArgs = [node, array, 0, loopAccess, alias, aliases, accesses, scopes, maps, ++level];
 		template = this.buildList.apply(this, listArgs);
 
 		node.parentNode.replaceChild(template, node);
@@ -115,21 +117,25 @@ define([
 	 * @param   {Array}       aliases   [取值域别名数组]
 	 * @param   {Array}       accesses  [取值域访问路径数组]
 	 * @param   {Object}      scopes    [取值域集合]
+	 * @param   {Object}      maps      [数组与取值域的映射]
 	 * @param   {Number}      level     [当前循环层级]
 	 * @return  {Fragment}              [板块文档碎片集合]
 	 */
-	vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, level) {
+	vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 		var vm = this.vm;
 		var fragments = util.createFragment();
 
 		util.each(array, function(scope, i) {
 			var index = start + i;
+			var field = paths.split('*').pop();
 			var cloneNode = node.cloneNode(true);
 			var fors, access = paths + '*' + index;
 
+			scope.$index = index;
 			scopes[alias] = scope;
 			aliases[level] = alias;
 			accesses[level] = access;
+			maps[field] = alias;
 
 			fors = {
 				// 别名
@@ -140,10 +146,10 @@ define([
 				'access'  : access,
 				// 取值域访问路径集合
 				'accesses': accesses,
-				// 当前取值域
-				'scope'   : scope,
 				// 取值域集合
 				'scopes'  : scopes,
+				// 数组取值域映射
+				'maps'    : maps,
 				// 当前循环层级
 				'level'   : level,
 				// 当前取值域下标
@@ -253,7 +259,6 @@ define([
 			'aliases' : updates.aliases,
 			'access'  : access,
 			'accesses': updates.accesses,
-			'scope'   : newArray[last],
 			'scopes'  : updates.scopes,
 			'level'   : updates.level,
 			'index'   : last
@@ -310,7 +315,6 @@ define([
 			'aliases' : updates.aliases,
 			'access'  : access,
 			'accesses': updates.accesses,
-			'scope'   : newArray[0],
 			'scopes'  : updates.scopes,
 			'level'   : updates.level,
 			'index'   : 0

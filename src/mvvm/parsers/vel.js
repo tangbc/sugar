@@ -27,7 +27,7 @@ define([
 				return;
 			}
 
-			scope = fors.scope;
+			scope = fors.scopes[alias];
 
 			if (util.isObject(scope)) {
 				key = util.getExpKey(value);

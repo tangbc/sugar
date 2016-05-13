@@ -18,7 +18,7 @@ define([
 		// 数组下标订阅集合
 		this.$indexSubs = {};
 
-		this.observer = new Observer(model, ['$els'], 'change', this);
+		this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
 	}
 
 	var wp = Watcher.prototype;
@@ -72,7 +72,7 @@ define([
 			}
 
 			// 下标取值
-			if (model === '$index') {
+			if (model.indexOf('$index') !== -1) {
 				this.watchIndex(access, callback, context, args);
 				return;
 			}

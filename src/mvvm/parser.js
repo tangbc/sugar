@@ -99,6 +99,51 @@ define([
 		return alias;
 	}
 
+	/**
+	 * 生成取值路径数组
+	 * items*0*ps*0*text => [[items, 0], [ps, 0]]
+	 * @param   {String}  access
+	 * @return  {Array}
+	 */
+	function makePaths(access) {
+		var paths = access.split('*');
+		var length, index = 0, scopePaths = [];
+
+		for (var i = paths.length - 1; i < paths.length; i--) {
+			if (regNumber.test(paths[i])) {
+				length = i + 1;
+				break;
+			}
+		}
+
+		paths = paths.slice(0, length);
+
+		if (paths.length % 2 === 0) {
+			while (index < paths.length) {
+				index += 2;
+				scopePaths.push(paths.slice(0, index));
+			}
+		}
+
+		return scopePaths;
+	}
+
+	/**
+	 * 通过访问层级取值
+	 * @param   {Object}  target
+	 * @param   {array}   paths
+	 * @return  {Mix}
+	 */
+	function getDeepValue(target, paths) {
+		var _paths = paths.slice(0);
+
+		while (_paths.length) {
+			target = target[_paths.shift()];
+		}
+
+		return target;
+	}
+
 
 	/**
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -121,15 +166,17 @@ define([
 		var scope = this.getScope(fors, expression);
 		// 生成取值函数
 		var getter = this.getEval(fors, expression);
-
-		// 监测所有依赖变化
-		vm.watcher.watch(deps, function(path, last) {
-			var nScope = this.updateScope(scope, expression, path, last);
-			this.update(node, getter.call(nScope, nScope));
-		}, this);
+		// 取值别名映射
+		var maps = fors && util.copy(fors.maps);
 
 		// 调用更新方法
 		this.update(node, getter.call(scope, scope));
+
+		// 监测所有依赖变化
+		vm.watcher.watch(deps, function(path) {
+			scope = this.updateScope(scope, maps, path);
+			this.update(node, getter.call(scope, scope));
+		}, this);
 	}
 
 	/**
@@ -150,33 +197,35 @@ define([
 	 * 获取表达式的取值函数
 	 */
 	p.getEval = function(fors, expression) {
-		var alias, regScope;
-		var exp = this.replaceScope(expression);
+		var exp = this.toScope(expression);
 
+		if (regAviodKeyword.test(exp)) {
+			util.warn('Avoid using unallow keyword in expression: ' + exp);
+			return;
+		}
+
+		// 替换取值域别名
 		if (fors) {
-			alias = getAlias(fors, expression);
-			regScope = new RegExp('scope.' + alias, 'g');
-			exp = exp.replace(regScope, 'scope');
+			util.each(fors.aliases, function(alias) {
+				var reg = new RegExp('scope.' + alias, 'g');
+				exp = exp.replace(reg, function(scope) {
+					return 'scope.$' + scope;
+				});
+			});
 		}
 
 		return this.createGetter(exp);
 	}
 
 	/**
-	 * 替换表达式的 scope 取值域
+	 * 转换表达式的 scope 取值域
 	 * @return  {String}
 	 */
-	p.replaceScope = function(expression) {
+	p.toScope = function(expression) {
 		var exp = expression;
 
-		// 常规指令
 		if (isNormal(exp)) {
 			return 'scope.' + exp;
-		}
-
-		if (regAviodKeyword.test(exp)) {
-			util.warn('Avoid using unallow keyword in expression: ' + exp);
-			return;
 		}
 
 		exp = (' ' + exp).replace(regReplaceConst, saveConst);
@@ -193,66 +242,58 @@ define([
 	 * @return  {Object}
 	 */
 	p.getScope = function(fors, expression) {
-		var alias, scope, index;
-		var model = this.vm.$data;
+		var scope = util.copy(this.vm.$data);
 
-		// 顶层数据模型
 		if (!fors) {
-			return model;
-		}
-		else {
-			alias = getAlias(fors, expression);
+			return scope;
 		}
 
-		// 无别名(vfor 中取顶层值)
-		if (!alias) {
-			return model;
-		}
+		// 组合每一层 vfor 的取值域
+		util.each(fors.scopes, function(_scope, alias) {
+			scope.$scope[alias] = _scope;
+		});
 
-		// 当前域取值
-		if (alias === fors.alias) {
-			scope = fors.scope;
-
-			// 取 vfor 循环下标
-			if (regIndex.test(expression)) {
-				index = fors.index;
-
-				if (util.isObject(scope)) {
-					scope.$index = index;
-				}
-				else {
-					scope = {'$index': index};
-				}
-			}
-		}
-		// 跨循环层级取值
-		else {
-			scope = fors.scopes[alias];
-		}
+		// vfor 下标
+		scope.$index = fors.index;
 
 		return scope;
 	}
 
 	/**
 	 * 更新取值域
-	 * @param   {Mix}     scope       [旧取值域]
-	 * @param   {String}  expression  [取值表达式]
-	 * @param   {String}  path        [更新路径]
-	 * @param   {Mix}     last        [新值]
+	 * @param   {Object}  oldScope   [旧取值域]
+	 * @param   {Object}  maps       [别名映射]
+	 * @param   {String}  access     [更新路径]
 	 * @return  {Mix}
 	 */
-	p.updateScope = function(scope, expression, path, last) {
-		// scope === alias
-		if (typeof scope !== 'object') {
-			return last;
-		}
+	p.updateScope = function(oldScope, maps, access) {
+		var model = util.copy(this.vm.$data);
+		var newScope, paths, index, scope = {};
 
-		// 更新下标
-		if (regNumber.test(path.charAt(path.length -1)) && regIndex.test(expression)) {
-			scope.$index = last;
-		}
+		// 更新 vfor 取值域
+		if (maps && access.indexOf('*') !== -1) {
+			paths = makePaths(access);
 
-		return scope;
+			util.each(paths, function(path) {
+				var leng = path.length;
+				var field = path[leng - 2];
+				var vforScope = util.copy(model);
+				var value = getDeepValue(vforScope, path);
+
+				value.$index = path[leng - 1];
+				scope[maps[field]] = value;
+			});
+
+			newScope = util.extend(model, {
+				'$scope': util.extend(oldScope.$scope, scope)
+			});
+
+			return newScope;
+		}
+		// 更新顶层数据模型
+		else {
+			return model;
+		}
 	}
 
 	/**
@@ -262,7 +303,7 @@ define([
 	 * @return  {Object}
 	 */
 	p.getDeps = function(fors, expression) {
-		var deps = [], paths = [];
+		var deps = [], paths = [], $index;
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 
 		exp.replace(regReplaceScope, function(dep) {
@@ -271,9 +312,10 @@ define([
 
 			// 取值域别名或 items.length -> items
 			if (fors) {
-				alias = getAlias(fors, expression);
+				alias = getAlias(fors, dep);
+				$index = alias + '.$index';
 				// 取值域路径
-				if (model.indexOf(alias) !== -1 || model === '$index') {
+				if (model.indexOf(alias) !== -1 || model === $index) {
 					access = fors.accesses[fors.aliases.indexOf(alias)];
 				}
 			}
@@ -282,7 +324,7 @@ define([
 			}
 
 			// 取值字段访问路径，输出别名和下标
-			if (model === '$index' || model === alias) {
+			if (model === $index || model === alias) {
 				valAccess = access || fors && fors.access;
 			}
 			else {
