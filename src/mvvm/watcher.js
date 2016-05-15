@@ -207,7 +207,7 @@ define([
 		util.each(dest, function(subs, index) {
 			var i = +index.substr(prefix.length);
 			util.each(subs, function(sub) {
-				sub.cb.call(sub.ct, index, i, sub.arg);
+				sub.cb.call(sub.ct, '$index', i, sub.arg);
 			});
 		});
 

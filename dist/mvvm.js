@@ -650,13 +650,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 缓存根节点
 			this.$element = element;
-			// 元素转为文档碎片
+			// 根节点转文档碎片
 			this.$fragment = util.nodeToFragment(this.$element);
 
-			// VM 数据模型
+			// 数据模型对象
 			this.$data = model;
-			// DOM 对象注册索引
+			// DOM 注册索引
 			this.$data.$els = {};
+			// 子取值域索引
+			this.$data.$scope = {};
 
 			// 未编译节点缓存队列
 			this.$unCompileNodes = [];
@@ -873,7 +875,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				match = matches[0];
 				exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 				if (match.length !== text.length) {
-					util.warn(match + ' compile for HTML can not have a prefix or suffix!');
+					util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
 					return;
 				}
 				this.vhtml.parse.call(this.vhtml, fors, node, exp);
@@ -890,10 +892,10 @@ return /******/ (function(modules) { // webpackBootstrap
 				util.each(pieces, function(piece) {
 					// {{text}}
 					if (regtext.test(piece)) {
-						tokens.push(piece.replace(/\s\{|\{|\}|\}/g, ''));
+						tokens.push('(' + piece.replace(/\s\{|\{|\}|\}/g, '') + ')');
 					}
 					// 字符常量
-					else {
+					else if (piece) {
 						tokens.push('"' + piece + '"');
 					}
 				});
@@ -1017,6 +1019,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			var level = -1;
 			// 取值域集合
 			var scopes = {};
+			// 取值域与数组字段映射
+			var maps = {};
 			// 别名集合
 			var aliases = [];
 			// 取值域路径集合
@@ -1024,8 +1028,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 嵌套 vfor
 			if (fors) {
+				maps = fors.maps;
 				level = fors.level;
-				// 取值域集合一定是引用而不是拷贝
 				scopes = fors.scopes;
 				aliases = fors.aliases.slice(0);
 				accesses = fors.accesses.slice(0);
@@ -1037,7 +1041,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
-			listArgs = [node, array, 0, loopAccess, alias, aliases, accesses, scopes, ++level];
+			listArgs = [node, array, 0, loopAccess, alias, aliases, accesses, scopes, maps, ++level];
 			template = this.buildList.apply(this, listArgs);
 
 			node.parentNode.replaceChild(template, node);
@@ -1053,7 +1057,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				'access'  : loopAccess,
 				'accesses': accesses,
 				'scopes'  : scopes,
-				'level'   : level
+				'level'   : level,
+				'maps'    : maps
 			}
 
 			// 监测根数组的数组操作
@@ -1062,7 +1067,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.update(parent, node, last, method, updates, args);
 				}, this);
 			}
-			// 监测嵌套数组的数组操作
+			// 监测嵌套数组的操作
 			else {
 				watcher.watchAccess(loopAccess, function(path, last, method, args) {
 					this.update(parent, node, last, method, updates, args);
@@ -1093,21 +1098,25 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Array}       aliases   [取值域别名数组]
 		 * @param   {Array}       accesses  [取值域访问路径数组]
 		 * @param   {Object}      scopes    [取值域集合]
+		 * @param   {Object}      maps      [数组与取值域的映射]
 		 * @param   {Number}      level     [当前循环层级]
 		 * @return  {Fragment}              [板块文档碎片集合]
 		 */
-		vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, level) {
+		vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 			var vm = this.vm;
 			var fragments = util.createFragment();
 
 			util.each(array, function(scope, i) {
 				var index = start + i;
+				var field = paths.split('*').pop();
 				var cloneNode = node.cloneNode(true);
 				var fors, access = paths + '*' + index;
 
+				scope.$index = index;
 				scopes[alias] = scope;
 				aliases[level] = alias;
 				accesses[level] = access;
+				maps[field] = alias;
 
 				fors = {
 					// 别名
@@ -1118,10 +1127,10 @@ return /******/ (function(modules) { // webpackBootstrap
 					'access'  : access,
 					// 取值域访问路径集合
 					'accesses': accesses,
-					// 当前取值域
-					'scope'   : scope,
 					// 取值域集合
 					'scopes'  : scopes,
+					// 数组取值域映射
+					'maps'    : maps,
 					// 当前循环层级
 					'level'   : level,
 					// 当前取值域下标
@@ -1214,43 +1223,20 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 在循环体的最后追加一条数据 array.push
 		 */
-		vfor.push = function(parent, node, newArray, method, updates) {
-			var fragment = util.createFragment();
-			var cloneNode = node.cloneNode(true);
-			var lastChild, last = newArray.length - 1;
-
-			var alias = updates.alias;
-			var level = updates.level;
-			var fors, access = updates.access + '*' + last;
-
-			updates.scopes[alias] = newArray[last];
-			updates.accesses[level] = access;
-
-			fors = {
-				'alias'   : updates.alias,
-				'aliases' : updates.aliases,
-				'access'  : access,
-				'accesses': updates.accesses,
-				'scope'   : newArray[last],
-				'scopes'  : updates.scopes,
-				'level'   : updates.level,
-				'index'   : last
-			}
-
-			this.signAlias(cloneNode, alias);
-
-			// 解析节点
-			this.vm.complieElement(cloneNode, true, fors);
-			fragment.appendChild(cloneNode);
-
-			lastChild = this.getLast(parent, alias);
+		vfor.push = function(parent, node, newArray, method, up) {
+			var last = newArray.length - 1;
+			var alias = up.alias;
+			var list = [newArray[last]];
+			var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+			var lastChild = this.getLast(parent, alias);
+			var template = this.buildList.apply(this, listArgs);
 
 			// empty list
 			if (!lastChild) {
-				parent.appendChild(fragment);
+				parent.appendChild(template);
 			}
 			else {
-				parent.insertBefore(fragment, lastChild.nextSibling);
+				parent.insertBefore(template, lastChild.nextSibling);
 			}
 		}
 
@@ -1267,43 +1253,21 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 在循环体最前面追加一条数据 array.unshift
 		 */
-		vfor.unshift = function(parent, node, newArray, method, updates) {
-			var vm = this.vm, firstChild, map;
-			var fragment = util.createFragment();
-			var cloneNode = node.cloneNode(true);
-
-			var alias = updates.alias;
-			var level = updates.level;
-			var fors, access = updates.access + '*' + 0;
+		vfor.unshift = function(parent, node, newArray, method, up) {
+			var alias = up.alias;
+			var list = [newArray[0]];
+			var map, template, firstChild;
+			var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 
 			// 移位相关的订阅回调
 			map = this.getChanges(method, newArray.length);
-			vm.watcher.moveSubs(updates.access, map);
+			this.vm.watcher.moveSubs(up.access, map);
 
-			updates.scopes[alias] = newArray[0];
-			updates.accesses[level] = access;
-
-			fors = {
-				'alias'   : updates.alias,
-				'aliases' : updates.aliases,
-				'access'  : access,
-				'accesses': updates.accesses,
-				'scope'   : newArray[0],
-				'scopes'  : updates.scopes,
-				'level'   : updates.level,
-				'index'   : 0
-			}
-
-			this.signAlias(cloneNode, alias);
-
-			// 解析节点
-			vm.complieElement(cloneNode, true, fors);
-			fragment.appendChild(cloneNode);
-
+			template = this.buildList.apply(this, listArgs);
 			firstChild = this.getFirst(parent, alias);
 
 			// 当 firstChild 为 null 时也会添加到父节点
-			parent.insertBefore(fragment, firstChild);
+			parent.insertBefore(template, firstChild);
 		}
 
 		/**
@@ -1323,7 +1287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 删除/替换循环体的指定数据 array.splice
 		 */
 		vfor.splice = function(parent, node, newArray, method, up, args) {
-			// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容；如果是负值，则表示从数组末位开始的第几位。
+			// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
 			var start = args.shift();
 			// 整数，表示要移除的数组元素的个数。
 			// 如果 deleteCount 是 0，则不移除元素。这种情况下，至少应添加一个新元素。
@@ -1389,7 +1353,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				// 开始的元素
 				startChild = this.getChild(parent, alias, start);
 				// 编译新添加的列表
-				listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
+				listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 				// 新增列表模板
 				template = this.buildList.apply(this, listArgs);
 
@@ -1500,7 +1464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var child, scapegoat;
 			var template, alias = up.alias;
 			var childNodes = parent.childNodes;
-			var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
+			var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 
 			// 移除旧的监测
 			this.vm.watcher.removeSubs(up.access);
@@ -1638,6 +1602,63 @@ return /******/ (function(modules) { // webpackBootstrap
 			return alias;
 		}
 
+		/**
+		 * 生成取值路径
+		 * @param   {String}  access
+		 * @return  {Array}
+		 */
+		function makePaths(access) {
+			var length, paths = access && access.split('*');
+
+			if (!paths || paths.length < 2) {
+				return [];
+			}
+
+			for (var i = paths.length - 1; i > -1; i--) {
+				if (regNumber.test(paths[i])) {
+					length = i + 1;
+					break;
+				}
+			}
+
+			return paths.slice(0, length);
+		}
+
+		/**
+		 * 生成取值路径数组
+		 * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
+		 * @param   {Array}  paths
+		 * @return  {Array}
+		 */
+		function makeScopePaths(paths) {
+			var index = 0, scopePaths = [];
+
+			if (paths.length % 2 === 0) {
+				while (index < paths.length) {
+					index += 2;
+					scopePaths.push(paths.slice(0, index));
+				}
+			}
+
+			return scopePaths;
+		}
+
+		/**
+		 * 通过访问层级取值
+		 * @param   {Object}  target
+		 * @param   {Array}   paths
+		 * @return  {Mix}
+		 */
+		function getDeepValue(target, paths) {
+			var _paths = paths.slice(0);
+
+			while (_paths.length) {
+				target = target[_paths.shift()];
+			}
+
+			return target;
+		}
+
 
 		/**
 		 * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -1653,22 +1674,43 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		p.bind = function(fors, node, expression) {
 			var vm = this.vm;
-
 			// 提取依赖
 			var deps = this.getDeps(fors, expression);
 			// 获取取值域
 			var scope = this.getScope(fors, expression);
 			// 生成取值函数
 			var getter = this.getEval(fors, expression);
+			// 取值别名映射
+			var maps = fors && util.copy(fors.maps);
 
-			// 监测所有依赖变化
-			vm.watcher.watch(deps, function(path, last) {
-				var nScope = this.updateScope(scope, expression, path, last);
-				this.update(node, getter.call(nScope, nScope));
-			}, this);
-
-			// 调用更新方法
+			// 初始视图更新
 			this.update(node, getter.call(scope, scope));
+
+			// 监测依赖变化，更新取值 & 视图
+			vm.watcher.watch(deps, function() {
+				scope = this.updateScope(scope, maps, deps, arguments);
+				this.update(node, getter.call(scope, scope));
+			}, this);
+		}
+
+		/**
+		 * 设置数据模型的值（用于双向数据绑定）
+		 * @param  {String}  path
+		 * @param  {String}  field
+		 * @param  {Mix}     value
+		 */
+		p.setModel = function(path, field, value) {
+			var paths, target;
+			var model = this.vm.$data;
+
+			if (path) {
+				paths = makePaths(path);
+				target = getDeepValue(model, paths);
+				target[field] = value;
+			}
+			else {
+				model[field] = value;
+			}
 		}
 
 		/**
@@ -1689,33 +1731,35 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 获取表达式的取值函数
 		 */
 		p.getEval = function(fors, expression) {
-			var alias, regScope;
-			var exp = this.replaceScope(expression);
+			var exp = this.toScope(expression);
 
+			if (regAviodKeyword.test(exp)) {
+				util.warn('Avoid using unallow keyword in expression: ' + exp);
+				return;
+			}
+
+			// 替换取值域别名
 			if (fors) {
-				alias = getAlias(fors, expression);
-				regScope = new RegExp('scope.' + alias, 'g');
-				exp = exp.replace(regScope, 'scope');
+				util.each(fors.aliases, function(alias) {
+					var reg = new RegExp('scope.' + alias, 'g');
+					exp = exp.replace(reg, function(scope) {
+						return 'scope.$' + scope;
+					});
+				});
 			}
 
 			return this.createGetter(exp);
 		}
 
 		/**
-		 * 替换表达式的 scope 取值域
+		 * 转换表达式的 scope 取值域
 		 * @return  {String}
 		 */
-		p.replaceScope = function(expression) {
+		p.toScope = function(expression) {
 			var exp = expression;
 
-			// 常规指令
 			if (isNormal(exp)) {
 				return 'scope.' + exp;
-			}
-
-			if (regAviodKeyword.test(exp)) {
-				util.warn('Avoid using unallow keyword in expression: ' + exp);
-				return;
 			}
 
 			exp = (' ' + exp).replace(regReplaceConst, saveConst);
@@ -1732,66 +1776,71 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {Object}
 		 */
 		p.getScope = function(fors, expression) {
-			var alias, scope, index;
 			var model = this.vm.$data;
 
-			// 顶层数据模型
 			if (!fors) {
 				return model;
 			}
-			else {
-				alias = getAlias(fors, expression);
-			}
 
-			// 无别名(vfor 中取顶层值)
-			if (!alias) {
-				return model;
-			}
+			model.$index = fors.index;
+			model.$scope = fors.scopes;
 
-			// 当前域取值
-			if (alias === fors.alias) {
-				scope = fors.scope;
-
-				// 取 vfor 循环下标
-				if (regIndex.test(expression)) {
-					index = fors.index;
-
-					if (util.isObject(scope)) {
-						scope.$index = index;
-					}
-					else {
-						scope = {'$index': index};
-					}
-				}
-			}
-			// 跨循环层级取值
-			else {
-				scope = fors.scopes[alias];
-			}
-
-			return scope;
+			return model;
 		}
 
 		/**
 		 * 更新取值域
-		 * @param   {Mix}     scope       [旧取值域]
-		 * @param   {String}  expression  [取值表达式]
-		 * @param   {String}  path        [更新路径]
-		 * @param   {Mix}     last        [新值]
+		 * @param   {Object}  oldScope   [旧取值域]
+		 * @param   {Object}  maps       [别名映射]
+		 * @param   {Object}  deps       [取值依赖]
+		 * @param   {Array}   args       [变更参数]
 		 * @return  {Mix}
 		 */
-		p.updateScope = function(scope, expression, path, last) {
-			// scope === alias
-			if (typeof scope !== 'object') {
-				return last;
+		p.updateScope = function(oldScope, maps, deps, args) {
+			var targetPaths;
+			var accesses = deps.acc;
+			var leng = 0, $scope = {};
+			var model = this.vm.$data;
+
+			// 获取最深层的依赖
+			accesses.unshift(args[0]);
+			util.each(accesses, function(access) {
+				var paths = makePaths(access);
+				if (paths.length > leng) {
+					targetPaths = paths;
+					leng = paths.length;
+				}
+			});
+
+			// 更新 vfor 取值
+			if (targetPaths) {
+				util.each(makeScopePaths(targetPaths), function(paths) {
+					var leng = paths.length;
+
+					// 更新下标的情况通过变更参数来确定
+					if ((args && args[0] === '$index')) {
+						paths[leng - 1] = args[1];
+					}
+
+					var field = paths[leng - 2];
+					var index = +paths[leng - 1];
+					var scope = getDeepValue(model, paths) || {};
+
+					// 支持两种 $index 取值方式
+					model.$index = index;
+					if (util.isObject(scope)) {
+						scope.$index = index;
+					}
+
+					$scope[maps[field]] = scope;
+				});
+
+				util.extend(model, {
+					'$scope': util.extend(oldScope.$scope, $scope)
+				});
 			}
 
-			// 更新下标
-			if (regNumber.test(path.charAt(path.length -1)) && regIndex.test(expression)) {
-				scope.$index = last;
-			}
-
-			return scope;
+			return model;
 		}
 
 		/**
@@ -1806,13 +1855,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			exp.replace(regReplaceScope, function(dep) {
 				var model = dep.substr(1);
-				var alias, access, valAccess;
+				var alias, hasIndex, access, valAccess;
 
 				// 取值域别名或 items.length -> items
 				if (fors) {
-					alias = getAlias(fors, expression);
+					alias = getAlias(fors, dep);
+					hasIndex = model.indexOf('$index') !== -1;
 					// 取值域路径
-					if (model.indexOf(alias) !== -1 || model === '$index') {
+					if (model.indexOf(alias) !== -1 || hasIndex) {
 						access = fors.accesses[fors.aliases.indexOf(alias)];
 					}
 				}
@@ -1821,7 +1871,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				// 取值字段访问路径，输出别名和下标
-				if (model === '$index' || model === alias) {
+				if (hasIndex || model === alias) {
 					valAccess = access || fors && fors.access;
 				}
 				else {
@@ -2319,7 +2369,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 数组下标订阅集合
 			this.$indexSubs = {};
 
-			this.observer = new Observer(model, ['$els'], 'change', this);
+			this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
 		}
 
 		var wp = Watcher.prototype;
@@ -2373,7 +2423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 
 				// 下标取值
-				if (model === '$index') {
+				if (model.indexOf('$index') !== -1) {
 					this.watchIndex(access, callback, context, args);
 					return;
 				}
@@ -2508,7 +2558,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			util.each(dest, function(subs, index) {
 				var i = +index.substr(prefix.length);
 				util.each(subs, function(sub) {
-					sub.cb.call(sub.ct, index, i, sub.arg);
+					sub.cb.call(sub.ct, '$index', i, sub.arg);
 				});
 			});
 
@@ -2992,7 +3042,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					return;
 				}
 
-				scope = fors.scope;
+				scope = fors.scopes[alias];
 
 				if (util.isObject(scope)) {
 					key = util.getExpKey(value);
@@ -3534,9 +3584,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			var scope = this.getScope(fors, field);
 			var getter = this.getEval(fors, field);
 
+			// v-model 只支持静态指令
+			var path = deps.acc[0] || deps.dep[0];
 			var value = getter.call(scope, scope);
 			var bind = util.getExpKey(field) || field;
-			var args = [node, value, deps, scope, bind];
+			var args = [node, value, deps, path, bind];
 
 			// 根据不同表单类型绑定数据监测方法
 			switch (type) {
@@ -3551,7 +3603,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * v-model for text, textarea
 		 */
-		vmodel.parseText = function(node, value, deps, scope, field) {
+		vmodel.parseText = function(node, value, deps, path, field) {
 			var vm = this.vm;
 			var updater = vm.updater;
 
@@ -3564,17 +3616,17 @@ return /******/ (function(modules) { // webpackBootstrap
 			}, this);
 
 			// 绑定事件
-			this.bindTextEvent(node, scope, field);
+			this.bindTextEvent(node, path, field);
 		}
 
 		/**
 		 * text, textarea 绑定数据监测
 		 * @param   {Input}    node
-		 * @param   {Object}   scope
+		 * @param   {String}   path
 		 * @param   {String}   field
 		 */
-		vmodel.bindTextEvent = function(node, scope, field) {
-			var composeLock;
+		vmodel.bindTextEvent = function(node, path, field) {
+			var composeLock, self = this;
 
 			// 解决中文输入时 input 事件在未选择词组时的触发问题
 			// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
@@ -3588,20 +3640,20 @@ return /******/ (function(modules) { // webpackBootstrap
 			// input 事件(实时触发)
 			dom.addEvent(node, 'input', function() {
 				if (!composeLock) {
-					scope[field] = this.value;
+					self.setModel(path, field, this.value);
 				}
 			});
 
 			// change 事件(失去焦点触发)
 			dom.addEvent(node, 'change', function() {
-				scope[field] = this.value;
+				self.setModel(path, field, this.value);
 			});
 		}
 
 		/**
 		 * v-model for radio
 		 */
-		vmodel.parseRadio = function(node, value, deps, scope, field) {
+		vmodel.parseRadio = function(node, value, deps, path, field) {
 			var vm = this.vm;
 			var updater = vm.updater;
 
@@ -3614,25 +3666,27 @@ return /******/ (function(modules) { // webpackBootstrap
 			}, this);
 
 			// 绑定事件
-			this.bindRadioEvent(node, scope, field);
+			this.bindRadioEvent(node, path, field);
 		}
 
 		/**
 		 * radio 绑定数据监测
 		 * @param   {Input}    node
-		 * @param   {Object}   scope
+		 * @param   {String}   path
 		 * @param   {String}   field
 		 */
-		vmodel.bindRadioEvent = function(node, scope, field) {
+		vmodel.bindRadioEvent = function(node, path, field) {
+			var self = this;
+
 			dom.addEvent(node, 'change', function() {
-				scope[field] = this.value;
+				self.setModel(path, field, this.value);
 			});
 		}
 
 		/**
 		 * v-model for checkbox
 		 */
-		vmodel.parseCheckbox = function(node, value, deps, scope, field) {
+		vmodel.parseCheckbox = function(node, value, deps, path, field) {
 			var vm = this.vm;
 			var updater = vm.updater;
 
@@ -3645,22 +3699,24 @@ return /******/ (function(modules) { // webpackBootstrap
 			}, this);
 
 			// 绑定事件
-			this.bindCheckboxEvent(node, scope, field, value);
+			this.bindCheckboxEvent(node, path, field, value);
 		}
 
 		/**
 		 * checkbox 绑定数据监测
 		 * @param   {Input}           node
-		 * @param   {Object}          scope
+		 * @param   {String}          path
 		 * @param   {String}          field
 		 * @param   {Array|Boolean}   value
 		 */
-		vmodel.bindCheckboxEvent = function(node, scope, field, value) {
+		vmodel.bindCheckboxEvent = function(node, path, field, value) {
+			var self = this;
+
 			dom.addEvent(node, 'change', function() {
 				var index, checked = this.checked, val = this.value;
 
 				if (util.isBool(value)) {
-					scope[field] = checked;
+					self.setModel(path, field, checked);
 				}
 				else if (util.isArray(value)) {
 					index = value.indexOf(val);
@@ -3683,7 +3739,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * v-model for select
 		 */
-		vmodel.parseSelect = function(node, value, deps, scope, field) {
+		vmodel.parseSelect = function(node, value, deps, path, field) {
 			var updater = this.vm.updater;
 			var options = node.options;
 			var multi = dom.hasAttr(node, 'multiple');
@@ -3723,7 +3779,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						selects.push(option.value);
 					}
 				}
-				scope[field] = multi ? selects : selects[0];
+				this.setModel(path, field, multi ? selects : selects[0]);
 			}
 
 			// 订阅依赖监测
@@ -3732,21 +3788,21 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 
 			// 绑定事件
-			this.bindSelectEvent(node, scope, field, multi);
+			this.bindSelectEvent(node, path, field, multi);
 		}
 
 		/**
 		 * select 绑定数据监测
 		 * @param   {Input}     node
-		 * @param   {Object}    scope
+		 * @param   {String}    path
 		 * @param   {String}    field
 		 * @param   {Boolean}   multi
 		 */
-		vmodel.bindSelectEvent = function(node, scope, field, multi) {
+		vmodel.bindSelectEvent = function(node, path, field, multi) {
 			var self = this;
 			dom.addEvent(node, 'change', function() {
 				var selects = self.getSelected(this);
-				scope[field] = multi ? selects : selects[0];
+				self.setModel(path, field, multi ? selects : selects[0]);
 			});
 		}
 

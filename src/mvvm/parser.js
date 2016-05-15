@@ -100,23 +100,35 @@ define([
 	}
 
 	/**
-	 * 生成取值路径数组
-	 * items*0*ps*0*text => [[items, 0], [ps, 0]]
+	 * 生成取值路径
 	 * @param   {String}  access
 	 * @return  {Array}
 	 */
 	function makePaths(access) {
-		var paths = access.split('*');
-		var length, index = 0, scopePaths = [];
+		var length, paths = access && access.split('*');
 
-		for (var i = paths.length - 1; i < paths.length; i--) {
+		if (!paths || paths.length < 2) {
+			return [];
+		}
+
+		for (var i = paths.length - 1; i > -1; i--) {
 			if (regNumber.test(paths[i])) {
 				length = i + 1;
 				break;
 			}
 		}
 
-		paths = paths.slice(0, length);
+		return paths.slice(0, length);
+	}
+
+	/**
+	 * 生成取值路径数组
+	 * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
+	 * @param   {Array}  paths
+	 * @return  {Array}
+	 */
+	function makeScopePaths(paths) {
+		var index = 0, scopePaths = [];
 
 		if (paths.length % 2 === 0) {
 			while (index < paths.length) {
@@ -131,7 +143,7 @@ define([
 	/**
 	 * 通过访问层级取值
 	 * @param   {Object}  target
-	 * @param   {array}   paths
+	 * @param   {Array}   paths
 	 * @return  {Mix}
 	 */
 	function getDeepValue(target, paths) {
@@ -159,7 +171,6 @@ define([
 	 */
 	p.bind = function(fors, node, expression) {
 		var vm = this.vm;
-
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 获取取值域
@@ -169,14 +180,34 @@ define([
 		// 取值别名映射
 		var maps = fors && util.copy(fors.maps);
 
-		// 调用更新方法
+		// 初始视图更新
 		this.update(node, getter.call(scope, scope));
 
-		// 监测所有依赖变化
-		vm.watcher.watch(deps, function(path) {
-			scope = this.updateScope(scope, maps, path);
+		// 监测依赖变化，更新取值 & 视图
+		vm.watcher.watch(deps, function() {
+			scope = this.updateScope(scope, maps, deps, arguments);
 			this.update(node, getter.call(scope, scope));
 		}, this);
+	}
+
+	/**
+	 * 设置数据模型的值（用于双向数据绑定）
+	 * @param  {String}  path
+	 * @param  {String}  field
+	 * @param  {Mix}     value
+	 */
+	p.setModel = function(path, field, value) {
+		var paths, target;
+		var model = this.vm.$data;
+
+		if (path) {
+			paths = makePaths(path);
+			target = getDeepValue(model, paths);
+			target[field] = value;
+		}
+		else {
+			model[field] = value;
+		}
 	}
 
 	/**
@@ -242,58 +273,71 @@ define([
 	 * @return  {Object}
 	 */
 	p.getScope = function(fors, expression) {
-		var scope = util.copy(this.vm.$data);
+		var model = this.vm.$data;
 
 		if (!fors) {
-			return scope;
+			return model;
 		}
 
-		// 组合每一层 vfor 的取值域
-		util.each(fors.scopes, function(_scope, alias) {
-			scope.$scope[alias] = _scope;
-		});
+		model.$index = fors.index;
+		model.$scope = fors.scopes;
 
-		// vfor 下标
-		scope.$index = fors.index;
-
-		return scope;
+		return model;
 	}
 
 	/**
 	 * 更新取值域
 	 * @param   {Object}  oldScope   [旧取值域]
 	 * @param   {Object}  maps       [别名映射]
-	 * @param   {String}  access     [更新路径]
+	 * @param   {Object}  deps       [取值依赖]
+	 * @param   {Array}   args       [变更参数]
 	 * @return  {Mix}
 	 */
-	p.updateScope = function(oldScope, maps, access) {
-		var model = util.copy(this.vm.$data);
-		var newScope, paths, index, scope = {};
+	p.updateScope = function(oldScope, maps, deps, args) {
+		var targetPaths;
+		var accesses = deps.acc;
+		var leng = 0, $scope = {};
+		var model = this.vm.$data;
 
-		// 更新 vfor 取值域
-		if (maps && access.indexOf('*') !== -1) {
-			paths = makePaths(access);
+		// 获取最深层的依赖
+		accesses.unshift(args[0]);
+		util.each(accesses, function(access) {
+			var paths = makePaths(access);
+			if (paths.length > leng) {
+				targetPaths = paths;
+				leng = paths.length;
+			}
+		});
 
-			util.each(paths, function(path) {
-				var leng = path.length;
-				var field = path[leng - 2];
-				var vforScope = util.copy(model);
-				var value = getDeepValue(vforScope, path);
+		// 更新 vfor 取值
+		if (targetPaths) {
+			util.each(makeScopePaths(targetPaths), function(paths) {
+				var leng = paths.length;
 
-				value.$index = path[leng - 1];
-				scope[maps[field]] = value;
+				// 更新下标的情况通过变更参数来确定
+				if ((args && args[0] === '$index')) {
+					paths[leng - 1] = args[1];
+				}
+
+				var field = paths[leng - 2];
+				var index = +paths[leng - 1];
+				var scope = getDeepValue(model, paths) || {};
+
+				// 支持两种 $index 取值方式
+				model.$index = index;
+				if (util.isObject(scope)) {
+					scope.$index = index;
+				}
+
+				$scope[maps[field]] = scope;
 			});
 
-			newScope = util.extend(model, {
-				'$scope': util.extend(oldScope.$scope, scope)
+			util.extend(model, {
+				'$scope': util.extend(oldScope.$scope, $scope)
 			});
+		}
 
-			return newScope;
-		}
-		// 更新顶层数据模型
-		else {
-			return model;
-		}
+		return model;
 	}
 
 	/**
@@ -303,19 +347,19 @@ define([
 	 * @return  {Object}
 	 */
 	p.getDeps = function(fors, expression) {
-		var deps = [], paths = [], $index;
+		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 
 		exp.replace(regReplaceScope, function(dep) {
 			var model = dep.substr(1);
-			var alias, access, valAccess;
+			var alias, hasIndex, access, valAccess;
 
 			// 取值域别名或 items.length -> items
 			if (fors) {
 				alias = getAlias(fors, dep);
-				$index = alias + '.$index';
+				hasIndex = model.indexOf('$index') !== -1;
 				// 取值域路径
-				if (model.indexOf(alias) !== -1 || model === $index) {
+				if (model.indexOf(alias) !== -1 || hasIndex) {
 					access = fors.accesses[fors.aliases.indexOf(alias)];
 				}
 			}
@@ -324,7 +368,7 @@ define([
 			}
 
 			// 取值字段访问路径，输出别名和下标
-			if (model === $index || model === alias) {
+			if (hasIndex || model === alias) {
 				valAccess = access || fors && fors.access;
 			}
 			else {

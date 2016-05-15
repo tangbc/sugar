@@ -33,9 +33,11 @@ define([
 		var scope = this.getScope(fors, field);
 		var getter = this.getEval(fors, field);
 
+		// v-model 只支持静态指令
+		var path = deps.acc[0] || deps.dep[0];
 		var value = getter.call(scope, scope);
 		var bind = util.getExpKey(field) || field;
-		var args = [node, value, deps, scope, bind];
+		var args = [node, value, deps, path, bind];
 
 		// 根据不同表单类型绑定数据监测方法
 		switch (type) {
@@ -50,7 +52,7 @@ define([
 	/**
 	 * v-model for text, textarea
 	 */
-	vmodel.parseText = function(node, value, deps, scope, field) {
+	vmodel.parseText = function(node, value, deps, path, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -63,17 +65,17 @@ define([
 		}, this);
 
 		// 绑定事件
-		this.bindTextEvent(node, scope, field);
+		this.bindTextEvent(node, path, field);
 	}
 
 	/**
 	 * text, textarea 绑定数据监测
 	 * @param   {Input}    node
-	 * @param   {Object}   scope
+	 * @param   {String}   path
 	 * @param   {String}   field
 	 */
-	vmodel.bindTextEvent = function(node, scope, field) {
-		var composeLock;
+	vmodel.bindTextEvent = function(node, path, field) {
+		var composeLock, self = this;
 
 		// 解决中文输入时 input 事件在未选择词组时的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
@@ -87,20 +89,20 @@ define([
 		// input 事件(实时触发)
 		dom.addEvent(node, 'input', function() {
 			if (!composeLock) {
-				scope[field] = this.value;
+				self.setModel(path, field, this.value);
 			}
 		});
 
 		// change 事件(失去焦点触发)
 		dom.addEvent(node, 'change', function() {
-			scope[field] = this.value;
+			self.setModel(path, field, this.value);
 		});
 	}
 
 	/**
 	 * v-model for radio
 	 */
-	vmodel.parseRadio = function(node, value, deps, scope, field) {
+	vmodel.parseRadio = function(node, value, deps, path, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -113,25 +115,27 @@ define([
 		}, this);
 
 		// 绑定事件
-		this.bindRadioEvent(node, scope, field);
+		this.bindRadioEvent(node, path, field);
 	}
 
 	/**
 	 * radio 绑定数据监测
 	 * @param   {Input}    node
-	 * @param   {Object}   scope
+	 * @param   {String}   path
 	 * @param   {String}   field
 	 */
-	vmodel.bindRadioEvent = function(node, scope, field) {
+	vmodel.bindRadioEvent = function(node, path, field) {
+		var self = this;
+
 		dom.addEvent(node, 'change', function() {
-			scope[field] = this.value;
+			self.setModel(path, field, this.value);
 		});
 	}
 
 	/**
 	 * v-model for checkbox
 	 */
-	vmodel.parseCheckbox = function(node, value, deps, scope, field) {
+	vmodel.parseCheckbox = function(node, value, deps, path, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -144,22 +148,24 @@ define([
 		}, this);
 
 		// 绑定事件
-		this.bindCheckboxEvent(node, scope, field, value);
+		this.bindCheckboxEvent(node, path, field, value);
 	}
 
 	/**
 	 * checkbox 绑定数据监测
 	 * @param   {Input}           node
-	 * @param   {Object}          scope
+	 * @param   {String}          path
 	 * @param   {String}          field
 	 * @param   {Array|Boolean}   value
 	 */
-	vmodel.bindCheckboxEvent = function(node, scope, field, value) {
+	vmodel.bindCheckboxEvent = function(node, path, field, value) {
+		var self = this;
+
 		dom.addEvent(node, 'change', function() {
 			var index, checked = this.checked, val = this.value;
 
 			if (util.isBool(value)) {
-				scope[field] = checked;
+				self.setModel(path, field, checked);
 			}
 			else if (util.isArray(value)) {
 				index = value.indexOf(val);
@@ -182,7 +188,7 @@ define([
 	/**
 	 * v-model for select
 	 */
-	vmodel.parseSelect = function(node, value, deps, scope, field) {
+	vmodel.parseSelect = function(node, value, deps, path, field) {
 		var updater = this.vm.updater;
 		var options = node.options;
 		var multi = dom.hasAttr(node, 'multiple');
@@ -222,7 +228,7 @@ define([
 					selects.push(option.value);
 				}
 			}
-			scope[field] = multi ? selects : selects[0];
+			this.setModel(path, field, multi ? selects : selects[0]);
 		}
 
 		// 订阅依赖监测
@@ -231,21 +237,21 @@ define([
 		});
 
 		// 绑定事件
-		this.bindSelectEvent(node, scope, field, multi);
+		this.bindSelectEvent(node, path, field, multi);
 	}
 
 	/**
 	 * select 绑定数据监测
 	 * @param   {Input}     node
-	 * @param   {Object}    scope
+	 * @param   {String}    path
 	 * @param   {String}    field
 	 * @param   {Boolean}   multi
 	 */
-	vmodel.bindSelectEvent = function(node, scope, field, multi) {
+	vmodel.bindSelectEvent = function(node, path, field, multi) {
 		var self = this;
 		dom.addEvent(node, 'change', function() {
 			var selects = self.getSelected(this);
-			scope[field] = multi ? selects : selects[0];
+			self.setModel(path, field, multi ? selects : selects[0]);
 		});
 	}
 

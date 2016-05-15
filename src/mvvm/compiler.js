@@ -261,7 +261,7 @@ define([
 			match = matches[0];
 			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			if (match.length !== text.length) {
-				util.warn(match + ' compile for HTML can not have a prefix or suffix!');
+				util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
 				return;
 			}
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);

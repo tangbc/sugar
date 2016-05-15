@@ -77,7 +77,8 @@ define([
 			'access'  : loopAccess,
 			'accesses': accesses,
 			'scopes'  : scopes,
-			'level'   : level
+			'level'   : level,
+			'maps'    : maps
 		}
 
 		// 监测根数组的数组操作
@@ -86,7 +87,7 @@ define([
 				this.update(parent, node, last, method, updates, args);
 			}, this);
 		}
-		// 监测嵌套数组的数组操作
+		// 监测嵌套数组的操作
 		else {
 			watcher.watchAccess(loopAccess, function(path, last, method, args) {
 				this.update(parent, node, last, method, updates, args);
@@ -242,42 +243,20 @@ define([
 	/**
 	 * 在循环体的最后追加一条数据 array.push
 	 */
-	vfor.push = function(parent, node, newArray, method, updates) {
-		var fragment = util.createFragment();
-		var cloneNode = node.cloneNode(true);
-		var lastChild, last = newArray.length - 1;
-
-		var alias = updates.alias;
-		var level = updates.level;
-		var fors, access = updates.access + '*' + last;
-
-		updates.scopes[alias] = newArray[last];
-		updates.accesses[level] = access;
-
-		fors = {
-			'alias'   : updates.alias,
-			'aliases' : updates.aliases,
-			'access'  : access,
-			'accesses': updates.accesses,
-			'scopes'  : updates.scopes,
-			'level'   : updates.level,
-			'index'   : last
-		}
-
-		this.signAlias(cloneNode, alias);
-
-		// 解析节点
-		this.vm.complieElement(cloneNode, true, fors);
-		fragment.appendChild(cloneNode);
-
-		lastChild = this.getLast(parent, alias);
+	vfor.push = function(parent, node, newArray, method, up) {
+		var last = newArray.length - 1;
+		var alias = up.alias;
+		var list = [newArray[last]];
+		var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+		var lastChild = this.getLast(parent, alias);
+		var template = this.buildList.apply(this, listArgs);
 
 		// empty list
 		if (!lastChild) {
-			parent.appendChild(fragment);
+			parent.appendChild(template);
 		}
 		else {
-			parent.insertBefore(fragment, lastChild.nextSibling);
+			parent.insertBefore(template, lastChild.nextSibling);
 		}
 	}
 
@@ -294,42 +273,21 @@ define([
 	/**
 	 * 在循环体最前面追加一条数据 array.unshift
 	 */
-	vfor.unshift = function(parent, node, newArray, method, updates) {
-		var vm = this.vm, firstChild, map;
-		var fragment = util.createFragment();
-		var cloneNode = node.cloneNode(true);
-
-		var alias = updates.alias;
-		var level = updates.level;
-		var fors, access = updates.access + '*' + 0;
+	vfor.unshift = function(parent, node, newArray, method, up) {
+		var alias = up.alias;
+		var list = [newArray[0]];
+		var map, template, firstChild;
+		var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 
 		// 移位相关的订阅回调
 		map = this.getChanges(method, newArray.length);
-		vm.watcher.moveSubs(updates.access, map);
+		this.vm.watcher.moveSubs(up.access, map);
 
-		updates.scopes[alias] = newArray[0];
-		updates.accesses[level] = access;
-
-		fors = {
-			'alias'   : updates.alias,
-			'aliases' : updates.aliases,
-			'access'  : access,
-			'accesses': updates.accesses,
-			'scopes'  : updates.scopes,
-			'level'   : updates.level,
-			'index'   : 0
-		}
-
-		this.signAlias(cloneNode, alias);
-
-		// 解析节点
-		vm.complieElement(cloneNode, true, fors);
-		fragment.appendChild(cloneNode);
-
+		template = this.buildList.apply(this, listArgs);
 		firstChild = this.getFirst(parent, alias);
 
 		// 当 firstChild 为 null 时也会添加到父节点
-		parent.insertBefore(fragment, firstChild);
+		parent.insertBefore(template, firstChild);
 	}
 
 	/**
@@ -349,7 +307,7 @@ define([
 	 * 删除/替换循环体的指定数据 array.splice
 	 */
 	vfor.splice = function(parent, node, newArray, method, up, args) {
-		// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容；如果是负值，则表示从数组末位开始的第几位。
+		// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
 		var start = args.shift();
 		// 整数，表示要移除的数组元素的个数。
 		// 如果 deleteCount 是 0，则不移除元素。这种情况下，至少应添加一个新元素。
@@ -415,7 +373,7 @@ define([
 			// 开始的元素
 			startChild = this.getChild(parent, alias, start);
 			// 编译新添加的列表
-			listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
+			listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 			// 新增列表模板
 			template = this.buildList.apply(this, listArgs);
 
@@ -526,7 +484,7 @@ define([
 		var child, scapegoat;
 		var template, alias = up.alias;
 		var childNodes = parent.childNodes;
-		var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.level];
+		var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
 
 		// 移除旧的监测
 		this.vm.watcher.removeSubs(up.access);
