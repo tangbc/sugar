@@ -1,4 +1,6 @@
-require(['../../../src/main/index'], function(sugar) {
+require([
+	'../../../src/main/index'
+], function(sugar) {
 
 	var Subpage = sugar.Component.extend({
 		init: function(config) {

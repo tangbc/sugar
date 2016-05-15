@@ -1,116 +1,133 @@
-require(['../../../src/mvvm/index'], function(VM) {
-	var body = document.querySelector('body');
+require([
+	'../../../src/mvvm/index'
+], function(MVVM) {
+	var layout, model, body = document.querySelector('body');
 
-	body.innerHTML =  [
-		// without value
-		// '<select v-model="selected">',
-		// 	'<option>库里</option>',
-		// 	'<option>汤普森</option>',
-		// 	'<option>格林</option>',
-		// '</select>',
-		// '<span>Selected: {{ selected }}</span>'
 
-		// width value
-		// '<select v-model="selected">',
-		// 	'<option value="curry">库里</option>',
-		// 	'<option value="kelay">汤普森</option>',
-		// 	'<option value="green">格林</option>',
-		// '</select>',
-		// '<span>Selected: {{ selected }}</span>'
+	layout =
+	`
+	<h2>Selected: {{ selected_1 }}</h2>
+	<div>(single selection without value)</div>
+	<select v-model="selected_1">
+		<option>Curry</option>
+		<option>Thompson</option>
+		<option>Green</option>
+	</select>
+	<hr/>
 
-		// multi selection
-		// '<select v-model="selecteds" multiple>',
-		// 	'<option value="curry">库里</option>',
-		// 	'<option value="kelay">汤普森</option>',
-		// 	'<option value="green">格林</option>',
-		// '</select>',
-		// '<span>Selected: {{ selecteds }}</span>'
+	<h2>Selected: {{ selected_2 }}</h2>
+	<div>(single selection with value)</div>
+	<select v-model="selected_2">
+		<option value="Curry">Curry</option>
+		<option value="Thompson">Thompson</option>
+		<option value="Green">Green</option>
+	</select>
+	<hr/>
 
-		// without value in vfor
-		// '<select v-model="selected">',
-		// 	'<option v-for="option in options">',
-		// 	'{{ option.text }}',
-		// 	'</option>',
-		// '</select>',
-		// '<span>Selected: {{ selected }}</span>'
+	<h2>Selected: {{ selecteds_1 }}</h2>
+	<div>(multi selection with value)</div>
+	<br/>
+	<select v-model="selecteds_1" multiple>
+		<option value="Curry">Curry</option>
+		<option value="Thompson">Thompson</option>
+		<option value="Green">Green</option>
+	</select>
+	<hr/>
 
-		// with value in vfor
-		// '<select v-model="selected" multiple>',
-		// 	'<option v-for="option in options" v-bind:value="option.value">',
-		// 	'{{ option.text }}',
-		// 	'</option>',
-		// '</select>',
-		// '<p>Selected: {{ selected }}</p>'
+	<h2>Selected: {{ selected_3 }}</h2>
+	<div>(single selection without value in vfor)</div>
+	<select v-model="selected_3">
+		<option v-for="option in options_3">
+		{{ option.text }}
+		</option>
+	</select>
+	<hr/>
 
-		// nest vfor
-		'<select v-for="sel in selects" v-model="sel.res">',
-			'<option v-for="op in sel.opts">',
-				'{{op.text}}',
-			'</option>',
-		'</select>',
-		'<p v-for="sel in selects">',
-			'{{sel.type}} Selected: ',
-			'<span>{{sel.res}}</span>',
-		'</p>'
-	].join('');
+	<h2>Selected: {{ selecteds_2 }}</h2>
+	<div>(multi selection with value in vfor)</div>
+	<select v-model="selecteds_2" multiple>
+		<option v-for="opt in options_2" v-bind:value="opt.value">
+		{{ opt.value }}
+		</option>
+	</select>
+	<hr/>
 
-	var vm = new VM(body, {
-		// without value
-		// 'selected': '格林'
+	<h2>nest vfor selection</h2>
+	<select v-for="sel in selects" v-model="sel.res">
+		<option v-for="op in sel.opts">
+			{{ op.text }}
+		</option>
+	</select>
+	<h2 v-for="sel in selects">
+		{{ sel.type }} Selected: {{ sel.res }}
+	</h2>
+	`;
 
-		// with value
-		// 'selected': 'kelay'
+	model =  {
+		// single selection without value
+		'selected_1': 'Green',
 
-		// multi selection
-		// 'selecteds': ['curry', 'green']
+		// single selection with value
+		'selected_2': 'Thompson',
 
-		// without value in vfor
-		// 'selected': '汤普森',
-		// 'options': [
-		// 	{'text': '库里'},
-		// 	{'text': '汤普森'},
-		// 	{'text': '格林'},
-		// ]
+		// multi selection with value
+		'selecteds_1': ['Curry', 'Green'],
 
-		// width value in vfor
-		// 'selected': ['kelay'],
-		// 'options': [
-		// 	{'value': 'curry', 'text': '库里'},
-		// 	{'value': 'kelay', 'text': '汤普森'},
-		// 	{'value': 'green', 'text': '格林'},
-		// ]
+		// single selection without value in vfor
+		'selected_3': 'Thompson',
+		'options_3': [
+			{'text': 'Curry'},
+			{'text': 'Thompson'},
+			{'text': 'Green'},
+		],
+
+		// multi selection with value in vfor
+		'selecteds_2': ['Curry'],
+		'options_2': [
+			{'value': 'Curry'},
+			{'value': 'Thompson'},
+			{'value': 'Green'},
+		],
 
 		// nest vfor
 		'selects': [
 			{
-				'type': '勇士队',
-				'res': '库里',
+				'type': 'Warriors',
+				'res': 'Curry',
 				'opts': [
-					{'text': '库里'},
-					{'text': '汤普森'},
-					{'text': '格林'}
+					{'text': 'Curry'},
+					{'text': 'Thompson'},
+					{'text': 'Green'}
 				]
 			},
 			{
-				'type': '雷霆队',
-				'res': '杜兰特',
+				'type': 'Thunder',
+				'res': 'Durant',
 				'opts': [
-					{'text': '维斯布鲁克'},
-					{'text': '杜兰特'},
-					{'text': '伊巴卡'}
+					{'text': 'Westbrook'},
+					{'text': 'Durant'},
+					{'text': 'Ibaka'}
 				]
 			},
 			{
-				'type': '湖人队',
-				'res': '科比',
+				'type': 'Lakers',
+				'res': 'Kobe',
 				'opts': [
-					{'text': '拉塞尔'},
-					{'text': '兰德尔'},
-					{'text': '科比'}
+					{'text': 'Russell'},
+					{'text': 'Randle'},
+					{'text': 'Kobe'}
 				]
 			}
 		]
-	});
+	}
 
+
+
+	// start compile
+	body.innerHTML = layout;
+	console.time('compile');
+	var vm = new MVVM(body, model);
+	console.timeEnd('compile');
+	// for global debug
 	window.vm = vm.get();
 });

@@ -6,19 +6,19 @@ require([
 
 	layout =
 	`
-	<h2 v-text="title"></h2>
-	<h3 v-text="isError ? errMsg : sucMsg"></h3>
+	<h2>{{ title }}</h2>
+	<h3>{{ isError ? errMsg : sucMsg }}</h3>
 	<ul>
 		<li v-for="item in items">
-			<b v-text="$index + ' - ' + item.title"></b>
+			<b>{{ $index + ' - ' + item.title }}</b>
 			<br/>
-			<span v-text="isError ? item.err : item.suc"></span>
+			<span>{{ isError ? item.err : item.suc }}</span>
 		</li>
 	</ul>
 	`;
 
 	model =  {
-		'title': 'v-text test ~',
+		'title': '{{vtext}} test ~',
 
 		'isError': false,
 		'sucMsg': 'You are success ~',

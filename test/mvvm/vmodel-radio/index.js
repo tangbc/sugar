@@ -1,30 +1,70 @@
-require(['../../../src/mvvm/index'], function(VM) {
-	var body = document.querySelector('body');
+require([
+	'../../../src/mvvm/index'
+], function(MVVM) {
+	var layout, model, body = document.querySelector('body');
 
-	body.innerHTML = [
-		// '<input type="radio" value="nan" v-model="sex">男',
-		// '<input type="radio" value="nv" v-model="sex">女'
 
-		// vfor test
-		'<ul>',
-			'<li v-for="item in items">',
-				'<input type="radio" v-bind:value="item.value" v-model="mvp"> {{item.player}}',
-			'</li>',
-		'</ul>',
-		'<p>selectd: {{mvp}}</p>'
-	].join('');
+	layout =
+	`
+	<h2>You sex: {{ sex }}</h2>
+	<label>
+		<input type="radio" value="boy" v-model="sex"> Boy
+	</label>
+	<label>
+		<input type="radio" value="girl" v-model="sex"> Girf
+	</label>
+	<hr>
 
-	var vm = new VM(body, {
-		'sex': 'nan',
+	<h2>MVP is: {{ mvp }}</h2>
+	<ul>
+		<li v-for="item in items">
+			<label>
+				<input type="radio" v-bind:value="item.value" v-model="mvp"> {{ item.player }}
+			</label>
+		</li>
+	</ul>
+	<hr/>
 
-		// vfor test
+	<ul>
+		<li v-for="group in groups">
+			Selected: {{ group.checkd }}
+			<br/>
+			<div v-for="sub in group.subs">
+				<label>
+					<input type="radio" v-bind:value="sub" v-model="group.checkd"> {{ sub }}
+				</label>
+			</div>
+		</li>
+	</ul>
+	`;
+
+	model =  {
+		'sex': 'girl',
+
 		'mvp': 'Curry',
 		'items': [
-			{'value': 'Curry', 'player': '斯蒂芬库里'},
-			{'value': 'West', 'player': '拉塞尔维斯布鲁克'},
-			{'value': 'Durant', 'player': '凯文杜兰特'},
-		]
-	});
+			{'value': 'Curry', 'player': 'Curry'},
+			{'value': 'Westbrook', 'player': 'Westbrook'},
+			{'value': 'Durant', 'player': 'Durant'},
+		],
 
+		'groups': [
+			{
+				'checkd': 'aa',
+				'subs': ['aa', 'bb', 'cc']
+			},
+			{
+				'checkd': 'ee',
+				'subs': ['dd', 'ee', 'ff']
+			}
+		]
+	}
+
+
+
+	// start compile
+	body.innerHTML = layout;
+	var vm = new MVVM(body, model);
+	// for global debug
 	window.vm = vm.get();
 });

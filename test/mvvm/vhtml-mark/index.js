@@ -6,9 +6,12 @@ require([
 
 	layout =
 	`
-	<h2 v-html="html"></h2>
+	<h2>{{{ html }}}</h2>
+	<h2>xx {{{ html }}} xx</h2>
 	<ul>
-		<li v-for="item in items" v-html="item.html"></li>
+		<li v-for="item in items">
+		{{{ item.html }}}
+		</li>
 	</ul>
 	`;
 

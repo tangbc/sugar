@@ -6,34 +6,25 @@ require([
 
 	layout =
 	`
+	<h2>{{ title }}</h2>
 	<ul>
 		<li v-for="item in items">
-			<i>{{ $index }}</i>
-			<span>{{ item.text }}</span>
-		</li>
-	</ul>
-	<hr/>
-	<ul>
-		<li v-for="item in list">
-			<i>{{ $index }}</i>
+			<i>{{ item.$index }}</i>
+			.
 			<span>{{ item.text }}</span>
 		</li>
 	</ul>
 	`;
 
 	model =  {
+		'title': 'mvvm test ~',
 		'items': [
 			{'text': 'aaa'},
 			{'text': 'bbb'},
 			{'text': 'ccc'},
 			{'text': 'ddd'},
-		],
-
-		'lists': [
-			{'text': 'AAA'},
-			{'text': 'BBB'},
-			{'text': 'CCC'},
-			{'text': 'DDD'},
+			{'text': 'eee'},
+			{'text': 'fff'},
 		]
 	}
 

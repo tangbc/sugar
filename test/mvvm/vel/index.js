@@ -1,23 +1,70 @@
-require(['../../../src/mvvm/index'], function(VM) {
-	var body = document.querySelector('body');
+require([
+	'../../../src/mvvm/index'
+], function(MVVM) {
+	var layout, model, body = document.querySelector('body');
 
-	body.innerHTML =
-	`<ul>
+
+	layout =
+	`
+	<h2 v-el="myEl">{{ title }}</h2>
+	<ul>
 		<li v-for="item in items">
-			<i>{{ $index }}</i>
-			<span>{{ item.text }}</span>
+			<span v-el="item.vforEl" v-text="item.text"></span>
+			<i v-for="sub in item.subs" v-el="sub.subEl">{{ sub.text }}</i>
 		</li>
-	</ul>`
+	</ul>
+	`;
 
-	var vm = new VM(body, {
+	model =  {
+		'title': 'v-el is used for registering DOM el to Model',
 		'items': [
-			{'text': 'a'},
-			{'text': 'b'},
-			{'text': 'c'},
-			{'text': 'd'},
-			{'text': 'e'}
+			{
+				'text': 'aaa',
+				'subs': [
+					{'text': 1},
+					{'text': 2}
+				]
+			},
+			{
+				'text': 'bbb'
+			},
+			{
+				'text': 'ccc',
+				'subs': [
+					{'text': 3}
+				]
+			}
 		]
+	}
+
+
+	console.time('compileTime');
+
+	// start compile
+	body.innerHTML = layout;
+	var mvvm = new MVVM(body, model);
+	var vm = mvvm.get();
+	// for global debug
+	window.vm = vm;
+
+	console.timeEnd('compileTime');
+
+
+	console.time('queryTime');
+
+	console.log('myEl', vm.$els);
+
+	console.log('---------------------------------------------------');
+
+	vm.items.forEach(function(item, index) {
+		console.log('vforEl register for items*' + index, item.vforEl);
+
+		if (item.subs) {
+			item.subs.forEach(function(sub, idx) {
+				console.log('    subEl register for items*' + index + '*' + idx, sub.subEl);
+			});
+		}
 	});
 
-	window.vm = vm.get();
+	console.timeEnd('queryTime');
 });

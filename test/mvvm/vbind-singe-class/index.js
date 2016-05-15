@@ -6,20 +6,11 @@ require([
 
 	layout =
 	`
-	<h2 v-html="html"></h2>
-	<ul>
-		<li v-for="item in items" v-html="item.html"></li>
-	</ul>
+	<h2>{{ title }}</h2>
 	`;
 
 	model =  {
-		'html': '<b>mvvm test ~</b>',
-
-		'items': [
-			{'html': '<i>aaa</i>'},
-			{'html': '<b>bbb</b>'},
-			{'html': '<span>ccc</span>'}
-		]
+		'title': 'mvvm test ~'
 	}
 
 
