@@ -17,16 +17,17 @@ define([
 			callback = context[callback];
 		}
 
+		this.$args = args;
+		this.$context = context;
 		this.$ignores = ignores;
 		this.$callback = callback;
-		this.$context = context;
-		this.$args = args;
 
 		// 监测的对象集合，包括一级和嵌套对象
 		this.$observers = [object];
-
 		// 监测的数据副本，存储旧值
 		this.$valuesMap = {'0': util.copy(object)};
+		// 子对象字段，子对象的内部变更只触发顶层字段
+		this.$subPaths = [];
 
 		// 记录当前数组操作
 		this.$action = 921;
@@ -127,6 +128,7 @@ define([
 	 * @param   {Array}         paths   [访问路径数组]
 	 */
 	op.bindWatch = function(object, paths) {
+		var path = paths.join('*');
 		var prop = paths[paths.length - 1];
 
 		// 定义 object 的 getter 和 setter
@@ -136,28 +138,58 @@ define([
 			}).bind(this),
 
 			set: (function setter() {
-				var newValue = arguments[0];
-				var oldValue = this.getCache(object, prop);
+				var newValue = arguments[0], pathSub;
+				var oldValue = this.getCache(object, prop), oldObject;
 
 				if (newValue !== oldValue) {
-					if (util.isObject(newValue) || util.isArray(newValue)) {
+					if (util.isArray(newValue) || util.isObject(newValue)) {
 						this.observe(newValue, paths);
+					}
+
+					pathSub = this.getPathSub(path);
+					if (pathSub) {
+						oldObject = util.copy(object);
 					}
 
 					this.setCache(object, newValue, prop);
 
 					if (this.$methods.indexOf(this.$action) === -1) {
-						this.trigger(paths.join('*'), newValue, oldValue);
+						if (pathSub) {
+							this.trigger(pathSub, object[prop], oldObject[prop]);
+						}
+						else {
+							this.trigger(path, newValue, oldValue);
+						}
 					}
 				}
 			}).bind(this)
 		});
 
 		var value = object[prop];
+		var isObject = util.isObject(value);
 
 		// 嵌套数组或对象
-		if (util.isArray(value) || util.isObject(value)) {
+		if (util.isArray(value) || isObject) {
 			this.observe(value, paths);
+		}
+
+		// 缓存子对象字段
+		if (isObject && this.$subPaths.indexOf(path) === -1 && !/^[0-9]*$/.test(path.split('*').pop())) {
+			this.$subPaths.push(path);
+		}
+	}
+
+	/**
+	 * 是否是子对象路径，如果是则返回对象路径
+	 * @param   {String}   path
+	 * @return  {String}
+	 */
+	op.getPathSub = function(path) {
+		var paths = this.$subPaths;
+		for (var i = 0; i < paths.length; i++) {
+			if (path.indexOf(paths[i]) === 0) {
+				return paths[i];
+			}
 		}
 	}
 
