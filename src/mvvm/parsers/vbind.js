@@ -1,17 +1,14 @@
 define([
 	'../parser',
-	'../../util'
-], function(Parser, util) {
-
-	// 匹配 {'class': xxx} 形式
-	var regJson = /^\{.*\}$/;
-	// 获取访问路径的最后一值
-	function getLastValue(access) {
-		return access.substr(access.lastIndexOf('*') + 1, access.length);
-	}
+	'../../util',
+	'./vbind-class',
+	'./vbind-style'
+], function(Parser, util, VClass, VStyle) {
 
 	function Vbind(vm) {
 		this.vm = vm;
+		this.vclass = new VClass(vm);
+		this.vstyle = new VStyle(vm);
 		Parser.call(this);
 	}
 	var vbind = Vbind.prototype = Object.create(Parser.prototype);
@@ -24,309 +21,115 @@ define([
 	 * @param   {String}      directive   [指令名称]
 	 */
 	vbind.parse = function(fors, node, expression, directive) {
-		var deps = this.getDeps(fors, expression);
-		var type, attrs, dir = util.removeSpace(directive);
+		var parseType;
+		var vclass = this.vclass;
+		var vstyle = this.vstyle;
 
-		// 单个 attribute: v-bind:class="xxx"
-		if (dir.indexOf(':') !== -1) {
+		// 单个 attribute
+		if (directive.indexOf(':') !== -1) {
 			// 属性类型
-			type = util.getKeyValue(dir);
+			parseType = util.getKeyValue(directive);
 
-			switch (type) {
+			switch (parseType) {
 				case 'class':
-					this.parseClass(node, fors, deps, expression);
+					vclass.parse.apply(vclass, arguments);
 					break;
 				case 'style':
-					this.parseStyle(node, fors, deps, expression);
+					vstyle.parse.apply(vstyle, arguments);
 					break;
 				default:
-					this.parseAttr(node, fors, type, deps, expression);
+					this.parseAttr(fors, node, expression, parseType);
 			}
 		}
-		// 多个 attributes: "v-bind={id:xxxx, name: yyy, data-id: zzz}"
+		// 多个 attributes 的 Json 表达式
 		else {
-			attrs = util.convertJson(expression);
-
-			util.each(attrs, function(exp, attr) {
-				var model = exp;
-				var newDeps = this.getDeps(fors, model);
-
-				switch (attr) {
-					case 'class':
-						this.parseClass(node, fors, newDeps, model);
-						break;
-					case 'style':
-						this.parseStyle(node, fors, newDeps, model);
-						break;
-					default:
-						this.parseAttr(node, fors, attr, newDeps, model);
-				}
-			}, this);
+			this.parseJson.apply(this, arguments);
 		}
 	}
 
 	/**
-	 * 绑定/更新节点 classname
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       fors
-	 * @param   {Array}        deps
-	 * @param   {String}       expression
+	 * 解析 v-bind="{aa: bb, cc: dd}"
+	 * @param   {Object}      fors
+	 * @param   {DOMElement}  node
+	 * @param   {String}      jsonString
 	 */
-	vbind.parseClass = function(node, fors, deps, expression) {
-		var vm = this.vm;
-		var watcher = vm.watcher;
-		var exp = expression.trim();
-		var isJson = regJson.test(exp);
+	vbind.parseJson = function(fors, node, jsonString) {
+		// 提取依赖
+		var deps = this.getDeps(fors, jsonString);
+		// 取值域
+		var scope = this.getScope(fors, jsonString);
+		// 取值函数
+		var getter = this.getEval(fors, jsonString);
+		// 求值
+		var jsonValue = getter.call(scope, scope);
+		// 别名映射
+		var maps = fors && util.copy(fors.maps);
 
-		var map, scope, getter, value;
-		var cache = {}, jsonDeps = [], jsonAccess = [];
-
-		// 不是 classJson
-		if (!isJson) {
-			scope = this.getScope(fors, exp);
-			getter = this.getEval(fors, exp);
-			value = getter.call(scope, scope);
-
-			// 单个变化的字段 cls
-			if (util.isString(value)) {
-				this.updateClass(node, value);
-			}
-			// 数组形式 ['cls-a', 'cls-b']
-			else if (util.isArray(value)) {
-				util.each(value, function(cls) {
-					this.updateClass(node, cls);
-				}, this);
-			}
-			// 对象形式 classObject
-			else if (util.isObject(value)) {
-				this.parseClassObject(node, value, deps, exp);
-
-				// 监测整个 classObject 被替换
-				watcher.watch(deps, function(path, newObject, oldObject) {
-					// 移除旧的 class
-					util.each(oldObject, function(b, cls) {
-						this.updateClass(node, false, false, cls);
-					}, this);
-
-					// 重新绑定
-					this.parseClassObject(node, newObject, deps, exp);
-				}, this);
-
-				// 已在 parseClassObject 做监测
-				return;
-			}
-		}
-		// classJson
-		else {
-			// classname 与取值字段的映射
-			map = util.convertJson(exp);
-
-			util.each(map, function(field, cls) {
-				var isAdd, model = map[cls];
-				var access = deps.acc[deps.dep.indexOf(model)];
-
-				scope = this.getScope(fors, field);
-				getter = this.getEval(fors, field);
-				isAdd = getter.call(scope, scope);
-
-				jsonDeps.push(model);
-				jsonAccess.push(access);
-				cache[util.getExpKey(model) || model] = cls;
-
-				this.updateClass(node, isAdd, false, cls);
-
-				scope = getter = null;
-			}, this);
-		}
-
-
-		// cls 和 [clsa, clsb] 的依赖监测
-		if (!isJson) {
-			watcher.watch(deps, function(path, last, old) {
-				this.updateClass(node, last, old);
-			}, this);
-		}
-		// classJson 的依赖监测
-		else {
-			this.watchClassObject(node, {
-				'dep': jsonDeps,
-				'acc': jsonAccess
-			}, cache);
-		}
-	}
-
-	/**
-	 * 绑定 classObject
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       obj
-	 * @param   {Object}       deps
-	 * @param   {String}       exp
-	 */
-	vbind.parseClassObject = function(node, obj, deps, exp) {
-		var jsonDeps = [], jsonAccess = [];
-
-		util.each(obj, function(isAdd, cls) {
-			var model = exp;
-			var access = deps.acc[deps.dep.indexOf(model)];
-			var valAccess = access ? (access + '*' + cls) : (model + '*' + cls);
-
-			jsonDeps.push(model);
-			jsonAccess.push(valAccess);
-
-			this.updateClass(node, isAdd, false, cls);
-		}, this);
+		this.updateJson(node, jsonValue);
 
 		// 监测依赖变化
-		this.watchClassObject(node, {
-			'dep': jsonDeps,
-			'acc': jsonAccess
-		});
-	}
-
-	/**
-	 * 监测 classObject 或 classJson 的依赖
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       deps
-	 * @param   {Object}       cache
-	 */
-	vbind.watchClassObject = function(node, deps, cache) {
-		this.vm.watcher.watch(deps, function(path, last, old) {
-			var lasValue =  getLastValue(path);
-			var classname = cache ? cache[lasValue] : lasValue;
-			this.updateClass(node, last, old, classname);
+		this.vm.watcher.watch(deps, function() {
+			scope = this.updateScope(scope, maps, deps, arguments);
+			this.updateJson(node, getter.call(scope, scope));
 		}, this);
 	}
 
 	/**
-	 * 刷新节点 classname
-	 */
-	vbind.updateClass = function() {
-		var updater = this.vm.updater;
-		updater.updateClassName.apply(updater, arguments);
-	}
-
-	/**
-	 * 绑定/更新节点 inlineStyle
-	 * 与 v-bind:style 只能为 styleObject 或 styleJson
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       fors
-	 * @param   {Array}        deps
-	 * @param   {String}       expression
-	 */
-	vbind.parseStyle = function(node, fors, deps, expression) {
-		var vm = this.vm;
-		var watcher = vm.watcher;
-		var exp = expression.trim();
-		var isJson = regJson.test(exp);
-
-		var map, scope, getter, styles
-
-		// styleObject
-		if (!isJson) {
-			scope = this.getScope(fors, exp);
-			getter = this.getEval(fors, exp);
-			styles = getter.call(scope, scope);
-
-			this.parseStyleObject(node, styles, deps);
-
-			// 监测整个 styleObject 被替换
-			watcher.watch(deps, function(path, newObject, oldObject) {
-				// 移除旧的 style
-				util.each(oldObject, function(property, style) {
-					this.updateStyle(node, style, null);
-				}, this);
-
-				// 重新绑定
-				this.parseStyleObject(node, newObject, deps);
-			}, this);
-		}
-		// styleJson
-		else {
-			// style 与取值字段的映射
-			map = util.convertJson(exp);
-
-			util.each(map, function(field, style) {
-				var model = field, property;
-
-				scope = this.getScope(fors, model);
-				getter = this.getEval(fors, model);
-				property = getter.call(scope, scope);
-
-				this.updateStyle(node, style, property);
-
-				scope = getter = null;
-			}, this);
-
-			// styleJson 依赖监测
-			watcher.watch(deps, function(path, last, old) {
-				this.updateStyle(node, getLastValue(path), last);
-			}, this);
-		}
-	}
-
-	/**
-	 * 绑定 styleObject
+	 * 绑定 Json 定义的 attribute
 	 * @param   {DOMElement}  node
-	 * @param   {Object}      styles
-	 * @param   {Object}      deps
+	 * @param   {Json}        json
 	 */
-	vbind.parseStyleObject = function(node, styles, deps) {
-		var jsonDeps = [], jsonAccess = [];
+	vbind.updateJson = function(node, jsonAttrs) {
+		var vclass = this.vclass;
+		var vstyle = this.vstyle;
 
-		util.each(styles, function(property, style) {
-			var model = deps.dep[0];
-			var access = deps.acc[0] || model;
-			var valAccess = access + '*' + style;
-
-			jsonDeps.push(model);
-			jsonAccess.push(valAccess);
-
-			this.updateStyle(node, style, property);
-		}, this);
-
-		// styleObject 依赖监测
-		this.vm.watcher.watch({
-			'dep': jsonDeps,
-			'acc': jsonAccess
-		}, function(path, last, old) {
-			this.updateStyle(node, getLastValue(path), last);
+		util.each(jsonAttrs, function(value, type) {
+			switch (type) {
+				case 'class':
+					vclass.update(node, value);
+					break;
+				case 'style':
+					vstyle.update(node, value);
+					break;
+				default:
+					this.update(node, type, value);
+			}
 		}, this);
 	}
 
 	/**
-	 * 刷新节点行内样式 inlineStyle
-	 */
-	vbind.updateStyle = function() {
-		var updater = this.vm.updater;
-		updater.updateStyle.apply(updater, arguments);
-	}
-
-	/**
-	 * 绑定/更新节点的普通 attribute
-	 * @param   {DOMElement}   node
+	 * 解析节点单个 attribute
 	 * @param   {Object}       fors
-	 * @param   {String}       attr
-	 * @param   {Array}        deps
+	 * @param   {DOMElement}   node
 	 * @param   {String}       expression
+	 * @param   {String}       attr
 	 */
-	vbind.parseAttr = function(node, fors, attr, deps, expression) {
-		var vm = this.vm;
+	vbind.parseAttr = function(fors, node, expression, attr) {
+		// 提取依赖
+		var deps = this.getDeps(fors, expression);
+		// 取值域
 		var scope = this.getScope(fors, expression);
+		// 取值函数
 		var getter = this.getEval(fors, expression);
-		var value = getter.call(scope, scope);
+		// 别名映射
+		var maps = fors && util.copy(fors.maps);
 
-		this.updateAttr(node, attr, value);
+		this.update(node, attr, getter.call(scope, scope));
 
-		// 监测依赖
-		vm.watcher.watch(deps, function(path, last, old) {
-			this.updateAttr(node, attr, last);
+		// 监测依赖变化
+		this.vm.watcher.watch(deps, function() {
+			scope = this.updateScope(scope, maps, deps, arguments);
+			this.update(node, attr, getter.call(scope, scope));
 		}, this);
 	}
 
 	/**
-	 * 刷新节点的属性 attribute
+	 * 更新节点 attribute
+	 * @param   {DOMElement}   node
+	 * @param   {String}       name
+	 * @param   {String}       value
 	 */
-	vbind.updateAttr = function() {
+	vbind.update = function() {
 		var updater = this.vm.updater;
 		updater.updateAttribute.apply(updater, arguments);
 	}

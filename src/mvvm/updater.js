@@ -159,7 +159,7 @@ define([
 				node.value = value;
 			}
 			else {
-				dom.setAttr.apply(this, arguments);
+				dom.setAttr(node, attribute, value);
 			}
 		}
 	}
@@ -196,11 +196,13 @@ define([
 	/**
 	 * 更新节点的 style realize v-bind:style
 	 * @param   {DOMElement}  node
-	 * @param   {String}      propperty  [属性名称]
-	 * @param   {String}      value      [样式值]
+	 * @param   {String}      property  [属性名称]
+	 * @param   {String}      value     [样式值]
 	 */
-	up.updateStyle = function(node, propperty, value) {
-		node.style[propperty] = value;
+	up.updateStyle = function(node, property, value) {
+		if (node.style[property] !== value) {
+			node.style[property] = value;
+		}
 	}
 
 	/**

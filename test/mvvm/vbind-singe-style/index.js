@@ -6,11 +6,38 @@ require([
 
 	layout =
 	`
-	<h2>{{ title }}</h2>
+	<h2 v-bind:style="styleObj">vbind-style test ~</h2>
+	<ul>
+		<li v-for="item in items">
+			<span v-bind:style="item.obj">{{ item.text }}</span>
+		</li>
+	</ul>
 	`;
 
 	model =  {
-		'title': 'mvvm test ~'
+		'styleObj': {
+			'border': '1px solid green'
+		},
+		'items': [
+			{
+				'text': 'aaa',
+				'obj': {
+					'border': '1px solid red'
+				}
+			},
+			{
+				'text': 'bbb',
+				'obj': {
+					'border': '1px solid green'
+				}
+			},
+			{
+				'text': 'ccc',
+				'obj': {
+					'border': '1px solid blue'
+				}
+			}
+		]
 	}
 
 

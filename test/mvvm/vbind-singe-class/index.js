@@ -6,11 +6,16 @@ require([
 
 	layout =
 	`
-	<h2>{{ title }}</h2>
+	<h2 v-bind:class="titleCls">Normal test</h2>
+	<h2 v-bind:class="isError ? errCls : sucCls">Expression test</h2>
 	`;
 
 	model =  {
-		'title': 'mvvm test ~'
+		'titleCls': 'title',
+
+		'isError': false,
+		'errCls': 'err1',
+		'sucCls': 'suc1'
 	}
 
 
