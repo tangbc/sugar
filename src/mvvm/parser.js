@@ -170,21 +170,20 @@ define([
 	 * @param   {String}      expression
 	 */
 	p.bind = function(fors, node, expression) {
-		var vm = this.vm;
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
-		// 获取取值域
+		// 取值域
 		var scope = this.getScope(fors, expression);
-		// 生成取值函数
+		// 取值函数
 		var getter = this.getEval(fors, expression);
-		// 取值别名映射
+		// 别名映射
 		var maps = fors && util.copy(fors.maps);
 
 		// 初始视图更新
 		this.update(node, getter.call(scope, scope));
 
 		// 监测依赖变化，更新取值 & 视图
-		vm.watcher.watch(deps, function() {
+		this.vm.watcher.watch(deps, function() {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.update(node, getter.call(scope, scope));
 		}, this);
@@ -315,7 +314,7 @@ define([
 				var leng = paths.length;
 
 				// 更新下标的情况通过变更参数来确定
-				if ((args && args[0] === '$index')) {
+				if ((args[0] === '$index')) {
 					paths[leng - 1] = args[1];
 				}
 
@@ -377,8 +376,11 @@ define([
 				}
 			}
 
-			deps.push(model);
-			paths.push(valAccess);
+			// 相同的依赖出现多次只需记录一次
+			if (deps.indexOf(model) === -1) {
+				deps.push(model);
+				paths.push(valAccess);
+			}
 		});
 
 		return {
