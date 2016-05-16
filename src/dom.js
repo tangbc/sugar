@@ -20,7 +20,9 @@ define({
 	 * @param   {String}      value
 	 */
 	setAttr: function(node, name, value) {
-		node.setAttribute(name, value);
+		if (this.getAttr(node, name) !== value) {
+			node.setAttribute(name, value);
+		}
 	},
 
 	/**
@@ -59,6 +61,11 @@ define({
 	 */
 	addClass: function(node, classname) {
 		var current, list = node.classList;
+
+		if (this.hasClass(node, classname)) {
+			return;
+		}
+
 		if (list) {
 			list.add(classname);
 		}
@@ -77,6 +84,11 @@ define({
 	 */
 	removeClass: function(node, classname) {
 		var current, target, list = node.classList;
+
+		if (!this.hasClass(node, classname)) {
+			return;
+		}
+
 		if (list) {
 			list.remove(classname);
 		}
@@ -91,6 +103,23 @@ define({
 
 		if (!node.className) {
 			this.removeAttr(node, 'class');
+		}
+	},
+
+	/**
+	 * 节点是否存在 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 * @return {Boolean}
+	 */
+	hasClass: function(node, classname) {
+		var current, list = node.classList;
+		if (list) {
+			return list.contains(classname);
+		}
+		else {
+			current = ' ' + this.getAttr(node, 'class') + ' ';
+			return current.indexOf(' ' + classname + ' ') !== -1;
 		}
 	},
 
