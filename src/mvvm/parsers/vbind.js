@@ -68,9 +68,16 @@ define([
 		this.updateJson(node, jsonValue);
 
 		// 监测依赖变化
-		this.vm.watcher.watch(deps, function() {
+		this.vm.watcher.watch(deps, function(path, last, old) {
 			scope = this.updateScope(scope, maps, deps, arguments);
-			this.updateJson(node, getter.call(scope, scope));
+
+			// 移除旧值
+			// @TODO: 这里会将所有的属性删除然后再添加
+			// 想个 diff 算法提取 oldJson 和 newJson 的差异
+			this.updateJson(node, jsonValue, true);
+
+			jsonValue = getter.call(scope, scope);
+			this.updateJson(node, jsonValue);
 		}, this);
 	}
 
@@ -78,18 +85,19 @@ define([
 	 * 绑定 Json 定义的 attribute
 	 * @param   {DOMElement}  node
 	 * @param   {Json}        json
+	 * @param   {Boolean}     remove
 	 */
-	vbind.updateJson = function(node, jsonAttrs) {
+	vbind.updateJson = function(node, jsonAttrs, remove) {
 		var vclass = this.vclass;
 		var vstyle = this.vstyle;
 
 		util.each(jsonAttrs, function(value, type) {
 			switch (type) {
 				case 'class':
-					vclass.update(node, value);
+					vclass.updateClass(node, value, remove);
 					break;
 				case 'style':
-					vstyle.update(node, value);
+					vstyle.updateStyle(node, value, remove);
 					break;
 				default:
 					this.update(node, type, value);

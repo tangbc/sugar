@@ -167,28 +167,28 @@ define([
 	/**
 	 * 更新节点的 classname realize v-bind:class
 	 * @param   {DOMElement}          node
-	 * @param   {String|Boolean}      newcls
-	 * @param   {String|Boolean}      oldcls
+	 * @param   {String|Boolean}      newclass
+	 * @param   {String|Boolean}      oldclass
 	 * @param   {String}              classname
 	 */
-	up.updateClassName = function(node, newcls, oldcls, classname) {
-		// 指定 classname 变化值由 newcls 布尔值决定
+	up.updateClassName = function(node, newclass, oldclass, classname) {
+		// 指定 classname 变化值由 newclass 布尔值决定
 		if (classname) {
-			if (newcls === true) {
+			if (newclass === true) {
 				dom.addClass(node, classname);
 			}
-			else if (newcls === false) {
+			else if (newclass === false) {
 				dom.removeClass(node, classname);
 			}
 		}
-		// 未指定 classname 变化值由 newcls 的值决定
+		// 未指定 classname 变化值由 newclass 的值决定
 		else {
-			if (newcls) {
-				dom.addClass(node, newcls);
+			if (newclass) {
+				dom.addClass(node, newclass);
 			}
 
-			if (oldcls) {
-				dom.removeClass(node, oldcls);
+			if (oldclass) {
+				dom.removeClass(node, oldclass);
 			}
 		}
 	}

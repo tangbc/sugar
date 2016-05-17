@@ -6,15 +6,25 @@ require([
 
 	layout =
 	`
-	<h2 v-bind:style="styleObj">vbind-style test ~</h2>
+	<h2 v-bind:style="styleObj">vbind styleObject test ~</h2>
 	<ul>
 		<li v-for="item in items">
 			<span v-bind:style="item.obj">{{ item.text }}</span>
 		</li>
 	</ul>
+	<hr>
+
+	<h2 v-bind:style="{'color': color, 'border': border}">vbind styleJson test ~</h2>
+	<ul>
+		<li v-for="item in options">
+			<span v-bind:style="{'color': item.color, 'border': border}">{{ item.text }}</span>
+		</li>
+	</ul>
+	<hr>
 	`;
 
 	model =  {
+		// vbind styleObject
 		'styleObj': {
 			'border': '1px solid green'
 		},
@@ -22,6 +32,7 @@ require([
 			{
 				'text': 'aaa',
 				'obj': {
+					'color': '',
 					'border': '1px solid red'
 				}
 			},
@@ -36,6 +47,27 @@ require([
 				'obj': {
 					'border': '1px solid blue'
 				}
+			}
+		],
+
+		// vbind styleJson
+		'color': 'red',
+		'border': '2px solid #ABCDEF',
+		'options': [
+			{
+				'text': 'xxx',
+				'color': 'red',
+				'border': '1px solid red'
+			},
+			{
+				'text': 'yyy',
+				'color': 'green',
+				'border': '1px solid green'
+			},
+			{
+				'text': 'zzz',
+				'color': 'blue',
+				'border': '1px solid blue'
 			}
 		]
 	}

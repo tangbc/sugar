@@ -27,21 +27,21 @@ define([
 		// 取值对象
 		var styleObject = getter.call(scope, scope);
 
-		this.updateObject(node, styleObject);
+		this.updateStyle(node, styleObject);
 
 		// 监测依赖变化
 		this.vm.watcher.watch(deps, function(path, last, old) {
 			// 替换整个 styleObject
-			if (util.isObject(last) || util.isObject(old)) {
+			if (util.isObject(old)) {
 				// 移除旧样式(设为 null)
 				util.each(old, function(v, style) {
 					old[style] = null;
 				});
-				this.updateObject(node, util.extend(last, old));
+				this.updateStyle(node, util.extend(last, old));
 			}
 			else {
 				scope = this.updateScope(scope, maps, deps, arguments);
-				this.updateObject(node, getter.call(scope, scope));
+				this.updateStyle(node, getter.call(scope, scope));
 			}
 		}, this);
 	}
@@ -50,15 +50,16 @@ define([
 	 * 绑定 styleObject
 	 * @param   {DOMElement}  node
 	 * @param   {Object}      styleObject
+	 * @param   {Boolean}     remove        [是否全部移除]
 	 */
-	vstyle.updateObject = function(node, styleObject) {
+	vstyle.updateStyle = function(node, styleObject, remove) {
 		if (!util.isObject(styleObject)) {
 			util.warn('v-bind for style must be a type of Object!', styleObject);
 			return;
 		}
 
 		util.each(styleObject, function(value, style) {
-			this.update(node, style, value);
+			this.update(node, style, (remove ? null : value));
 		}, this);
 	}
 
