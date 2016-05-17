@@ -95,3 +95,5 @@ var comp2 = sugar.core.create('component2', Page, {
 	* `mvvm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
 * `v1.0.4`
 	* `mvvm` 细节化 v-for 指令的 `splice` 操作
+* `v1.2.0`
+	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性，功能相对稳定的一个版本
