@@ -294,9 +294,9 @@ define([
 	 */
 	p.updateScope = function(oldScope, maps, deps, args) {
 		var targetPaths;
-		var accesses = deps.acc;
 		var leng = 0, $scope = {};
 		var model = this.vm.$data;
+		var accesses = util.copy(deps.acc);
 
 		// 获取最深层的依赖
 		accesses.unshift(args[0]);
