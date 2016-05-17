@@ -1,8 +1,7 @@
 var gulp = require('gulp');
-// js语法检测
 var jshint = require('gulp-jshint');
 
-// 监听的js文件
+// 监听的 js 文件目录
 var jsFiles = [
 	'src/*.js',
 	'src/main/*.js',
@@ -10,7 +9,7 @@ var jsFiles = [
 	'src/mvvm/parsers/*.js'
 ];
 
-// js语法检测配置
+// js 语法检测配置
 var jshintConfig = {
 	'asi'      : true,
 	'curly'    : true,
@@ -42,10 +41,10 @@ gulp.task('jshint', function() {
 // gulp start 开启任务监听
 gulp.task('start', function() {
 	// 初始化时开启一次
-	gulp.run('jshint');
+	gulp.start('jshint');
 
-	// 监听js文件变化
+	// 监听 js 文件变化
 	gulp.watch(jsFiles, function() {
-		gulp.run('jshint');
+		gulp.start('jshint');
 	});
 });
