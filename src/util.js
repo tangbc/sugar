@@ -305,57 +305,6 @@ define(function() {
 	}
 
 	/**
-	 * 分解字符串函数参数
-	 * @param   {String}  expression
-	 * @return  {Array}
-	 */
-	up.stringToParams = function(expression) {
-		var ret, params, func;
-		var exp = this.removeSpace(expression);
-		var matches = exp.match(/(\(.*\))/);
-		var result = matches && matches[0];
-
-		// 有函数名和参数
-		if (result) {
-			params = result.substr(1, result.length - 2).split(',');
-			func = exp.substr(0, exp.indexOf(result));
-			ret = [func, params];
-		}
-		// 只有函数名
-		else {
-			ret = [exp, params];
-		}
-
-		return ret;
-	}
-
-	/**
-	 * 字符 json 结构转为可取值的对象
-	 * @param   {String}  jsonString
-	 * @return  {Object}
-	 */
-	up.convertJson = function(jsonString) {
-		var info, props;
-		var string = jsonString.trim(), i = string.length;
-
-		if (/^\{.*\}$/.test(string)) {
-			info = {};
-			string = string.substr(1, i - 2).replace(/\s|'|"/g, '');
-			props = string.match(/[^,]+:[^:]+((?=,[\w_-]+:)|$)/g);
-
-			this.each(props, function(prop) {
-				var vals = this.getKeyValue(prop, true);
-				var name = vals[0], value = vals[1];
-				if (name && value) {
-					info[name] = value;
-				}
-			}, this);
-		}
-
-		return info;
-	}
-
-	/**
 	 * 创建一个空的 dom 元素
 	 * @param   {String}     tag  [元素标签名称]
 	 * @return  {DOMElemnt}

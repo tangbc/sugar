@@ -6,11 +6,18 @@ require([
 
 	layout =
 	`
-	<h2>{{ title }}</h2>
+	<h2 v-on:click="vmClick1">v-on test without param ~</h2>
+	<h2 v-on:click="vmClick2(123, title, $event)">v-on test with params ~</h2>
 	`;
 
 	model =  {
-		'title': 'mvvm test ~'
+		'title': 'aaa',
+		'vmClick1': function() {
+			console.log(arguments);
+		},
+		'vmClick2': function() {
+			console.log(arguments);
+		}
 	}
 
 

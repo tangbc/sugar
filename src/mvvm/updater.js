@@ -207,67 +207,19 @@ define([
 
 	/**
 	 * 更新节点绑定事件的回调函数 realize v-on
-	 * @param   {DOMElement}  node
-	 * @param   {String}      evt          [事件名称]
-	 * @param   {Function}    func         [回调函数]
-	 * @param   {Function}    oldfunc      [旧回调函数，会被移除]
-	 * @param   {Array}       params       [参数]
-	 * @param   {String}      identifier   [对应监测字段/路径]
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 * @param   {Boolean}      unbind
 	 */
-	up.updateEvent = function(node, evt, func, oldfunc, params, identifier) {
-		var listeners = this.$listeners;
-		var modals, self, stop, prevent, capture = false;
-
-		// 支持 4 种事件修饰符 .self .stop .prevent .capture
-		if (evt.indexOf('.') !== -1) {
-			modals = evt.split('.');
-			evt = modals.shift();
-			self = modals && modals.indexOf('self') !== -1;
-			stop = modals && modals.indexOf('stop') !== -1;
-			prevent = modals && modals.indexOf('prevent') !== -1;
-			capture = modals && modals.indexOf('capture') !== -1;
-		}
-
-		if (oldfunc) {
-			dom.removeEvent(node, evt, listeners[identifier], capture);
-		}
-
-		if (util.isFunc(func)) {
-			// 缓存事件回调
-			listeners[identifier] = function _listener(e) {
-				var args = [];
-
-				// 是否限定只能在当前节点触发事件
-				if (self && e.target !== node) {
-					return;
-				}
-
-				// 组合事件参数
-				util.each(params, function(param) {
-					args.push(param === '$event' ? e : param);
-				});
-
-				// 未指定参数，则原生事件对象作为唯一参数
-				if (!args.length) {
-					args.push(e);
-				}
-
-				func.apply(this, args);
-
-				// 是否阻止冒泡
-				if (stop) {
-					e.stopPropagation();
-				}
-				// 是否阻止默认事件
-				if (prevent) {
-					e.preventDefault();
-				}
-			}
-
-			dom.addEvent(node, evt, listeners[identifier], capture);
+	up.updateEvent = function(node, evt, callback, capture, unbind) {
+		// 移除绑定
+		if (unbind) {
+			dom.removeEvent(node, evt, callback, capture);
 		}
 		else {
-			util.warn('The model: ' + identifier + '\'s value for using v-on must be a type of Function!');
+			dom.addEvent(node, evt, callback, capture);
 		}
 	}
 

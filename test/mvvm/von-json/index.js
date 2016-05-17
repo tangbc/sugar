@@ -6,11 +6,18 @@ require([
 
 	layout =
 	`
-	<h2>{{ title }}</h2>
+	<h2 v-on="{'click.stop': vmClick(123, title, $event, 'abc'), 'mouseover': vmMosueover}">v-on json test with params ~</h2>
 	`;
 
 	model =  {
-		'title': 'mvvm test ~'
+		'title': 'aaa',
+
+		'vmClick': function() {
+			console.log(arguments);
+		},
+		'vmMosueover': function() {
+			console.log('mouseover');
+		}
 	}
 
 
