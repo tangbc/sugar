@@ -131,7 +131,7 @@ define([
 		var path = paths.join('*');
 		var prop = paths[paths.length - 1];
 
-		// 定义 object 的 getter 和 setter
+		// 定义 object[prop] 的 getter 和 setter
 		Object.defineProperty(object, prop, {
 			get: (function getter() {
 				return this.getCache(object, prop);
@@ -146,6 +146,7 @@ define([
 						this.observe(newValue, paths);
 					}
 
+					// 获取子对象路径
 					pathSub = this.getPathSub(path);
 					if (pathSub) {
 						oldObject = util.copy(object);
