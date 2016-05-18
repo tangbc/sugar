@@ -97,5 +97,5 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 	* `mvvm` Support dynamic instruction expressions: `<p v-text="isError ? errorMsg : sucMsg"></p>`
 * `v1.0.4`
 	* `mvvm` Process `splice` action in `v-for` array operation
-* `v1.2.0`
+* `v1.0.6`
 	* `mvvm` Fixes many issues, adding instruction expressions that depend on extracting and updating the view's stability, a version of the function is relatively stable
