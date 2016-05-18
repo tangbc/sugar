@@ -19,8 +19,6 @@ define([
 	var regSaveConst = /"(\d+)"/g;
 	// 只含有 true 或 false
 	var regBool = /^(true|false)$/;
-	// 匹配循环下标别名
-	var regIndex = /^\$index|\W\$\bindex\b/;
 	// 匹配表达式中的常量
 	var regReplaceConst = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g;
 	// 匹配表达式中的取值域
@@ -80,18 +78,17 @@ define([
 	 * @return  {String}
 	 */
 	function getAlias(fors, expression) {
-		var alias, exp = expression.replace(/(\(.*\))/g, '');
+		var alias, exp = expression;
 
 		// $index or item in items {{item}}
-		if (exp === fors.alias || regIndex.test(exp)) {
+		if (exp === fors.alias || exp.indexOf('$index') !== -1) {
 			return fors.alias;
 		}
 
 		// 在表达式中匹配 alias.xxx
-		util.each(fors.aliases, function(al) {
-			var reg = new RegExp('\\b' + al + '\\b|\\b'+ al +'\\.');
-			if (reg.test(exp)) {
-				alias = al;
+		util.each(fors.aliases, function(_alias) {
+			if ((new RegExp('\\b' + _alias + '\\b|\\b'+ _alias +'\\.')).test(exp)) {
+				alias = _alias;
 				return false;
 			}
 		});
@@ -234,7 +231,7 @@ define([
 			return;
 		}
 
-		// 替换取值域别名
+		// 替换 vfor 取值域别名
 		if (fors) {
 			util.each(fors.aliases, function(alias) {
 				var reg = new RegExp('scope.' + alias, 'g');
@@ -248,7 +245,7 @@ define([
 	}
 
 	/**
-	 * 转换表达式的 scope 取值域
+	 * 转换表达式的变量为 scope 关键字参数
 	 * @return  {String}
 	 */
 	p.toScope = function(expression) {
@@ -274,12 +271,10 @@ define([
 	p.getScope = function(fors, expression) {
 		var model = this.vm.$data;
 
-		if (!fors) {
-			return model;
+		if (fors) {
+			model.$index = fors.index;
+			model.$scope = fors.scopes;
 		}
-
-		model.$index = fors.index;
-		model.$scope = fors.scopes;
 
 		return model;
 	}
@@ -348,8 +343,10 @@ define([
 	p.getDeps = function(fors, expression) {
 		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
+		var depMatches = exp.match(regReplaceScope);
 
-		exp.replace(regReplaceScope, function(dep) {
+		// 提取依赖和依赖的访问路径
+		util.each(depMatches, function(dep) {
 			var model = dep.substr(1);
 			var alias, hasIndex, access, valAccess;
 
@@ -357,6 +354,7 @@ define([
 			if (fors) {
 				alias = getAlias(fors, dep);
 				hasIndex = model.indexOf('$index') !== -1;
+
 				// 取值域路径
 				if (model.indexOf(alias) !== -1 || hasIndex) {
 					access = fors.accesses[fors.aliases.indexOf(alias)];
