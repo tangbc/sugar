@@ -250,8 +250,8 @@ define([
 	 * @param   {Object}       fors
 	 */
 	cp.compileText = function(node, fors) {
+		var exp, match, matches, pieces, tokens = [];
 		var text = node.textContent.trim().replace(/\n/g, '');
-		var exp, match, matches, formatStr, pieces, tokens = [];
 		var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
 		var isText = regtext.test(text), isHtml = reghtml.test(text);
 
@@ -268,17 +268,15 @@ define([
 		}
 		// text match
 		else if (isText) {
-			formatStr = text.replace(regtext, function(m) {
-				return '_%su' + m + '_$su';
-			});
-			pieces = formatStr.split(/\_\%su(.+?)\_\$su/g);
+			pieces = text.split(regtext);
+			matches = text.match(regtext);
 
 			// 文本节点转化为常量和变量的组合表达式
 			// 'a {{b}} c' => '"a " + b + " c"'
 			util.each(pieces, function(piece) {
 				// {{text}}
-				if (regtext.test(piece)) {
-					tokens.push('(' + piece.replace(/\s\{|\{|\}|\}/g, '') + ')');
+				if (matches.indexOf('{{' + piece + '}}') !== -1) {
+					tokens.push('(' + piece + ')');
 				}
 				// 字符常量
 				else if (piece) {

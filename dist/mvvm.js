@@ -813,8 +813,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Object}       fors
 		 */
 		cp.compileText = function(node, fors) {
+			var exp, match, matches, pieces, tokens = [];
 			var text = node.textContent.trim().replace(/\n/g, '');
-			var exp, match, matches, formatStr, pieces, tokens = [];
 			var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
 			var isText = regtext.test(text), isHtml = reghtml.test(text);
 
@@ -831,17 +831,15 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 			// text match
 			else if (isText) {
-				formatStr = text.replace(regtext, function(m) {
-					return '_%su' + m + '_$su';
-				});
-				pieces = formatStr.split(/\_\%su(.+?)\_\$su/g);
+				pieces = text.split(regtext);
+				matches = text.match(regtext);
 
 				// 文本节点转化为常量和变量的组合表达式
 				// 'a {{b}} c' => '"a " + b + " c"'
 				util.each(pieces, function(piece) {
 					// {{text}}
-					if (regtext.test(piece)) {
-						tokens.push('(' + piece.replace(/\s\{|\{|\}|\}/g, '') + ')');
+					if (matches.indexOf('{{' + piece + '}}') !== -1) {
+						tokens.push('(' + piece + ')');
 					}
 					// 字符常量
 					else if (piece) {
@@ -1532,12 +1530,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		function getAlias(fors, expression) {
 			var alias, exp = expression;
 
-			// $index or item in items {{item}}
-			if (exp === fors.alias || exp.indexOf('$index') !== -1) {
+			if (exp.indexOf(fors.alias) !== -1) {
 				return fors.alias;
 			}
 
-			// 在表达式中匹配 alias.xxx
+			// 跨层级的别名
 			util.each(fors.aliases, function(_alias) {
 				if ((new RegExp('\\b' + _alias + '\\b|\\b'+ _alias +'\\.')).test(exp)) {
 					alias = _alias;

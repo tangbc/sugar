@@ -80,12 +80,11 @@ define([
 	function getAlias(fors, expression) {
 		var alias, exp = expression;
 
-		// $index or item in items {{item}}
-		if (exp === fors.alias || exp.indexOf('$index') !== -1) {
+		if (exp.indexOf(fors.alias) !== -1) {
 			return fors.alias;
 		}
 
-		// 在表达式中匹配 alias.xxx
+		// 跨层级的别名
 		util.each(fors.aliases, function(_alias) {
 			if ((new RegExp('\\b' + _alias + '\\b|\\b'+ _alias +'\\.')).test(exp)) {
 				alias = _alias;
