@@ -12,6 +12,78 @@
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
 
 
+# 举个栗子
+
+这里以定义、创建一个简单可复用的 `radio` 组件为例（可在线修改代码和预览 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)）
+```html
+<div id="radio-box-phone"></div>
+<hr/>
+<div id="radio-box-job"></div>
+```
+
+```javascript
+// 定义一个通用单选框组件，实现的功能：生成指定的 radio 数据
+var RadioComponent = Sugar.Component.extend({
+	// 初始化组件配置数据
+	init: function(config) {
+		config = this.cover(config, {
+			// 组件布局，也可以通过 tempalte: xxx.html 来加载外部模板
+			'html' : `
+				<h2>Q: {{ title }}</h2>
+				<h2>A: {{ selected }}</h2>
+				<ul>
+					<li v-for="item in items">
+						<label>
+							<input type="radio" v-bind:value="item.value"  v-model="selected">
+							{{ item.value }}
+						</label>
+					</li>
+				</ul>
+			`,
+			// MVVM 数据模型
+			'model': {
+      			'title'   : config.title,
+				'items'   : config.items,
+				'selected': config.selected
+			}
+		});
+		this.Super('init', arguments);
+	}
+});
+
+// 用 RadioComponent 生成一个 phoneQA 的组件实例
+var phoneQA = Sugar.core.create('phone', RadioComponent, {
+	'target'  : document.querySelector('#radio-box-phone'),
+ 	'title'   : 'What cell phone do you use ? ',
+	'selected': 'iPhone',
+	'items'   : [
+		{'value': 'iPhone'},
+		{'value': 'XiaoMi'},
+		{'value': 'Meizux'},
+		{'value': 'HuaWei'},
+    	{'value': 'Others'}
+	]
+});
+// 用 RadioComponent 生成一个 jobQA 的组件实例
+var jobQA = Sugar.core.create('job', RadioComponent, {
+	'target'  : document.querySelector('#radio-box-job'),
+  	'title'   : 'What\'s your job ? ',
+	'selected': 'Programmer',
+	'items'   : [
+		{'value': 'Doctor'},
+		{'value': 'Programmer'},
+		{'value': 'Teacher'},
+		{'value': 'Student'},
+    	{'value': 'Others'}
+	]
+});
+
+```
+最终生成的两个独立的 `radio` 视图组件实例：
+
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-radio-example">
+
+
 # 项目结构
 * `test/` 测试文件目录
 
@@ -26,49 +98,6 @@
 	* `src/main/` 为 sugar 的组件系统模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、嵌套和消息通信，详细参见: [sugar api](http://tangbc.github.io/sugar/sugar.html)
 
 	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持 v-text, v-model, v-bind, v-on 和 v-for 等，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
-
-
-# 举个栗子
-
-```javascript
-var sugar = require('dist/sugar.min');
-
-/*
- * 定义 Page 组件，从 sugar.Component (约定了视图组件基础功能和 API) 继承.
- * Page 相当于获得了一个独立的视图，展现形式、数据和逻辑行为都可灵活自定义
- */
-var Page = sugar.Component.extend({
-	init: function(config) {
-		// 在 config 里定义组件的初始状态和数据：
-		config = this.cover(config, {
-			'html' : '<h1 v-text="title"></h1>',
-			// 也可指定视图的模板，sugar 会用 ajax 请求模板地址
-			// 'template': 'tpl/page.html',
-			'model': {
-				'title': 'hello sugar~'
-			}
-		});
-		// 调用父类 (sugar.Component) 的 init 方法并传入配置进行视图的渲染
-		this.Super('init', arguments);
-	},
-	// 当视图渲染完毕之后会立即调用自身的 viewReady 方法，可在这里开始业务逻辑
-	viewReady: function () {
-		this.vm.set('title', 'view has been rendered!');
-	}
-});
-
-/*
- * 再将定义好的 Page 组件生成实例并添加到页面
- * comp1, comp2 都是 Page 的实例，一个组件可生成多个实例，可以近似地认为: comp = new Page();
- */
-var comp1 = sugar.core.create('component1', Page, {
-	'target': document.querySelector('#demo1')
-});
-
-var comp2 = sugar.core.create('component2', Page, {
-	'target': document.querySelector('#demo2')
-});
-```
 
 
 # 组件示例
