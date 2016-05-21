@@ -14,7 +14,7 @@
 
 # 举个栗子
 
-这里以定义、创建一个简单可复用的 `radio` 组件为例（可在线修改代码和预览 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)）
+这里以定义、创建一个简单可复用的 `radio` 组件为例：
 ```html
 <div id="radio-box-phone"></div>
 <hr/>
@@ -82,6 +82,8 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 最终生成的两个独立的 `radio` 视图组件实例：
 
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-radio-example">
+
+可在线修改本例的代码及预览 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
 
 
 # 项目结构
