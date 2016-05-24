@@ -16,7 +16,7 @@ require([
 		'title': 'mvvm test ~',
 		'pass' : '',
 		'click': function () {
-			console.log(this.vm.pass);
+			console.log(this);
 		}
 	}
 

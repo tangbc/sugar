@@ -1945,14 +1945,13 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Function}    context  [事件及 watch 的回调上下文]
 		 */
 		function MVVM(element, model, context) {
-			this.context = context;
 
-			// 将函数 this 指向调用者
+			// 将事件函数 this 指向调用者
 			util.each(model, function(value, key) {
 				if (util.isFunc(value)) {
-					model[key] = value.bind(context);
+					model[key] = value.bind(context || this);
 				}
-			});
+			}, this);
 
 			// 初始数据备份
 			this.backup = util.copy(model);
