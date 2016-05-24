@@ -163,7 +163,7 @@ define(function() {
 		// 数组
 		if (isArray(items)) {
 			for (i = 0; i < items.length; i++) {
-				ret = callback.call(context, items[i], i);
+				ret = callback.call(context, items[i], i, items);
 
 				// 回调返回 false 退出循环
 				if (ret === false) {
@@ -184,7 +184,7 @@ define(function() {
 					continue;
 				}
 
-				ret = callback.call(context, items[i], i);
+				ret = callback.call(context, items[i], i, items);
 
 				// 回调返回 false 退出循环
 				if (ret === false) {
@@ -380,6 +380,68 @@ define(function() {
 	up.getExpKey = function(expression) {
 		var pos = expression.lastIndexOf('.');
 		return pos === -1 ? '' : expression.substr(pos + 1);
+	}
+
+	/**
+	 * 返回两个对象的差异字段的集合
+	 * 用于获取 v-bind 绑定 object 的更新差异
+	 * @param   {Object}  newObject
+	 * @param   {Object}  oldObject
+	 * @return  {Object}
+	 */
+	up.diff = function(newObject, oldObject) {
+		return {
+			'n': this.getUnique(newObject, oldObject),
+			'o': this.getUnique(oldObject, newObject)
+		}
+	}
+
+	/**
+	 * 返回 contrastObject 相对于 referObject 的差异对象
+	 * @param   {Object}  contrastObject  [对比对象]
+	 * @param   {Object}  referObject     [参照对象]
+	 * @return  {Object}
+	 */
+	up.getUnique = function(contrastObject, referObject) {
+		var unique = {};
+
+		this.each(contrastObject, function(value, key) {
+			var diff, oldItem = referObject[key];
+
+			if (isObject(value)) {
+				diff = this.getUnique(value, oldItem);
+				if (!isEmpty(diff)) {
+					unique[key] = diff;
+				}
+			}
+			else if (isArray(value)) {
+				var newArray = [];
+
+				this.each(value, function(nItem, index) {
+					var diff;
+
+					if (isObject(nItem)) {
+						diff = this.getUnique(nItem, oldItem[index]);
+						newArray.push(diff);
+					}
+					else {
+						// 新数组元素
+						if (oldItem.indexOf(nItem) === -1) {
+							newArray.push(nItem);
+						}
+					}
+				}, this);
+
+				unique[key] = newArray;
+			}
+			else {
+				if (value !== oldItem) {
+					unique[key] = value;
+				}
+			}
+		}, this);
+
+		return unique;
 	}
 
 	return new Util();

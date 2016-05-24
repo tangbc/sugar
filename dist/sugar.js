@@ -1,8 +1,9 @@
 /*!
- * sugar.js v1.0.6
+ * sugar.js v1.0.8
  * (c) 2016 TANG
+ * Released under the MIT license
  * https://github.com/tangbc/sugar
- * released under the MIT license.
+ * Tue May 24 2016 20:56:51 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -361,7 +362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 数组
 			if (isArray(items)) {
 				for (i = 0; i < items.length; i++) {
-					ret = callback.call(context, items[i], i);
+					ret = callback.call(context, items[i], i, items);
 
 					// 回调返回 false 退出循环
 					if (ret === false) {
@@ -382,7 +383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						continue;
 					}
 
-					ret = callback.call(context, items[i], i);
+					ret = callback.call(context, items[i], i, items);
 
 					// 回调返回 false 退出循环
 					if (ret === false) {
@@ -578,6 +579,68 @@ return /******/ (function(modules) { // webpackBootstrap
 		up.getExpKey = function(expression) {
 			var pos = expression.lastIndexOf('.');
 			return pos === -1 ? '' : expression.substr(pos + 1);
+		}
+
+		/**
+		 * 返回两个对象的差异字段的集合
+		 * 用于获取 v-bind 绑定 object 的更新差异
+		 * @param   {Object}  newObject
+		 * @param   {Object}  oldObject
+		 * @return  {Object}
+		 */
+		up.diff = function(newObject, oldObject) {
+			return {
+				'n': this.getUnique(newObject, oldObject),
+				'o': this.getUnique(oldObject, newObject)
+			}
+		}
+
+		/**
+		 * 返回 contrastObject 相对于 referObject 的差异对象
+		 * @param   {Object}  contrastObject  [对比对象]
+		 * @param   {Object}  referObject     [参照对象]
+		 * @return  {Object}
+		 */
+		up.getUnique = function(contrastObject, referObject) {
+			var unique = {};
+
+			this.each(contrastObject, function(value, key) {
+				var diff, oldItem = referObject[key];
+
+				if (isObject(value)) {
+					diff = this.getUnique(value, oldItem);
+					if (!isEmpty(diff)) {
+						unique[key] = diff;
+					}
+				}
+				else if (isArray(value)) {
+					var newArray = [];
+
+					this.each(value, function(nItem, index) {
+						var diff;
+
+						if (isObject(nItem)) {
+							diff = this.getUnique(nItem, oldItem[index]);
+							newArray.push(diff);
+						}
+						else {
+							// 新数组元素
+							if (oldItem.indexOf(nItem) === -1) {
+								newArray.push(nItem);
+							}
+						}
+					}, this);
+
+					unique[key] = newArray;
+				}
+				else {
+					if (value !== oldItem) {
+						unique[key] = value;
+					}
+				}
+			}, this);
+
+			return unique;
 		}
 
 		return new Util();
@@ -3114,26 +3177,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 设置数据模型的值（用于双向数据绑定）
-		 * @param  {String}  path
-		 * @param  {String}  field
-		 * @param  {Mix}     value
-		 */
-		p.setModel = function(path, field, value) {
-			var paths, target;
-			var model = this.vm.$data;
-
-			if (path) {
-				paths = makePaths(path);
-				target = getDeepValue(model, paths);
-				target[field] = value;
-			}
-			else {
-				model[field] = value;
-			}
-		}
-
-		/**
 		 * 生成表达式取值函数
 		 * @param   {String}    expression
 		 * @return  {Function}
@@ -3190,13 +3233,41 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
+		 * 获取数据模型副本
+		 * @return  {Object}
+		 */
+		p.getModel = function() {
+			return util.copy(this.vm.$data);
+		}
+
+		/**
+		 * 设置数据模型的值（用于双向数据绑定）
+		 * @param  {String}  path
+		 * @param  {String}  field
+		 * @param  {Mix}     value
+		 */
+		p.setModel = function(path, field, value) {
+			var paths, target;
+			var model = this.vm.$data;
+
+			if (path) {
+				paths = makePaths(path);
+				target = getDeepValue(model, paths);
+				target[field] = value;
+			}
+			else {
+				model[field] = value;
+			}
+		}
+
+		/**
 		 * 获取表达式的取值域
 		 * @param   {Object}  fors
 		 * @param   {String}  expression
 		 * @return  {Object}
 		 */
 		p.getScope = function(fors, expression) {
-			var model = this.vm.$data;
+			var model = this.getModel();
 
 			if (fors) {
 				model.$index = fors.index;
@@ -3217,7 +3288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		p.updateScope = function(oldScope, maps, deps, args) {
 			var targetPaths;
 			var leng = 0, $scope = {};
-			var model = this.vm.$data;
+			var model = this.getModel();
 			var accesses = util.copy(deps.acc);
 
 			// 获取最深层的依赖
@@ -4616,15 +4687,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 监测依赖变化
 			this.vm.watcher.watch(deps, function(path, last, old) {
+				var different, newJsonValue;
+				// 更新取值
 				scope = this.updateScope(scope, maps, deps, arguments);
 
-				// 移除旧值
-				// @TODO: 这里会将所有的属性删除然后再添加
-				// 想个 diff 算法提取 oldJson 和 newJson 的差异
-				this.updateJson(node, jsonValue, true);
+				// 新值
+				newJsonValue = getter.call(scope, scope);
+				// 获取新旧 json 的差异
+				different = util.diff(newJsonValue, jsonValue);
 
-				jsonValue = getter.call(scope, scope);
-				this.updateJson(node, jsonValue);
+				// 移除旧 attributes
+				this.updateJson(node, different.o, true);
+				// 添加新 attributes
+				this.updateJson(node, different.n);
+
+				jsonValue = newJsonValue;
 			}, this);
 		}
 

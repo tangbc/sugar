@@ -69,15 +69,21 @@ define([
 
 		// 监测依赖变化
 		this.vm.watcher.watch(deps, function(path, last, old) {
+			var different, newJsonValue;
+			// 更新取值
 			scope = this.updateScope(scope, maps, deps, arguments);
 
-			// 移除旧值
-			// @TODO: 这里会将所有的属性删除然后再添加
-			// 想个 diff 算法提取 oldJson 和 newJson 的差异
-			this.updateJson(node, jsonValue, true);
+			// 新值
+			newJsonValue = getter.call(scope, scope);
+			// 获取新旧 json 的差异
+			different = util.diff(newJsonValue, jsonValue);
 
-			jsonValue = getter.call(scope, scope);
-			this.updateJson(node, jsonValue);
+			// 移除旧 attributes
+			this.updateJson(node, different.o, true);
+			// 添加新 attributes
+			this.updateJson(node, different.n);
+
+			jsonValue = newJsonValue;
 		}, this);
 	}
 

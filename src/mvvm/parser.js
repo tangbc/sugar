@@ -186,26 +186,6 @@ define([
 	}
 
 	/**
-	 * 设置数据模型的值（用于双向数据绑定）
-	 * @param  {String}  path
-	 * @param  {String}  field
-	 * @param  {Mix}     value
-	 */
-	p.setModel = function(path, field, value) {
-		var paths, target;
-		var model = this.vm.$data;
-
-		if (path) {
-			paths = makePaths(path);
-			target = getDeepValue(model, paths);
-			target[field] = value;
-		}
-		else {
-			model[field] = value;
-		}
-	}
-
-	/**
 	 * 生成表达式取值函数
 	 * @param   {String}    expression
 	 * @return  {Function}
@@ -262,13 +242,41 @@ define([
 	}
 
 	/**
+	 * 获取数据模型副本
+	 * @return  {Object}
+	 */
+	p.getModel = function() {
+		return util.copy(this.vm.$data);
+	}
+
+	/**
+	 * 设置数据模型的值（用于双向数据绑定）
+	 * @param  {String}  path
+	 * @param  {String}  field
+	 * @param  {Mix}     value
+	 */
+	p.setModel = function(path, field, value) {
+		var paths, target;
+		var model = this.vm.$data;
+
+		if (path) {
+			paths = makePaths(path);
+			target = getDeepValue(model, paths);
+			target[field] = value;
+		}
+		else {
+			model[field] = value;
+		}
+	}
+
+	/**
 	 * 获取表达式的取值域
 	 * @param   {Object}  fors
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
 	p.getScope = function(fors, expression) {
-		var model = this.vm.$data;
+		var model = this.getModel();
 
 		if (fors) {
 			model.$index = fors.index;
@@ -289,7 +297,7 @@ define([
 	p.updateScope = function(oldScope, maps, deps, args) {
 		var targetPaths;
 		var leng = 0, $scope = {};
-		var model = this.vm.$data;
+		var model = this.getModel();
 		var accesses = util.copy(deps.acc);
 
 		// 获取最深层的依赖
