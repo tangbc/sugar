@@ -123,3 +123,5 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 	* `mvvm` Process `splice` action in `v-for` array operation
 * `v1.0.6`
 	* `mvvm` Fixes many issues, adding instruction expressions that depend on extracting and updating the view's stability, a version of the function is relatively stable
+* `v1.0.8`
+	* `mvvm` Update v-bind for object/json can be used with a simple diff algorithm

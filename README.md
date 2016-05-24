@@ -128,3 +128,5 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 	* `mvvm` 细节化 v-for 指令的 `splice` 操作
 * `v1.0.6`
 	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性，功能相对稳定的一个版本
+* `v1.0.8`
+	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比

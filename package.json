@@ -1,6 +1,6 @@
 {
   "name": "sugar",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "A lightweight JavaScript framework (mvvm & template) for building modular Front-end UI components.",
   "keywords": [
     "framework",
