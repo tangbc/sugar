@@ -1,31 +1,23 @@
 require([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
+	'../../../../src/mvvm/index',
+	'../../../../src/util'
+], function(MVVM, util) {
 	var layout, model, body = document.querySelector('body');
 
 
 	layout =
 	`
 	<h2>{{ title }}</h2>
-	<ul>
-		<li v-for="item in items">
-			<i>{{ item.$index }}</i>
-			.
-			<span>{{ item.text }}</span>
-		</li>
-	</ul>
+	<input type="password" v-model="pass">
+	<input type="button" value="submit" v-on:click="click">
 	`;
 
 	model =  {
 		'title': 'mvvm test ~',
-		'items': [
-			{'text': 'aaa'},
-			{'text': 'bbb'},
-			{'text': 'ccc'},
-			{'text': 'ddd'},
-			{'text': 'eee'},
-			{'text': 'fff'},
-		]
+		'pass' : '',
+		'click': function () {
+			console.log(this.vm.pass);
+		}
 	}
 
 

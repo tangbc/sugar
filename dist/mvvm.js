@@ -3590,6 +3590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 根据不同表单类型绑定数据监测方法
 			switch (type) {
 				case 'text'    :
+				case 'password':
 				case 'textarea': this.parseText.apply(this, args); break;
 				case 'radio'   : this.parseRadio.apply(this, args); break;
 				case 'checkbox': this.parseCheckbox.apply(this, args); break;
