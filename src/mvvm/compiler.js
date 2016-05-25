@@ -122,15 +122,13 @@ define([
 			nodeAttrs = node.attributes;
 			for (var i = 0; i < nodeAttrs.length; i++) {
 				if (this.isDirective(nodeAttrs[i].name)) {
-					result = true;
-					break;
+					return true;
 				}
 			}
 		}
 		else if (this.isTextNode(node) && reg.test(text)) {
-			result = true;
+			return true;
 		}
-		return result;
 	}
 
 	/**
@@ -155,7 +153,7 @@ define([
 
 		if (this.isElementNode(node)) {
 			// node 节点集合转为数组
-			nodeAttrs = node.attributes
+			nodeAttrs = node.attributes;
 
 			for (var i = 0; i < nodeAttrs.length; i++) {
 				atr = nodeAttrs[i];
@@ -199,11 +197,6 @@ define([
 		// 移除指令标记
 		dom.removeAttr(node, dir);
 
-		if (!exp && dir !== 'v-else') {
-			util.warn('The directive value of ' + dir + ' is empty!');
-			return;
-		}
-
 		// 动态指令：v-bind:xxx
 		if (dir.indexOf('v-bind') === 0) {
 			this.vbind.parse.apply(this.vbind, args);
@@ -238,6 +231,8 @@ define([
 					break;
 				case 'v-for':
 					this.vfor.parse.apply(this.vfor, args);
+					break;
+				case 'v-pre':
 					break;
 				default: util.warn(dir + ' is an unknown directive!');
 			}
@@ -329,12 +324,12 @@ define([
 
 	/**
 	 * 节点的子节点是否延迟编译
-	 * vif, vfor 的子节点为处理指令时单独编译
+	 * 单独处理 vif, vfor 和 vpre 子节点的编译
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
 	cp.isLateCompile = function(node) {
-		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for');
+		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 	}
 
 	/**

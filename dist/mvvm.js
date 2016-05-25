@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Tue May 24 2016 20:56:51 GMT+0800 (CST)
+ * Wed May 25 2016 15:38:01 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -747,15 +747,13 @@ return /******/ (function(modules) { // webpackBootstrap
 				nodeAttrs = node.attributes;
 				for (var i = 0; i < nodeAttrs.length; i++) {
 					if (this.isDirective(nodeAttrs[i].name)) {
-						result = true;
-						break;
+						return true;
 					}
 				}
 			}
 			else if (this.isTextNode(node) && reg.test(text)) {
-				result = true;
+				return true;
 			}
-			return result;
 		}
 
 		/**
@@ -780,7 +778,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			if (this.isElementNode(node)) {
 				// node 节点集合转为数组
-				nodeAttrs = node.attributes
+				nodeAttrs = node.attributes;
 
 				for (var i = 0; i < nodeAttrs.length; i++) {
 					atr = nodeAttrs[i];
@@ -824,11 +822,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 移除指令标记
 			dom.removeAttr(node, dir);
 
-			if (!exp && dir !== 'v-else') {
-				util.warn('The directive value of ' + dir + ' is empty!');
-				return;
-			}
-
 			// 动态指令：v-bind:xxx
 			if (dir.indexOf('v-bind') === 0) {
 				this.vbind.parse.apply(this.vbind, args);
@@ -863,6 +856,8 @@ return /******/ (function(modules) { // webpackBootstrap
 						break;
 					case 'v-for':
 						this.vfor.parse.apply(this.vfor, args);
+						break;
+					case 'v-pre':
 						break;
 					default: util.warn(dir + ' is an unknown directive!');
 				}
@@ -954,12 +949,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 节点的子节点是否延迟编译
-		 * vif, vfor 的子节点为处理指令时单独编译
+		 * 单独处理 vif, vfor 和 vpre 子节点的编译
 		 * @param   {DOMElement}   node
 		 * @return  {Boolean}
 		 */
 		cp.isLateCompile = function(node) {
-			return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for');
+			return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 		}
 
 		/**
@@ -1754,11 +1749,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * 获取数据模型副本
+		 * 获取数据模型
 		 * @return  {Object}
 		 */
 		p.getModel = function() {
-			return util.copy(this.vm.$data);
+			return this.vm.$data;
 		}
 
 		/**
@@ -3351,30 +3346,31 @@ return /******/ (function(modules) { // webpackBootstrap
 			var scope = this.getScope(fors, jsonString);
 			// 取值函数
 			var getter = this.getEval(fors, jsonString);
-			// 求值
-			var jsonValue = getter.call(scope, scope);
+			// attr 取值
+			var jsonAttr = util.copy(getter.call(scope, scope));
 			// 别名映射
 			var maps = fors && util.copy(fors.maps);
 
-			this.updateJson(node, jsonValue);
+			this.updateJson(node, jsonAttr);
 
 			// 监测依赖变化
 			this.vm.watcher.watch(deps, function(path, last, old) {
-				var different, newJsonValue;
+				var different, newJsonAttr;
+
 				// 更新取值
 				scope = this.updateScope(scope, maps, deps, arguments);
 
 				// 新值
-				newJsonValue = getter.call(scope, scope);
+				newJsonAttr = getter.call(scope, scope);
 				// 获取新旧 json 的差异
-				different = util.diff(newJsonValue, jsonValue);
+				different = util.diff(newJsonAttr, jsonAttr);
 
 				// 移除旧 attributes
 				this.updateJson(node, different.o, true);
 				// 添加新 attributes
 				this.updateJson(node, different.n);
 
-				jsonValue = newJsonValue;
+				jsonAttr = newJsonAttr;
 			}, this);
 		}
 
