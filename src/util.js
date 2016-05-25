@@ -322,15 +322,14 @@ define(function() {
 	}
 
 	/**
-	 * DOMElement 的子节点转换成文档片段
+	 * element 的子节点转换成文档片段（element 将会被清空）
 	 * @param   {DOMElement}  element
 	 */
 	up.nodeToFragment = function(element) {
 		var child;
 		var fragment = this.createFragment();
-		var cloneNode = element.cloneNode(true);
 
-		while (child = cloneNode.firstChild) {
+		while (child = element.firstChild) {
 			fragment.appendChild(child);
 		}
 

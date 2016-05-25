@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Wed May 25 2016 15:38:01 GMT+0800 (CST)
+ * Wed May 25 2016 18:02:48 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -494,15 +494,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		/**
-		 * DOMElement 的子节点转换成文档片段
+		 * element 的子节点转换成文档片段（element 将会被清空）
 		 * @param   {DOMElement}  element
 		 */
 		up.nodeToFragment = function(element) {
 			var child;
 			var fragment = this.createFragment();
-			var cloneNode = element.cloneNode(true);
 
-			while (child = cloneNode.firstChild) {
+			while (child = element.firstChild) {
 				fragment.appendChild(child);
 			}
 
@@ -661,7 +660,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 缓存根节点
 			this.$element = element;
-			// 根节点转文档碎片
+			// 根节点转文档碎片（element 将被清空）
 			this.$fragment = util.nodeToFragment(this.$element);
 
 			// 数据模型对象
@@ -970,9 +969,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 根节点编译完成，更新视图
 		 */
 		cp.rootCompleted = function() {
-			var element = this.$element;
 			this.$rootComplied = true;
-			dom.empty(element).appendChild(this.$fragment);
+			this.$element.appendChild(this.$fragment);
 		}
 
 		return Compiler;
