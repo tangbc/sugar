@@ -60,30 +60,31 @@ define([
 		var scope = this.getScope(fors, jsonString);
 		// 取值函数
 		var getter = this.getEval(fors, jsonString);
-		// 求值
-		var jsonValue = getter.call(scope, scope);
+		// attr 取值
+		var jsonAttr = util.copy(getter.call(scope, scope));
 		// 别名映射
 		var maps = fors && util.copy(fors.maps);
 
-		this.updateJson(node, jsonValue);
+		this.updateJson(node, jsonAttr);
 
 		// 监测依赖变化
 		this.vm.watcher.watch(deps, function(path, last, old) {
-			var different, newJsonValue;
+			var different, newJsonAttr;
+
 			// 更新取值
 			scope = this.updateScope(scope, maps, deps, arguments);
 
 			// 新值
-			newJsonValue = getter.call(scope, scope);
+			newJsonAttr = getter.call(scope, scope);
 			// 获取新旧 json 的差异
-			different = util.diff(newJsonValue, jsonValue);
+			different = util.diff(newJsonAttr, jsonAttr);
 
 			// 移除旧 attributes
 			this.updateJson(node, different.o, true);
 			// 添加新 attributes
 			this.updateJson(node, different.n);
 
-			jsonValue = newJsonValue;
+			jsonAttr = newJsonAttr;
 		}, this);
 	}
 

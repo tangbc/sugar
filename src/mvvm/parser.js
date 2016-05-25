@@ -242,11 +242,11 @@ define([
 	}
 
 	/**
-	 * 获取数据模型副本
+	 * 获取数据模型
 	 * @return  {Object}
 	 */
 	p.getModel = function() {
-		return util.copy(this.vm.$data);
+		return this.vm.$data;
 	}
 
 	/**
