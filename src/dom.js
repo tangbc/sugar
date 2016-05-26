@@ -20,7 +20,10 @@ define({
 	 * @param   {String}      value
 	 */
 	setAttr: function(node, name, value) {
-		if (this.getAttr(node, name) !== value) {
+		if (typeof value === 'boolean') {
+			node[name] = value;
+		}
+		else if (value !== this.getAttr(node, name)) {
 			node.setAttribute(name, value);
 		}
 	},

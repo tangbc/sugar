@@ -114,8 +114,7 @@ define([
 	 * @return  {Number}
 	 */
 	cp.hasDirective = function(node) {
-		var result, nodeAttrs;
-		var text = node.textContent;
+		var nodeAttrs, text = node.textContent;
 		var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 		if (this.isElementNode(node)) {

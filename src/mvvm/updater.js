@@ -149,18 +149,17 @@ define([
 	 * @param   {String}      value
 	 */
 	up.updateAttribute = function(node, attribute, value) {
+		// null 则移除该属性
 		if (value === null) {
 			dom.removeAttr.apply(this, arguments);
 		}
+		// setAttribute 不适合用于 value
+		// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
+		else if (attribute === 'value') {
+			node.value = value;
+		}
 		else {
-			// setAttribute 不适合用于表单元素的 value
-			// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
-			if (attribute === 'value' && (this.vm.$inputs.indexOf(node.tagName.toLowerCase()) !== -1)) {
-				node.value = value;
-			}
-			else {
-				dom.setAttr(node, attribute, value);
-			}
+			dom.setAttr(node, attribute, value);
 		}
 	}
 

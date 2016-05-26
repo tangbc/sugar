@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Wed May 25 2016 18:02:48 GMT+0800 (CST)
+ * Thu May 26 2016 18:36:17 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -1862,7 +1862,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      value
 		 */
 		setAttr: function(node, name, value) {
-			if (this.getAttr(node, name) !== value) {
+			if (typeof value === 'boolean') {
+				node[name] = value;
+			}
+			else if (value !== this.getAttr(node, name)) {
 				node.setAttribute(name, value);
 			}
 		},
@@ -2217,8 +2220,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {Number}
 		 */
 		cp.hasDirective = function(node) {
-			var result, nodeAttrs;
-			var text = node.textContent;
+			var nodeAttrs, text = node.textContent;
 			var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 			if (this.isElementNode(node)) {
@@ -3536,18 +3538,17 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      value
 		 */
 		up.updateAttribute = function(node, attribute, value) {
+			// null 则移除该属性
 			if (value === null) {
 				dom.removeAttr.apply(this, arguments);
 			}
+			// setAttribute 不适合用于 value
+			// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
+			else if (attribute === 'value') {
+				node.value = value;
+			}
 			else {
-				// setAttribute 不适合用于表单元素的 value
-				// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
-				if (attribute === 'value' && (this.vm.$inputs.indexOf(node.tagName.toLowerCase()) !== -1)) {
-					node.value = value;
-				}
-				else {
-					dom.setAttr(node, attribute, value);
-				}
+				dom.setAttr(node, attribute, value);
 			}
 		}
 
