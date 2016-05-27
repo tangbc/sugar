@@ -47,6 +47,11 @@ require([
 	// start compile
 	body.innerHTML = layout;
 	var vm = new MVVM(body, model);
+
+	vm.watch('pass', function() {
+		console.log(arguments);
+	});
+
 	// for global debug
 	window.vm = vm.get();
 });

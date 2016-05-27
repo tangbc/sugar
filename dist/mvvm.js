@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri May 27 2016 11:37:09 GMT+0800 (CST)
+ * Fri May 27 2016 15:21:25 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -155,10 +155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
 		 */
 		mvp.watch = function(model, callback) {
-			this.vm.watcher.add({
-				'dep': [model],
-				'acc': [undefined]
-			}, function(path, last, old) {
+			this.vm.watcher.watchModel(model, function(path, last, old) {
 				callback.call(this, path, last, old);
 			}, this.context);
 		}
