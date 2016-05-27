@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu May 26 2016 18:36:17 GMT+0800 (CST)
+ * Fri May 27 2016 11:37:09 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4332,10 +4332,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      paramString
 		 */
 		von.bindEvent = function(fors, node, field, evt, func, paramString) {
-			var von = this;
+			var _this = this;
 			var listeners = this.$listeners;
 			var identifier = fors && fors.access || field;
-			var modals, self, stop, prevent, capture = false;
+			var modals, self, stop, prevent, keyCode, capture = false;
 
 			if (!util.isFunc(func)) {
 				return;
@@ -4349,6 +4349,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				stop = modals && modals.indexOf('stop') !== -1;
 				prevent = modals && modals.indexOf('prevent') !== -1;
 				capture = modals && modals.indexOf('capture') !== -1;
+				keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 			}
 
 			// 事件代理函数
@@ -4360,13 +4361,18 @@ return /******/ (function(modules) { // webpackBootstrap
 					return;
 				}
 
+				// 是否指定按键触发
+				if (keyCode && keyCode !== e.keyCode) {
+					return;
+				}
+
 				if (paramString) {
 					// 取值域
-					scope = von.getScope(fors, paramString);
+					scope = _this.getScope(fors, paramString);
 					// 添加别名
 					scope.$event = e;
 					// 取值函数
-					getter = von.getEval(fors, paramString);
+					getter = _this.getEval(fors, paramString);
 					// 事件参数
 					args = getter.call(scope, scope);
 				}

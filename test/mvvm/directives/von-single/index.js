@@ -6,6 +6,7 @@ require([
 
 	layout =
 	`
+	<input type="text" v-on:keyup.13="vmKeyEvent(1,2,3)">
 	<h2 v-on:click="vmClick1">v-on test without param ~</h2>
 	<h2 v-on:click="vmClick2(123, title, $event)">v-on test with params ~</h2>
 	`;
@@ -16,6 +17,9 @@ require([
 			console.log(arguments);
 		},
 		'vmClick2': function() {
+			console.log(arguments);
+		},
+		'vmKeyEvent': function() {
 			console.log(arguments);
 		}
 	}

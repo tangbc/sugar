@@ -134,10 +134,10 @@ define([
 	 * @param   {String}      paramString
 	 */
 	von.bindEvent = function(fors, node, field, evt, func, paramString) {
-		var von = this;
+		var _this = this;
 		var listeners = this.$listeners;
 		var identifier = fors && fors.access || field;
-		var modals, self, stop, prevent, capture = false;
+		var modals, self, stop, prevent, keyCode, capture = false;
 
 		if (!util.isFunc(func)) {
 			return;
@@ -151,6 +151,7 @@ define([
 			stop = modals && modals.indexOf('stop') !== -1;
 			prevent = modals && modals.indexOf('prevent') !== -1;
 			capture = modals && modals.indexOf('capture') !== -1;
+			keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 		}
 
 		// 事件代理函数
@@ -162,13 +163,18 @@ define([
 				return;
 			}
 
+			// 是否指定按键触发
+			if (keyCode && keyCode !== e.keyCode) {
+				return;
+			}
+
 			if (paramString) {
 				// 取值域
-				scope = von.getScope(fors, paramString);
+				scope = _this.getScope(fors, paramString);
 				// 添加别名
 				scope.$event = e;
 				// 取值函数
-				getter = von.getEval(fors, paramString);
+				getter = _this.getEval(fors, paramString);
 				// 事件参数
 				args = getter.call(scope, scope);
 			}
