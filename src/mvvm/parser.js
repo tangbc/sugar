@@ -13,8 +13,6 @@ define([
 	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
-	// 匹配纯数字
-	var regNumber = /^[0-9]*$/;
 	// 匹配常量缓存序号 "1"
 	var regSaveConst = /"(\d+)"/g;
 	// 只含有 true 或 false
@@ -96,28 +94,6 @@ define([
 	}
 
 	/**
-	 * 生成取值路径
-	 * @param   {String}  access
-	 * @return  {Array}
-	 */
-	function makePaths(access) {
-		var length, paths = access && access.split('*');
-
-		if (!paths || paths.length < 2) {
-			return [];
-		}
-
-		for (var i = paths.length - 1; i > -1; i--) {
-			if (regNumber.test(paths[i])) {
-				length = i + 1;
-				break;
-			}
-		}
-
-		return paths.slice(0, length);
-	}
-
-	/**
 	 * 生成取值路径数组
 	 * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
 	 * @param   {Array}  paths
@@ -134,22 +110,6 @@ define([
 		}
 
 		return scopePaths;
-	}
-
-	/**
-	 * 通过访问层级取值
-	 * @param   {Object}  target
-	 * @param   {Array}   paths
-	 * @return  {Mix}
-	 */
-	function getDeepValue(target, paths) {
-		var _paths = paths.slice(0);
-
-		while (_paths.length) {
-			target = target[_paths.shift()];
-		}
-
-		return target;
 	}
 
 
@@ -250,26 +210,6 @@ define([
 	}
 
 	/**
-	 * 设置数据模型的值（用于双向数据绑定）
-	 * @param  {String}  path
-	 * @param  {String}  field
-	 * @param  {Mix}     value
-	 */
-	p.setModel = function(path, field, value) {
-		var paths, target;
-		var model = this.vm.$data;
-
-		if (path) {
-			paths = makePaths(path);
-			target = getDeepValue(model, paths);
-			target[field] = value;
-		}
-		else {
-			model[field] = value;
-		}
-	}
-
-	/**
 	 * 获取表达式的取值域
 	 * @param   {Object}  fors
 	 * @param   {String}  expression
@@ -303,7 +243,7 @@ define([
 		// 获取最深层的依赖
 		accesses.unshift(args[0]);
 		util.each(accesses, function(access) {
-			var paths = makePaths(access);
+			var paths = util.makePaths(access);
 			if (paths.length > leng) {
 				targetPaths = paths;
 				leng = paths.length;
@@ -322,7 +262,7 @@ define([
 
 				var field = paths[leng - 2];
 				var index = +paths[leng - 1];
-				var scope = getDeepValue(model, paths) || {};
+				var scope = util.getDeepValue(model, paths) || {};
 
 				// 支持两种 $index 取值方式
 				model.$index = index;

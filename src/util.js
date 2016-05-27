@@ -443,5 +443,45 @@ define(function() {
 		return unique;
 	}
 
+	/**
+	 * 生成取值路径
+	 * @param   {String}  access
+	 * @return  {Array}
+	 */
+	up.makePaths = function(access) {
+		// 匹配纯数字
+		var regNumber = /^[0-9]*$/;
+		var length, paths = access && access.split('*');
+
+		if (!paths || paths.length < 2) {
+			return [];
+		}
+
+		for (var i = paths.length - 1; i > -1; i--) {
+			if (regNumber.test(paths[i])) {
+				length = i + 1;
+				break;
+			}
+		}
+
+		return paths.slice(0, length);
+	}
+
+	/**
+	 * 通过访问层级取值
+	 * @param   {Object}  target
+	 * @param   {Array}   paths
+	 * @return  {Mix}
+	 */
+	up.getDeepValue = function(target, paths) {
+		var _paths = paths.slice(0);
+
+		while (_paths.length) {
+			target = target[_paths.shift()];
+		}
+
+		return target;
+	}
+
 	return new Util();
 });
