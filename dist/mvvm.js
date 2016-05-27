@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri May 27 2016 15:21:25 GMT+0800 (CST)
+ * Fri May 27 2016 15:34:14 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -76,13 +76,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Function}    context  [事件及 watch 的回调上下文]
 		 */
 		function MVVM(element, model, context) {
+			var ctx = this.context = context || this;
 
 			// 将事件函数 this 指向调用者
 			util.each(model, function(value, key) {
 				if (util.isFunc(value)) {
-					model[key] = value.bind(context || this);
+					model[key] = value.bind(ctx);
 				}
-			}, this);
+			});
 
 			// 初始数据备份
 			this.backup = util.copy(model);
