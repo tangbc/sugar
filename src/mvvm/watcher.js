@@ -21,7 +21,7 @@ define([
 		// 深层订阅集合
 		this.$deepSubs = {};
 
-		this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
+		this.observer = new Observer(model, ['$els', '$scope', '$index'], 'change', this);
 	}
 
 	var wp = Watcher.prototype;

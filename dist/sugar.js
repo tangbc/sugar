@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat May 28 2016 09:30:50 GMT+0800 (CST)
+ * Sat May 28 2016 10:01:17 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -3671,7 +3671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 深层订阅集合
 			this.$deepSubs = {};
 
-			this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
+			this.observer = new Observer(model, ['$els', '$scope', '$index'], 'change', this);
 		}
 
 		var wp = Watcher.prototype;
@@ -3996,7 +3996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					copies = [property];
 				}
 
-				if (!this.isIgnore(copies)) {
+				if (!this.isIgnore(copies, property)) {
 					this.setCache(object, value, property).bindWatch(object, copies);
 				}
 
@@ -4007,14 +4007,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * 检查 paths 是否在排除范围内
-		 * @param   {Array}    paths  [访问路径数组]
+		 * @param   {Array}    paths     [访问路径数组]
+		 * @param   {String}   property  [监测字段]
 		 * @return  {Boolean}
 		 */
-		op.isIgnore = function(paths) {
+		op.isIgnore = function(paths, property) {
 			var ret, path = paths.join('*');
 
 			util.each(this.$ignores, function(ignore) {
-				if (ignore.indexOf(path) === 0) {
+				if (ignore.indexOf(path) === 0 || property === ignore) {
 					ret = true;
 					return false;
 				}

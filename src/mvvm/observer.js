@@ -58,7 +58,7 @@ define([
 				copies = [property];
 			}
 
-			if (!this.isIgnore(copies)) {
+			if (!this.isIgnore(copies, property)) {
 				this.setCache(object, value, property).bindWatch(object, copies);
 			}
 
@@ -69,14 +69,15 @@ define([
 
 	/**
 	 * 检查 paths 是否在排除范围内
-	 * @param   {Array}    paths  [访问路径数组]
+	 * @param   {Array}    paths     [访问路径数组]
+	 * @param   {String}   property  [监测字段]
 	 * @return  {Boolean}
 	 */
-	op.isIgnore = function(paths) {
+	op.isIgnore = function(paths, property) {
 		var ret, path = paths.join('*');
 
 		util.each(this.$ignores, function(ignore) {
-			if (ignore.indexOf(path) === 0) {
+			if (ignore.indexOf(path) === 0 || property === ignore) {
 				ret = true;
 				return false;
 			}
