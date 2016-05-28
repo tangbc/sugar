@@ -18,6 +18,9 @@ define([
 		// 数组下标订阅集合
 		this.$indexSubs = {};
 
+		// 深层订阅集合
+		this.$deepSubs = {};
+
 		this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
 	}
 
@@ -31,9 +34,14 @@ define([
 	 * @param   {Array}   args
 	 */
 	wp.change = function(path, last, old, args) {
-		var isAccess = path.indexOf('*') !== -1;
+		var field, isAccess = path.indexOf('*') !== -1;
 		var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 		this.trigger(subs, path, last, old, args);
+
+		if (isAccess) {
+			field = path.split('*').shift();
+			this.trigger(this.$deepSubs[field], path, last, old, args);
+		}
 	}
 
 	/**
@@ -95,8 +103,9 @@ define([
 	 * @param  {Function}  callback
 	 * @param  {Object}    context
 	 * @param  {Array}     args
+	 * @param  {Boolean}   deep
 	 */
-	wp.watchModel = function(field, callback, context, args) {
+	wp.watchModel = function(field, callback, context, args, deep) {
 		if (!util.hasOwn(this.$model, field)) {
 			util.warn('The field: "' + field + '" does not exist in model!');
 			return;
@@ -108,6 +117,11 @@ define([
 		}
 
 		this.addSubs(this.$modelSubs, field, callback, context, args);
+
+		// index.js watch api 调用，用于数组的深层监测
+		if (deep) {
+			this.addSubs(this.$deepSubs, field, callback, context, args);
+		}
 	}
 
 	/**

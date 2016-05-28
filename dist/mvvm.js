@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri May 27 2016 17:50:47 GMT+0800 (CST)
+ * Sat May 28 2016 09:30:50 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -153,12 +153,13 @@ return /******/ (function(modules) { // webpackBootstrap
 		/**
 		 * 对数据模型的字段添加监测
 		 * @param   {String}    model     [数据模型字段]
-		 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
+		 * @param   {Function}  callback  [监测变化回调]
+		 * @param   {Boolean}   deep      [数组深层监测]
 		 */
-		mvp.watch = function(model, callback) {
+		mvp.watch = function(model, callback, deep) {
 			this.vm.watcher.watchModel(model, function(path, last, old) {
 				callback.call(this, path, last, old);
-			}, this.context);
+			}, this.context, null, deep);
 		}
 
 		return MVVM;
@@ -2340,6 +2341,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 数组下标订阅集合
 			this.$indexSubs = {};
 
+			// 深层订阅集合
+			this.$deepSubs = {};
+
 			this.observer = new Observer(model, ['$els', '$scope'], 'change', this);
 		}
 
@@ -2353,9 +2357,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Array}   args
 		 */
 		wp.change = function(path, last, old, args) {
-			var isAccess = path.indexOf('*') !== -1;
+			var field, isAccess = path.indexOf('*') !== -1;
 			var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 			this.trigger(subs, path, last, old, args);
+
+			if (isAccess) {
+				field = path.split('*').shift();
+				this.trigger(this.$deepSubs[field], path, last, old, args);
+			}
 		}
 
 		/**
@@ -2417,8 +2426,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param  {Function}  callback
 		 * @param  {Object}    context
 		 * @param  {Array}     args
+		 * @param  {Boolean}   deep
 		 */
-		wp.watchModel = function(field, callback, context, args) {
+		wp.watchModel = function(field, callback, context, args, deep) {
 			if (!util.hasOwn(this.$model, field)) {
 				util.warn('The field: "' + field + '" does not exist in model!');
 				return;
@@ -2430,6 +2440,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			this.addSubs(this.$modelSubs, field, callback, context, args);
+
+			// index.js watch api 调用，用于数组的深层监测
+			if (deep) {
+				this.addSubs(this.$deepSubs, field, callback, context, args);
+			}
 		}
 
 		/**

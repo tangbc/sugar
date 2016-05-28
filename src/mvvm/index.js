@@ -90,12 +90,13 @@ define([
 	/**
 	 * 对数据模型的字段添加监测
 	 * @param   {String}    model     [数据模型字段]
-	 * @param   {Function}  callback  [触发回调，参数为 model, last, old]
+	 * @param   {Function}  callback  [监测变化回调]
+	 * @param   {Boolean}   deep      [数组深层监测]
 	 */
-	mvp.watch = function(model, callback) {
+	mvp.watch = function(model, callback, deep) {
 		this.vm.watcher.watchModel(model, function(path, last, old) {
 			callback.call(this, path, last, old);
-		}, this.context);
+		}, this.context, null, deep);
 	}
 
 	return MVVM;
