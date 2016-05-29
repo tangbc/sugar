@@ -1,0 +1,31 @@
+<header>
+	<h1 class="title">TODOS</h1>
+</header>
+<section>
+	<div class="enter">
+		<input class="toggle-all" type="checkbox" v-model="checkAll">
+		<input class="input-todo" type="text" v-on:keyup.13="keyupEnter" v-model="todo" placeholder="What needs to be done ?">
+	</div>
+	<ul class="list" v-show="todos.length > 0">
+		<li v-for="item in todos">
+			<div class="view">
+				<input class="checkbox" type="checkbox" v-model="item.completed">
+				<label v-bind:class="item.completed ? 'completed' : ''">{{ item.text }}</label>
+				<a class="destroy" v-on:click.self="clickRemove" v-bind:data-index="$index">×</a>
+			</div>
+			<input class="edit" type="text">
+		</li>
+	</ul>
+	<div v-else class="empty">No {{ type }} todos</div>
+</section>
+<footer>
+	<div class="left">{{ left + ' ' + (left > 1 ? 'items' : 'item') }} left</div>
+	<div class="filter">
+		<a v-bind:class="type === 'all' ? 'act' : ''" v-on:click="clickFilter('all')">All</a>
+		<a v-bind:class="type === 'active' ? 'act' : ''" v-on:click="clickFilter('active')">Active</a>
+		<a v-bind:class="type === 'completed' ? 'act' : ''" v-on:click="clickFilter('completed')">Completed</a>
+	</div>
+	<div class="clear" v-show="showClear">
+		<a v-on:click="clickFilter('clear')">Clear completed</a>
+	</div>
+</footer>
