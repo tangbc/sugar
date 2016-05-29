@@ -144,7 +144,10 @@ window.onload = function buildTodoMVC() {
 				vm.showClear = false;
 				filters = Filter.active(vm.allTodos);
 				this.saveTodos(filters);
-				this.vm.set('allTodos', filters);
+				this.vm.set({
+					'type'    : 'all',
+					'allTodos': filters
+				});
 			}
 			else {
 				vm.type = type;
