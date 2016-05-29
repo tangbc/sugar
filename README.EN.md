@@ -103,12 +103,13 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 * [Star rating](http://tangbc.github.io/sugar/demos/star)
 * [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
 * [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
+* [Simple TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
 
 
 # Usage & Environment
 * `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
-	* `sugar (about 41 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (about 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (about 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * Browser support: do not support old IE (used many ES5 characteristics)
 
@@ -122,6 +123,6 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 * `v1.0.4`
 	* `mvvm` Process `splice` action in `v-for` array operation
 * `v1.0.6`
-	* `mvvm` Fixes many issues, adding instruction expressions that depend on extracting and updating the view's stability, a version of the function is relatively stable
+	* `mvvm` Fixes many issues, adding instruction expressions that depend on extracting and updating the view's stability
 * `v1.0.8`
 	* `mvvm` Update v-bind for object/json can be used with a simple diff algorithm

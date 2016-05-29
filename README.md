@@ -108,12 +108,13 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 * [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
 * [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
 * [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
+* [简单的 TodoMVC 应用](http://tangbc.github.io/sugar/demos/todoMVC)
 
 
 # 引用 & 环境
 * 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
-	* `sugar (约 41 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (约 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (约 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * 浏览器支持：不支持低版本 IE (用了 `Object.defineProperty` 和 `Function.bind` 等)
 
@@ -127,6 +128,6 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 * `v1.0.4`
 	* `mvvm` 细节化 v-for 指令的 `splice` 操作
 * `v1.0.6`
-	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性，功能相对稳定的一个版本
+	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性
 * `v1.0.8`
 	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比
