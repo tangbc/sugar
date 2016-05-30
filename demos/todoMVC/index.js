@@ -122,10 +122,8 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 移除一条 todo
-		removeItem: function(e) {
-			var vm = this.vm.get();
-			var index = +this.$.getAttr(e.target, 'data-index');
-			vm.allTodos.splice(vm.allTodos.indexOf(vm.todos[index]), 1);
+		removeItem: function(item) {
+			this.vm.$.allTodos.$remove(item);
 			this.update();
 		},
 

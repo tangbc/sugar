@@ -10,8 +10,8 @@
 		<li v-for="item in todos">
 			<div class="view">
 				<input class="checkbox" type="checkbox" v-model="item.completed">
-				<label v-bind:class="item.completed ? 'completed' : ''">{{ item.text }}</label>
-				<a class="destroy" v-on:click.self="clickRemove" v-bind:data-index="$index">×</a>
+				<label v-bind:class="{completed: item.completed}">{{ item.text }}</label>
+				<a class="destroy" v-on:click="clickRemove(item)">×</a>
 			</div>
 			<input class="edit" type="text">
 		</li>
@@ -21,9 +21,9 @@
 <footer>
 	<div class="left">{{ left + ' ' + (left > 1 ? 'items' : 'item') }} left</div>
 	<div class="filter">
-		<a v-bind:class="type === 'all' ? 'act' : ''" v-on:click="clickFilter('all')">All</a>
-		<a v-bind:class="type === 'active' ? 'act' : ''" v-on:click="clickFilter('active')">Active</a>
-		<a v-bind:class="type === 'completed' ? 'act' : ''" v-on:click="clickFilter('completed')">Completed</a>
+		<a v-bind:class="{act: type === 'all'}" v-on:click="clickFilter('all')">All</a>
+		<a v-bind:class="{act: type === 'active'}" v-on:click="clickFilter('active')">Active</a>
+		<a v-bind:class="{act: type === 'completed'}" v-on:click="clickFilter('completed')">Completed</a>
 	</div>
 	<div class="clear" v-show="showClear">
 		<a v-on:click="clickFilter('clear')">Clear completed</a>
