@@ -140,6 +140,13 @@ define(function() {
 	}
 
 	/**
+	 * 将 object[property] 定义为一个不可枚举的属性
+	 */
+	up.defRec = function(object, property, value) {
+		return this.def(object, property, value, true, false, true);
+	}
+
+	/**
 	 * 遍历数组或对象
 	 * @param  {Array|Object}  items     [数组或对象]
 	 * @param  {Fuction}       callback  [回调函数]

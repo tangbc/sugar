@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Mon May 30 2016 15:50:16 GMT+0800 (CST)
+ * Mon May 30 2016 16:52:50 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -308,6 +308,13 @@ return /******/ (function(modules) { // webpackBootstrap
 				'enumerable'  : !!enumerable,
 				'configurable': !!configurable
 			});
+		}
+
+		/**
+		 * 将 object[property] 定义为一个不可枚举的属性
+		 */
+		up.defRec = function(object, property, value) {
+			return this.def(object, property, value, true, false, true);
 		}
 
 		/**
@@ -705,9 +712,9 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 数据模型对象
 			this.$data = model;
 			// DOM 注册索引
-			this.$data.$els = {};
+			util.defRec(model, '$els', {});
 			// 子取值域索引
-			this.$data.$scope = {};
+			util.defRec(model, '$scope', {});
 
 			// 未编译节点缓存队列
 			this.$unCompileNodes = [];
@@ -1152,7 +1159,10 @@ return /******/ (function(modules) { // webpackBootstrap
 				var cloneNode = node.cloneNode(true);
 				var fors, access = paths + '*' + index;
 
-				scope.$index = index;
+				if (util.isObject(scope)) {
+					util.defRec(scope, '$index', index);
+				}
+
 				scopes[alias] = scope;
 				aliases[level] = alias;
 				accesses[level] = access;
@@ -1762,8 +1772,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			var model = this.getModel();
 
 			if (fors) {
-				model.$index = fors.index;
-				model.$scope = fors.scopes;
+				util.defRec(model, '$index', fors.index);
+				util.defRec(model, '$scope', fors.scopes);
 			}
 
 			return model;
@@ -1816,9 +1826,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					$scope[maps[field]] = scope;
 				});
 
-				util.extend(model, {
-					'$scope': util.extend(oldScope.$scope, $scope)
-				});
+				util.defRec(model, '$scope', util.extend(oldScope.$scope, $scope));
 			}
 
 			return model;
@@ -2344,7 +2352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// 深层订阅集合
 			this.$deepSubs = {};
 
-			this.observer = new Observer(model, ['$els', '$scope', '$index'], 'change', this);
+			this.observer = new Observer(model, 'change', this);
 		}
 
 		var wp = Watcher.prototype;
@@ -2618,19 +2626,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/**
 		 * @param  {Object}     object    [VM 数据模型]
-		 * @param  {Array}      ignores   [忽略监测的字段]
 		 * @param  {Function}   callback  [变化回调函数]
 		 * @param  {Object}     context   [执行上下文]
 		 * @param  {Object}     args      [<可选>回调额外参数]
 		 */
-		function Observer(object, ignores, callback, context, args) {
+		function Observer(object, callback, context, args) {
 			if (util.isString(callback)) {
 				callback = context[callback];
 			}
 
 			this.$args = args;
 			this.$context = context;
-			this.$ignores = ignores;
 			this.$callback = callback;
 
 			// 监测的对象集合，包括一级和嵌套对象
@@ -2669,32 +2675,10 @@ return /******/ (function(modules) { // webpackBootstrap
 					copies = [property];
 				}
 
-				if (!this.isIgnore(copies, property)) {
-					this.setCache(object, value, property).bindWatch(object, copies);
-				}
-
+				this.setCache(object, value, property).bindWatch(object, copies);
 			}, this);
 
 			return this;
-		}
-
-		/**
-		 * 检查 paths 是否在排除范围内
-		 * @param   {Array}    paths     [访问路径数组]
-		 * @param   {String}   property  [监测字段]
-		 * @return  {Boolean}
-		 */
-		op.isIgnore = function(paths, property) {
-			var ret, path = paths.join('*');
-
-			util.each(this.$ignores, function(ignore) {
-				if (ignore.indexOf(path) === 0 || property === ignore) {
-					ret = true;
-					return false;
-				}
-			}, this);
-
-			return ret;
 		}
 
 		/**
@@ -2818,7 +2802,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			util.each(this.$methods, function(method) {
 				var self = this, original = arrayProto[method];
-				this.def(arrayMethods, method, function _redefineArrayMethod() {
+				util.defRec(arrayMethods, method, function _redefineArrayMethod() {
 					var i = arguments.length, result;
 					var args = new Array(i);
 
@@ -2843,7 +2827,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}, this);
 
 			// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
-			this.def(arrayMethods, '$set', function $set(index, value) {
+			util.defRec(arrayMethods, '$set', function $set(index, value) {
 				if (index >= this.length) {
 					this.length = index + 1;
 				}
@@ -2852,7 +2836,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 
 			// 添加 $remove 方法
-			this.def(arrayMethods, '$remove', function $remove(item) {
+			util.defRec(arrayMethods, '$remove', function $remove(item) {
 				var index;
 
 				if (!this.length) {
@@ -2867,16 +2851,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 
 			array.__proto__ = arrayMethods;
-		}
-
-		/**
-		 * 将 object[property] 定义为一个不可枚举的属性
-		 * @param   {Object}  object
-		 * @param   {String}  property
-		 * @param   {Mix}     value
-		 */
-		op.def = function(object, property, value) {
-			return util.def(object, property, value, true, false, true);
 		}
 
 		/**
@@ -3062,7 +3036,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				// 取值域
 				scope = this.getScope(fors, paramString);
 				// 添加别名标记
-				scope.$event = '$event';
+				util.defRec(scope, '$event', '$event');
 				// 取值函数
 				getter = this.getEval(fors, paramString);
 				// 事件参数

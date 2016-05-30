@@ -163,7 +163,7 @@ define([
 			// 取值域
 			scope = this.getScope(fors, paramString);
 			// 添加别名标记
-			scope.$event = '$event';
+			util.defRec(scope, '$event', '$event');
 			// 取值函数
 			getter = this.getEval(fors, paramString);
 			// 事件参数

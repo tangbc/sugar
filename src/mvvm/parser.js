@@ -219,8 +219,8 @@ define([
 		var model = this.getModel();
 
 		if (fors) {
-			model.$index = fors.index;
-			model.$scope = fors.scopes;
+			util.defRec(model, '$index', fors.index);
+			util.defRec(model, '$scope', fors.scopes);
 		}
 
 		return model;
@@ -273,9 +273,7 @@ define([
 				$scope[maps[field]] = scope;
 			});
 
-			util.extend(model, {
-				'$scope': util.extend(oldScope.$scope, $scope)
-			});
+			util.defRec(model, '$scope', util.extend(oldScope.$scope, $scope));
 		}
 
 		return model;

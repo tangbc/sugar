@@ -13,7 +13,7 @@ require([
 	<ul>
 		<li v-for="item in items">
 			<b v-on:click="remove(item, $index, $event)">×</b>
-			<span>{{ item.text }}</span>
+			<span>{{ $index + '.' + item.text }}</span>
 		</li>
 	</ul>
 	`;

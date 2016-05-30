@@ -42,9 +42,9 @@ define([
 		// 数据模型对象
 		this.$data = model;
 		// DOM 注册索引
-		this.$data.$els = {};
+		util.defRec(model, '$els', {});
 		// 子取值域索引
-		this.$data.$scope = {};
+		util.defRec(model, '$scope', {});
 
 		// 未编译节点缓存队列
 		this.$unCompileNodes = [];

@@ -132,7 +132,10 @@ define([
 			var cloneNode = node.cloneNode(true);
 			var fors, access = paths + '*' + index;
 
-			scope.$index = index;
+			if (util.isObject(scope)) {
+				util.defRec(scope, '$index', index);
+			}
+
 			scopes[alias] = scope;
 			aliases[level] = alias;
 			accesses[level] = access;

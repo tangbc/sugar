@@ -7,19 +7,17 @@ define([
 
 	/**
 	 * @param  {Object}     object    [VM 数据模型]
-	 * @param  {Array}      ignores   [忽略监测的字段]
 	 * @param  {Function}   callback  [变化回调函数]
 	 * @param  {Object}     context   [执行上下文]
 	 * @param  {Object}     args      [<可选>回调额外参数]
 	 */
-	function Observer(object, ignores, callback, context, args) {
+	function Observer(object, callback, context, args) {
 		if (util.isString(callback)) {
 			callback = context[callback];
 		}
 
 		this.$args = args;
 		this.$context = context;
-		this.$ignores = ignores;
 		this.$callback = callback;
 
 		// 监测的对象集合，包括一级和嵌套对象
@@ -58,32 +56,10 @@ define([
 				copies = [property];
 			}
 
-			if (!this.isIgnore(copies, property)) {
-				this.setCache(object, value, property).bindWatch(object, copies);
-			}
-
+			this.setCache(object, value, property).bindWatch(object, copies);
 		}, this);
 
 		return this;
-	}
-
-	/**
-	 * 检查 paths 是否在排除范围内
-	 * @param   {Array}    paths     [访问路径数组]
-	 * @param   {String}   property  [监测字段]
-	 * @return  {Boolean}
-	 */
-	op.isIgnore = function(paths, property) {
-		var ret, path = paths.join('*');
-
-		util.each(this.$ignores, function(ignore) {
-			if (ignore.indexOf(path) === 0 || property === ignore) {
-				ret = true;
-				return false;
-			}
-		}, this);
-
-		return ret;
 	}
 
 	/**
@@ -207,7 +183,7 @@ define([
 
 		util.each(this.$methods, function(method) {
 			var self = this, original = arrayProto[method];
-			this.def(arrayMethods, method, function _redefineArrayMethod() {
+			util.defRec(arrayMethods, method, function _redefineArrayMethod() {
 				var i = arguments.length, result;
 				var args = new Array(i);
 
@@ -232,7 +208,7 @@ define([
 		}, this);
 
 		// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
-		this.def(arrayMethods, '$set', function $set(index, value) {
+		util.defRec(arrayMethods, '$set', function $set(index, value) {
 			if (index >= this.length) {
 				this.length = index + 1;
 			}
@@ -241,7 +217,7 @@ define([
 		});
 
 		// 添加 $remove 方法
-		this.def(arrayMethods, '$remove', function $remove(item) {
+		util.defRec(arrayMethods, '$remove', function $remove(item) {
 			var index;
 
 			if (!this.length) {
@@ -256,16 +232,6 @@ define([
 		});
 
 		array.__proto__ = arrayMethods;
-	}
-
-	/**
-	 * 将 object[property] 定义为一个不可枚举的属性
-	 * @param   {Object}  object
-	 * @param   {String}  property
-	 * @param   {Mix}     value
-	 */
-	op.def = function(object, property, value) {
-		return util.def(object, property, value, true, false, true);
 	}
 
 	/**
