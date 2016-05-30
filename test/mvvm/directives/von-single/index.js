@@ -9,6 +9,13 @@ require([
 	<input type="text" v-on:keyup.13="vmKeyEvent(1,2,3)">
 	<h2 v-on:click="vmClick1">v-on test without param ~</h2>
 	<h2 v-on:click="vmClick2(123, title, $event)">v-on test with params ~</h2>
+	<hr/>
+	<ul>
+		<li v-for="item in items">
+			<b v-on:click="remove(item, $index, $event)">×</b>
+			<span>{{ item.text }}</span>
+		</li>
+	</ul>
 	`;
 
 	model =  {
@@ -21,6 +28,15 @@ require([
 		},
 		'vmKeyEvent': function() {
 			console.log(arguments);
+		},
+
+		'items': [
+			{'text': 'aaa'},
+			{'text': 'bbb'},
+			{'text': 'ccc'},
+		],
+		'remove': function(item, index, ev) {
+			console.log(item.text, index, ev);
 		}
 	}
 

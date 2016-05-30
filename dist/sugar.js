@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat May 28 2016 10:01:17 GMT+0800 (CST)
+ * Mon May 30 2016 15:25:46 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4326,7 +4326,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}      paramString
 		 */
 		von.bindEvent = function(fors, node, field, evt, func, paramString) {
-			var _this = this;
 			var listeners = this.$listeners;
 			var identifier = fors && fors.access || field;
 			var modals, self, stop, prevent, keyCode, capture = false;
@@ -4346,9 +4345,31 @@ return /******/ (function(modules) { // webpackBootstrap
 				keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 			}
 
+			// 处理回调参数以及依赖监测
+			var deps, maps, scope, getter, args = [];
+			if (paramString) {
+				// 取值依赖
+				deps = this.getDeps(fors, paramString);
+				// 别名映射
+				maps = fors && util.copy(fors.maps);
+				// 取值域
+				scope = this.getScope(fors, paramString);
+				// 添加别名标记
+				scope.$event = '$event';
+				// 取值函数
+				getter = this.getEval(fors, paramString);
+				// 事件参数
+				args = getter.call(scope, scope);
+
+				this.vm.watcher.watch(deps, function() {
+					scope = this.updateScope(scope, maps, deps, arguments);
+					args = getter.call(scope, scope);
+				}, this);
+			}
+
 			// 事件代理函数
 			var eventProxy = function _eventProxy(e) {
-				var scope, getter, args = [];
+				var evtPos = args.indexOf('$event');
 
 				// 是否限定只能在当前节点触发事件
 				if (self && e.target !== node) {
@@ -4360,21 +4381,12 @@ return /******/ (function(modules) { // webpackBootstrap
 					return;
 				}
 
-				if (paramString) {
-					// 取值域
-					scope = _this.getScope(fors, paramString);
-					// 添加别名
-					scope.$event = e;
-					// 取值函数
-					getter = _this.getEval(fors, paramString);
-					// 事件参数
-					args = getter.call(scope, scope);
-				}
-
-
 				// 未指定参数，则原生事件对象作为唯一参数
 				if (!args.length) {
 					args.push(e);
+				}
+				else if (evtPos !== -1) {
+					args[evtPos] = e;
 				}
 
 				func.apply(this, args);
