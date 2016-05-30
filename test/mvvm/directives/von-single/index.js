@@ -36,7 +36,8 @@ require([
 			{'text': 'ccc'},
 		],
 		'remove': function(item, index, ev) {
-			console.log(item.text, index, ev);
+			var vm = this.vm.$data;
+			vm.items.$remove(item);
 		}
 	}
 

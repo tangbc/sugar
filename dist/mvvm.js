@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Mon May 30 2016 15:25:46 GMT+0800 (CST)
+ * Mon May 30 2016 15:50:16 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -2818,7 +2818,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			util.each(this.$methods, function(method) {
 				var self = this, original = arrayProto[method];
-				util.def(arrayMethods, method, function _redefineArrayMethod() {
+				this.def(arrayMethods, method, function _redefineArrayMethod() {
 					var i = arguments.length, result;
 					var args = new Array(i);
 
@@ -2839,10 +2839,44 @@ return /******/ (function(modules) { // webpackBootstrap
 					self.trigger(path, this, method, args);
 
 					return result;
-				}, true, false, true);
+				});
 			}, this);
 
+			// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
+			this.def(arrayMethods, '$set', function $set(index, value) {
+				if (index >= this.length) {
+					this.length = index + 1;
+				}
+
+				return this.splice(index, 1, value)[0];
+			});
+
+			// 添加 $remove 方法
+			this.def(arrayMethods, '$remove', function $remove(item) {
+				var index;
+
+				if (!this.length) {
+					return;
+				}
+
+				index = this.indexOf(item);
+
+				if (index !== -1) {
+					return this.splice(index, 1);
+				}
+			});
+
 			array.__proto__ = arrayMethods;
+		}
+
+		/**
+		 * 将 object[property] 定义为一个不可枚举的属性
+		 * @param   {Object}  object
+		 * @param   {String}  property
+		 * @param   {Mix}     value
+		 */
+		op.def = function(object, property, value) {
+			return util.def(object, property, value, true, false, true);
 		}
 
 		/**
