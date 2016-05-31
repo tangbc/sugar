@@ -10,9 +10,10 @@ require([
 	<h2 v-on:click="vmClick1">v-on test without param ~</h2>
 	<h2 v-on:click="vmClick2(123, title, $event)">v-on test with params ~</h2>
 	<hr/>
-	<ul>
+	<input type="text" v-on:keyup="keyup">
+	<ul v-on:click="remove">
 		<li v-for="item in items">
-			<b v-on:click="remove(item, $index, $event)">×</b>
+			<b>×</b>
 			<span>{{ $index + '.' + item.text }}</span>
 		</li>
 	</ul>
@@ -35,9 +36,11 @@ require([
 			{'text': 'bbb'},
 			{'text': 'ccc'},
 		],
-		'remove': function(item, index, ev) {
-			var vm = this.vm.$data;
-			vm.items.$remove(item);
+		'remove': function(item) {
+			console.log(item);
+		},
+		'keyup': function(e) {
+			console.log(e instanceof Event);
 		}
 	}
 

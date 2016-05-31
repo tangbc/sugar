@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Mon May 30 2016 16:52:50 GMT+0800 (CST)
+ * Tue May 31 2016 11:46:37 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4377,8 +4377,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 事件代理函数
 			var eventProxy = function _eventProxy(e) {
-				var evtPos = args.indexOf('$event');
-
 				// 是否限定只能在当前节点触发事件
 				if (self && e.target !== node) {
 					return;
@@ -4393,8 +4391,12 @@ return /******/ (function(modules) { // webpackBootstrap
 				if (!args.length) {
 					args.push(e);
 				}
-				else if (evtPos !== -1) {
-					args[evtPos] = e;
+				else {
+					util.each(args, function(param, index) {
+						if (param === '$event' || param instanceof Event) {
+							args[index] = e;
+						}
+					});
 				}
 
 				func.apply(this, args);

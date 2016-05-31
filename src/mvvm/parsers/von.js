@@ -177,8 +177,6 @@ define([
 
 		// 事件代理函数
 		var eventProxy = function _eventProxy(e) {
-			var evtPos = args.indexOf('$event');
-
 			// 是否限定只能在当前节点触发事件
 			if (self && e.target !== node) {
 				return;
@@ -193,8 +191,13 @@ define([
 			if (!args.length) {
 				args.push(e);
 			}
-			else if (evtPos !== -1) {
-				args[evtPos] = e;
+			else {
+				// 更新/替换事件对象
+				util.each(args, function(param, index) {
+					if (param === '$event' || param instanceof Event) {
+						args[index] = e;
+					}
+				});
 			}
 
 			func.apply(this, args);
