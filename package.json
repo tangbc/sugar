@@ -17,6 +17,7 @@
   },
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
+    "unit-test": "node node_modules/testem/testem.js ci -P 10",
     "pack-mvvm": "webpack --config build/webpack.mvvm.config.js",
     "pack-mvvm-uglify": "webpack --config build/webpack.mvvm.min.config.js",
     "pack-sugar": "webpack --config build/webpack.sugar.config.js",
@@ -29,6 +30,7 @@
     "gulp": "^3.9.0",
     "gulp-jshint": "^1.11.2",
     "rollup": "^0.25.6",
+    "testem": "^1.7.4",
     "uglify-js": "^2.6.2",
     "webpack": "^1.12.14"
   }

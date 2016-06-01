@@ -2,3 +2,4 @@ node_modules
 logs.text
 bin
 temp
+npm-debug.log

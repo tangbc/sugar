@@ -10,8 +10,8 @@ require([
 	require([
 		'testem',
 		'jasmine/jasmine-html',
-		// test specs list beigin this line
-		'units/hello',
+		// test specs files beigin list bellow
+		'specs/main/spec_ajax',
 	], function() {
 		var env = jasmine.getEnv();
 		env.addReporter(new jasmine.HtmlReporter);
