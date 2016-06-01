@@ -14,7 +14,7 @@ require([
 			var span = this.query('span');
 
 			this.bind(span, 'click', function(e) {
-				// console.log(e);
+				console.log(e);
 			});
 		}
 	});
