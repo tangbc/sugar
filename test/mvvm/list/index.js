@@ -1,7 +1,7 @@
 require([
 	'../../../../dist/mvvm.min',
-	'../../mock.min',
-	'../../vue.min'
+	'../../assets/mock.min',
+	'../../assets/vue.min'
 ], function(MVVM, Mock, Vue) {
 
 	var layout, model;
