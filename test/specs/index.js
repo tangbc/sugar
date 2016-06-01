@@ -5,12 +5,13 @@ require.config({
 });
 
 require([
-	'testem',
 	'jasmine/jasmine'
 ], function() {
 	require([
+		'testem',
 		'jasmine/jasmine-html',
-		'units/hello'
+		// test specs list beigin this line
+		'units/hello',
 	], function() {
 		var env = jasmine.getEnv();
 		env.addReporter(new jasmine.HtmlReporter);
