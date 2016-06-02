@@ -111,7 +111,7 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 	* `sugar (about 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
-* Browser support: do not support old IE (used many ES5 characteristics)
+* Browser support: do not support IE8 and belove (used many ES5 characteristics)
 
 
 # Majoy update log

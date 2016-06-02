@@ -1,12 +1,11 @@
-# sugar
-一个用于开发前端模块化 UI 组件的轻量级 JavaScript 框架 ( mvvm & template )
-
-
 # 介绍
+
+* 一个用于开发前端模块化 UI 组件的轻量级 JavaScript 库/框架
 
 * 简单的模块化组件开发方式；视图组件自带模板功能(支持异步请求)和 mvvm 模式
 
 * 框架分为两个独立的部分：**`sugar`** (实现组件系统) 和 **`mvvm`** (实现数据绑定 + 视图刷新)
+
 
 # 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
@@ -87,7 +86,7 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 
 
 # 项目结构
-* `test/` 测试文件目录
+* `test/` 单元测试以及其他测试用例
 
 * `build/` webpack 打包配置文件目录
 
@@ -116,7 +115,7 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 	* `sugar (约 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
-* 浏览器支持：不支持低版本 IE (用了 `Object.defineProperty` 和 `Function.bind` 等)
+* 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
 
 
 # 主要更新日志
