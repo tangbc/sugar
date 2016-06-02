@@ -11,7 +11,7 @@ require([
 		'testem',
 		'jasmine/jasmine-html',
 		// test specs files beigin list bellow
-		'specs/main/spec_ajax',
+		'specs/observe_spec',
 	], function() {
 		var env = jasmine.getEnv();
 		env.addReporter(new jasmine.HtmlReporter);
