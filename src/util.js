@@ -456,8 +456,6 @@ define(function() {
 	 * @return  {Array}
 	 */
 	up.makePaths = function(access) {
-		// 匹配纯数字
-		var regNumber = /^[0-9]*$/;
 		var length, paths = access && access.split('*');
 
 		if (!paths || paths.length < 2) {
@@ -465,7 +463,7 @@ define(function() {
 		}
 
 		for (var i = paths.length - 1; i > -1; i--) {
-			if (regNumber.test(paths[i])) {
+			if (this.isNumber(+paths[i])) {
 				length = i + 1;
 				break;
 			}

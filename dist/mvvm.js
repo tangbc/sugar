@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Tue May 31 2016 11:46:37 GMT+0800 (CST)
+ * Sun Jun 05 2016 11:19:36 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -627,8 +627,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @return  {Array}
 		 */
 		up.makePaths = function(access) {
-			// 匹配纯数字
-			var regNumber = /^[0-9]*$/;
 			var length, paths = access && access.split('*');
 
 			if (!paths || paths.length < 2) {
@@ -636,7 +634,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			for (var i = paths.length - 1; i > -1; i--) {
-				if (regNumber.test(paths[i])) {
+				if (this.isNumber(+paths[i])) {
 					length = i + 1;
 					break;
 				}
@@ -2640,13 +2638,13 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.$callback = callback;
 
 			// 监测的对象集合，包括一级和嵌套对象
-			this.$observers = [object];
+			this.$observers = [];
 			// 监测的数据副本，存储旧值
-			this.$valuesMap = {'0': util.copy(object)};
+			this.$cacheMap = {};
 			// 子对象字段，子对象的内部变更只触发顶层字段
 			this.$subPaths = [];
 
-			// 记录当前数组操作
+			// 当前数组操作
 			this.$action = 921;
 			// 重写的 Array 方法
 			this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
@@ -2689,7 +2687,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		op.getCache = function(object, property) {
 			var index = this.$observers.indexOf(object);
-			var value = (index === -1) ? null : this.$valuesMap[index];
+			var value = (index === -1) ? null : this.$cacheMap[index];
 			return value ? value[property] : value;
 		}
 
@@ -2701,18 +2699,18 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		op.setCache = function(object, value, property) {
 			var observers = this.$observers;
-			var valuesMap = this.$valuesMap;
-			var oleng = observers.length;
+			var cacheMap = this.$cacheMap;
+			var leng = observers.length;
 			var index = observers.indexOf(object);
 
 			// 不存在，建立记录
 			if (index === -1) {
 				observers.push(object);
-				valuesMap[oleng] = util.copy(object);
+				cacheMap[leng] = util.copy(object);
 			}
 			// 记录存在，重新赋值
 			else {
-				valuesMap[index][property] = value;
+				cacheMap[index][property] = value;
 			}
 
 			return this;
@@ -2733,9 +2731,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					return this.getCache(object, prop);
 				}).bind(this),
 
-				set: (function setter() {
-					var newValue = arguments[0], pathSub;
-					var oldValue = this.getCache(object, prop), oldObject;
+				set: (function setter(newValue) {
+					var pathSub, oldObject;
+					var oldValue = this.getCache(object, prop);
 
 					if (newValue !== oldValue) {
 						if (util.isArray(newValue) || util.isObject(newValue)) {
@@ -2771,7 +2769,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			// 缓存子对象字段
-			if (isObject && this.$subPaths.indexOf(path) === -1 && !/^[0-9]*$/.test(path.split('*').pop())) {
+			if (isObject && this.$subPaths.indexOf(path) === -1 && !util.isNumber(+path.split('*').pop())) {
 				this.$subPaths.push(path);
 			}
 		}
@@ -3065,6 +3063,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					args.push(e);
 				}
 				else {
+					// 更新/替换事件对象
 					util.each(args, function(param, index) {
 						if (param === '$event' || param instanceof Event) {
 							args[index] = e;
