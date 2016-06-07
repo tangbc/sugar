@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sun Jun 05 2016 11:19:36 GMT+0800 (CST)
+ * Tue Jun 07 2016 22:34:50 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -1157,10 +1157,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				var cloneNode = node.cloneNode(true);
 				var fors, access = paths + '*' + index;
 
-				if (util.isObject(scope)) {
-					util.defRec(scope, '$index', index);
-				}
-
 				scopes[alias] = scope;
 				aliases[level] = alias;
 				accesses[level] = access;
@@ -1815,12 +1811,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					var index = +paths[leng - 1];
 					var scope = util.getDeepValue(model, paths) || {};
 
-					// 支持两种 $index 取值方式
-					model.$index = index;
-					if (util.isObject(scope)) {
-						scope.$index = index;
-					}
-
+					util.defRec(model, '$index', index);
 					$scope[maps[field]] = scope;
 				});
 
@@ -2637,10 +2628,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.$context = context;
 			this.$callback = callback;
 
-			// 监测的对象集合，包括一级和嵌套对象
-			this.$observers = [];
-			// 监测的数据副本，存储旧值
-			this.$cacheMap = {};
 			// 子对象字段，子对象的内部变更只触发顶层字段
 			this.$subPaths = [];
 
@@ -2673,45 +2660,8 @@ return /******/ (function(modules) { // webpackBootstrap
 					copies = [property];
 				}
 
-				this.setCache(object, value, property).bindWatch(object, copies);
+				this.bindWatch(object, copies, value);
 			}, this);
-
-			return this;
-		}
-
-		/**
-		 * 获取指定对象的属性缓存值
-		 * @param   {Object}  object    [指定对象]
-		 * @param   {String}  property  [属性名称]
-		 * @return  {Object}
-		 */
-		op.getCache = function(object, property) {
-			var index = this.$observers.indexOf(object);
-			var value = (index === -1) ? null : this.$cacheMap[index];
-			return value ? value[property] : value;
-		}
-
-		/**
-		 * 设置指定对象的属性与值的缓存映射
-		 * @param  {Object}  object    [指定对象]
-		 * @param  {Mix}     value     [值]
-		 * @param  {String}  property  [属性名称]
-		 */
-		op.setCache = function(object, value, property) {
-			var observers = this.$observers;
-			var cacheMap = this.$cacheMap;
-			var leng = observers.length;
-			var index = observers.indexOf(object);
-
-			// 不存在，建立记录
-			if (index === -1) {
-				observers.push(object);
-				cacheMap[leng] = util.copy(object);
-			}
-			// 记录存在，重新赋值
-			else {
-				cacheMap[index][property] = value;
-			}
 
 			return this;
 		}
@@ -2721,42 +2671,50 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {Object|Array}  object  [对象或数组]
 		 * @param   {Array}         paths   [访问路径数组]
 		 */
-		op.bindWatch = function(object, paths) {
+		op.bindWatch = function(object, paths, val) {
 			var path = paths.join('*');
 			var prop = paths[paths.length - 1];
+			var descriptor = Object.getOwnPropertyDescriptor(object, prop);
+			var getter = descriptor.get, setter = descriptor.set;
 
 			// 定义 object[prop] 的 getter 和 setter
 			Object.defineProperty(object, prop, {
-				get: (function getter() {
-					return this.getCache(object, prop);
+				get: (function Getter() {
+					return getter ? getter.call(object) : val;
 				}).bind(this),
 
-				set: (function setter(newValue) {
-					var pathSub, oldObject;
-					var oldValue = this.getCache(object, prop);
+				set: (function Setter(newValue, noTrigger) {
+					var subPath, oldObject, args;
+					var oldValue = getter ? getter.call(object) : val;
+					var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
 
-					if (newValue !== oldValue) {
-						if (util.isArray(newValue) || util.isObject(newValue)) {
-							this.observe(newValue, paths);
-						}
-
-						// 获取子对象路径
-						pathSub = this.getPathSub(path);
-						if (pathSub) {
-							oldObject = util.copy(object);
-						}
-
-						this.setCache(object, newValue, prop);
-
-						if (this.$methods.indexOf(this.$action) === -1) {
-							if (pathSub) {
-								this.trigger(pathSub, object[prop], oldObject[prop]);
-							}
-							else {
-								this.trigger(path, newValue, oldValue);
-							}
-						}
+					if (newValue === oldValue) {
+						return;
 					}
+
+					if (util.isArray(newValue) || util.isObject(newValue)) {
+						this.observe(newValue, paths);
+					}
+
+					// 获取子对象路径
+					subPath = this.getSubPath(path);
+					if (subPath) {
+						oldObject = util.copy(object);
+					}
+
+					if (setter) {
+						setter.call(object, newValue, true);
+					}
+					else {
+						val = newValue;
+					}
+
+					if (isArrayAction || noTrigger) {
+						return;
+					}
+
+					args = subPath ? [subPath, object[prop], oldObject[prop]] : [path, newValue, oldValue];
+					this.trigger.apply(this, args);
 				}).bind(this)
 			});
 
@@ -2779,7 +2737,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * @param   {String}   path
 		 * @return  {String}
 		 */
-		op.getPathSub = function(path) {
+		op.getSubPath = function(path) {
 			var paths = this.$subPaths;
 			for (var i = 0; i < paths.length; i++) {
 				if (path.indexOf(paths[i]) === 0) {
@@ -2835,13 +2793,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 添加 $remove 方法
 			util.defRec(arrayMethods, '$remove', function $remove(item) {
-				var index;
-
-				if (!this.length) {
-					return;
-				}
-
-				index = this.indexOf(item);
+				var index = this.indexOf(item);
 
 				if (index !== -1) {
 					return this.splice(index, 1);
