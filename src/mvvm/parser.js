@@ -264,12 +264,7 @@ define([
 				var index = +paths[leng - 1];
 				var scope = util.getDeepValue(model, paths) || {};
 
-				// 支持两种 $index 取值方式
-				model.$index = index;
-				if (util.isObject(scope)) {
-					scope.$index = index;
-				}
-
+				util.defRec(model, '$index', index);
 				$scope[maps[field]] = scope;
 			});
 
