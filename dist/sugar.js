@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Tue Jun 07 2016 22:34:50 GMT+0800 (CST)
+ * Thu Jun 09 2016 12:02:14 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4011,7 +4011,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}).bind(this),
 
 				set: (function Setter(newValue, noTrigger) {
-					var subPath, oldObject, args;
+					var subPath, oldObjectVal, args;
 					var oldValue = getter ? getter.call(object) : val;
 					var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
 
@@ -4019,14 +4019,17 @@ return /******/ (function(modules) { // webpackBootstrap
 						return;
 					}
 
-					if (util.isArray(newValue) || util.isObject(newValue)) {
+					if (
+						!isArrayAction &&
+						(util.isArray(newValue) || util.isObject(newValue))
+					) {
 						this.observe(newValue, paths);
 					}
 
 					// 获取子对象路径
 					subPath = this.getSubPath(path);
 					if (subPath) {
-						oldObject = util.copy(object);
+						oldObjectVal = object[prop];
 					}
 
 					if (setter) {
@@ -4040,7 +4043,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						return;
 					}
 
-					args = subPath ? [subPath, object[prop], oldObject[prop]] : [path, newValue, oldValue];
+					args = subPath ? [subPath, object[prop], oldObjectVal] : [path, newValue, oldValue];
 					this.trigger.apply(this, args);
 				}).bind(this)
 			});
@@ -4054,7 +4057,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 
 			// 缓存子对象字段
-			if (isObject && this.$subPaths.indexOf(path) === -1 && !util.isNumber(+path.split('*').pop())) {
+			if (
+				isObject &&
+				this.$subPaths.indexOf(path) === -1 &&
+				!util.isNumber(+path.split('*').pop())
+			) {
 				this.$subPaths.push(path);
 			}
 		}
