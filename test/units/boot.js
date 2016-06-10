@@ -10,7 +10,7 @@ require([
 	require([
 		'testem',
 		'jasmine/jasmine-html',
-		// test specs files beigin list bellow
+		// test specs files list begain
 		'specs/observe_spec',
 	], function() {
 		var env = jasmine.getEnv();

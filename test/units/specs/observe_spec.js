@@ -90,6 +90,130 @@ describe('Observer >', function() {
 	});
 
 
+	it('array method push', function() {
+		var data = {};
+		data.arr = [
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		];
+
+		var access, newValue, oldValue, args;
+		var callback = function(path, last, old, arg) {
+			access = path;
+			newValue = last;
+			oldValue = old;
+			args = arg;
+		}
+		new Observer(data, callback, this);
+
+		data.arr.push({'text': 'ddd', 'cap': 'D'});
+		// 'arr' [newArray] 'push' [{'text': 'ddd', 'cap': 'D'}]
+		expect(access).toBe('arr');
+		expect(oldValue).toBe('push');
+		expect(args).toEqual([{'text': 'ddd', 'cap': 'D'}]);
+		expect(data.arr).toEqual(newValue);
+		expect(data.arr).toEqual([
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'},
+			{'text': 'ddd', 'cap': 'D'}
+		]);
+	});
+
+
+	it('array method pop', function() {
+		var data = {};
+		data.arr = [
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		];
+
+		var access, newValue, oldValue, args;
+		var callback = function(path, last, old, arg) {
+			access = path;
+			newValue = last;
+			oldValue = old;
+			args = arg;
+		}
+		new Observer(data, callback, this);
+
+		data.arr.pop();
+		// 'arr' [newArray] 'pop' []
+		expect(access).toBe('arr');
+		expect(oldValue).toBe('pop');
+		expect(args).toEqual([]);
+		expect(data.arr).toEqual(newValue);
+		expect(data.arr).toEqual([
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'}
+		]);
+	});
+
+
+	it('array method unshift', function() {
+		var data = {};
+		data.arr = [
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		];
+
+		var access, newValue, oldValue, args;
+		var callback = function(path, last, old, arg) {
+			access = path;
+			newValue = last;
+			oldValue = old;
+			args = arg;
+		}
+		new Observer(data, callback, this);
+
+		data.arr.unshift({'text': 'xxx', 'cap': 'X'});
+		// 'arr' [newArray] 'unshift' [{'text': 'xxx', 'cap': 'X'}]
+		expect(access).toBe('arr');
+		expect(oldValue).toBe('unshift');
+		expect(args).toEqual([{'text': 'xxx', 'cap': 'X'}]);
+		expect(data.arr).toEqual(newValue);
+		expect(data.arr).toEqual([
+			{'text': 'xxx', 'cap': 'X'},
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		]);
+	});
+
+
+	it('array method shift', function() {
+		var data = {};
+		data.arr = [
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		];
+
+		var access, newValue, oldValue, args;
+		var callback = function(path, last, old, arg) {
+			access = path;
+			newValue = last;
+			oldValue = old;
+			args = arg;
+		}
+		new Observer(data, callback, this);
+
+		data.arr.shift();
+		// 'arr' [newArray] 'shift' []
+		expect(access).toBe('arr');
+		expect(oldValue).toBe('shift');
+		expect(args).toEqual([]);
+		expect(data.arr).toEqual(newValue);
+		expect(data.arr).toEqual([
+			{'text': 'bbb', 'cap': 'B'},
+			{'text': 'ccc', 'cap': 'C'}
+		]);
+	});
+
+
 	it('array method $set', function() {
 		var data = {};
 		data.arr = [
