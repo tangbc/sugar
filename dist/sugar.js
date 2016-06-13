@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu Jun 09 2016 12:02:14 GMT+0800 (CST)
+ * Mon Jun 13 2016 18:48:02 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -3371,6 +3371,39 @@ return /******/ (function(modules) { // webpackBootstrap
 		__webpack_require__(2)
 	], __WEBPACK_AMD_DEFINE_RESULT__ = function(dom, util) {
 
+		/**
+		 * 移除 DOM 注册的引用
+		 * @param   {Object}      vm
+		 * @param   {DOMElement}  element
+		 */
+		function removeDOMRegister(vm, element) {
+			var node, attr, nodeAttrs;
+			var registers = vm.$data.$els;
+			var childNodes = element.childNodes;
+
+			for (var i = 0; i < childNodes.length; i++) {
+				node = childNodes[i];
+
+				if (!vm.isElementNode(node)) {
+					continue;
+				}
+
+				nodeAttrs = node.attributes;
+
+				for (var ii = 0; ii < nodeAttrs.length; ii++) {
+					attr = nodeAttrs[ii];
+					if (attr.name === 'v-el' && util.hasOwn(registers, attr.value)) {
+						registers[attr.value] = null;
+					}
+				}
+
+				if (node.childNodes.length) {
+					removeDOMRegister(vm, node);
+				}
+			}
+		}
+
+
 		function Updater(vm) {
 			this.vm = vm;
 			// 事件绑定回调集合
@@ -3476,12 +3509,16 @@ return /******/ (function(modules) { // webpackBootstrap
 		 * 切换节点内容渲染
 		 */
 		up.toggleRender = function(node, isRender) {
-			var fragment;
+			var vm = this.vm;
+			var fragment = util.stringToFragment(node._render_content);
 			// 渲染
 			if (isRender) {
-				fragment = util.stringToFragment(node._render_content);
-				this.vm.complieElement(fragment, true);
+				vm.complieElement(fragment, true);
 				node.appendChild(fragment);
+			}
+			// 不渲染的情况需要移除 DOM 注册的引用
+			else {
+				removeDOMRegister(vm, fragment);
 			}
 		}
 

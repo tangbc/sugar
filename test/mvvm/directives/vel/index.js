@@ -7,6 +7,9 @@ require([
 	layout =
 	`
 	<h2 v-el="myEl">{{ title }}</h2>
+	<h3 v-if="show">
+		<span v-el="vspan">123</span>
+	</h3>
 	<ul>
 		<li v-for="item in items">
 			<span v-el="item.vforEl" v-text="item.text"></span>
@@ -16,6 +19,7 @@ require([
 	`;
 
 	model =  {
+		'show' : false,
 		'title': 'v-el is used for registering DOM el to Model',
 		'items': [
 			{
@@ -37,9 +41,6 @@ require([
 		]
 	}
 
-
-	console.time('compileTime');
-
 	// start compile
 	body.innerHTML = layout;
 	var mvvm = new MVVM(body, model);
@@ -47,10 +48,6 @@ require([
 	// for global debug
 	window.vm = vm;
 
-	console.timeEnd('compileTime');
-
-
-	console.time('queryTime');
 
 	console.log('myEl', vm.$els);
 
@@ -66,5 +63,4 @@ require([
 		}
 	});
 
-	console.timeEnd('queryTime');
 });
