@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Mon Jun 13 2016 18:48:02 GMT+0800 (CST)
+ * Wed Jun 15 2016 16:36:30 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -1290,7 +1290,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		vfor.pop = function(parent, node, newArray, method, updates) {
 			var lastChild = this.getLast(parent, updates.alias);
 			if (lastChild) {
-				parent.removeChild(lastChild)
+				parent.removeChild(lastChild);
 			}
 		}
 

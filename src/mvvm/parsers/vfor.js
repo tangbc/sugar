@@ -265,7 +265,7 @@ define([
 	vfor.pop = function(parent, node, newArray, method, updates) {
 		var lastChild = this.getLast(parent, updates.alias);
 		if (lastChild) {
-			parent.removeChild(lastChild)
+			parent.removeChild(lastChild);
 		}
 	}
 
