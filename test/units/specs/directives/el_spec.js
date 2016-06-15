@@ -7,7 +7,13 @@ describe("v-el >", function() {
 
 	beforeEach(function() {
 		element = document.createElement('div');
+		document.body.appendChild(element);
 	});
+
+	afterEach(function() {
+		document.body.removeChild(element);
+	});
+
 
 	it('normal', function() {
 		element.innerHTML = '<span id="test1" v-el="elSpan">123</span>';

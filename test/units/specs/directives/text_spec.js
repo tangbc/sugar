@@ -7,6 +7,11 @@ describe("v-text >", function() {
 
 	beforeEach(function() {
 		element = document.createElement('div');
+		document.body.appendChild(element);
+	});
+
+	afterEach(function() {
+		document.body.removeChild(element);
 	});
 
 
