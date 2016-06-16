@@ -200,8 +200,6 @@ define([
 				});
 			}
 
-			func.apply(this, args);
-
 			// 是否阻止冒泡
 			if (stop) {
 				e.stopPropagation();
@@ -210,6 +208,8 @@ define([
 			if (prevent) {
 				e.preventDefault();
 			}
+
+			func.apply(this, args);
 		}
 
 		listeners[identifier] = eventProxy;
