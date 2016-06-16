@@ -204,6 +204,7 @@ define([
 			if (stop) {
 				e.stopPropagation();
 			}
+
 			// 是否阻止默认事件
 			if (prevent) {
 				e.preventDefault();
