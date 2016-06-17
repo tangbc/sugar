@@ -61,6 +61,16 @@ require([
 	<h2 v-for="sel in selects">
 		{{ sel.type }} Selected: {{ sel.res }}
 	</h2>
+	<hr/>
+
+	<h2>Selected: {{ sel_default }}</h2>
+	<div>(single selection with default value)</div>
+	<select v-model="sel_default" number multiple>
+		<option value="1">Curry</option>
+		<option value="2" selected>Thompson</option>
+		<option value="3" selected>Green</option>
+	</select>
+	<hr/>
 	`;
 
 	model =  {
@@ -118,7 +128,9 @@ require([
 					{'text': 'Kobe'}
 				]
 			}
-		]
+		],
+
+		'sel_default': []
 	}
 
 

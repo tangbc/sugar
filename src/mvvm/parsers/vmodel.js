@@ -4,6 +4,38 @@ define([
 	'../../util'
 ], function(Parser, dom, util) {
 
+	/**
+	 * 格式化表单输出值
+	 * @param   {DOMElement}   node
+	 * @param   {Mix}          value
+	 * @return  {Mix}
+	 */
+	function formatValue(node, value) {
+		return dom.hasAttr(node, 'number') ? +value : value;
+	}
+
+	/**
+	 * 获取 select 的选中值
+	 * @param   {Select}  select
+	 * @return  {Array}
+	 */
+	function getSelecteds(select) {
+		var options = select.options;
+		var getNumber = dom.hasAttr(select, 'number');
+		var i, option, value, leng = options.length, sels = [];
+
+		for (i = 0; i < leng; i++) {
+			option = options[i];
+			value = option.value;
+			if (option.selected) {
+				sels.push(getNumber ? +value : formatValue(option, value));
+			}
+		}
+
+		return sels;
+	}
+
+
 	function Vmodel(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -109,6 +141,11 @@ define([
 		var vm = this.vm;
 		var updater = vm.updater;
 
+		// 如果已经定义了默认值
+		if (dom.hasAttr(node, 'checked')) {
+			duplex[field] = value = formatValue(node, node.value);
+		}
+
 		// 更新视图
 		updater.updateRadioChecked(node, value);
 
@@ -129,7 +166,7 @@ define([
 	 */
 	vmodel.bindRadioEvent = function(node, duplex, field) {
 		dom.addEvent(node, 'change', function() {
-			duplex[field] = this.value;
+			duplex[field] = formatValue(this, this.value);
 		});
 	}
 
@@ -139,6 +176,16 @@ define([
 	vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
+
+		// 如果已经定义了默认值
+		if (dom.hasAttr(node, 'checked')) {
+			if (util.isBool(value)) {
+				duplex[field] = value = true;
+			}
+			else if (util.isArray(value)) {
+				value.push(formatValue(node, node.value));
+			}
+		}
 
 		// 更新视图
 		updater.updateCheckboxChecked(node, value);
@@ -161,7 +208,8 @@ define([
 	 */
 	vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
 		dom.addEvent(node, 'change', function() {
-			var index, checked = this.checked, val = this.value;
+			var index, checked = this.checked;
+			var val = formatValue(this, this.value);
 
 			if (util.isBool(value)) {
 				duplex[field] = checked;
@@ -188,10 +236,9 @@ define([
 	 * v-model for select
 	 */
 	vmodel.parseSelect = function(node, value, deps, duplex, field) {
+		var isDefined, selects;
 		var updater = this.vm.updater;
-		var options = node.options;
 		var multi = dom.hasAttr(node, 'multiple');
-		var option, i, leng = options.length, selects = [], isDefined;
 
 		// 数据模型定义为单选
 		if (util.isString(value)) {
@@ -220,13 +267,7 @@ define([
 		}
 		// 模板中定义初始状态
 		else {
-			// 获取选中状态
-			for (i = 0; i < leng; i++) {
-				option = options[i];
-				if (option.selected) {
-					selects.push(option.value);
-				}
-			}
+			selects = getSelecteds(node);
 			duplex[field] =  multi ? selects : selects[0];
 		}
 
@@ -247,30 +288,10 @@ define([
 	 * @param   {Boolean}   multi
 	 */
 	vmodel.bindSelectEvent = function(node, duplex, field, multi) {
-		var self = this;
 		dom.addEvent(node, 'change', function() {
-			var selects = self.getSelected(this);
+			var selects = getSelecteds(this);
 			duplex[field] =  multi ? selects : selects[0];
 		});
-	}
-
-	/**
-	 * 获取 select 的选中值
-	 * @param   {Select}  select
-	 * @return  {Array}
-	 */
-	vmodel.getSelected = function(select) {
-		var options = select.options;
-		var i, option, leng = options.length, sels = [];
-
-		for (i = 0; i < leng; i++) {
-			option = options[i];
-			if (option.selected) {
-				sels.push(option.value);
-			}
-		}
-
-		return sels;
 	}
 
 	return Vmodel;

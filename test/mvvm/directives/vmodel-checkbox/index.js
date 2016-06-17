@@ -48,6 +48,25 @@ require([
 			</p>
 		</li>
 	</ul>
+	<hr/>
+
+	<h2>Checked: {{ testDefault }}</h2>
+	<label>
+		<input type="checkbox" checked v-model="testDefault"> NBA
+	</label>
+	<hr/>
+
+	<h2>Selected players: {{ tests }}</h2>
+	<label>
+		<input type="checkbox" value="1" v-model="tests" number> 1
+	</label>
+	<label>
+		<input type="checkbox" checked value="a" v-model="tests"> a
+	</label>
+	<label>
+		<input type="checkbox" checked value="2" v-model="tests" number> 2b
+	</label>
+	<hr>
 	`;
 
 	model =  {
@@ -79,7 +98,11 @@ require([
 					{'title': 'b3', 'value': 'b3'},
 				]
 			}
-		]
+		],
+
+		'testDefault': false,
+
+		'tests': []
 	}
 
 

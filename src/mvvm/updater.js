@@ -285,11 +285,18 @@ define([
 	 * @param   {Array|Boolean}  values      [激活数组或状态]
 	 */
 	up.updateCheckboxChecked = function(checkbox, values) {
+		var value = checkbox.value;
+
 		if (!util.isArray(values) && !util.isBool(values)) {
 			util.warn('checkbox v-model value must be a type of Boolean or Array!');
 			return;
 		}
-		checkbox.checked = util.isBool(values) ? values : (values.indexOf(checkbox.value) !== -1);
+
+		if (dom.hasAttr(checkbox, 'number')) {
+			value = +value;
+		}
+
+		checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) !== -1);
 	}
 
 	/**
@@ -300,12 +307,14 @@ define([
 	 */
 	up.updateSelectChecked = function(select, selected, multi) {
 		var i, option, value;
+		var getNumber = dom.hasAttr(select, 'number');
 		var options = select.options, leng = options.length;
 		var multiple = multi || dom.hasAttr(select, 'multiple');
 
 		for (i = 0; i < leng; i++) {
 			option = options[i];
 			value = option.value;
+			value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
 			option.selected = multiple ? selected.indexOf(value) !== -1 : selected === value;
 		}
 	}

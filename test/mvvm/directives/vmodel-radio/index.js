@@ -36,6 +36,14 @@ require([
 			</div>
 		</li>
 	</ul>
+	<hr/>
+
+	<label>
+		<input type="radio" value="1" v-model="testDefault" number> 1
+	</label>
+	<label>
+		<input type="radio" checked value="2" v-model="testDefault" number> 2
+	</label>
 	`;
 
 	model =  {
@@ -57,7 +65,9 @@ require([
 				'checkd': 'ee',
 				'subs': ['dd', 'ee', 'ff']
 			}
-		]
+		],
+
+		'testDefault': ''
 	}
 
 
