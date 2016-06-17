@@ -16,12 +16,11 @@ describe("v-pre >", function() {
 
 
 	it('normal', function() {
-		element.innerHTML = [
-			'<div id="test1" v-pre>',
-				'<b v-show="show"></b>',
-				'<i>{{ text }}</i>',
+		element.innerHTML =
+			'<div id="test1" v-pre>' +
+				'<b v-show="show"></b>' +
+				'<i>{{ text }}</i>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {});
 		var div = element.querySelector('#test1');
@@ -31,13 +30,12 @@ describe("v-pre >", function() {
 
 
 	it('in v-for', function() {
-		element.innerHTML = [
-			'<ul id="test2">',
-				'<li v-for="item in items">',
-					'<span v-pre>{{ item.text }}</span>',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test2">' +
+				'<li v-for="item in items">' +
+					'<span v-pre>{{ item.text }}</span>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [{}, {}, {}]

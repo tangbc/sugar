@@ -16,13 +16,12 @@ describe("v-for >", function() {
 
 
 	it('no-object item', function() {
-		element.innerHTML = [
-			'<ul id="test1">',
-				'<li v-for="item in items">',
-					'{{ item }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test1">' +
+				'<li v-for="item in items">' +
+					'{{ item }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': ['a', 'b']
@@ -102,13 +101,12 @@ describe("v-for >", function() {
 
 
 	it('simple object item', function() {
-		element.innerHTML = [
-			'<ul id="test2">',
-				'<li v-for="item in items">',
-					'{{ item.text }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test2">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -191,13 +189,12 @@ describe("v-for >", function() {
 
 
 	it('$index with no-object item', function() {
-		element.innerHTML = [
-			'<ul id="test3">',
-				'<li v-for="item in items">',
-					'{{ $index }}_{{ item }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test3">' +
+				'<li v-for="item in items">' +
+					'{{ $index }}_{{ item }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': ['a', 'b']
@@ -239,13 +236,12 @@ describe("v-for >", function() {
 
 
 	it('$index with object item', function() {
-		element.innerHTML = [
-			'<ul id="test4">',
-				'<li v-for="item in items">',
-					'{{ $index }}_{{ item.text }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test4">' +
+				'<li v-for="item in items">' +
+					'{{ $index }}_{{ item.text }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -290,13 +286,12 @@ describe("v-for >", function() {
 
 
 	it('$set', function() {
-		element.innerHTML = [
-			'<ul id="test5">',
-				'<li v-for="item in items">',
-					'{{ item.text }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test5">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -332,13 +327,12 @@ describe("v-for >", function() {
 
 
 	it('$remove', function() {
-		element.innerHTML = [
-			'<ul id="test6">',
-				'<li v-for="item in items">',
-					'{{ item.text }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test6">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [

@@ -83,11 +83,10 @@ describe("v-show >", function() {
 
 
 	it('with v-else block', function() {
-		element.innerHTML = [
-			'<div id="ok" v-show="ok">OK</div>',
-			'~~~ v-show just find next sibling elementNode for v-else ~~~',
+		element.innerHTML =
+			'<div id="ok" v-show="ok">OK</div>' +
+			'~~~ v-show just find next sibling elementNode for v-else ~~~' +
 			'<div id="notok" v-else>Not OK</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'ok': true
@@ -106,10 +105,9 @@ describe("v-show >", function() {
 
 
 	it('with v-else block and has inline style init', function() {
-		element.innerHTML = [
-			'<div id="ok" v-show="ok" style="display: inline">OK</div>',
+		element.innerHTML =
+			'<div id="ok" v-show="ok" style="display: inline">OK</div>' +
 			'<div id="notok" v-else style="display: inline-block">Not OK</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'ok': true
@@ -132,13 +130,12 @@ describe("v-show >", function() {
 
 
 	it('in v-for', function() {
-		element.innerHTML = [
-			'<ul>',
-				'<li v-for="item in items">',
-					'<span class="sp" v-show="item.show" style="display: block;"></span>',
-				'</li>',
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span class="sp" v-show="item.show" style="display: block;"></span>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [

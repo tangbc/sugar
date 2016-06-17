@@ -28,11 +28,10 @@ describe("v-el >", function() {
 
 
 	it('inside v-if render first', function() {
-		element.innerHTML = [
-			'<div v-if="isRender">',
-				'<span id="test2" v-el="elSpan">1234</span>',
+		element.innerHTML =
+			'<div v-if="isRender">' +
+				'<span id="test2" v-el="elSpan">1234</span>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'isRender': true
@@ -52,11 +51,10 @@ describe("v-el >", function() {
 
 
 	it('inside v-if no-render first', function() {
-		element.innerHTML = [
-			'<div v-if="isRender">',
-				'<span id="test3" v-el="elSpan">12345</span>',
+		element.innerHTML =
+			'<div v-if="isRender">' +
+				'<span id="test3" v-el="elSpan">12345</span>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'isRender': false
@@ -75,13 +73,12 @@ describe("v-el >", function() {
 
 
 	it('inside v-for', function() {
-		element.innerHTML = [
-			'<ul>',
-				'<li v-for="item in items">',
-					'<span v-el="item.el" v-text="item.text"></span>',
-				'</li>',
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span v-el="item.el" v-text="item.text"></span>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [

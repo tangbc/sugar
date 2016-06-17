@@ -54,13 +54,12 @@ describe("v-html >", function() {
 
 
 	it('normal in v-for', function() {
-		element.innerHTML = [
-			'<ul>',
-				'<li v-for="item in items">',
-					'<p class="pp" v-html="item.layout"></p>',
-				'</li>',
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<p class="pp" v-html="item.layout"></p>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -94,13 +93,12 @@ describe("v-html >", function() {
 
 
 	it('mustache in v-for', function() {
-		element.innerHTML = [
-			'<ul>',
-				'<li v-for="item in items">',
-					'<p class="pp">{{{ item.layout }}}</p>',
-				'</li>',
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<p class="pp">{{{ item.layout }}}</p>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [

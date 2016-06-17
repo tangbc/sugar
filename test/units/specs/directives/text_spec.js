@@ -76,13 +76,12 @@ describe("v-text >", function() {
 
 
 	it('normal in v-for', function() {
-		element.innerHTML = [
-			'<ul id="test5">',
-				'<li v-for="item in items">',
-					'<span v-text="item.text"></span>',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test5">' +
+				'<li v-for="item in items">' +
+					'<span v-text="item.text"></span>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -108,13 +107,12 @@ describe("v-text >", function() {
 
 
 	it('mustache in v-for', function() {
-		element.innerHTML = [
-			'<ul id="test6">',
-				'<li v-for="item in items">',
-					'{{ item.text }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test6">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -140,13 +138,12 @@ describe("v-text >", function() {
 
 
 	it('multi expression with normal in v-for', function() {
-		element.innerHTML = [
-			'<ul id="test7">',
-				'<li v-for="item in items">',
-					'<span v-text="item.text + \'_\' + item.name"></span>',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test7">' +
+				'<li v-for="item in items">' +
+					'<span v-text="item.text + \'_\' + item.name"></span>' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [
@@ -190,13 +187,12 @@ describe("v-text >", function() {
 
 
 	it('multi expression with mustache in v-for', function() {
-		element.innerHTML = [
-			'<ul id="test8">',
-				'<li v-for="item in items">',
-					'{{ item.text }}_{{ item.name }}',
-				'</li>',
+		element.innerHTML =
+			'<ul id="test8">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}_{{ item.name }}' +
+				'</li>' +
 			'</ul>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'items': [

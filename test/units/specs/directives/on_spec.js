@@ -52,11 +52,10 @@ describe("v-on >", function() {
 
 
 	it('a propagation situation', function() {
-		element.innerHTML = [
-			'<div id="outer" v-on:click="outer">',
-				'<span id="inner" v-on:click="inner"></span>',
+		element.innerHTML =
+			'<div id="outer" v-on:click="outer">' +
+				'<span id="inner" v-on:click="inner"></span>' +
 			'</div>'
-		].join('');
 
 		var outerCount = 0, innerCount = 0;
 		var vm = new MVVM(element, {
@@ -90,11 +89,10 @@ describe("v-on >", function() {
 
 
 	it('use .stop to stopPropagation', function() {
-		element.innerHTML = [
-			'<div id="outer" v-on:click="outer">',
-				'<span id="inner" v-on:click.stop="inner"></span>',
+		element.innerHTML =
+			'<div id="outer" v-on:click="outer">' +
+				'<span id="inner" v-on:click.stop="inner"></span>' +
 			'</div>'
-		].join('');
 
 		var outerCount = 0, innerCount = 0;
 		var vm = new MVVM(element, {

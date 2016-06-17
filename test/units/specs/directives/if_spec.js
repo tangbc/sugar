@@ -54,11 +54,10 @@ describe("v-if >", function() {
 
 
 	it('render content contains directive and render first', function() {
-		element.innerHTML = [
-			'<div id="test3" v-if="render">',
-				'<p>--{{ text }}--</p>',
+		element.innerHTML =
+			'<div id="test3" v-if="render">' +
+				'<p>--{{ text }}--</p>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'render': true,
@@ -85,11 +84,10 @@ describe("v-if >", function() {
 
 
 	it('render content contains directive and no-render first', function() {
-		element.innerHTML = [
-			'<div id="test4" v-if="render">',
-				'<p>--{{ text }}--</p>',
+		element.innerHTML =
+			'<div id="test4" v-if="render">' +
+				'<p>--{{ text }}--</p>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'render': false,
@@ -119,14 +117,13 @@ describe("v-if >", function() {
 
 
 	it('with v-else block', function() {
-		element.innerHTML = [
-			'<div id="ok" v-if="ok">',
-				'<i>OK</i>',
-			'</div>',
-			'<div id="notok" v-else>',
-				'<b>Not OK</b>',
+		element.innerHTML =
+			'<div id="ok" v-if="ok">' +
+				'<i>OK</i>' +
+			'</div>' +
+			'<div id="notok" v-else>' +
+				'<b>Not OK</b>' +
 			'</div>'
-		].join('');
 
 		var vm = new MVVM(element, {
 			'ok': true
