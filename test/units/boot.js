@@ -20,6 +20,7 @@ require([
 		'specs/directives/pre_spec',
 		'specs/directives/for_spec',
 		'specs/directives/on_spec',
+		'specs/directives/model_spec',
 	], function() {
 		var env = jasmine.getEnv();
 		env.addReporter(new jasmine.HtmlReporter);
