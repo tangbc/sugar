@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jun 17 2016 16:19:18 GMT+0800 (CST)
+ * Mon Jun 20 2016 14:33:09 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4723,7 +4723,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				// 添加新 attributes
 				this.updateJson(node, different.n);
 
-				jsonAttr = newJsonAttr;
+				jsonAttr = util.copy(newJsonAttr);
 			}, this);
 		}
 

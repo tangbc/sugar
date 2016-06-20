@@ -84,7 +84,7 @@ define([
 			// 添加新 attributes
 			this.updateJson(node, different.n);
 
-			jsonAttr = newJsonAttr;
+			jsonAttr = util.copy(newJsonAttr);
 		}, this);
 	}
 
