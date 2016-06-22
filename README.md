@@ -1,4 +1,4 @@
-# 介绍
+# 1. 介绍
 
 * 一个用于开发前端模块化 UI 组件的轻量级 JavaScript 库/框架
 
@@ -7,11 +7,44 @@
 * 框架分为两个独立的部分：**`sugar`** (实现组件系统) 和 **`mvvm`** (实现数据绑定 + 视图刷新)
 
 
-# 框架组成
+# 2. 框架组成
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
 
 
-# 举个栗子
+# 3. 项目结构
+* `test/` 单元测试以及其他测试用例
+
+* `build/` webpack 打包配置文件目录
+
+* `demos/` 用 sugar.js 做的一些完整例子
+
+* `dist/` 打包好的 sugar.js 和 mvvm.js 以及各自的压缩版本
+
+* `src/` 源代码文件目录：
+
+	* `src/main/` 为 sugar 的组件系统模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、嵌套和消息通信，详细参见: [sugar api](http://tangbc.github.io/sugar/sugar.html)
+
+	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持 v-text, v-model, v-bind, v-on 和 v-for 等，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
+
+
+# 4. 组件示例
+**`demos/`**  目录做了些示例，也可在 github.io 上在线预览效果：
+
+* [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
+* [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
+* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
+* [简单的 TodoMVC 应用](http://tangbc.github.io/sugar/demos/todoMVC)
+
+
+# 5. 引用 & 环境
+* 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
+	* `sugar (约 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+
+* 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
+
+
+# 6. 举个栗子
 
 这里以定义、创建一个简单可复用的 `radio` 组件为例：
 ```html
@@ -85,40 +118,7 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 可在线修改本例的代码及预览 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
 
 
-# 项目结构
-* `test/` 单元测试以及其他测试用例
-
-* `build/` webpack 打包配置文件目录
-
-* `demos/` 用 sugar.js 做的一些完整例子
-
-* `dist/` 打包好的 sugar.js 和 mvvm.js 以及各自的压缩版本
-
-* `src/` 源代码文件目录：
-
-	* `src/main/` 为 sugar 的组件系统模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、嵌套和消息通信，详细参见: [sugar api](http://tangbc.github.io/sugar/sugar.html)
-
-	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持 v-text, v-model, v-bind, v-on 和 v-for 等，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
-
-
-# 组件示例
-**`demos/`**  目录做了些示例，也可在 github.io 上在线预览效果：
-
-* [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
-* [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
-* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
-* [简单的 TodoMVC 应用](http://tangbc.github.io/sugar/demos/todoMVC)
-
-
-# 引用 & 环境
-* 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
-	* `sugar (约 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
-
-* 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
-
-
-# 主要更新日志
+# 7. 主要更新日志
 * `v1.0`
 	* `sugar` 基础的组件系统和模块化创建方式
 	* `mvvm` 支持基础数据模型指令（静态表达式）

@@ -1,14 +1,48 @@
-# Intro
+# 1. Intro
 
 * Easy way to develop Web Components with `Sugar.js`, support template layout and MVVM
 
 * `Sugar.js` consists of two independent parts: **`sugar`** (Component system) and **`mvvm`** (DataBinding + ViewRefresh)
 
 
-# Diagram of Sugar
+# 2. Diagram of Sugar
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="666">
 
-# For example
+
+# 3. Directory structure
+* `test/` Test files directory
+
+* `build/` Webpack config files
+
+* `demos/` Some complete examples developed by sugar.js
+
+* `dist/` Packaged sugar.js and mvvm.js, as well as their compressed files
+
+* `src/` Source code files directory:
+
+	* `src/main/` Component system module directory, all of the module files in this directory are eventually serving for component.js (component basic definition module). Components can be included each other, nested and message communication. See more Api: [sugar api](http://tangbc.github.io/sugar/sugar.html)
+
+	* **`src/mvvm/`** A lightweight mvvm library, command system support v-text, v-model, v-bind, v-on, v-for and so on. **mvvm does not have any dependence on sugar, it can be used independently**. See more Api: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
+
+
+# 4. Component demo
+There are some examples of the **`demos/`** directory, you can also preview the demos on the github.io
+
+* [Star rating](http://tangbc.github.io/sugar/demos/star)
+* [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
+* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
+* [Simple TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
+
+
+# 5. Usage & Environment
+* `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
+	* `sugar (about 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+
+* Browser support: do not support IE8 and belove (used many ES5 characteristics)
+
+
+# 6. For example
 Here to define, create a simple reusable `radio` components as an example:
 ```html
 <div id="radio-box-phone"></div>
@@ -81,40 +115,7 @@ Finally, we can see two independent radio components in web interface:
 You can modify code and preview this demo at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
 
 
-# Directory structure
-* `test/` Test files directory
-
-* `build/` Webpack config files
-
-* `demos/` Some complete examples developed by sugar.js
-
-* `dist/` Packaged sugar.js and mvvm.js, as well as their compressed files
-
-* `src/` Source code files directory:
-
-	* `src/main/` Component system module directory, all of the module files in this directory are eventually serving for component.js (component basic definition module). Components can be included each other, nested and message communication. See more Api: [sugar api](http://tangbc.github.io/sugar/sugar.html)
-
-	* **`src/mvvm/`** A lightweight mvvm library, command system support v-text, v-model, v-bind, v-on, v-for and so on. **mvvm does not have any dependence on sugar, it can be used independently**. See more Api: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
-
-
-# Component demo
-There are some examples of the **`demos/`** directory, you can also preview the demos on the github.io
-
-* [Star rating](http://tangbc.github.io/sugar/demos/star)
-* [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
-* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
-* [Simple TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
-
-
-# Usage & Environment
-* `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
-	* `sugar (about 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
-
-* Browser support: do not support IE8 and belove (used many ES5 characteristics)
-
-
-# Majoy update log
+# 7. Majoy update log
 * `v1.0`
 	* `sugar` Basic component system
 	* `mvvm` Support basic model instruction (static expression)
