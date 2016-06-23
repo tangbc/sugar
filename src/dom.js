@@ -1,7 +1,7 @@
 /**
  * dom 操作模块
  */
-define({
+module.exports = {
 	/**
 	 * 清空 element 的所有子节点
 	 * @param   {DOMElement}  element
@@ -147,4 +147,4 @@ define({
 	removeEvent: function(node, evt, callback, capture) {
 		node.removeEventListener(evt, callback, capture);
 	}
-});
+}
