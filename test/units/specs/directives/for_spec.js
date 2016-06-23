@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-for >", function() {
 	var element;
 
@@ -374,6 +372,4 @@ describe("v-for >", function() {
 		items.$remove(items[0]);
 		expect(ul.textContent).toBe('b');
 	});
-});
-/*------------------------------*/
 });

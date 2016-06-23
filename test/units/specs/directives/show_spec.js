@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-show >", function() {
 	var element;
 
@@ -167,6 +165,4 @@ describe("v-show >", function() {
 		expect(sps[2].style.display).toBe('block');
 		expect(sps[3].style.display).toBe('block');
 	});
-});
-/*------------------------------*/
 });

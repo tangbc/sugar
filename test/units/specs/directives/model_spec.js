@@ -1,7 +1,4 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
 
 function triggerEvent(target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
@@ -768,6 +765,4 @@ describe("v-model >", function() {
 		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(false);
 	});
-});
-/*------------------------------*/
 });

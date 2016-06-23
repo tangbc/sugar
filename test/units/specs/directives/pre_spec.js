@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-pre >", function() {
 	var element;
 
@@ -44,6 +42,4 @@ describe("v-pre >", function() {
 
 		expect(ul.textContent).toBe('{{ item.text }}{{ item.text }}{{ item.text }}');
 	});
-});
-/*------------------------------*/
 });

@@ -1,6 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
+var MVVM = require('mvvm');
+
 /*------------------------------*/
 describe("v-el >", function() {
 	var element;
@@ -99,6 +98,4 @@ describe("v-el >", function() {
 		items.$remove(items[0]);
 		expect(items[1].el.textContent).toBe('c333');
 	});
-});
-/*------------------------------*/
 });

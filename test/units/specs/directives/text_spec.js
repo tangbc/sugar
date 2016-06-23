@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-text >", function() {
 	var element;
 
@@ -233,6 +231,4 @@ describe("v-text >", function() {
 		items[1].name = '2B';
 		expect(ul.textContent).toBe('aaa_AAAb222_2B333c_CC');
 	});
-});
-/*------------------------------*/
 });

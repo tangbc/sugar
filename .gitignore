@@ -3,4 +3,4 @@ logs.text
 bin
 temp
 npm-debug.log
-coverage
+test/coverage

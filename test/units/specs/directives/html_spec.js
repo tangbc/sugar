@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-html >", function() {
 	var element;
 
@@ -129,6 +127,4 @@ describe("v-html >", function() {
 		expect(ps[0].innerHTML).toBe('plain text bbb');
 		expect(ps[1].innerHTML).toBe('<div>CC</div>');
 	});
-});
-/*------------------------------*/
 });

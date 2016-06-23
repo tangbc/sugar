@@ -1,7 +1,4 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
 
 function triggerEvent(target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
@@ -213,6 +210,4 @@ describe("v-on >", function() {
 		expect(args && args[1]).toBe('sugar');
 		expect(args && (args[2] instanceof Event)).toBeTruthy();
 	});
-});
-/*------------------------------*/
 });

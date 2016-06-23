@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/index'
-], function(MVVM) {
-/*------------------------------*/
+var MVVM = require('mvvm');
+
 describe("v-if >", function() {
 	var element;
 
@@ -143,6 +141,4 @@ describe("v-if >", function() {
 		expect(ok.innerHTML).toBe('<i>OK</i>');
 		expect(notok.innerHTML).toBe('');
 	});
-});
-/*------------------------------*/
 });

@@ -1,7 +1,5 @@
-define([
-	'../../../../src/mvvm/observer'
-], function(Observer) {
-/*------------------------------*/
+var Observer = require('src/mvvm/observer');
+
 describe('Observer >', function() {
 
 	it('normal filed change', function() {
@@ -427,6 +425,4 @@ describe('Observer >', function() {
 			'cavs_2': false
 		});
 	});
-});
-/*------------------------------*/
 });

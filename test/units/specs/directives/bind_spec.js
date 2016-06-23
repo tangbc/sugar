@@ -1,8 +1,6 @@
-define([
-	'../../../../src/dom',
-	'../../../../src/mvvm/index'
-], function(dom, MVVM) {
-/*------------------------------*/
+var dom = require('src/dom');
+var MVVM = require('mvvm');
+
 describe("v-bind >", function() {
 	var element;
 
@@ -332,6 +330,4 @@ describe("v-bind >", function() {
 		data.cls2 = '';
 		expect(div.className).toBe('xxdk');
 	});
-});
-/*------------------------------*/
 });
