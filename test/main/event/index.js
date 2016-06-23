@@ -1,5 +1,5 @@
 require([
-	'../../../src/main/index'
+	'../../../dist/sugar'
 ], function(sugar) {
 
 	var MainPage = sugar.Component.extend({

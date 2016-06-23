@@ -1,4 +1,4 @@
-require(['../../../../src/mvvm/index'], function(MVVM) {
+require(['../../../../dist/mvvm'], function(MVVM) {
 	var layout, model, body = document.querySelector('body');
 
 	layout =

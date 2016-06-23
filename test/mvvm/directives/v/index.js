@@ -1,7 +1,6 @@
 require([
-	'../../../../src/mvvm/index',
-	'../../../../src/util'
-], function(MVVM, util) {
+	'../../../../dist/mvvm'
+], function(MVVM) {
 	var layout, model, body = document.querySelector('body');
 
 
