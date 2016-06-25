@@ -64,17 +64,11 @@ function isPlainObject(obj) {
 
 /**
  * 是否是空对象
- * @param   {Object}   target
+ * @param   {Object}   object
  * @return  {Boolean}
  */
-function isEmpty(target) {
-	for (var i in target) {
-		if (hasOwn.call(target, i)) {
-			return false;
-		}
-	}
-
-	return true;
+function isEmpty(object) {
+	return Object.keys(object).length === 0;
 }
 
 
@@ -99,12 +93,6 @@ function Util() {
 var up = Util.prototype;
 var cons = WIN.console;
 
-/**
- * 打印错误
- */
-up.error = function() {
-	cons.error.apply(cons, arguments);
-}
 
 /**
  * 打印警告信息
@@ -282,9 +270,6 @@ up.copy = function(target) {
 	}
 	else if (isObject(target)) {
 		ret = this.extend(true, {}, target);
-	}
-	else {
-		ret = target;
 	}
 
 	return ret;
