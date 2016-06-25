@@ -181,8 +181,9 @@ op.rewriteMethods = function(array, paths) {
 
 	// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
 	util.defRec(arrayMethods, '$set', function $set(index, value) {
+		// 超出数组长度默认在最后添加（相当于 push）
 		if (index >= this.length) {
-			this.length = index + 1;
+			index = this.length;
 		}
 
 		return this.splice(index, 1, value)[0];

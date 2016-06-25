@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jun 25 2016 15:04:35 GMT+0800 (CST)
+ * Sat Jun 25 2016 20:17:56 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -3256,8 +3256,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
 		util.defRec(arrayMethods, '$set', function $set(index, value) {
+			// 超出数组长度默认在最后添加（相当于 push）
 			if (index >= this.length) {
-				this.length = index + 1;
+				index = this.length;
 			}
 
 			return this.splice(index, 1, value)[0];
