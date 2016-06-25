@@ -1,9 +1,9 @@
 /*!
- * sugar.js v1.0.8
+ * sugar.js v1.1.0
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu Jun 23 2016 21:28:23 GMT+0800 (CST)
+ * Sat Jun 25 2016 13:13:16 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
