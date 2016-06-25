@@ -233,4 +233,108 @@ describe("v-on >", function() {
 		triggerEvent(el, 'click');
 		expect(flag).toBe('secound callback');
 	});
+
+
+	it('multi events', function() {
+		element.innerHTML = '<div id="el" v-on="{click: clickTest, mouseout: mouseoutTest(123, $event)}"></div>';
+
+		var args, storeArgs = function() {
+			args = Array.prototype.slice.call(arguments);
+		}
+		var vm = new MVVM(element, {
+			'clickTest': storeArgs,
+			'mouseoutTest': storeArgs
+		});
+		var el = element.querySelector('#el');
+
+		triggerEvent(el, 'click');
+		expect(args.length).toBe(1);
+		expect(args[0].type).toBe('click');
+
+		triggerEvent(el, 'mouseout');
+		expect(args.length).toBe(2);
+		expect(args[0]).toBe(123);
+		expect(args[1].type).toBe('mouseout');
+	});
+
+
+	it('change arguments with variable', function() {
+		element.innerHTML = '<input id="el" v-on:focus="test(text, \'xxdk\')"/>';
+
+		var args;
+		var vm = new MVVM(element, {
+			'text': 'aaa',
+			'test': function(txt, num) {
+				args = Array.prototype.slice.call(arguments);
+			}
+		});
+		var el = element.querySelector('#el');
+
+		triggerEvent(el, 'focus');
+		expect(args.length).toBe(2);
+		expect(args[0]).toBe('aaa');
+		expect(args[1]).toBe('xxdk');
+
+		// change data
+		vm.set('text', 'AAA');
+		triggerEvent(el, 'focus');
+		expect(args.length).toBe(2);
+		expect(args[0]).toBe('AAA');
+		expect(args[1]).toBe('xxdk');
+	});
+
+
+	it('in v-for', function() {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span class="el" v-on:click="test($index, $event)">{{ item }}</span>' +
+				'</li>' +
+			'</ul>'
+
+		var index, evt;
+		var vm = new MVVM(element, {
+			'items': [
+				'aaa',
+				'bbb',
+				'ccc'
+			],
+			'test': function(i, e) {
+				index = i;
+				evt = e;
+			}
+		});
+		var data = vm.get();
+		var els = element.querySelectorAll('.el');
+
+		triggerEvent(els[0], 'click');
+		expect(index).toBe(0);
+		expect(evt.target.textContent).toBe('aaa');
+
+		triggerEvent(els[2], 'click');
+		expect(index).toBe(2);
+		expect(evt.target.textContent).toBe('ccc');
+
+		// change array data
+		expect(els[1].textContent).toBe('bbb');
+		data.items[1] = 'BBB';
+		triggerEvent(els[1], 'click');
+		expect(index).toBe(1);
+		expect(evt.target.textContent).toBe('BBB');
+
+		// test $index change with array method
+		data.items.shift();
+		els = element.querySelectorAll('.el');
+		expect(data.items).toEqual([
+			'BBB',
+			'ccc'
+		]);
+		triggerEvent(els[0], 'click');
+		expect(index).toBe(0);
+		expect(evt.target.textContent).toBe('BBB');
+
+		triggerEvent(els[1], 'click');
+		expect(index).toBe(1);
+		expect(evt.target.textContent).toBe('ccc');
+	});
 });

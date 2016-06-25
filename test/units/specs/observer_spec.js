@@ -33,6 +33,12 @@ describe('Observer >', function() {
 		expect(access).toBe('obj');
 		expect(newValue).toEqual({'b': 2});
 		expect(oldValue).toEqual({'a': 1});
+
+		data.normal = 222;
+		// will not change
+		expect(access).toBe('obj');
+		expect(newValue).toEqual({'b': 2});
+		expect(oldValue).toEqual({'a': 1});
 	});
 
 
@@ -230,7 +236,7 @@ describe('Observer >', function() {
 		new Observer(data, callback, this);
 
 		data.arr.$set(1, {'text': 'bxxx', 'cap': 'BBX'});
-		// 'arr' [newArray] 'splice' [1, 0, {'text': 'bxxx', 'cap': 'BBX'}]
+		// 'arr' [newArray] 'splice' [1, 1, {'text': 'bxxx', 'cap': 'BBX'}]
 		expect(access).toBe('arr');
 		expect(oldValue).toBe('splice');
 		expect(args).toEqual([1, 1, {'text': 'bxxx', 'cap': 'BBX'}]);
@@ -239,6 +245,20 @@ describe('Observer >', function() {
 			{'text': 'aaa', 'cap': 'A'},
 			{'text': 'bxxx', 'cap': 'BBX'},
 			{'text': 'ccc', 'cap': 'C'}
+		]);
+
+		// out of length
+		data.arr.$set(5, {'text': 'ddd', 'cap': 'D'});
+		// 'arr' [newArray] 'splice' [3, 1, {'text': 'ddd', 'cap': 'D'}]
+		expect(access).toBe('arr');
+		expect(oldValue).toBe('splice');
+		expect(args).toEqual([3, 1, {'text': 'ddd', 'cap': 'D'}]);
+		expect(data.arr).toEqual(newValue);
+		expect(data.arr).toEqual([
+			{'text': 'aaa', 'cap': 'A'},
+			{'text': 'bxxx', 'cap': 'BBX'},
+			{'text': 'ccc', 'cap': 'C'},
+			{'text': 'ddd', 'cap': 'D'}
 		]);
 	});
 

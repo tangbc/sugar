@@ -65,6 +65,34 @@ describe("v-model >", function() {
 		triggerEvent(area, 'input');
 		expect(text.value).toBe('e');
 		expect(area.value).toBe('e');
+
+		// mock text for change (blur)
+		text.value = 'fff';
+		triggerEvent(text, 'change');
+		expect(text.value).toBe('fff');
+		expect(text.value).toBe('fff');
+	});
+
+
+	it('text unLetter input composition event', function() {
+		element.innerHTML = '<input id="text" type="text" v-model="test">';
+
+		var vm = new MVVM(element, {
+			'test': 'abc'
+		});
+		var data = vm.get();
+		var text = element.querySelector('#text');
+
+		// composition lock and should not set data
+		triggerEvent(text, 'compositionstart');
+		text.value = 'cba';
+		triggerEvent(text, 'input');
+		expect(data.test).toBe('abc');
+
+		// should be work fine after unlock (compositionend)
+		triggerEvent(text, 'compositionend');
+		triggerEvent(text, 'input');
+		expect(data.test).toBe('cba');
 	});
 
 
@@ -150,6 +178,9 @@ describe("v-model >", function() {
 
 		data.isCheck = true;
 		expect(element.childNodes[0].checked).toBe(true);
+
+		element.childNodes[0].click();
+		expect(data.isCheck).toBe(false);
 	});
 
 
@@ -166,6 +197,9 @@ describe("v-model >", function() {
 
 		data.isCheck = false;
 		expect(element.childNodes[0].checked).toBe(false);
+
+		element.childNodes[0].click();
+		expect(data.isCheck).toBe(true);
 	});
 
 

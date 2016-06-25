@@ -13,6 +13,47 @@ describe("v-for >", function() {
 	});
 
 
+	it('not array first', function() {
+		element.innerHTML =
+			'<ul id="test8">' +
+				'<li v-for="item in items">' +
+					'{{ item }}' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'items': null
+		});
+		var data = vm.get();
+		var items = data.items;
+		var ul = element.querySelector('#test8');
+
+		expect(ul.textContent).toBe('');
+	});
+
+
+	it('empty array first', function() {
+		element.innerHTML =
+			'<ul id="test8">' +
+				'<li v-for="item in items">' +
+					'{{ item }}' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'items': []
+		});
+		var data = vm.get();
+		var items = data.items;
+		var ul = element.querySelector('#test8');
+
+		expect(ul.textContent).toBe('');
+
+		items.push('a');
+		expect(ul.textContent).toBe('a');
+	});
+
+
 	it('no-object item', function() {
 		element.innerHTML =
 			'<ul id="test1">' +
@@ -371,5 +412,33 @@ describe("v-for >", function() {
 
 		items.$remove(items[0]);
 		expect(ul.textContent).toBe('b');
+	});
+
+
+	it('two level v-for and cross scope', function() {
+		element.innerHTML =
+			'<ul id="test7">' +
+				'<li v-for="item in items">' +
+					'<b>{{ item.text }}-</b>' +
+					'<span v-for="sub in item.subs">' +
+						'{{ item.text + \'_\' + sub.text }}' +
+					'</span>' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'items': [
+				{'text': 'A', 'subs': [{'text': 'a'}]},
+				{'text': 'B', 'subs': [{'text': 'b'}]}
+			]
+		});
+		var data = vm.get();
+		var items = data.items;
+		var ul = element.querySelector('#test7');
+
+		expect(ul.textContent).toBe('A-A_aB-B_b');
+
+		items[1].subs[0].text = 'bbb';
+		expect(ul.textContent).toBe('A-A_aB-B_bbb');
 	});
 });

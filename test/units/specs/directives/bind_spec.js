@@ -165,6 +165,46 @@ describe("v-bind >", function() {
 	});
 
 
+	it('class in v-for and cross scope', function() {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span v-bind:class="{classA: item.hasA, classG: hasG}"></span>' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'hasG': true,
+			'items': [
+				{'hasA': true},
+				{'hasA': false},
+				{'hasA': true}
+			]
+		});
+		var data = vm.get();
+		var els = element.querySelectorAll('span');
+
+		expect(equalClass(els[0].className, 'classA classG')).toBe(true);
+		expect(equalClass(els[1].className, 'classG')).toBe(true);
+		expect(equalClass(els[2].className, 'classA classG')).toBe(true);
+
+		// change for outside
+		data.hasG = false;
+		expect(equalClass(els[0].className, 'classA')).toBe(true);
+		expect(equalClass(els[1].className, '')).toBe(true);
+		expect(equalClass(els[2].className, 'classA')).toBe(true);
+
+		// change for inside
+		data.items[1].hasA = true;
+		expect(equalClass(els[1].className, 'classA')).toBe(true);
+
+		data.hasG = true;
+		expect(equalClass(els[0].className, 'classA classG')).toBe(true);
+		expect(equalClass(els[1].className, 'classA classG')).toBe(true);
+		expect(equalClass(els[2].className, 'classA classG')).toBe(true);
+	});
+
+
 	it('style object', function() {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
@@ -221,6 +261,46 @@ describe("v-bind >", function() {
 
 		data.size = '111px';
 		expect(div.style.fontSize).toBe('111px');
+	});
+
+
+	it('style in v-for and cross scope', function() {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span v-bind:style="{color: item.color, margin: margin}"></span>' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'margin': '10px',
+			'items': [
+				{'color': 'red'},
+				{'color': 'green'},
+				{'color': 'blue'}
+			]
+		});
+		var data = vm.get();
+		var els = element.querySelectorAll('span');
+
+		expect(els[0].style.color).toBe('red');
+		expect(els[0].style.margin).toBe('10px');
+		expect(els[1].style.color).toBe('green');
+		expect(els[1].style.margin).toBe('10px');
+		expect(els[2].style.color).toBe('blue');
+		expect(els[2].style.margin).toBe('10px');
+
+		// will change all margin
+		data.margin = '50px';
+		expect(els[0].style.margin).toBe('50px');
+		expect(els[1].style.margin).toBe('50px');
+		expect(els[2].style.margin).toBe('50px');
+
+		data.items[0].color = 'yellow';
+		expect(els[0].style.color).toBe('yellow');
+
+		data.items[2].color = 'gray';
+		expect(els[2].style.color).toBe('gray');
 	});
 
 
@@ -346,5 +426,45 @@ describe("v-bind >", function() {
 		// change data
 		data.dis = false;
 		expect(dom.hasAttr(div, 'disabled')).toBe(false);
+	});
+
+
+	it('attribute in v-for and cross scope', function() {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span v-bind="{id: item.id, \'data-type\': type}"></span>' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'type': 'xxdk',
+			'items': [
+				{'id': 'aaa'},
+				{'id': 'bbb'},
+				{'id': 'ccc'}
+			]
+		});
+		var data = vm.get();
+		var els = element.querySelectorAll('span');
+
+		expect(dom.getAttr(els[0], 'id')).toBe('aaa');
+		expect(dom.getAttr(els[0], 'data-type')).toBe('xxdk');
+		expect(dom.getAttr(els[1], 'id')).toBe('bbb');
+		expect(dom.getAttr(els[1], 'data-type')).toBe('xxdk');
+		expect(dom.getAttr(els[2], 'id')).toBe('ccc');
+		expect(dom.getAttr(els[2], 'data-type')).toBe('xxdk');
+
+		// will change all data-type
+		data.type = 'txgc';
+		expect(dom.getAttr(els[0], 'data-type')).toBe('txgc');
+		expect(dom.getAttr(els[1], 'data-type')).toBe('txgc');
+		expect(dom.getAttr(els[2], 'data-type')).toBe('txgc');
+
+		data.items[0].id = 'AAA';
+		expect(dom.getAttr(els[0], 'id')).toBe('AAA');
+
+		data.items[1].id = 'BBB';
+		expect(dom.getAttr(els[1], 'id')).toBe('BBB');
 	});
 });
