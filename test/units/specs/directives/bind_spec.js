@@ -330,4 +330,21 @@ describe("v-bind >", function() {
 		data.cls2 = '';
 		expect(div.className).toBe('xxdk');
 	});
+
+
+	it('attribute has no value', function() {
+		element.innerHTML = '<input v-bind:disabled="dis">';
+
+		var vm = new MVVM(element, {
+			'dis': true
+		});
+		var data = vm.get();
+		var div = element.childNodes[0];
+
+		expect(dom.hasAttr(div, 'disabled')).toBe(true);
+
+		// change data
+		data.dis = false;
+		expect(dom.hasAttr(div, 'disabled')).toBe(false);
+	});
 });
