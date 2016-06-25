@@ -69,6 +69,7 @@ module.exports = {
 			return;
 		}
 
+		/* istanbul ignore else */
 		if (list) {
 			list.add(classname);
 		}
@@ -92,6 +93,7 @@ module.exports = {
 			return;
 		}
 
+		/* istanbul ignore else */
 		if (list) {
 			list.remove(classname);
 		}
@@ -117,6 +119,7 @@ module.exports = {
 	 */
 	hasClass: function(node, classname) {
 		var current, list = node.classList;
+		/* istanbul ignore else */
 		if (list) {
 			return list.contains(classname);
 		}
