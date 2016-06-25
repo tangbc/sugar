@@ -210,4 +210,27 @@ describe("v-on >", function() {
 		expect(args && args[1]).toBe('sugar');
 		expect(args && (args[2] instanceof Event)).toBeTruthy();
 	});
+
+
+	it('change event callback', function() {
+		element.innerHTML = '<div id="el" v-on:click="test"></div>';
+
+		var flag;
+		var vm = new MVVM(element, {
+			'test': function() {
+				flag = 'first callback';
+			}
+		});
+		var el = element.querySelector('#el');
+
+		triggerEvent(el, 'click');
+		expect(flag).toBe('first callback');
+
+		// change callback for binding
+		vm.set('test', function() {
+			flag = 'secound callback';
+		});
+		triggerEvent(el, 'click');
+		expect(flag).toBe('secound callback');
+	});
 });
