@@ -48,14 +48,16 @@ mvp.get = function(key) {
  */
 mvp.set = function(key, value) {
 	var vm = this.$;
+	// 设置单个
+	if (util.isString(key)) {
+		vm[key] = value;
+	}
+
 	// 批量设置
 	if (util.isObject(key)) {
 		util.each(key, function(v, k) {
 			vm[k] = v;
 		});
-	}
-	else if (util.isString(key)) {
-		vm[key] = value;
 	}
 }
 
@@ -73,8 +75,8 @@ mvp.reset = function(key) {
 	}
 	// 重置多个
 	else if (util.isArray(key)) {
-		util.each(key, function(v, k) {
-			vm[k] = backup[k];
+		util.each(key, function(v) {
+			vm[v] = backup[v];
 		});
 	}
 	// 重置所有
