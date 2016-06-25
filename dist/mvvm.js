@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jun 25 2016 13:13:16 GMT+0800 (CST)
+ * Sat Jun 25 2016 15:04:35 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -111,14 +111,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	mvp.set = function(key, value) {
 		var vm = this.$;
+		// 设置单个
+		if (util.isString(key)) {
+			vm[key] = value;
+		}
+
 		// 批量设置
 		if (util.isObject(key)) {
 			util.each(key, function(v, k) {
 				vm[k] = v;
 			});
-		}
-		else if (util.isString(key)) {
-			vm[key] = value;
 		}
 	}
 
@@ -136,8 +138,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		// 重置多个
 		else if (util.isArray(key)) {
-			util.each(key, function(v, k) {
-				vm[k] = backup[k];
+			util.each(key, function(v) {
+				vm[v] = backup[v];
 			});
 		}
 		// 重置所有
@@ -233,17 +235,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 是否是空对象
-	 * @param   {Object}   target
+	 * @param   {Object}   object
 	 * @return  {Boolean}
 	 */
-	function isEmpty(target) {
-		for (var i in target) {
-			if (hasOwn.call(target, i)) {
-				return false;
-			}
-		}
-
-		return true;
+	function isEmpty(object) {
+		return Object.keys(object).length === 0;
 	}
 
 
@@ -268,12 +264,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var up = Util.prototype;
 	var cons = WIN.console;
 
-	/**
-	 * 打印错误
-	 */
-	up.error = function() {
-		cons.error.apply(cons, arguments);
-	}
 
 	/**
 	 * 打印警告信息
@@ -451,9 +441,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		else if (isObject(target)) {
 			ret = this.extend(true, {}, target);
-		}
-		else {
-			ret = target;
 		}
 
 		return ret;
@@ -688,12 +675,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function Compiler(element, model) {
 		if (!this.isElementNode(element)) {
-			util.error('element must be a type of DOMElement: ', element);
+			util.warn('element must be a type of DOMElement: ', element);
 			return;
 		}
 
 		if (!util.isObject(model)) {
-			util.error('model must be a type of Object: ', model);
+			util.warn('model must be a type of Object: ', model);
 			return;
 		}
 
@@ -1089,6 +1076,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
+			/* istanbul ignore else */
 			if (list) {
 				list.add(classname);
 			}
@@ -1112,6 +1100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
+			/* istanbul ignore else */
 			if (list) {
 				list.remove(classname);
 			}
@@ -1137,6 +1126,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		hasClass: function(node, classname) {
 			var current, list = node.classList;
+			/* istanbul ignore else */
 			if (list) {
 				return list.contains(classname);
 			}
@@ -2398,7 +2388,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return new Function('scope', 'return ' + expression + ';');
 		}
 		catch (e) {
-			util.error('Invalid generated expression: ' + expression);
+			throw('Invalid generated expression: ' + expression);
 		}
 	}
 

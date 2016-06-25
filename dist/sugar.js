@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jun 25 2016 13:13:16 GMT+0800 (CST)
+ * Sat Jun 25 2016 15:04:35 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -259,17 +259,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 是否是空对象
-	 * @param   {Object}   target
+	 * @param   {Object}   object
 	 * @return  {Boolean}
 	 */
-	function isEmpty(target) {
-		for (var i in target) {
-			if (hasOwn.call(target, i)) {
-				return false;
-			}
-		}
-
-		return true;
+	function isEmpty(object) {
+		return Object.keys(object).length === 0;
 	}
 
 
@@ -294,12 +288,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var up = Util.prototype;
 	var cons = WIN.console;
 
-	/**
-	 * 打印错误
-	 */
-	up.error = function() {
-		cons.error.apply(cons, arguments);
-	}
 
 	/**
 	 * 打印警告信息
@@ -477,9 +465,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		else if (isObject(target)) {
 			ret = this.extend(true, {}, target);
-		}
-		else {
-			ret = target;
 		}
 
 		return ret;
@@ -830,7 +815,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		globalCast: function(name, param) {
 			if (!util.isString(name)) {
-				util.error('message\'s name must be a type of String: ', name);
+				util.warn('message\'s name must be a type of String: ', name);
 				return;
 			}
 
@@ -879,15 +864,15 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		create: function(name, Class, config) {
 			if (!util.isString(name)) {
-				util.error('module\'s name must be a type of String: ', name);
+				util.warn('module\'s name must be a type of String: ', name);
 				return;
 			}
 			if (!util.isFunc(Class)) {
-				util.error('module\'s Class must be a type of Function: ', Class);
+				util.warn('module\'s Class must be a type of Function: ', Class);
 				return;
 			}
 			if (config && !util.isObject(config)) {
-				util.error('module\'s config must be a type of Object: ', config);
+				util.warn('module\'s config must be a type of Object: ', config);
 				return;
 			}
 
@@ -903,7 +888,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 判断是否已经创建过
 			if (cls['childMap'][name]) {
-				util.error('Module\'s name already exists: ', name);
+				util.warn('Module\'s name already exists: ', name);
 				return;
 			}
 
@@ -1053,7 +1038,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 不合法的回调函数
 			if (!util.isFunc(callback)) {
-				util.error('callback must be a type of Function: ', callback);
+				util.warn('callback must be a type of Function: ', callback);
 				return;
 			}
 
@@ -1076,7 +1061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		fire: function(name, param, callback) {
 			if (!util.isString(name)) {
-				util.error('message\'s name must be a type of String: ', name);
+				util.warn('message\'s name must be a type of String: ', name);
 				return;
 			}
 
@@ -1104,7 +1089,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		broadcast: function(name, param, callback) {
 			if (!util.isString(name)) {
-				util.error('message\'s name must be a type of String: ', name);
+				util.warn('message\'s name must be a type of String: ', name);
 				return false;
 			}
 
@@ -1136,12 +1121,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		notify: function(receiver, name, param, callback) {
 			if (!util.isString(receiver)) {
-				util.error('receiver\'s name must be a type of String: ', name);
+				util.warn('receiver\'s name must be a type of String: ', name);
 				return false;
 			}
 
 			if (!util.isString(name)) {
-				util.error('message\'s name must be a type of String: ', name);
+				util.warn('message\'s name must be a type of String: ', name);
 				return false;
 			}
 
@@ -1517,7 +1502,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		if (!util.isObject(receiver)) {
-			util.error('module: \'' + receiver + '\' is not found in cache!');
+			util.warn('module: \'' + receiver + '\' is not found in cache!');
 			return false;
 		}
 
@@ -1638,7 +1623,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 				if (err) {
 					text = err.status + ': ' + uri;
-					util.error(err);
+					util.warn(err);
 				}
 				else {
 					text = data.result;
@@ -1926,6 +1911,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
+			/* istanbul ignore else */
 			if (list) {
 				list.add(classname);
 			}
@@ -1949,6 +1935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return;
 			}
 
+			/* istanbul ignore else */
 			if (list) {
 				list.remove(classname);
 			}
@@ -1974,6 +1961,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		hasClass: function(node, classname) {
 			var current, list = node.classList;
+			/* istanbul ignore else */
 			if (list) {
 				return list.contains(classname);
 			}
@@ -2060,14 +2048,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	mvp.set = function(key, value) {
 		var vm = this.$;
+		// 设置单个
+		if (util.isString(key)) {
+			vm[key] = value;
+		}
+
 		// 批量设置
 		if (util.isObject(key)) {
 			util.each(key, function(v, k) {
 				vm[k] = v;
 			});
-		}
-		else if (util.isString(key)) {
-			vm[key] = value;
 		}
 	}
 
@@ -2085,8 +2075,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		// 重置多个
 		else if (util.isArray(key)) {
-			util.each(key, function(v, k) {
-				vm[k] = backup[k];
+			util.each(key, function(v) {
+				vm[v] = backup[v];
 			});
 		}
 		// 重置所有
@@ -2141,12 +2131,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function Compiler(element, model) {
 		if (!this.isElementNode(element)) {
-			util.error('element must be a type of DOMElement: ', element);
+			util.warn('element must be a type of DOMElement: ', element);
 			return;
 		}
 
 		if (!util.isObject(model)) {
-			util.error('model must be a type of Object: ', model);
+			util.warn('model must be a type of Object: ', model);
 			return;
 		}
 
@@ -3696,7 +3686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return new Function('scope', 'return ' + expression + ';');
 		}
 		catch (e) {
-			util.error('Invalid generated expression: ' + expression);
+			throw('Invalid generated expression: ' + expression);
 		}
 	}
 
