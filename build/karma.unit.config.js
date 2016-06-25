@@ -18,8 +18,8 @@ module.exports = function(config) {
 		// - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
 		// - PhantomJS
 		// - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
-		'browsers': ['Chrome', 'Safari'],
-		// browsers: ['Firefox'],
+		'browsers': ['Chrome', 'Firefox'],
+		// 'browsers': ['Safari'],
 
 		// list of files to load in the browser
 		'files': [
@@ -38,6 +38,7 @@ module.exports = function(config) {
 			'index.js': ['webpack', 'sourcemap']
 		},
 
+		// webpack config
 		'webpack': {
 			'devtool': 'inline-source-map',
 			'resolve': {
@@ -48,11 +49,12 @@ module.exports = function(config) {
 			}
 		},
 
+		// webpack middleware config
 		'webpackMiddleware': {
 			'noInfo': true
 		},
 
-	    // test results reporter to use
+		// test results reporter to use
 		// possible values: 'spec', 'dots', 'progress', 'junit', 'growl', 'coverage'
 		'reporters': ['spec']
 	});
