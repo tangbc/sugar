@@ -153,7 +153,7 @@ p.createGetter = function(expression) {
 		return new Function('scope', 'return ' + expression + ';');
 	}
 	catch (e) {
-		util.error('Invalid generated expression: ' + expression);
+		throw('Invalid generated expression: ' + expression);
 	}
 }
 

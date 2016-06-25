@@ -23,12 +23,12 @@ var Vmodel = require('./parsers/vmodel');
  */
 function Compiler(element, model) {
 	if (!this.isElementNode(element)) {
-		util.error('element must be a type of DOMElement: ', element);
+		util.warn('element must be a type of DOMElement: ', element);
 		return;
 	}
 
 	if (!util.isObject(model)) {
-		util.error('model must be a type of Object: ', model);
+		util.warn('model must be a type of Object: ', model);
 		return;
 	}
 
