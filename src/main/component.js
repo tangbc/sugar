@@ -75,7 +75,7 @@ var Component = Module.extend({
 
 			if (err) {
 				text = err.status + ': ' + uri;
-				util.error(err);
+				util.warn(err);
 			}
 			else {
 				text = data.result;

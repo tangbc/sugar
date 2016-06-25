@@ -24,7 +24,7 @@ var Core = Module.extend({
 	 */
 	globalCast: function(name, param) {
 		if (!util.isString(name)) {
-			util.error('message\'s name must be a type of String: ', name);
+			util.warn('message\'s name must be a type of String: ', name);
 			return;
 		}
 

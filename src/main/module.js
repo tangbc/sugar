@@ -22,15 +22,15 @@ var Module = Root.extend({
 	 */
 	create: function(name, Class, config) {
 		if (!util.isString(name)) {
-			util.error('module\'s name must be a type of String: ', name);
+			util.warn('module\'s name must be a type of String: ', name);
 			return;
 		}
 		if (!util.isFunc(Class)) {
-			util.error('module\'s Class must be a type of Function: ', Class);
+			util.warn('module\'s Class must be a type of Function: ', Class);
 			return;
 		}
 		if (config && !util.isObject(config)) {
-			util.error('module\'s config must be a type of Object: ', config);
+			util.warn('module\'s config must be a type of Object: ', config);
 			return;
 		}
 
@@ -46,7 +46,7 @@ var Module = Root.extend({
 
 		// 判断是否已经创建过
 		if (cls['childMap'][name]) {
-			util.error('Module\'s name already exists: ', name);
+			util.warn('Module\'s name already exists: ', name);
 			return;
 		}
 
@@ -196,7 +196,7 @@ var Module = Root.extend({
 
 		// 不合法的回调函数
 		if (!util.isFunc(callback)) {
-			util.error('callback must be a type of Function: ', callback);
+			util.warn('callback must be a type of Function: ', callback);
 			return;
 		}
 
@@ -219,7 +219,7 @@ var Module = Root.extend({
 	 */
 	fire: function(name, param, callback) {
 		if (!util.isString(name)) {
-			util.error('message\'s name must be a type of String: ', name);
+			util.warn('message\'s name must be a type of String: ', name);
 			return;
 		}
 
@@ -247,7 +247,7 @@ var Module = Root.extend({
 	 */
 	broadcast: function(name, param, callback) {
 		if (!util.isString(name)) {
-			util.error('message\'s name must be a type of String: ', name);
+			util.warn('message\'s name must be a type of String: ', name);
 			return false;
 		}
 
@@ -279,12 +279,12 @@ var Module = Root.extend({
 	 */
 	notify: function(receiver, name, param, callback) {
 		if (!util.isString(receiver)) {
-			util.error('receiver\'s name must be a type of String: ', name);
+			util.warn('receiver\'s name must be a type of String: ', name);
 			return false;
 		}
 
 		if (!util.isString(name)) {
-			util.error('message\'s name must be a type of String: ', name);
+			util.warn('message\'s name must be a type of String: ', name);
 			return false;
 		}
 
