@@ -6,6 +6,5 @@ script:
   - npm run cover
 branches:
     - master
-    - gh-pages
 after_success:
-	- bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash)
