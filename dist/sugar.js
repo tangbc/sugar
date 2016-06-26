@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jun 25 2016 20:17:56 GMT+0800 (CST)
+ * Sun Jun 26 2016 13:02:40 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -815,8 +815,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		globalCast: function(name, param) {
 			if (!util.isString(name)) {
-				util.warn('message\'s name must be a type of String: ', name);
-				return;
+				return util.warn('message\'s name must be a type of String: ', name);
 			}
 
 			messager.globalCast(name, param);
@@ -864,16 +863,13 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		create: function(name, Class, config) {
 			if (!util.isString(name)) {
-				util.warn('module\'s name must be a type of String: ', name);
-				return;
+				return util.warn('module\'s name must be a type of String: ', name);
 			}
 			if (!util.isFunc(Class)) {
-				util.warn('module\'s Class must be a type of Function: ', Class);
-				return;
+				return util.warn('module\'s Class must be a type of Function: ', Class);
 			}
 			if (config && !util.isObject(config)) {
-				util.warn('module\'s config must be a type of Object: ', config);
-				return;
+				return util.warn('module\'s config must be a type of Object: ', config);
 			}
 
 			var cls = this._;
@@ -888,8 +884,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 判断是否已经创建过
 			if (cls['childMap'][name]) {
-				util.warn('Module\'s name already exists: ', name);
-				return;
+				return util.warn('Module\'s name already exists: ', name);
 			}
 
 			// 生成子模块实例
@@ -1038,8 +1033,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 不合法的回调函数
 			if (!util.isFunc(callback)) {
-				util.warn('callback must be a type of Function: ', callback);
-				return;
+				return util.warn('callback must be a type of Function: ', callback);
 			}
 
 			// 参数必须为数组或 arguments 对象
@@ -1061,8 +1055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		fire: function(name, param, callback) {
 			if (!util.isString(name)) {
-				util.warn('message\'s name must be a type of String: ', name);
-				return;
+				return util.warn('message\'s name must be a type of String: ', name);
 			}
 
 			// 不传 param
@@ -1089,8 +1082,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		broadcast: function(name, param, callback) {
 			if (!util.isString(name)) {
-				util.warn('message\'s name must be a type of String: ', name);
-				return false;
+				return util.warn('message\'s name must be a type of String: ', name);
 			}
 
 			// 不传 param
@@ -1121,13 +1113,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		 */
 		notify: function(receiver, name, param, callback) {
 			if (!util.isString(receiver)) {
-				util.warn('receiver\'s name must be a type of String: ', name);
-				return false;
+				return util.warn('receiver\'s name must be a type of String: ', name);
 			}
 
 			if (!util.isString(name)) {
-				util.warn('message\'s name must be a type of String: ', name);
-				return false;
+				return util.warn('message\'s name must be a type of String: ', name);
 			}
 
 			// 不传 param
@@ -1502,8 +1492,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		if (!util.isObject(receiver)) {
-			util.warn('module: \'' + receiver + '\' is not found in cache!');
-			return false;
+			return util.warn('module: \'' + receiver + '\' is not found in cache!');
 		}
 
 		var msg = this._create(type, sender, name, param);
@@ -2131,13 +2120,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function Compiler(element, model) {
 		if (!this.isElementNode(element)) {
-			util.warn('element must be a type of DOMElement: ', element);
-			return;
+			return util.warn('element must be a type of DOMElement: ', element);
 		}
 
 		if (!util.isObject(model)) {
-			util.warn('model must be a type of Object: ', model);
-			return;
+			return util.warn('model must be a type of Object: ', model);
 		}
 
 		// 缓存根节点
@@ -2361,8 +2348,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			match = matches[0];
 			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			if (match.length !== text.length) {
-				util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
-				return;
+				return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
 			}
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 		}
@@ -2749,8 +2735,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var value = checkbox.value;
 
 		if (!util.isArray(values) && !util.isBool(values)) {
-			util.warn('checkbox v-model value must be a type of Boolean or Array!');
-			return;
+			return util.warn('checkbox v-model value must be a type of Boolean or Array!');
 		}
 
 		if (dom.hasAttr(checkbox, 'number')) {
@@ -2894,13 +2879,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	wp.watchModel = function(field, callback, context, args, deep) {
 		if (!util.hasOwn(this.$model, field)) {
-			util.warn('The field: "' + field + '" does not exist in model!');
-			return;
+			return util.warn('The field: "' + field + '" does not exist in model!');
 		}
 
 		if (field.indexOf('*') !== -1) {
-			util.warn('Model key cannot contain the character "*"!');
-			return;
+			return util.warn('Model key cannot contain the character "*"!');
 		}
 
 		this.addSubs(this.$modelSubs, field, callback, context, args);
@@ -3698,8 +3681,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var exp = this.toScope(expression);
 
 		if (regAviodKeyword.test(exp)) {
-			util.warn('Avoid using unallow keyword in expression: ' + exp);
-			return;
+			return util.warn('Avoid using unallow keyword in expression: ' + exp);
 		}
 
 		// 替换 vfor 取值域别名
@@ -3889,8 +3871,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// vel 在 vfor 循环中只能在当前循环体中赋值
 			if (alias !== fors.alias) {
-				util.warn('when v-el use in v-for must be defined inside current loop body!');
-				return;
+				return util.warn('when v-el use in v-for must be defined inside current loop body!');
 			}
 
 			scope = fors.scopes[alias];
@@ -4873,8 +4854,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	vstyle.updateStyle = function(node, styleObject, remove) {
 		if (!util.isObject(styleObject)) {
-			util.warn('v-bind for style must be a type of Object!', styleObject);
-			return;
+			return util.warn('v-bind for style must be a type of Object!', styleObject);
 		}
 
 		util.each(styleObject, function(value, style) {
@@ -4955,8 +4935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
 
 		if (inputs.indexOf(tagName) === -1) {
-			util.warn('v-model only for using in ' + inputs.join(', '));
-			return;
+			return util.warn('v-model only for using in ' + inputs.join(', '));
 		}
 
 		util.def(node, '_vmodel', field);
@@ -5143,22 +5122,19 @@ return /******/ (function(modules) { // webpackBootstrap
 		// 数据模型定义为单选
 		if (util.isString(value)) {
 			if (multi) {
-				util.warn('<select> cannot be multiple when the model set \'' + field + '\' as not Array!');
-				return;
+				return util.warn('<select> cannot be multiple when the model set \'' + field + '\' as not Array!');
 			}
 			isDefined = Boolean(value);
 		}
 		// 数据模型定义为多选
 		else if (util.isArray(value)) {
 			if (!multi) {
-				util.warn('the model \'' + field + '\' cannot set as Array when <select> has no multiple propperty!');
-				return;
+				return util.warn('the model \'' + field + '\' cannot set as Array when <select> has no multiple propperty!');
 			}
 			isDefined = value.length > 0;
 		}
 		else {
-			util.warn('the model ' + field + ' use in <select> must be a type of String or Array!');
-			return;
+			return util.warn('the model ' + field + ' use in <select> must be a type of String or Array!');
 		}
 
 		// 数据模型中定义初始的选中状态
