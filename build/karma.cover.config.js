@@ -11,7 +11,7 @@ module.exports = function(config) {
 		'frameworks': ['jasmine'],
 
 		// start these browsers
-		'browsers': ['Chrome'],
+		'browsers': ['PhantomJS'],
 
 		// list of files to load in the browser
 		'files': [

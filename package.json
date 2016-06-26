@@ -33,10 +33,12 @@
     "karma-coverage": "^1.0.0",
     "karma-firefox-launcher": "^1.0.0",
     "karma-jasmine": "^1.0.2",
+    "karma-phantomjs-launcher": "^1.0.1",
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.26",
     "karma-webpack": "^1.7.0",
+    "phantomjs": "^2.1.7",
     "uglify-js": "^2.6.2",
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.6.1"
