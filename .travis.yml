@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - 4
+script:
+  - npm run pack
+  - npm run cover
+branches:
+    - master
+    - gh-pages
+after_success:
+	- bash <(curl -s https://codecov.io/bash)
