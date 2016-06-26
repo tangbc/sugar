@@ -34,11 +34,22 @@ var mvp = MVVM.prototype;
 
 /**
  * 获取指定数据模型
+ * 如果获取的模型为对象或数组，将会保持引用关系
  * @param   {String}  key  [数据模型字段]
  * @return  {Mix}
  */
 mvp.get = function(key) {
 	return util.isString(key) ? this.$[key] : this.$;
+}
+
+/**
+ * 获取指定数据模型的副本
+ * 如果获取的模型为对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
+ * @param   {String}  key  [数据模型字段]
+ * @return  {Mix}
+ */
+mvp.getItem = function(key) {
+	return util.copy(this.get(key));
 }
 
 /**

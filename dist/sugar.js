@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sun Jun 26 2016 13:02:40 GMT+0800 (CST)
+ * Sun Jun 26 2016 19:46:44 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -467,7 +467,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			ret = this.extend(true, {}, target);
 		}
 
-		return ret;
+		return ret || target;
 	}
 
 	/**
@@ -2023,11 +2023,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 获取指定数据模型
+	 * 如果获取的模型数对象或数组，将会保持引用关系
 	 * @param   {String}  key  [数据模型字段]
 	 * @return  {Mix}
 	 */
 	mvp.get = function(key) {
 		return util.isString(key) ? this.$[key] : this.$;
+	}
+
+	/**
+	 * 获取指定数据模型的副本
+	 * 如果获取的模型数对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
+	 * @param   {String}  key  [数据模型字段]
+	 * @return  {Mix}
+	 */
+	mvp.getItem = function(key) {
+		var ret = this.get(key);
+		return util.copy(ret);
 	}
 
 	/**

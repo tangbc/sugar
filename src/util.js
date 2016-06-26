@@ -272,7 +272,7 @@ up.copy = function(target) {
 		ret = this.extend(true, {}, target);
 	}
 
-	return ret;
+	return ret || target;
 }
 
 /**
