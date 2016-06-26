@@ -10,7 +10,11 @@ describe("mvvm instance >", function() {
 
 		data = {
 			'vid': 'aaa',
-			'text': 'bbb'
+			'text': 'bbb',
+			'obj': {
+				'a': 1,
+				'b': 2
+			}
 		}
 
 		vm = new MVVM(element, data);
@@ -23,14 +27,40 @@ describe("mvvm instance >", function() {
 
 
 	it('get', function() {
+		var model = vm.get();
+		var objDescriptor = Object.getOwnPropertyDescriptor(model, 'obj');
+
 		// get one
 		expect(vm.get('vid')).toBe('aaa');
 
 		// get all
 		expect(vm.get()).toEqual({
 			'vid': 'aaa',
-			'text': 'bbb'
+			'text': 'bbb',
+			'obj': {
+				'a': 1,
+				'b': 2
+			}
 		});
+
+		expect(typeof objDescriptor.get).toBe('function');
+		expect(typeof objDescriptor.set).toBe('function');
+	});
+
+
+	it('getItem', function() {
+		// getItem returns model's copy
+		var modelCopy = vm.getItem();
+		var obj = modelCopy.obj;
+		var objDescriptor = Object.getOwnPropertyDescriptor(modelCopy, 'obj');
+		var obj_aDescriptor = Object.getOwnPropertyDescriptor(obj, 'a');
+
+		expect(typeof obj).toBe('object');
+		expect(objDescriptor.get).toBeUndefined();
+		expect(objDescriptor.set).toBeUndefined();
+
+		expect(obj_aDescriptor.get).toBeUndefined();
+		expect(obj_aDescriptor.set).toBeUndefined();
 	});
 
 
@@ -42,31 +72,47 @@ describe("mvvm instance >", function() {
 		// set object
 		vm.set({
 			'vid': 'AAA',
-			'text': 'bbb'
+			'text': 'bbb',
+			'obj': {
+				'x': 123
+			}
 		});
 		expect(data.vid).toBe('AAA');
 		expect(data.text).toBe('bbb');
+		expect(data.obj).toEqual({
+			'x': 123
+		});
 	});
 
 
 	it('reset', function() {
 		data.vid = 23333;
 		data.text = 94949494;
+		data.obj = {'x': 456};
 
 		// reset one
 		vm.reset('vid');
 		expect(data.vid).toBe('aaa');
 
 		// reset array
-		vm.reset(['text']);
+		vm.reset(['text', 'obj']);
 		expect(data.text).toBe('bbb');
+		expect(data.obj).toEqual({
+			'a': 1,
+			'b': 2
+		});
 
 		// reset all
 		data.vid = 23333;
 		data.text = 94949494;
+		data.obj = {'oo': 789};
 		vm.reset();
 		expect(data.vid).toBe('aaa');
 		expect(data.text).toBe('bbb');
+		expect(data.obj).toEqual({
+			'a': 1,
+			'b': 2
+		});
 	});
 
 
