@@ -1,3 +1,10 @@
+# sugar
+[![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
+[![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
+
+A lightweight JavaScript MVVM library for building web UI component.
+
+
 # 1. Intro
 
 * Easy way to develop Web Components with `Sugar.js`, support template layout and MVVM
@@ -25,7 +32,7 @@
 	* **`src/mvvm/`** A lightweight mvvm library, command system support v-text, v-model, v-bind, v-on, v-for and so on. **mvvm does not have any dependence on sugar, it can be used independently**. See more Api: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
 
 
-# 4. Component demo
+# 4. Demos
 There are some examples of the **`demos/`** directory, you can also preview the demos on the github.io
 
 * [Star rating](http://tangbc.github.io/sugar/demos/star)
@@ -36,7 +43,7 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 
 # 5. Usage & Environment
 * `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
-	* `sugar (about 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `sugar (about 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * Browser support: do not support IE8 and belove (used many ES5 characteristics)
@@ -124,6 +131,9 @@ You can modify code and preview this demo at [jsfiddle](https://jsfiddle.net/tan
 * `v1.0.4`
 	* `mvvm` Process `splice` action in `v-for` array operation
 * `v1.0.6`
-	* `mvvm` Fixes many issues, adding instruction expressions that depend on extracting and updating the view's stability
+	* `mvvm` Fixes many issues, add instruction expressions that depend on extracting and updating view's stability
 * `v1.0.8`
 	* `mvvm` Update v-bind for object/json can be used with a simple diff algorithm
+* `v1.1.0`
+	* Abandon requirejs (v1.0.8) and change test-runner to [Karma](https://github.com/karma-runner/karma)，add code coverage
+

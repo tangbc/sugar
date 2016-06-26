@@ -1,6 +1,11 @@
+# sugar
+[![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
+[![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
+
+
 # 1. 介绍
 
-* 一个用于开发前端模块化 UI 组件的轻量级 JavaScript 库/框架
+* 一个用于开发前端模块化 UI 组件的轻量级 JavaScript MVVM 库/框架
 
 * 简单的模块化组件开发方式；视图组件自带模板功能(支持异步请求)和 mvvm 模式
 
@@ -38,7 +43,7 @@
 
 # 5. 引用 & 环境
 * 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
-	* `sugar (约 42 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `sugar (约 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
@@ -130,3 +135,5 @@ var jobQA = Sugar.core.create('job', RadioComponent, {
 	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性
 * `v1.0.8`
 	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比
+* `v1.1.0`
+	* 摈弃 requirejs 的代码组织方式（v1.0.8）Test-runner 采用 [Karma](https://github.com/karma-runner/karma)，增加测试覆盖率的统计
