@@ -2,7 +2,6 @@ language: node_js
 node_js:
   - 4
 script:
-  - npm run pack
   - npm run cover
 branches:
     - master
