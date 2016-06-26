@@ -22,16 +22,13 @@ var Module = Root.extend({
 	 */
 	create: function(name, Class, config) {
 		if (!util.isString(name)) {
-			util.warn('module\'s name must be a type of String: ', name);
-			return;
+			return util.warn('module\'s name must be a type of String: ', name);
 		}
 		if (!util.isFunc(Class)) {
-			util.warn('module\'s Class must be a type of Function: ', Class);
-			return;
+			return util.warn('module\'s Class must be a type of Function: ', Class);
 		}
 		if (config && !util.isObject(config)) {
-			util.warn('module\'s config must be a type of Object: ', config);
-			return;
+			return util.warn('module\'s config must be a type of Object: ', config);
 		}
 
 		var cls = this._;
@@ -46,8 +43,7 @@ var Module = Root.extend({
 
 		// 判断是否已经创建过
 		if (cls['childMap'][name]) {
-			util.warn('Module\'s name already exists: ', name);
-			return;
+			return util.warn('Module\'s name already exists: ', name);
 		}
 
 		// 生成子模块实例
@@ -196,8 +192,7 @@ var Module = Root.extend({
 
 		// 不合法的回调函数
 		if (!util.isFunc(callback)) {
-			util.warn('callback must be a type of Function: ', callback);
-			return;
+			return util.warn('callback must be a type of Function: ', callback);
 		}
 
 		// 参数必须为数组或 arguments 对象
@@ -219,8 +214,7 @@ var Module = Root.extend({
 	 */
 	fire: function(name, param, callback) {
 		if (!util.isString(name)) {
-			util.warn('message\'s name must be a type of String: ', name);
-			return;
+			return util.warn('message\'s name must be a type of String: ', name);
 		}
 
 		// 不传 param
@@ -247,8 +241,7 @@ var Module = Root.extend({
 	 */
 	broadcast: function(name, param, callback) {
 		if (!util.isString(name)) {
-			util.warn('message\'s name must be a type of String: ', name);
-			return false;
+			return util.warn('message\'s name must be a type of String: ', name);
 		}
 
 		// 不传 param
@@ -279,13 +272,11 @@ var Module = Root.extend({
 	 */
 	notify: function(receiver, name, param, callback) {
 		if (!util.isString(receiver)) {
-			util.warn('receiver\'s name must be a type of String: ', name);
-			return false;
+			return util.warn('receiver\'s name must be a type of String: ', name);
 		}
 
 		if (!util.isString(name)) {
-			util.warn('message\'s name must be a type of String: ', name);
-			return false;
+			return util.warn('message\'s name must be a type of String: ', name);
 		}
 
 		// 不传 param

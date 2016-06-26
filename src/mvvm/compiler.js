@@ -23,13 +23,11 @@ var Vmodel = require('./parsers/vmodel');
  */
 function Compiler(element, model) {
 	if (!this.isElementNode(element)) {
-		util.warn('element must be a type of DOMElement: ', element);
-		return;
+		return util.warn('element must be a type of DOMElement: ', element);
 	}
 
 	if (!util.isObject(model)) {
-		util.warn('model must be a type of Object: ', model);
-		return;
+		return util.warn('model must be a type of Object: ', model);
 	}
 
 	// 缓存根节点
@@ -253,8 +251,7 @@ cp.compileText = function(node, fors) {
 		match = matches[0];
 		exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 		if (match.length !== text.length) {
-			util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
-			return;
+			return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
 		}
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
 	}

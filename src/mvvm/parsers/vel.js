@@ -21,8 +21,7 @@ vel.parse = function(fors, node, value) {
 
 		// vel 在 vfor 循环中只能在当前循环体中赋值
 		if (alias !== fors.alias) {
-			util.warn('when v-el use in v-for must be defined inside current loop body!');
-			return;
+			return util.warn('when v-el use in v-for must be defined inside current loop body!');
 		}
 
 		scope = fors.scopes[alias];

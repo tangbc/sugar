@@ -286,8 +286,7 @@ up.updateCheckboxChecked = function(checkbox, values) {
 	var value = checkbox.value;
 
 	if (!util.isArray(values) && !util.isBool(values)) {
-		util.warn('checkbox v-model value must be a type of Boolean or Array!');
-		return;
+		return util.warn('checkbox v-model value must be a type of Boolean or Array!');
 	}
 
 	if (dom.hasAttr(checkbox, 'number')) {

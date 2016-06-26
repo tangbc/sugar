@@ -164,8 +164,7 @@ p.getEval = function(fors, expression) {
 	var exp = this.toScope(expression);
 
 	if (regAviodKeyword.test(exp)) {
-		util.warn('Avoid using unallow keyword in expression: ' + exp);
-		return;
+		return util.warn('Avoid using unallow keyword in expression: ' + exp);
 	}
 
 	// 替换 vfor 取值域别名

@@ -278,8 +278,7 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 	}
 
 	if (!util.isObject(receiver)) {
-		util.warn('module: \'' + receiver + '\' is not found in cache!');
-		return false;
+		return util.warn('module: \'' + receiver + '\' is not found in cache!');
 	}
 
 	var msg = this._create(type, sender, name, param);

@@ -53,8 +53,7 @@ vmodel.parse = function(fors, node, field) {
 	var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
 
 	if (inputs.indexOf(tagName) === -1) {
-		util.warn('v-model only for using in ' + inputs.join(', '));
-		return;
+		return util.warn('v-model only for using in ' + inputs.join(', '));
 	}
 
 	util.def(node, '_vmodel', field);
@@ -241,22 +240,19 @@ vmodel.parseSelect = function(node, value, deps, duplex, field) {
 	// 数据模型定义为单选
 	if (util.isString(value)) {
 		if (multi) {
-			util.warn('<select> cannot be multiple when the model set \'' + field + '\' as not Array!');
-			return;
+			return util.warn('<select> cannot be multiple when the model set \'' + field + '\' as not Array!');
 		}
 		isDefined = Boolean(value);
 	}
 	// 数据模型定义为多选
 	else if (util.isArray(value)) {
 		if (!multi) {
-			util.warn('the model \'' + field + '\' cannot set as Array when <select> has no multiple propperty!');
-			return;
+			return util.warn('the model \'' + field + '\' cannot set as Array when <select> has no multiple propperty!');
 		}
 		isDefined = value.length > 0;
 	}
 	else {
-		util.warn('the model ' + field + ' use in <select> must be a type of String or Array!');
-		return;
+		return util.warn('the model ' + field + ' use in <select> must be a type of String or Array!');
 	}
 
 	// 数据模型中定义初始的选中状态
