@@ -1,8 +1,7 @@
 # sugar
+
 [![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
-
-A lightweight JavaScript MVVM library for building web UI component.
 
 
 # 1. Intro
@@ -12,11 +11,13 @@ A lightweight JavaScript MVVM library for building web UI component.
 * `Sugar.js` consists of two independent parts: **`sugar`** (Component system) and **`mvvm`** (DataBinding + ViewRefresh)
 
 
-# 2. Diagram of Sugar
+# 2. Diagram
+
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="666">
 
 
-# 3. Directory structure
+# 3. Directory
+
 * `test/` Test files directory
 
 * `build/` Webpack config files
@@ -33,6 +34,7 @@ A lightweight JavaScript MVVM library for building web UI component.
 
 
 # 4. Demos
+
 There are some examples of the **`demos/`** directory, you can also preview the demos on the github.io
 
 * [Star rating](http://tangbc.github.io/sugar/demos/star)
@@ -40,8 +42,11 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 * [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
 * [Simple TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
 
+You can edit and preview a Radio-Component at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
 
-# 5. Usage & Environment
+
+# 5. Usage
+
 * `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
 	* `sugar (about 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
@@ -49,91 +54,31 @@ There are some examples of the **`demos/`** directory, you can also preview the 
 * Browser support: do not support IE8 and belove (used many ES5 characteristics)
 
 
-# 6. For example
-Here to define, create a simple reusable `radio` components as an example:
-```html
-<div id="radio-box-phone"></div>
-<hr/>
-<div id="radio-box-job"></div>
-```
+# 6. ChangeLog
 
-```javascript
-// Defines a general radio frame assembly, to generate the specified radio data
-var RadioComponent = Sugar.Component.extend({
-	// Initialize the component configuration data
-	init: function(config) {
-		config = this.cover(config, {
-			// component layout, you can also use `template: xxx.html` to load external template
-			'html' : `
-				<h2>Q: {{ title }}</h2>
-				<h2>A: {{ selected }}</h2>
-				<ul>
-					<li v-for="item in items">
-						<label>
-							<input type="radio" v-bind:value="item.value"  v-model="selected">
-							{{ item.value }}
-						</label>
-					</li>
-				</ul>
-			`,
-			// MVVM data model
-			'model': {
-      			'title'   : config.title,
-				'items'   : config.items,
-				'selected': config.selected
-			}
-		});
-		this.Super('init', arguments);
-	}
-});
-
-// Use RadioComponent create a `phoneQA` component instance
-var phoneQA = Sugar.core.create('phone', RadioComponent, {
-	'target'  : document.querySelector('#radio-box-phone'),
- 	'title'   : 'What cell phone do you use ? ',
-	'selected': 'iPhone',
-	'items'   : [
-		{'value': 'iPhone'},
-		{'value': 'XiaoMi'},
-		{'value': 'Meizux'},
-		{'value': 'HuaWei'},
-    	{'value': 'Others'}
-	]
-});
-// Use RadioComponent create a `jobQA` component instance
-var jobQA = Sugar.core.create('job', RadioComponent, {
-	'target'  : document.querySelector('#radio-box-job'),
-  	'title'   : 'What\'s your job ? ',
-	'selected': 'Programmer',
-	'items'   : [
-		{'value': 'Doctor'},
-		{'value': 'Programmer'},
-		{'value': 'Teacher'},
-		{'value': 'Student'},
-    	{'value': 'Others'}
-	]
-});
-
-```
-Finally, we can see two independent radio components in web interface:
-
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-radio-example">
-
-You can modify code and preview this demo at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
-
-
-# 7. Majoy update log
 * `v1.0`
-	* `sugar` Basic component system
-	* `mvvm` Support basic model instruction (static expression)
+	* `sugar` basic component system
+	* `mvvm` support basic model instruction (static expression)
 * `v1.0.2`
-	* `mvvm` Support dynamic instruction expressions: `<p v-text="isError ? errorMsg : sucMsg"></p>`
+	* `mvvm` support dynamic instruction expressions: `<div v-text="isError ? err_msg : suc_msg"></div>`
 * `v1.0.4`
-	* `mvvm` Process `splice` action in `v-for` array operation
+	* `mvvm` process splice action in v-for array operation
 * `v1.0.6`
-	* `mvvm` Fixes many issues, add instruction expressions that depend on extracting and updating view's stability
+	* `mvvm` fixes many issues, add instruction expressions that depend on extracting and updating view's stability
 * `v1.0.8`
-	* `mvvm` Update v-bind for object/json can be used with a simple diff algorithm
+	* `mvvm` update v-bind for object/json can be used with a simple diff algorithm
 * `v1.1.0`
-	* Abandon requirejs (v1.0.8) and change test-runner to [Karma](https://github.com/karma-runner/karma)，add code coverage
+	* abandon requirejs (v1.0.8) and change test-runner to [Karma](https://github.com/karma-runner/karma)，add code coverage
 
+
+# 7. Contribution
+
+1. Clone to local **`git clone https://github.com/tangbc/sugar.git`**
+
+2. Install Nodejs packages：**`npm install`**
+
+3. Uint test：**`npm run test`**
+
+4. Generate the code coverage report：**`npm run cover`**
+
+5. Pack and uglify source code：**`npm run pack`**

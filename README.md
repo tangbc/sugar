@@ -1,4 +1,5 @@
 # sugar
+
 [![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
 
@@ -13,10 +14,12 @@
 
 
 # 2. 框架组成
+
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
 
 
 # 3. 项目结构
+
 * `test/` 单元测试以及其他测试用例
 
 * `build/` webpack 打包配置文件目录
@@ -33,15 +36,19 @@
 
 
 # 4. 组件示例
-**`demos/`**  目录做了些示例，也可在 github.io 上在线预览效果：
+
+**`demos/`**  目录做了些示例，也可在线预览效果：
 
 * [打星评分组件](http://tangbc.github.io/sugar/demos/star/)
 * [简单的日期选择组件](http://tangbc.github.io/sugar/demos/date/)
 * [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
 * [简单的 TodoMVC 应用](http://tangbc.github.io/sugar/demos/todoMVC)
 
+在 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/) 上编辑一个可复用的 `radio` 组件
+
 
 # 5. 引用 & 环境
+
 * 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
 	* `sugar (约 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
@@ -49,91 +56,32 @@
 * 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
 
 
-# 6. 举个栗子
+# 6. 主要更新日志
 
-这里以定义、创建一个简单可复用的 `radio` 组件为例：
-```html
-<div id="radio-box-phone"></div>
-<hr/>
-<div id="radio-box-job"></div>
-```
-
-```javascript
-// 定义一个通用单选框组件，实现的功能：生成指定的 radio 数据
-var RadioComponent = Sugar.Component.extend({
-	// 初始化组件配置数据
-	init: function(config) {
-		config = this.cover(config, {
-			// 组件布局，也可以通过 tempalte: xxx.html 来加载外部模板
-			'html' : `
-				<h2>Q: {{ title }}</h2>
-				<h2>A: {{ selected }}</h2>
-				<ul>
-					<li v-for="item in items">
-						<label>
-							<input type="radio" v-bind:value="item.value"  v-model="selected">
-							{{ item.value }}
-						</label>
-					</li>
-				</ul>
-			`,
-			// MVVM 数据模型
-			'model': {
-      			'title'   : config.title,
-				'items'   : config.items,
-				'selected': config.selected
-			}
-		});
-		this.Super('init', arguments);
-	}
-});
-
-// 用 RadioComponent 生成一个 phoneQA 的组件实例
-var phoneQA = Sugar.core.create('phone', RadioComponent, {
-	'target'  : document.querySelector('#radio-box-phone'),
- 	'title'   : 'What cell phone do you use ? ',
-	'selected': 'iPhone',
-	'items'   : [
-		{'value': 'iPhone'},
-		{'value': 'XiaoMi'},
-		{'value': 'Meizux'},
-		{'value': 'HuaWei'},
-    	{'value': 'Others'}
-	]
-});
-// 用 RadioComponent 生成一个 jobQA 的组件实例
-var jobQA = Sugar.core.create('job', RadioComponent, {
-	'target'  : document.querySelector('#radio-box-job'),
-  	'title'   : 'What\'s your job ? ',
-	'selected': 'Programmer',
-	'items'   : [
-		{'value': 'Doctor'},
-		{'value': 'Programmer'},
-		{'value': 'Teacher'},
-		{'value': 'Student'},
-    	{'value': 'Others'}
-	]
-});
-
-```
-最终生成的两个独立的 `radio` 视图组件实例：
-
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-radio-example">
-
-可在线修改本例的代码及预览 [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/)
-
-
-# 7. 主要更新日志
 * `v1.0`
 	* `sugar` 基础的组件系统和模块化创建方式
 	* `mvvm` 支持基础数据模型指令（静态表达式）
 * `v1.0.2`
-	* `mvvm` 支持动态指令表达式: `<p v-text="isError ? errorMsg : sucMsg"></p>`
+	* `mvvm` 支持动态指令表达式: `<div v-text="isError ? err_msg : suc_msg"></div>`
 * `v1.0.4`
-	* `mvvm` 细节化 v-for 指令的 `splice` 操作
+	* `mvvm` 细节化 v-for 指令的 splice 操作
 * `v1.0.6`
 	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性
 * `v1.0.8`
 	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比
 * `v1.1.0`
 	* 摈弃 requirejs 的代码组织方式（v1.0.8）Test-runner 采用 [Karma](https://github.com/karma-runner/karma)，增加测试覆盖率的统计
+
+
+# 7. 交流 & 贡献
+
+1. 拉取代码：**`git clone https://github.com/tangbc/sugar.git`**
+
+2. 安装开发测试所需的 Nodejs 包：**`npm install`**
+
+3. 进行单元测试：**`npm run test`**
+
+4. 生成测试覆盖率统计文件：**`npm run cover`**
+
+5. 打包压缩项目代码：**`npm run pack`**
+
