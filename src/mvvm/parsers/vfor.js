@@ -211,6 +211,33 @@ vfor.update = function(parent, node, newArray, method, updates, args) {
 }
 
 /**
+ * 更新数组操作的取值域
+ * @param   {Object}  update
+ * @return  {Object}
+ */
+vfor.updateScopes = function(update) {
+	var maps = update.maps;
+	var scopes = update.scopes;
+	var accesses = update.accesses;
+	var aleng = accesses.length;
+	var targetPaths, model = this.vm.$data;
+
+	// 更新嵌套数组的取值域
+	if (aleng > 1) {
+		targetPaths = util.makePaths(accesses[aleng - 1]);
+		// 对每一个取值域进行更新
+		util.each(util.makeScopePaths(targetPaths), function(paths) {
+			var index = paths.length - 2;
+			var alias = maps[paths[index]];
+			var scope = util.getDeepValue(model, paths) || {};
+			scopes[alias] = scope;
+		});
+	}
+
+	return scopes;
+}
+
+/**
  * 获取 shift 或 unshift 操作对应列表下标变化的关系
  * @param   {String}  method  [数组操作]
  * @param   {Number}  length  [新数组长度]
@@ -244,7 +271,8 @@ vfor.push = function(parent, node, newArray, method, up) {
 	var last = newArray.length - 1;
 	var alias = up.alias;
 	var list = [newArray[last]];
-	var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+	var scopes = this.updateScopes(up);
+	var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 	var lastChild = this.getLast(parent, alias);
 	var template = this.buildList.apply(this, listArgs);
 
@@ -274,7 +302,8 @@ vfor.unshift = function(parent, node, newArray, method, up) {
 	var alias = up.alias;
 	var list = [newArray[0]];
 	var map, template, firstChild;
-	var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+	var scopes = this.updateScopes(up);
+	var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 	// 移位相关的订阅回调
 	map = this.getChanges(method, newArray.length);
@@ -318,7 +347,7 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
 		return;
 	}
 
-	var i, template, startChild, listArgs, udf;
+	var i, template, startChild, listArgs, udf, scopes;
 	var map = {}, alias = up.alias, length = newArray.length;
 
 	// 只删除 splice(2, 1);
@@ -369,8 +398,10 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
 
 		// 开始的元素
 		startChild = this.getChild(parent, alias, start);
+		// 新取值域
+		scopes = this.updateScopes(up);
 		// 编译新添加的列表
-		listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+		listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 		// 新增列表模板
 		template = this.buildList.apply(this, listArgs);
 
@@ -481,7 +512,8 @@ vfor.recompile = function(parent, node, newArray, method, up) {
 	var child, scapegoat;
 	var template, alias = up.alias;
 	var childNodes = parent.childNodes;
-	var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+	var scopes = this.updateScopes(up);
+	var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 	// 移除旧的监测
 	this.vm.watcher.removeSubs(up.access);
