@@ -91,25 +91,6 @@ function getAlias(fors, expression) {
 	return alias;
 }
 
-/**
- * 生成取值路径数组
- * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
- * @param   {Array}  paths
- * @return  {Array}
- */
-function makeScopePaths(paths) {
-	var index = 0, scopePaths = [];
-
-	if (paths.length % 2 === 0) {
-		while (index < paths.length) {
-			index += 2;
-			scopePaths.push(paths.slice(0, index));
-		}
-	}
-
-	return scopePaths;
-}
-
 
 /**
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -232,9 +213,9 @@ p.getScope = function(fors, expression) {
  * @return  {Mix}
  */
 p.updateScope = function(oldScope, maps, deps, args) {
-	var targetPaths;
 	var leng = 0, $scope = {};
 	var model = this.getModel();
+	var targetPaths, scopePaths;
 	var accesses = util.copy(deps.acc);
 
 	// 获取最深层的依赖
@@ -249,7 +230,10 @@ p.updateScope = function(oldScope, maps, deps, args) {
 
 	// 更新 vfor 取值
 	if (targetPaths) {
-		util.each(makeScopePaths(targetPaths), function(paths) {
+		// 取值路径数组
+		scopePaths = util.makeScopePaths(targetPaths);
+		// 对每一个取值路径进行更新
+		util.each(scopePaths, function(paths) {
 			var leng = paths.length;
 
 			// 更新下标的情况通过变更参数来确定

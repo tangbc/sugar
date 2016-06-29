@@ -472,4 +472,23 @@ up.getDeepValue = function(target, paths) {
 	return target;
 }
 
+/**
+ * 生成取值路径数组
+ * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
+ * @param   {Array}  paths
+ * @return  {Array}
+ */
+up.makeScopePaths = function(paths) {
+	var index = 0, scopePaths = [];
+
+	if (paths.length % 2 === 0) {
+		while (index < paths.length) {
+			index += 2;
+			scopePaths.push(paths.slice(0, index));
+		}
+	}
+
+	return scopePaths;
+}
+
 module.exports = new Util();
