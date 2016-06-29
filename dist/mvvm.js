@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sun Jun 26 2016 19:46:44 GMT+0800 (CST)
+ * Wed Jun 29 2016 16:01:19 GMT+0800 (CST)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -97,7 +97,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 获取指定数据模型
-	 * 如果获取的模型数对象或数组，将会保持引用关系
+	 * 如果获取的模型为对象或数组，将会保持引用关系
 	 * @param   {String}  key  [数据模型字段]
 	 * @return  {Mix}
 	 */
@@ -107,13 +107,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	/**
 	 * 获取指定数据模型的副本
-	 * 如果获取的模型数对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
+	 * 如果获取的模型为对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
 	 * @param   {String}  key  [数据模型字段]
 	 * @return  {Mix}
 	 */
 	mvp.getItem = function(key) {
-		var ret = this.get(key);
-		return util.copy(ret);
+		return util.copy(this.get(key));
 	}
 
 	/**
@@ -653,6 +652,25 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		return target;
+	}
+
+	/**
+	 * 生成取值路径数组
+	 * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
+	 * @param   {Array}  paths
+	 * @return  {Array}
+	 */
+	up.makeScopePaths = function(paths) {
+		var index = 0, scopePaths = [];
+
+		if (paths.length % 2 === 0) {
+			while (index < paths.length) {
+				index += 2;
+				scopePaths.push(paths.slice(0, index));
+			}
+		}
+
+		return scopePaths;
 	}
 
 	module.exports = new Util();
@@ -2333,25 +2351,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		return alias;
 	}
 
-	/**
-	 * 生成取值路径数组
-	 * [items, 0, ps, 0] => [[items, 0], [items, 0, ps, 0]]
-	 * @param   {Array}  paths
-	 * @return  {Array}
-	 */
-	function makeScopePaths(paths) {
-		var index = 0, scopePaths = [];
-
-		if (paths.length % 2 === 0) {
-			while (index < paths.length) {
-				index += 2;
-				scopePaths.push(paths.slice(0, index));
-			}
-		}
-
-		return scopePaths;
-	}
-
 
 	/**
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -2474,9 +2473,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return  {Mix}
 	 */
 	p.updateScope = function(oldScope, maps, deps, args) {
-		var targetPaths;
 		var leng = 0, $scope = {};
 		var model = this.getModel();
+		var targetPaths, scopePaths;
 		var accesses = util.copy(deps.acc);
 
 		// 获取最深层的依赖
@@ -2491,7 +2490,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		// 更新 vfor 取值
 		if (targetPaths) {
-			util.each(makeScopePaths(targetPaths), function(paths) {
+			// 取值路径数组
+			scopePaths = util.makeScopePaths(targetPaths);
+			// 对每一个取值路径进行更新
+			util.each(scopePaths, function(paths) {
 				var leng = paths.length;
 
 				// 更新下标的情况通过变更参数来确定
@@ -2866,6 +2868,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	/**
+	 * 更新数组操作的取值域
+	 * @param   {Object}  update
+	 * @return  {Object}
+	 */
+	vfor.updateScopes = function(update) {
+		var maps = update.maps;
+		var scopes = update.scopes;
+		var accesses = update.accesses;
+		var aleng = accesses.length;
+		var targetPaths, model = this.vm.$data;
+
+		// 更新嵌套数组的取值域
+		if (aleng > 1) {
+			targetPaths = util.makePaths(accesses[aleng - 1]);
+			// 对每一个取值域进行更新
+			util.each(util.makeScopePaths(targetPaths), function(paths) {
+				var index = paths.length - 2;
+				var alias = maps[paths[index]];
+				var scope = util.getDeepValue(model, paths) || {};
+				scopes[alias] = scope;
+			});
+		}
+
+		return scopes;
+	}
+
+	/**
 	 * 获取 shift 或 unshift 操作对应列表下标变化的关系
 	 * @param   {String}  method  [数组操作]
 	 * @param   {Number}  length  [新数组长度]
@@ -2899,7 +2928,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		var last = newArray.length - 1;
 		var alias = up.alias;
 		var list = [newArray[last]];
-		var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+		var scopes = this.updateScopes(up);
+		var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 		var lastChild = this.getLast(parent, alias);
 		var template = this.buildList.apply(this, listArgs);
 
@@ -2929,7 +2959,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		var alias = up.alias;
 		var list = [newArray[0]];
 		var map, template, firstChild;
-		var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+		var scopes = this.updateScopes(up);
+		var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 		// 移位相关的订阅回调
 		map = this.getChanges(method, newArray.length);
@@ -2973,7 +3004,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return;
 		}
 
-		var i, template, startChild, listArgs, udf;
+		var i, template, startChild, listArgs, udf, scopes;
 		var map = {}, alias = up.alias, length = newArray.length;
 
 		// 只删除 splice(2, 1);
@@ -3024,8 +3055,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 开始的元素
 			startChild = this.getChild(parent, alias, start);
+			// 新取值域
+			scopes = this.updateScopes(up);
 			// 编译新添加的列表
-			listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+			listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 			// 新增列表模板
 			template = this.buildList.apply(this, listArgs);
 
@@ -3136,7 +3169,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		var child, scapegoat;
 		var template, alias = up.alias;
 		var childNodes = parent.childNodes;
-		var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, up.scopes, up.maps, up.level];
+		var scopes = this.updateScopes(up);
+		var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 		// 移除旧的监测
 		this.vm.watcher.removeSubs(up.access);
