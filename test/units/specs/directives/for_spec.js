@@ -423,6 +423,7 @@ describe("v-for >", function() {
 					'<span v-for="sub in item.subs">' +
 						'{{ item.text + \'_\' + sub.text }}' +
 					'</span>' +
+					' ' +
 				'</li>' +
 			'</ul>'
 
@@ -436,9 +437,45 @@ describe("v-for >", function() {
 		var items = data.items;
 		var ul = element.querySelector('#test7');
 
-		expect(ul.textContent).toBe('A-A_aB-B_b');
+		expect(ul.textContent).toBe('A-A_a B-B_b ');
 
-		items[1].subs[0].text = 'bbb';
-		expect(ul.textContent).toBe('A-A_aB-B_bbb');
+		items[0].text = 'A1';
+		expect(ul.textContent).toBe('A1-A1_a B-B_b ');
+
+		items[0].subs[0].text = 'a1';
+		expect(ul.textContent).toBe('A1-A1_a1 B-B_b ');
+
+		items[1].text = 'B1';
+		expect(ul.textContent).toBe('A1-A1_a1 B1-B1_b ');
+
+		items[1].subs[0].text = 'b1';
+		expect(ul.textContent).toBe('A1-A1_a1 B1-B1_b1 ');
+
+		items[0].text = 'A2';
+		expect(ul.textContent).toBe('A2-A2_a1 B1-B1_b1 ');
+
+		items[0].subs[0].text = 'a2';
+		expect(ul.textContent).toBe('A2-A2_a2 B1-B1_b1 ');
+
+		items[0].subs.push({'text': 'a3'});
+		expect(ul.textContent).toBe('A2-A2_a2A2_a3 B1-B1_b1 ');
+
+		items[1].subs.push({'text': 'b2'});
+		expect(ul.textContent).toBe('A2-A2_a2A2_a3 B1-B1_b1B1_b2 ');
+
+		items[1].subs = [{'text': 'b3'}];
+		expect(ul.textContent).toBe('A2-A2_a2A2_a3 B1-B1_b3 ');
+
+		items[1].subs[0].text = 'b4';
+		expect(ul.textContent).toBe('A2-A2_a2A2_a3 B1-B1_b4 ');
+
+		items[0].subs.pop();
+		expect(ul.textContent).toBe('A2-A2_a2 B1-B1_b4 ');
+
+		items[0].subs.unshift({'text': 'a0'});
+		expect(ul.textContent).toBe('A2-A2_a0A2_a2 B1-B1_b4 ');
+
+		items[0].subs.shift();
+		expect(ul.textContent).toBe('A2-A2_a2 B1-B1_b4 ');
 	});
 });
