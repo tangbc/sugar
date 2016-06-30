@@ -4,3 +4,4 @@ bin
 temp
 npm-debug.log
 test/coverage
+bundle
