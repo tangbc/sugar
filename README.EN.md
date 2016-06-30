@@ -77,8 +77,12 @@ You can edit and preview a Radio-Component at [jsfiddle](https://jsfiddle.net/ta
 
 2. Install Nodejs packages：**`npm install`**
 
-3. Uint test：**`npm run test`**
+3. Debug for `sugar` ：**`npm run dev-sugar`**
 
-4. Generate the code coverage report：**`npm run cover`**
+4. Debug for `mvvm` ：**`npm run dev-mvvm`**
 
-5. Pack and uglify source code：**`npm run pack`**
+5. Uint test：**`npm run test`**
+
+6. Generate the code coverage report：**`npm run cover`**
+
+7. Pack and uglify source code：**`npm run pack`**

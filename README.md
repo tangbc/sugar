@@ -79,9 +79,12 @@
 
 2. 安装开发测试所需的 Nodejs 包：**`npm install`**
 
-3. 进行单元测试：**`npm run test`**
+3. 开发调试 `sugar` ：**`npm run dev-sugar`**
 
-4. 生成测试覆盖率统计文件：**`npm run cover`**
+4. 开发调试 `mvvm` ：**`npm run dev-mvvm`**
 
-5. 打包压缩项目代码：**`npm run pack`**
+5. 进行单元测试：**`npm run test`**
 
+6. 生成测试覆盖率统计文件：**`npm run cover`**
+
+7. 打包压缩项目代码：**`npm run pack`**
