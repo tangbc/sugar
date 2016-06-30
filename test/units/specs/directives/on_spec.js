@@ -126,6 +126,34 @@ describe("v-on >", function() {
 	});
 
 
+	it('use .self to trigger event on self node', function() {
+		element.innerHTML =
+			'<div id="outer" v-on:click.self="outer">' +
+				'<span id="inner" v-on:click="inner"></span>' +
+			'</div>'
+
+		var outerCount = 0, innerCount = 0;
+		var vm = new MVVM(element, {
+			'outer': function() {
+				outerCount++;
+			},
+			'inner': function() {
+				innerCount++;
+			}
+		});
+		var outer = element.querySelector('#outer');
+		var inner = element.querySelector('#inner');
+
+		triggerEvent(outer, 'click');
+		expect(outerCount).toBe(1);
+		expect(innerCount).toBe(0);
+
+		triggerEvent(inner, 'click');
+		expect(outerCount).toBe(1); // if not set .self, here should be 2 becasue propagation
+		expect(innerCount).toBe(1);
+	});
+
+
 	it('a default situation', function() {
 		element.innerHTML = '<a id="el" href="#abc" v-on:click="test"></a>';
 
