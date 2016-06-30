@@ -18,6 +18,15 @@ var bannerConfig = {
 	'raw'      : false,
 	'entryOnly': false
 }
+// https://github.com/babel/babel-loader
+var babelLoader = {
+	'test': /\.js$/,
+	'exclude': /(node_modules|bower_components)/,
+	'loader': 'babel', // 'babel-loader' is also a legal name to reference
+	'query': {
+		'presets': ['es2015']
+	}
+}
 
 
 var mvvm = {
@@ -27,6 +36,9 @@ var mvvm = {
 		'library'      : 'MVVM',
 		'filename'     : 'mvvm.js',
 		'libraryTarget': 'umd'
+	},
+	'module': {
+		'loaders': [babelLoader]
 	},
 	'plugins': [
 		new webpack.BannerPlugin(banner.mvvm, bannerConfig)
@@ -39,6 +51,9 @@ var mvvmUglify = {
 		'library'      : 'MVVM',
 		'filename'     : 'mvvm.min.js',
 		'libraryTarget': 'umd'
+	},
+	'module': {
+		'loaders': [babelLoader]
 	},
 	'plugins': [
 		new webpack.optimize.UglifyJsPlugin(uglifyConifg),
@@ -54,6 +69,9 @@ var sugar = {
 		'filename'     : 'sugar.js',
 		'libraryTarget': 'umd'
 	},
+	'module': {
+		'loaders': [babelLoader]
+	},
 	'plugins': [
 		new webpack.BannerPlugin(banner.sugar, bannerConfig)
 	]
@@ -65,6 +83,9 @@ var sugarUglify = {
 		'library'      : 'Sugar',
 		'filename'     : 'sugar.min.js',
 		'libraryTarget': 'umd'
+	},
+	'module': {
+		'loaders': [babelLoader]
 	},
 	'plugins': [
 		new webpack.optimize.UglifyJsPlugin(uglifyConifg),
