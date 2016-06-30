@@ -2,18 +2,27 @@ var Observer = require('src/mvvm/observer');
 
 describe('Observer >', function() {
 
+	var callback, access, newValue, oldValue, args;
+
+	beforeEach(function() {
+		callback = function(path, last, old, arg) {
+			access = path;
+			newValue = last;
+			oldValue = old;
+			args = arg;
+		}
+	});
+
+	afterEach(function() {
+		callback = access = newValue = oldValue = args = undefined;
+	});
+
 	it('normal filed change', function() {
 		var data = {};
 		data.normal = 111;
 		data.arr = ['a'];
 		data.obj = {'a': 1}
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.normal = 222;
@@ -46,12 +55,6 @@ describe('Observer >', function() {
 		var data = {};
 		data.arr = ['a', 'b', 'c'];
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.arr[0] = 'aaa';
@@ -71,12 +74,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.arr[0].text = 'a333';
@@ -102,13 +99,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.push({'text': 'ddd', 'cap': 'D'});
@@ -134,13 +124,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.pop();
@@ -164,13 +147,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.unshift({'text': 'xxx', 'cap': 'X'});
@@ -196,13 +172,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.shift();
@@ -226,13 +195,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.$set(1, {'text': 'bxxx', 'cap': 'BBX'});
@@ -271,13 +233,6 @@ describe('Observer >', function() {
 			{'text': 'ccc', 'cap': 'C'}
 		];
 
-		var access, newValue, oldValue, args;
-		var callback = function(path, last, old, arg) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-			args = arg;
-		}
 		new Observer(data, callback, this);
 
 		data.arr.$remove(data.arr[1]);
@@ -310,12 +265,6 @@ describe('Observer >', function() {
 			}
 		];
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.arr[1].classObject.cavs_2 = true;
@@ -362,12 +311,6 @@ describe('Observer >', function() {
 			}
 		];
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.arr[1].subs[0].text = 'CCC';
@@ -411,12 +354,6 @@ describe('Observer >', function() {
 			}
 		];
 
-		var access, newValue, oldValue;
-		var callback = function(path, last, old) {
-			access = path;
-			newValue = last;
-			oldValue = old;
-		}
 		new Observer(data, callback, this);
 
 		data.arr[0].subs[0].classObject.gsw_b = false;
