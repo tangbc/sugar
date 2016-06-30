@@ -46,7 +46,17 @@ module.exports = function(config) {
 					'src': path.resolve(__dirname, '../src'),
 					'mvvm': path.resolve(__dirname, '../src/mvvm/index')
 				}
-			}
+			},
+			'loaders': [
+				{
+					'test': /\.js$/,
+					'exclude': /(node_modules|bower_components)/,
+					'loader': 'babel', // 'babel-loader' is also a legal name to reference
+					'query': {
+						'presets': ['es2015']
+					}
+				}
+			]
 		},
 
 		// webpack middleware config
