@@ -19,11 +19,16 @@
   "scripts": {
     "cover": "karma start build/karma.cover.config.js",
     "test": "karma start build/karma.unit.config.js",
-    "pack": "webpack --config build/webpack.config.js"
+    "pack": "webpack --config build/webpack.pack.js",
+    "dev-mvvm": "webpack --watch --config build/webpack.dev.mvvm.js",
+    "dev-sugar": "webpack --watch --config build/webpack.dev.sugar.js"
   },
   "author": "TANG",
   "license": "MIT",
   "devDependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
     "gulp": "^3.9.0",
     "gulp-jshint": "^1.11.2",
     "istanbul-instrumenter-loader": "^0.2.0",
