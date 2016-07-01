@@ -23,7 +23,7 @@ module.exports = function(config) {
 
 		// list of files to load in the browser
 		'files': [
-			'specs/instance_spec.js'
+			'index.js'
 		],
 
 		// enable / disable watching file and executing tests whenever any file changes
@@ -35,7 +35,7 @@ module.exports = function(config) {
 
 		// list of preprocessors
 		'preprocessors': {
-			'specs/instance_spec.js': ['webpack', 'sourcemap']
+			'index.js': ['webpack', 'sourcemap']
 		},
 
 		// webpack config
@@ -47,19 +47,21 @@ module.exports = function(config) {
 					'mvvm': path.resolve(__dirname, '../src/mvvm/index')
 				}
 			},
-			'loaders': [
-				{
-					'test': /\.js$/,
-					'exclude': [
-						path.resolve(__dirname, '../test/units'),
-						path.resolve(__dirname, '../node_modules')
-					],
-					'loader': 'babel', // 'babel-loader' is also a legal name to reference
-					'query': {
-						'presets': ['es2015']
+			'module': {
+				'loaders': [
+					{
+						'test': /\.js$/,
+						'exclude': [
+							path.resolve(__dirname, '../test/units'),
+							path.resolve(__dirname, '../node_modules')
+						],
+						'loader': 'babel', // 'babel-loader' is also a legal name to reference
+						'query': {
+							'presets': ['es2015']
+						}
 					}
-				}
-			]
+				]
+			}
 		},
 
 		// webpack middleware config

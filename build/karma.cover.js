@@ -33,19 +33,6 @@ module.exports = function(config) {
 			'reporters': [
 				{'type': 'lcov', 'subdir': '.'},
 				{'type': 'text-summary', 'subdir': '.'}
-			],
-			'loaders': [
-				{
-					'test': /\.js$/,
-					'exclude': 'exclude': [
-						path.resolve(__dirname, '../test/units'),
-						path.resolve(__dirname, '../node_modules')
-					],
-					'loader': 'babel', // 'babel-loader' is also a legal name to reference
-					'query': {
-						'presets': ['es2015']
-					}
-				}
 			]
 		},
 
@@ -74,6 +61,19 @@ module.exports = function(config) {
 						'test': /\.js$/,
 						'exclude': /test|node_modules/,
 						'loader': 'istanbul-instrumenter'
+					}
+				],
+				'loaders': [
+					{
+						'test': /\.js$/,
+						'exclude': [
+							path.resolve(__dirname, '../test/units'),
+							path.resolve(__dirname, '../node_modules')
+						],
+						'loader': 'babel', // 'babel-loader' is also a legal name to reference
+						'query': {
+							'presets': ['es2015']
+						}
 					}
 				]
 			}
