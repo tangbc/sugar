@@ -1,9 +1,9 @@
 /*!
- * mvvm.js v1.1.0
+ * mvvm.js v1.1.2
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jul 01 2016 16:29:51 GMT+0800 (CST)
+ * Fri Jul 01 2016 21:30:04 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -13,7 +13,9 @@
 
 	/**
 	 * 通用函数库
+	 * =========
 	 */
+
 	var OP = Object.prototype;
 	var hasOwn = OP.hasOwnProperty;
 
@@ -498,7 +500,9 @@
 
 	/**
 	 * dom 操作模块
+	 * ===========
 	 */
+
 	var dom = {
 		/**
 		 * 清空 element 的所有子节点

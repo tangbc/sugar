@@ -1,9 +1,9 @@
 /*!
- * sugar.js v1.1.0
+ * sugar.js v1.1.2
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jul 01 2016 16:29:51 GMT+0800 (CST)
+ * Fri Jul 01 2016 21:30:04 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -13,7 +13,9 @@
 
 	/**
 	 * 通用函数库
+	 * =========
 	 */
+
 	var OP = Object.prototype;
 	var hasOwn = OP.hasOwnProperty;
 
@@ -496,9 +498,6 @@
 		return scopePaths;
 	}
 
-	/**
-	 * 异步状态锁，处理模块创建的异步回调和通信，实现异步回调按队列触发
-	 */
 	function Sync() {
 		/**
 		 * 异步计数
@@ -571,9 +570,6 @@
 
 	var sync = new Sync();
 
-	/**
-	 * Ajax 模块
-	 */
 	function Ajax() {}
 
 	var ap = Ajax.prototype;
@@ -588,7 +584,7 @@
 	 * @param   {Function}  context   [作用域]
 	 */
 	ap._execute = function(dataType, url, method, param, callback, context) {
-		var ct = context || util.WIN;
+		var ct = context || this;
 		var xmlHttp = new XMLHttpRequest();
 
 		// 初始化请求
@@ -605,10 +601,7 @@
 
 				// 返回数据类型
 				if (dataType !== 'text') {
-					try {
-						response = JSON.parse(response);
-					}
-					catch (e) {}
+					response = JSON.parse(response);
 				}
 
 				// 请求响应成功
@@ -682,8 +675,9 @@
 	/**
 	 * cache 系统组件实例缓存
 	 * 组件唯一 id 与组件实例的对应关系
+	 * ============================
 	 */
-	var cache = {'id': 1, 'length': 0};
+	var cache = {'id': 1, 'length': 0}
 
 	/**
 	 * 对子类方法挂载 Super
@@ -749,10 +743,7 @@
 		return first + str.substr(1);
 	}
 
-	/**
-	 * Messager 实现组件消息通信
-	 * 默认接收消息 onMessage, 默认全部发送完毕回调 onMessageSent
-	 */
+
 	function Messager() {
 		/**
 		 * 是否正在发送消息
@@ -1061,9 +1052,6 @@
 
 	var messager$1 = messager;
 
-	/**
-	 * Module 系统组件模块基础类，实现所有模块的通用方法
-	 */
 	var Module = Root.extend({
 		/**
 		 * _ 记录模块信息
@@ -1357,9 +1345,6 @@
 		}
 	});
 
-	/**
-	 * Core 核心模块，用于顶层组件模块的创建
-	 */
 	var Core = Module.extend({
 		/**
 		 * 获取顶级组件实例
@@ -1389,7 +1374,9 @@
 
 	/**
 	 * dom 操作模块
+	 * ===========
 	 */
+
 	var dom = {
 		/**
 		 * 清空 element 的所有子节点
@@ -4569,9 +4556,6 @@
 		}, this.context, null, deep);
 	}
 
-	/**
-	 * Component 基础视图组件
-	 */
 	var Component = Module.extend({
 		/**
 		 * init 组件初始化方法
