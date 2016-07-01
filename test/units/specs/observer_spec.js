@@ -1,4 +1,4 @@
-var Observer = require('src/mvvm/observer');
+var Observer = require('src/mvvm/observer').default;
 
 describe('Observer >', function() {
 

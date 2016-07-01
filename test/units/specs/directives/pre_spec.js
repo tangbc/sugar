@@ -1,4 +1,4 @@
-var MVVM = require('mvvm');
+var MVVM = require('mvvm').default;
 
 describe("v-pre >", function() {
 	var element;

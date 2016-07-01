@@ -1,4 +1,4 @@
-var MVVM = require('mvvm');
+var MVVM = require('mvvm').default;
 
 function triggerEvent(target, evt, process) {
 	var e = document.createEvent('HTMLEvents');

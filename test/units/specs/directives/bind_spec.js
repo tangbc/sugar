@@ -1,5 +1,5 @@
-var dom = require('src/dom');
-var MVVM = require('mvvm');
+var dom = require('src/dom').default;
+var MVVM = require('mvvm').default;
 
 describe("v-bind >", function() {
 	var element;

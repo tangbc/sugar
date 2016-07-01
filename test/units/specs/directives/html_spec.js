@@ -1,4 +1,4 @@
-var MVVM = require('mvvm');
+var MVVM = require('mvvm').default;
 
 describe("v-html >", function() {
 	var element;
