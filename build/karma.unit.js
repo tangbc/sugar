@@ -23,7 +23,7 @@ module.exports = function(config) {
 
 		// list of files to load in the browser
 		'files': [
-			'index.js'
+			'specs/instance_spec.js'
 		],
 
 		// enable / disable watching file and executing tests whenever any file changes
@@ -35,7 +35,7 @@ module.exports = function(config) {
 
 		// list of preprocessors
 		'preprocessors': {
-			'index.js': ['webpack', 'sourcemap']
+			'specs/instance_spec.js': ['webpack', 'sourcemap']
 		},
 
 		// webpack config
@@ -50,7 +50,10 @@ module.exports = function(config) {
 			'loaders': [
 				{
 					'test': /\.js$/,
-					'exclude': /(node_modules|bower_components)/,
+					'exclude': [
+						path.resolve(__dirname, '../test/units'),
+						path.resolve(__dirname, '../node_modules')
+					],
 					'loader': 'babel', // 'babel-loader' is also a legal name to reference
 					'query': {
 						'presets': ['es2015']

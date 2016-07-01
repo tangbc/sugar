@@ -17,11 +17,15 @@
   },
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
-    "cover": "karma start build/karma.cover.config.js",
-    "test": "karma start build/karma.unit.config.js",
-    "pack": "webpack --config build/webpack.pack.js",
-    "dev-mvvm": "webpack --watch --config build/webpack.dev.mvvm.js",
-    "dev-sugar": "webpack --watch --config build/webpack.dev.sugar.js"
+    "cover": "karma start build/karma.cover.js",
+    "test": "karma start build/karma.unit.js",
+    "dev-mvvm": "webpack --watch --config build/dev.mvvm.js",
+    "dev-sugar": "webpack --watch --config build/dev.sugar.js",
+    "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
+    "pack-sugar": "node node_modules/.bin/rollup -c build/pack.sugar.js",
+    "pack-sugar-min": "node node_modules/.bin/rollup -c build/pack.sugar.min.js",
+    "pack-mvvm": "node node_modules/.bin/rollup -c build/pack.mvvm.js",
+    "pack-mvvm-min": "node node_modules/.bin/rollup -c build/pack.mvvm.min.js"
   },
   "author": "TANG",
   "license": "MIT",
@@ -44,6 +48,9 @@
     "karma-spec-reporter": "0.0.26",
     "karma-webpack": "^1.7.0",
     "phantomjs": "^2.1.7",
+    "rollup": "^0.33.0",
+    "rollup-plugin-buble": "^0.12.1",
+    "rollup-plugin-uglify": "^1.0.1",
     "uglify-js": "^2.6.2",
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.6.1"

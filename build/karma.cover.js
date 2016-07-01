@@ -37,7 +37,10 @@ module.exports = function(config) {
 			'loaders': [
 				{
 					'test': /\.js$/,
-					'exclude': /(node_modules|bower_components)/,
+					'exclude': 'exclude': [
+						path.resolve(__dirname, '../test/units'),
+						path.resolve(__dirname, '../node_modules')
+					],
 					'loader': 'babel', // 'babel-loader' is also a legal name to reference
 					'query': {
 						'presets': ['es2015']
