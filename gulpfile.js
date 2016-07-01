@@ -29,6 +29,8 @@ var jshintConfig = {
 	'evil'     : true,
 	// Avoid warning The '__proto__' property is deprecated.
 	'proto'    : true,
+	// available in es6
+	'esversion': 6,
 	'predef'   : ['module', 'require', 'define']
 }
 
