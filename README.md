@@ -22,7 +22,7 @@
 
 * `test/` 单元测试以及其他测试用例
 
-* `build/` webpack 打包配置文件目录
+* `build/` 开发、测试和打包配置文件目录
 
 * `demos/` 用 sugar.js 做的一些完整例子
 
@@ -32,7 +32,7 @@
 
 	* `src/main/` 为 sugar 的组件系统模块目录，该目录下所有的模块文件都最终服务于 component.js (视图组件基础模块)，组件之间可以相互调用、嵌套和消息通信，详细参见: [sugar api](http://tangbc.github.io/sugar/sugar.html)
 
-	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持 v-text, v-model, v-bind, v-on 和 v-for 等，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
+	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持文本、表单双向数据绑定、属性绑定、事件绑定 和循环列表等常用功能，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
 
 
 # 4. 组件示例
@@ -50,10 +50,10 @@
 # 5. 引用 & 环境
 
 * 引用方式：`sugar.js` 和 `mvvm.js` 均支持 `cmd` `amd` 以及 `script` 标签引用
-	* `sugar (约 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (约 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (约 39 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (约 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
-* 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等较多 ES5 特性)
+* 浏览器支持：不支持 IE8 及以下 (用了 `Object.defineProperty` 和 `Object.create` 等)
 
 
 # 6. 主要更新日志
@@ -71,6 +71,8 @@
 	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比
 * `v1.1.0`
 	* 摈弃 requirejs 的代码组织方式（v1.0.8）Test-runner 采用 [Karma](https://github.com/karma-runner/karma)，增加测试覆盖率的统计
+* `v1.1.2`
+	* rollup, babel, es6 搞起！
 
 
 # 7. 交流 & 贡献

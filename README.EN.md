@@ -20,9 +20,9 @@
 
 * `test/` Test files directory
 
-* `build/` Webpack config files
+* `build/` Develop, test and bundle config files
 
-* `demos/` Some complete examples developed by sugar.js
+* `demos/` Some complete demos developed by sugar.js
 
 * `dist/` Packaged sugar.js and mvvm.js, as well as their compressed files
 
@@ -30,7 +30,7 @@
 
 	* `src/main/` Component system module directory, all of the module files in this directory are eventually serving for component.js (component basic definition module). Components can be included each other, nested and message communication. See more Api: [sugar api](http://tangbc.github.io/sugar/sugar.html)
 
-	* **`src/mvvm/`** A lightweight mvvm library, command system support v-text, v-model, v-bind, v-on, v-for and so on. **mvvm does not have any dependence on sugar, it can be used independently**. See more Api: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
+	* **`src/mvvm/`** A lightweight MVVM library, command system support v-text, v-model, v-bind, v-on, v-for and so on. **mvvm does not have any dependence on sugar, it can be used independently**. See more Api: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
 
 
 # 4. Demos
@@ -48,8 +48,8 @@ You can edit and preview a Radio-Component at [jsfiddle](https://jsfiddle.net/ta
 # 5. Usage
 
 * `sugar.js` and `mvvm.js` both support `cmd` `amd` and browser `script` tag
-	* `sugar (about 40 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
-	* `mvvm (about 32 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (about 39 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (about 31 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
 * Browser support: do not support IE8 and belove (used many ES5 characteristics)
 
@@ -69,6 +69,8 @@ You can edit and preview a Radio-Component at [jsfiddle](https://jsfiddle.net/ta
 	* `mvvm` update v-bind for object/json can be used with a simple diff algorithm
 * `v1.1.0`
 	* abandon requirejs (v1.0.8) and change test-runner to [Karma](https://github.com/karma-runner/karma)，add code coverage
+* `v1.1.2`
+	* use rollup, babel and es2015
 
 
 # 7. Contribution
