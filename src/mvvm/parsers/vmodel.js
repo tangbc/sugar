@@ -1,6 +1,11 @@
-var Parser = require('../parser');
-var dom = require('../../dom');
-var util = require('../../util');
+/**
+ * v-model 指令解析模块
+ * ==================
+ */
+
+import dom from '../../dom';
+import util from '../../util';
+import Parser from '../parser';
 
 /**
  * 格式化表单输出值
@@ -288,4 +293,4 @@ vmodel.bindSelectEvent = function(node, duplex, field, multi) {
 	});
 }
 
-module.exports = Vmodel;
+export default Vmodel;

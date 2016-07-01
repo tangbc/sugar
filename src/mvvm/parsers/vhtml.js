@@ -1,4 +1,9 @@
-var Parser = require('../parser');
+/**
+ * v-html 指令解析模块
+ * =================
+ */
+
+import Parser from '../parser';
 
 function Vhtml(vm) {
 	this.vm = vm;
@@ -26,4 +31,4 @@ vhtml.update = function() {
 	updater.updateHtmlContent.apply(updater, arguments);
 }
 
-module.exports = Vhtml;
+export default Vhtml;

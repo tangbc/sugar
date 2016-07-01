@@ -1,8 +1,10 @@
 /**
  * updater 视图刷新模块
+ * ===================
  */
-var dom = require('../dom');
-var util = require('../util');
+
+import dom from '../dom';
+import util from '../util';
 
 /**
  * 移除 DOM 注册的引用
@@ -316,4 +318,4 @@ up.updateSelectChecked = function(select, selected, multi) {
 	}
 }
 
-module.exports = Updater;
+export default Updater;

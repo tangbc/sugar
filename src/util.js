@@ -1,24 +1,23 @@
 /**
  * 通用函数库
+ * =========
  */
-var WIN = window;
-var DOC = WIN.document;
+
 var OP = Object.prototype;
-var AP = Array.prototype;
 var hasOwn = OP.hasOwnProperty;
 
 /**
  * 是否是对象
  */
-function isObject(obj) {
-	return OP.toString.call(obj) === '[object Object]';
+function isObject(object) {
+	return OP.toString.call(object) === '[object Object]';
 }
 
 /**
  * 是否是数组
  */
-function isArray(obj) {
-	return OP.toString.call(obj) === '[object Array]';
+function isArray(array) {
+	return Array.isArray(array);
 }
 
 /**
@@ -72,39 +71,27 @@ function isEmpty(object) {
 }
 
 
-/**
- * Util 构造函数
- */
-function Util() {
-	this.OP = OP;
-	this.AP = AP;
-	this.WIN = WIN;
-	this.DOC = DOC;
-
-	this.isBool = isBool;
-	this.isFunc = isFunc;
-	this.isArray = isArray;
-	this.isEmpty = isEmpty;
-	this.isNumber = isNumber;
-	this.isObject = isObject;
-	this.isString = isString;
+var util = {
+	isBool,
+	isFunc,
+	isArray,
+	isEmpty,
+	isNumber,
+	isObject,
+	isString
 }
-
-var up = Util.prototype;
-var cons = WIN.console;
-
 
 /**
  * 打印警告信息
  */
-up.warn = function() {
-	cons.warn.apply(cons, arguments);
+util.warn = function() {
+	console.warn.apply(console, arguments);
 }
 
 /*
  * 对象自有属性检测
  */
-up.hasOwn = function(obj, key) {
+util.hasOwn = function(obj, key) {
 	return obj && hasOwn.call(obj, key);
 }
 
@@ -117,7 +104,7 @@ up.hasOwn = function(obj, key) {
  * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
  * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
  */
-up.def = function(object, property, value, writable, enumerable, configurable) {
+util.def = function(object, property, value, writable, enumerable, configurable) {
 	return Object.defineProperty(object, property, {
 		'value'       : value,
 		'writable'    : !!writable,
@@ -129,17 +116,17 @@ up.def = function(object, property, value, writable, enumerable, configurable) {
 /**
  * 将 object[property] 定义为一个不可枚举的属性
  */
-up.defRec = function(object, property, value) {
+util.defRec = function(object, property, value) {
 	return this.def(object, property, value, true, false, true);
 }
 
 /**
- * 遍历数组或对象
+ * 遍历数组或对象，提供删除选项和退出遍历的功能
  * @param  {Array|Object}  items     [数组或对象]
  * @param  {Fuction}       callback  [回调函数]
  * @param  {Object}        context   [作用域]
  */
-up.each = function(items, callback, context) {
+util.each = function(items, callback, context) {
 	var ret, i;
 
 	if (!items) {
@@ -147,7 +134,7 @@ up.each = function(items, callback, context) {
 	}
 
 	if (!context) {
-		context = WIN;
+		context = this;
 	}
 
 	if (isString(callback)) {
@@ -196,7 +183,7 @@ up.each = function(items, callback, context) {
 /**
  * 扩展合并对象，摘自 jQuery
  */
-up.extend = function() {
+util.extend = function() {
 	var options, name, src, copy, copyIsArray, clone;
 	var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
@@ -262,7 +249,7 @@ up.extend = function() {
  * @param   {Object|Array}  target
  * @return  {Mix}
  */
-up.copy = function(target) {
+util.copy = function(target) {
 	var ret;
 
 	if (isArray(target)) {
@@ -280,7 +267,7 @@ up.copy = function(target) {
  * @param   {String}  string
  * @return  {String}
  */
-up.removeSpace = function(string) {
+util.removeSpace = function(string) {
 	return string.replace(/\s/g, '');
 }
 
@@ -290,7 +277,7 @@ up.removeSpace = function(string) {
  * @param   {Boolean}       both         [是否返回键和值]
  * @return  {String|Array}
  */
-up.getKeyValue = function(expression, both) {
+util.getKeyValue = function(expression, both) {
 	var array = expression.split(':');
 	return both ? array : array.pop();
 }
@@ -300,23 +287,23 @@ up.getKeyValue = function(expression, both) {
  * @param   {String}     tag  [元素标签名称]
  * @return  {DOMElemnt}
  */
-up.createElement = function(tag) {
-	return DOC.createElement(tag);
+util.createElement = function(tag) {
+	return document.createElement(tag);
 }
 
 /**
  * 返回一个空文档碎片
  * @return  {Fragment}
  */
-up.createFragment = function() {
-	return DOC.createDocumentFragment();
+util.createFragment = function() {
+	return document.createDocumentFragment();
 }
 
 /**
  * element 的子节点转换成文档片段（element 将会被清空）
  * @param   {DOMElement}  element
  */
-up.nodeToFragment = function(element) {
+util.nodeToFragment = function(element) {
 	var child;
 	var fragment = this.createFragment();
 
@@ -332,7 +319,7 @@ up.nodeToFragment = function(element) {
  * @param   {String}    html
  * @return  {Fragment}
  */
-up.stringToFragment = function(html) {
+util.stringToFragment = function(html) {
 	var div, fragment;
 
 	// 存在标签
@@ -344,7 +331,7 @@ up.stringToFragment = function(html) {
 	// 纯文本节点
 	else {
 		fragment = this.createFragment();
-		fragment.appendChild(DOC.createTextNode(html));
+		fragment.appendChild(document.createTextNode(html));
 	}
 
 	return fragment;
@@ -356,7 +343,7 @@ up.stringToFragment = function(html) {
  * @param   {String}  expression
  * @return  {String}
  */
-up.getExpAlias = function(expression) {
+util.getExpAlias = function(expression) {
 	var pos = expression.indexOf('.');
 	return pos === -1 ? expression : expression.substr(0, pos);
 }
@@ -367,7 +354,7 @@ up.getExpAlias = function(expression) {
  * @param   {String}  expression
  * @return  {String}
  */
-up.getExpKey = function(expression) {
+util.getExpKey = function(expression) {
 	var pos = expression.lastIndexOf('.');
 	return pos === -1 ? '' : expression.substr(pos + 1);
 }
@@ -379,7 +366,7 @@ up.getExpKey = function(expression) {
  * @param   {Object}  oldObject
  * @return  {Object}
  */
-up.diff = function(newObject, oldObject) {
+util.diff = function(newObject, oldObject) {
 	return {
 		'n': this.getUnique(newObject, oldObject),
 		'o': this.getUnique(oldObject, newObject)
@@ -392,7 +379,7 @@ up.diff = function(newObject, oldObject) {
  * @param   {Object}  referObject     [参照对象]
  * @return  {Object}
  */
-up.getUnique = function(contrastObject, referObject) {
+util.getUnique = function(contrastObject, referObject) {
 	var unique = {};
 
 	this.each(contrastObject, function(value, key) {
@@ -439,7 +426,7 @@ up.getUnique = function(contrastObject, referObject) {
  * @param   {String}  access
  * @return  {Array}
  */
-up.makePaths = function(access) {
+util.makePaths = function(access) {
 	var length, paths = access && access.split('*');
 
 	if (!paths || paths.length < 2) {
@@ -462,7 +449,7 @@ up.makePaths = function(access) {
  * @param   {Array}   paths
  * @return  {Mix}
  */
-up.getDeepValue = function(target, paths) {
+util.getDeepValue = function(target, paths) {
 	var _paths = paths.slice(0);
 
 	while (_paths.length) {
@@ -478,7 +465,7 @@ up.getDeepValue = function(target, paths) {
  * @param   {Array}  paths
  * @return  {Array}
  */
-up.makeScopePaths = function(paths) {
+util.makeScopePaths = function(paths) {
 	var index = 0, scopePaths = [];
 
 	if (paths.length % 2 === 0) {
@@ -491,4 +478,4 @@ up.makeScopePaths = function(paths) {
 	return scopePaths;
 }
 
-module.exports = new Util();
+export default util;

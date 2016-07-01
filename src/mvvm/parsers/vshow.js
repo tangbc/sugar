@@ -1,4 +1,9 @@
-var Parser = require('../parser');
+/**
+ * v-show 指令解析模块
+ * =================
+ */
+
+import Parser from '../parser';
 
 function Vshow(vm) {
 	this.vm = vm;
@@ -26,4 +31,4 @@ vshow.update = function() {
 	updater.updateDisplay.apply(updater, arguments);
 }
 
-module.exports = Vshow;
+export default Vshow;

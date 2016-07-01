@@ -1,4 +1,9 @@
-var Parser = require('../parser');
+/**
+ * v-text 指令解析模块
+ * =================
+ */
+
+import Parser from '../parser';
 
 function Vtext(vm) {
 	this.vm = vm;
@@ -26,4 +31,4 @@ vtext.update = function() {
 	updater.updateTextContent.apply(updater, arguments);
 }
 
-module.exports = Vtext;
+export default Vtext;

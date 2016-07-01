@@ -1,8 +1,10 @@
 /**
  * watcher 数据订阅模块
+ * ===================
  */
-var util = require('../util');
-var Observer = require('./observer');
+
+import util from '../util';
+import Observer from './observer';
 
 function Watcher(model) {
 	this.$model = model;
@@ -275,4 +277,4 @@ wp.moveAccess = function(prefix, moveMap) {
 	dest = caches = null;
 }
 
-module.exports = Watcher;
+export default Watcher;

@@ -1,20 +1,22 @@
 /**
  * compiler 元素编译/指令提取模块
+ * ===========================
  */
-var dom = require('../dom');
-var util = require('../util');
-var Updater = require('./updater');
-var Watcher = require('./watcher');
+
+import dom from '../dom';
+import util from '../util';
+import Updater from './updater';
+import Watcher from './watcher';
 // parse directive modules
-var Von = require('./parsers/von');
-var Vel = require('./parsers/vel');
-var Vif = require('./parsers/vif');
-var Vfor = require('./parsers/vfor');
-var Vtext = require('./parsers/vtext');
-var Vhtml = require('./parsers/vhtml');
-var Vshow = require('./parsers/vshow');
-var Vbind = require('./parsers/vbind');
-var Vmodel = require('./parsers/vmodel');
+import Von from './parsers/von';
+import Vel from './parsers/vel';
+import Vif from './parsers/vif';
+import Vfor from './parsers/vfor';
+import Vtext from './parsers/vtext';
+import Vhtml from './parsers/vhtml';
+import Vshow from './parsers/vshow';
+import Vbind from './parsers/vbind';
+import Vmodel from './parsers/vmodel';
 
 /**
  * 编译模块
@@ -343,4 +345,4 @@ cp.rootCompleted = function() {
 	this.$element.appendChild(this.$fragment);
 }
 
-module.exports = Compiler;
+export default Compiler;

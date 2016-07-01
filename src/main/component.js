@@ -1,13 +1,15 @@
-var dom = require('../dom');
-var ajax = require('./ajax');
-var sync = require('./sync');
-var util = require('../util');
-var Module = require('./module');
-var MVVM = require('../mvvm/index');
-
 /**
  * Component 基础视图组件
+ * ====================
  */
+
+import dom from '../dom';
+import ajax from './ajax';
+import sync from './sync';
+import util from '../util';
+import Module from './module';
+import MVVM from '../mvvm/index';
+
 var Component = Module.extend({
 	/**
 	 * init 组件初始化方法
@@ -285,4 +287,4 @@ var Component = Module.extend({
 	}
 });
 
-module.exports = Component;
+export default Component;

@@ -1,5 +1,10 @@
-var Parser = require('../parser');
-var util = require('../../util');
+/**
+ * v-for 指令解析模块
+ * ================
+ */
+
+import util from '../../util';
+import Parser from '../parser';
 
 function Vfor(vm) {
 	this.vm = vm;
@@ -543,4 +548,4 @@ vfor.recompile = function(parent, node, newArray, method, up) {
 	}
 }
 
-module.exports = Vfor;
+export default Vfor;

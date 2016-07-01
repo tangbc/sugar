@@ -1,7 +1,12 @@
-var Parser = require('../parser');
-var util = require('../../util');
-var VClass = require('./vbind-class');
-var VStyle = require('./vbind-style');
+/**
+ * v-bind 指令解析模块
+ * =================
+ */
+
+import Parser from '../parser';
+import util from '../../util';
+import VClass from './vbind-class';
+import VStyle from './vbind-style';
 
 function Vbind(vm) {
 	this.vm = vm;
@@ -147,4 +152,4 @@ vbind.update = function() {
 	updater.updateAttribute.apply(updater, arguments);
 }
 
-module.exports = Vbind;
+export default Vbind;

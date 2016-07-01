@@ -1,7 +1,9 @@
 /**
  * observer 数据变化监测模块
+ * =======================
  */
-var util = require('../util');
+
+import util from '../util';
 
 /**
  * @param  {Object}     object    [VM 数据模型]
@@ -149,7 +151,7 @@ op.getSubPath = function(path) {
  * @param   {Array}  paths  [访问路径数组]
  */
 op.rewriteMethods = function(array, paths) {
-	var arrayProto = util.AP;
+	var arrayProto = Array.prototype;
 	var arrayMethods = Object.create(arrayProto);
 	var path = paths && paths.join('*');
 
@@ -212,4 +214,4 @@ op.trigger = function(path, last, old, args) {
 	this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
 }
 
-module.exports = Observer;
+export default Observer;

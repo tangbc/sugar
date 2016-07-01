@@ -1,11 +1,13 @@
-var Root = require('./root');
-var cache = require('./cache');
-var util = require('../util');
-var messager = require('./messager');
-
 /**
  * Module 系统组件模块基础类，实现所有模块的通用方法
+ * ===========================================
  */
+
+import Root from './root';
+import util from '../util';
+import cache from './cache';
+import messager from './messager';
+
 var Module = Root.extend({
 	/**
 	 * _ 记录模块信息
@@ -299,4 +301,4 @@ var Module = Root.extend({
 	}
 });
 
-module.exports = Module;
+export default Module;

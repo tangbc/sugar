@@ -1,8 +1,10 @@
-var util = require('../util');
-
 /**
- * 异步状态锁，处理模块创建的异步回调和通信，实现异步回调按队列触发
+ * 异步状态锁
+ * =========
  */
+
+import util from '../util';
+
 function Sync() {
 	/**
 	 * 异步计数
@@ -71,4 +73,4 @@ sp._checkQueue = function() {
 	}
 }
 
-module.exports = new Sync();
+export default new Sync();

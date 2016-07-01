@@ -1,6 +1,11 @@
-var sync = require('./sync');
-var util = require('../util');
-var cache = require('./cache');
+/**
+ * Messager 实现组件消息通信
+ * =======================
+ */
+
+import sync from './sync';
+import util from '../util';
+import cache from './cache';
 
 /**
  * 字符串首字母大写
@@ -10,10 +15,7 @@ function ucFirst(str) {
 	return first + str.substr(1);
 }
 
-/**
- * Messager 实现组件消息通信
- * 默认接收消息 onMessage, 默认全部发送完毕回调 onMessageSent
- */
+
 function Messager() {
 	/**
 	 * 是否正在发送消息
@@ -314,4 +316,6 @@ mp.globalCast = function(name, param) {
 	}, this);
 }
 
-module.exports = messager = new Messager();
+messager = new Messager();
+
+export default messager;

@@ -1,4 +1,9 @@
-var util = require('../util');
+/**
+ * Root 基础继承模块
+ * ===============
+ */
+
+import util from '../util';
 
 /**
  * 对子类方法挂载 Super
@@ -56,4 +61,4 @@ Root.extend = function(proto) {
 	return Class;
 }
 
-module.exports = Root;
+export default Root;

@@ -1,4 +1,9 @@
-var Parser = require('../parser');
+/**
+ * v-if 指令解析模块
+ * ===============
+ */
+
+import Parser from '../parser';
 
 function Vif(vm) {
 	this.vm = vm;
@@ -26,4 +31,4 @@ vif.update = function() {
 	updater.updateRenderContent.apply(updater, arguments);
 }
 
-module.exports = Vif;
+export default Vif;

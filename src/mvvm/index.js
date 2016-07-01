@@ -1,8 +1,10 @@
 /**
- * 简单的数据绑定视图层库
+ * MVVM 构造函数入口
+ * ================
  */
-var util = require('../util');
-var Compiler = require('./compiler');
+
+import util from '../util';
+import Compiler from './compiler';
 
 /**
  * MVVM 构造函数，封装 Complier
@@ -110,4 +112,4 @@ mvp.watch = function(model, callback, deep) {
 	}, this.context, null, deep);
 }
 
-module.exports = MVVM;
+export default MVVM;

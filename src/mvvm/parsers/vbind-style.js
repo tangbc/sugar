@@ -1,5 +1,10 @@
-var Parser = require('../parser');
-var util = require('../../util');
+/**
+ * v-bind for style 指令解析模块
+ * ===========================
+ */
+
+import util from '../../util';
+import Parser from '../parser';
 
 function VStyle(vm) {
 	this.vm = vm;
@@ -71,4 +76,4 @@ vstyle.update = function() {
 	updater.updateStyle.apply(updater, arguments);
 }
 
-module.exports = VStyle;
+export default VStyle;

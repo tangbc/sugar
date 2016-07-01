@@ -1,5 +1,10 @@
-var Parser = require('../parser');
-var util = require('../../util');
+/**
+ * v-on 指令解析模块
+ * ===============
+ */
+
+import util from'../../util';
+import Parser from'../parser';
 
 /**
  * 分解字符串函数参数
@@ -229,4 +234,4 @@ von.update = function() {
 	updater.updateEvent.apply(updater, arguments);
 }
 
-module.exports = Von;
+export default Von;

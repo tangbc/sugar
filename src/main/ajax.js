@@ -1,8 +1,10 @@
-var util = require('../util');
-
 /**
  * Ajax 模块
+ * ========
  */
+
+import util from '../util';
+
 function Ajax() {}
 
 var ap = Ajax.prototype;
@@ -17,7 +19,7 @@ var ap = Ajax.prototype;
  * @param   {Function}  context   [作用域]
  */
 ap._execute = function(dataType, url, method, param, callback, context) {
-	var ct = context || util.WIN;
+	var ct = context || this;
 	var xmlHttp = new XMLHttpRequest();
 
 	// 初始化请求
@@ -34,10 +36,7 @@ ap._execute = function(dataType, url, method, param, callback, context) {
 
 			// 返回数据类型
 			if (dataType !== 'text') {
-				try {
-					response = JSON.parse(response);
-				}
-				catch (e) {}
+				response = JSON.parse(response);
 			}
 
 			// 请求响应成功
@@ -106,4 +105,4 @@ ap.load = function(url, param, callback, context) {
 	this.get(url, param, callback, context, 'text');
 }
 
-module.exports = new Ajax();
+export default new Ajax();

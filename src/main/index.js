@@ -1,9 +1,13 @@
-var sync = require('./sync');
-var ajax = require('./ajax');
-var core = require('./core');
-var util = require('../util');
-var Module = require('./module');
-var Component = require('./component');
+/**
+ * sugar 构造函数入口
+ */
+
+import sync from './sync';
+import ajax from './ajax';
+import core from './core';
+import util from '../util';
+import Module from './module';
+import Component from './component';
 
 function Sugar() {
 	/**
@@ -43,4 +47,4 @@ function Sugar() {
 	this.Component = Component;
 }
 
-module.exports = new Sugar();
+export default new Sugar();

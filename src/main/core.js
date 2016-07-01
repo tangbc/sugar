@@ -1,11 +1,13 @@
-var util = require('../util');
-var cache = require('./cache');
-var Module = require('./module');
-var messager = require('./messager');
-
 /**
  * Core 核心模块，用于顶层组件模块的创建
+ * ================================
  */
+
+import util from '../util';
+import cache from './cache';
+import Module from './module';
+import messager from './messager';
+
 var Core = Module.extend({
 	/**
 	 * 获取顶级组件实例
@@ -31,4 +33,6 @@ var Core = Module.extend({
 	}
 });
 
-module.exports = cache['0'] = new Core();
+var core = cache['0'] = new Core();
+
+export default core;

@@ -1,5 +1,10 @@
-var Parser = require('../parser');
-var util = require('../../util');
+/**
+ * v-el 指令解析模块
+ * ===============
+ */
+
+import util from '../../util';
+import Parser from '../parser';
 
 function Vel(vm) {
 	this.vm = vm;
@@ -36,4 +41,4 @@ vel.parse = function(fors, node, value) {
 	}
 }
 
-module.exports = Vel;
+export default Vel;

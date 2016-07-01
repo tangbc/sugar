@@ -1,5 +1,10 @@
-var Parser = require('../parser');
-var util = require('../../util');
+/**
+ * v-bind for class 指令解析模块
+ * ===========================
+ */
+
+import util from '../../util';
+import Parser from '../parser';
 
 function VClass(vm) {
 	this.vm = vm;
@@ -82,4 +87,4 @@ vclass.update = function() {
 	updater.updateClassName.apply(updater, arguments);
 }
 
-module.exports = VClass;
+export default VClass;
