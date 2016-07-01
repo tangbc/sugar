@@ -3,204 +3,32 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Wed Jun 29 2016 16:01:19 GMT+0800 (CST)
+ * Fri Jul 01 2016 16:29:51 GMT+0800 (CST)
  */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["MVVM"] = factory();
-	else
-		root["MVVM"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
-
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
-
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-
-
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * 简单的数据绑定视图层库
-	 */
-	var util = __webpack_require__(1);
-	var Compiler = __webpack_require__(2);
-
-	/**
-	 * MVVM 构造函数，封装 Complier
-	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
-	 * @param  {Object}      model    [数据模型对象]
-	 * @param  {Function}    context  [事件及 watch 的回调上下文]
-	 */
-	function MVVM(element, model, context) {
-		var ctx = this.context = context || this;
-
-		// 将事件函数 this 指向调用者
-		util.each(model, function(value, key) {
-			if (util.isFunc(value)) {
-				model[key] = value.bind(ctx);
-			}
-		});
-
-		// 初始数据备份
-		this.backup = util.copy(model);
-
-		// ViewModel 实例
-		this.vm = new Compiler(element, model);
-
-		// 数据模型
-		this.$ = this.vm.$data;
-	}
-
-	var mvp = MVVM.prototype;
-
-	/**
-	 * 获取指定数据模型
-	 * 如果获取的模型为对象或数组，将会保持引用关系
-	 * @param   {String}  key  [数据模型字段]
-	 * @return  {Mix}
-	 */
-	mvp.get = function(key) {
-		return util.isString(key) ? this.$[key] : this.$;
-	}
-
-	/**
-	 * 获取指定数据模型的副本
-	 * 如果获取的模型为对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
-	 * @param   {String}  key  [数据模型字段]
-	 * @return  {Mix}
-	 */
-	mvp.getItem = function(key) {
-		return util.copy(this.get(key));
-	}
-
-	/**
-	 * 设置数据模型的值，key 为 json 时则批量设置
-	 * @param  {String}  key    [数据模型字段]
-	 * @param  {Mix}     value  [值]
-	 */
-	mvp.set = function(key, value) {
-		var vm = this.$;
-		// 设置单个
-		if (util.isString(key)) {
-			vm[key] = value;
-		}
-
-		// 批量设置
-		if (util.isObject(key)) {
-			util.each(key, function(v, k) {
-				vm[k] = v;
-			});
-		}
-	}
-
-	/**
-	 * 重置数据模型至初始状态
-	 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
-	 */
-	mvp.reset = function(key) {
-		var vm = this.$;
-		var backup = this.backup;
-
-		// 重置单个
-		if (util.isString(key)) {
-			vm[key] = backup[key];
-		}
-		// 重置多个
-		else if (util.isArray(key)) {
-			util.each(key, function(v) {
-				vm[v] = backup[v];
-			});
-		}
-		// 重置所有
-		else {
-			util.each(vm, function(v, k) {
-				vm[k] = backup[k];
-			});
-		}
-	}
-
-	/**
-	 * 对数据模型的字段添加监测
-	 * @param   {String}    model     [数据模型字段]
-	 * @param   {Function}  callback  [监测变化回调]
-	 * @param   {Boolean}   deep      [数组深层监测]
-	 */
-	mvp.watch = function(model, callback, deep) {
-		this.vm.watcher.watchModel(model, function(path, last, old) {
-			callback.call(this, path, last, old);
-		}, this.context, null, deep);
-	}
-
-	module.exports = MVVM;
-
-
-/***/ },
-/* 1 */
-/***/ function(module, exports) {
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.MVVM = factory());
+}(this, function () { 'use strict';
 
 	/**
 	 * 通用函数库
 	 */
-	var WIN = window;
-	var DOC = WIN.document;
 	var OP = Object.prototype;
-	var AP = Array.prototype;
 	var hasOwn = OP.hasOwnProperty;
 
 	/**
 	 * 是否是对象
 	 */
-	function isObject(obj) {
-		return OP.toString.call(obj) === '[object Object]';
+	function isObject(object) {
+		return OP.toString.call(object) === '[object Object]';
 	}
 
 	/**
 	 * 是否是数组
 	 */
-	function isArray(obj) {
-		return OP.toString.call(obj) === '[object Array]';
+	function isArray(array) {
+		return Array.isArray(array);
 	}
 
 	/**
@@ -254,39 +82,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-	/**
-	 * Util 构造函数
-	 */
-	function Util() {
-		this.OP = OP;
-		this.AP = AP;
-		this.WIN = WIN;
-		this.DOC = DOC;
-
-		this.isBool = isBool;
-		this.isFunc = isFunc;
-		this.isArray = isArray;
-		this.isEmpty = isEmpty;
-		this.isNumber = isNumber;
-		this.isObject = isObject;
-		this.isString = isString;
+	var util = {
+		isBool: isBool,
+		isFunc: isFunc,
+		isArray: isArray,
+		isEmpty: isEmpty,
+		isNumber: isNumber,
+		isObject: isObject,
+		isString: isString
 	}
-
-	var up = Util.prototype;
-	var cons = WIN.console;
-
 
 	/**
 	 * 打印警告信息
 	 */
-	up.warn = function() {
-		cons.warn.apply(cons, arguments);
+	util.warn = function() {
+		console.warn.apply(console, arguments);
 	}
 
 	/*
 	 * 对象自有属性检测
 	 */
-	up.hasOwn = function(obj, key) {
+	util.hasOwn = function(obj, key) {
 		return obj && hasOwn.call(obj, key);
 	}
 
@@ -299,7 +115,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
 	 * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
 	 */
-	up.def = function(object, property, value, writable, enumerable, configurable) {
+	util.def = function(object, property, value, writable, enumerable, configurable) {
 		return Object.defineProperty(object, property, {
 			'value'       : value,
 			'writable'    : !!writable,
@@ -311,17 +127,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * 将 object[property] 定义为一个不可枚举的属性
 	 */
-	up.defRec = function(object, property, value) {
+	util.defRec = function(object, property, value) {
 		return this.def(object, property, value, true, false, true);
 	}
 
 	/**
-	 * 遍历数组或对象
+	 * 遍历数组或对象，提供删除选项和退出遍历的功能
 	 * @param  {Array|Object}  items     [数组或对象]
 	 * @param  {Fuction}       callback  [回调函数]
 	 * @param  {Object}        context   [作用域]
 	 */
-	up.each = function(items, callback, context) {
+	util.each = function(items, callback, context) {
+		var this$1 = this;
+
 		var ret, i;
 
 		if (!items) {
@@ -329,7 +147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		if (!context) {
-			context = WIN;
+			context = this;
 		}
 
 		if (isString(callback)) {
@@ -356,7 +174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		// 对象
 		else if (isObject(items)) {
 			for (i in items) {
-				if (!this.hasOwn(items, i)) {
+				if (!this$1.hasOwn(items, i)) {
 					continue;
 				}
 
@@ -378,7 +196,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * 扩展合并对象，摘自 jQuery
 	 */
-	up.extend = function() {
+	util.extend = function() {
+		var arguments$1 = arguments;
+		var this$1 = this;
+
 		var options, name, src, copy, copyIsArray, clone;
 		var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
@@ -402,7 +223,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		for (; i < length; i++) {
 			// Only deal with non-null/undefined values
-			if ((options = arguments[i]) != null) {
+			if ((options = arguments$1[i]) != null) {
 				// Extend the base object
 				for (name in options) {
 					src = target[name];
@@ -425,7 +246,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						}
 
 						// Never move original objects, clone them
-						target[name] = this.extend(deep, clone, copy);
+						target[name] = this$1.extend(deep, clone, copy);
 					}
 					// Don't bring in undefined values
 					else if (copy !== undefined) {
@@ -444,7 +265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Object|Array}  target
 	 * @return  {Mix}
 	 */
-	up.copy = function(target) {
+	util.copy = function(target) {
 		var ret;
 
 		if (isArray(target)) {
@@ -462,7 +283,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}  string
 	 * @return  {String}
 	 */
-	up.removeSpace = function(string) {
+	util.removeSpace = function(string) {
 		return string.replace(/\s/g, '');
 	}
 
@@ -472,7 +293,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Boolean}       both         [是否返回键和值]
 	 * @return  {String|Array}
 	 */
-	up.getKeyValue = function(expression, both) {
+	util.getKeyValue = function(expression, both) {
 		var array = expression.split(':');
 		return both ? array : array.pop();
 	}
@@ -482,23 +303,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}     tag  [元素标签名称]
 	 * @return  {DOMElemnt}
 	 */
-	up.createElement = function(tag) {
-		return DOC.createElement(tag);
+	util.createElement = function(tag) {
+		return document.createElement(tag);
 	}
 
 	/**
 	 * 返回一个空文档碎片
 	 * @return  {Fragment}
 	 */
-	up.createFragment = function() {
-		return DOC.createDocumentFragment();
+	util.createFragment = function() {
+		return document.createDocumentFragment();
 	}
 
 	/**
 	 * element 的子节点转换成文档片段（element 将会被清空）
 	 * @param   {DOMElement}  element
 	 */
-	up.nodeToFragment = function(element) {
+	util.nodeToFragment = function(element) {
 		var child;
 		var fragment = this.createFragment();
 
@@ -514,7 +335,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}    html
 	 * @return  {Fragment}
 	 */
-	up.stringToFragment = function(html) {
+	util.stringToFragment = function(html) {
 		var div, fragment;
 
 		// 存在标签
@@ -526,7 +347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		// 纯文本节点
 		else {
 			fragment = this.createFragment();
-			fragment.appendChild(DOC.createTextNode(html));
+			fragment.appendChild(document.createTextNode(html));
 		}
 
 		return fragment;
@@ -538,7 +359,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}  expression
 	 * @return  {String}
 	 */
-	up.getExpAlias = function(expression) {
+	util.getExpAlias = function(expression) {
 		var pos = expression.indexOf('.');
 		return pos === -1 ? expression : expression.substr(0, pos);
 	}
@@ -549,7 +370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}  expression
 	 * @return  {String}
 	 */
-	up.getExpKey = function(expression) {
+	util.getExpKey = function(expression) {
 		var pos = expression.lastIndexOf('.');
 		return pos === -1 ? '' : expression.substr(pos + 1);
 	}
@@ -561,7 +382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Object}  oldObject
 	 * @return  {Object}
 	 */
-	up.diff = function(newObject, oldObject) {
+	util.diff = function(newObject, oldObject) {
 		return {
 			'n': this.getUnique(newObject, oldObject),
 			'o': this.getUnique(oldObject, newObject)
@@ -574,7 +395,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Object}  referObject     [参照对象]
 	 * @return  {Object}
 	 */
-	up.getUnique = function(contrastObject, referObject) {
+	util.getUnique = function(contrastObject, referObject) {
 		var unique = {};
 
 		this.each(contrastObject, function(value, key) {
@@ -621,7 +442,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {String}  access
 	 * @return  {Array}
 	 */
-	up.makePaths = function(access) {
+	util.makePaths = function(access) {
+		var this$1 = this;
+
 		var length, paths = access && access.split('*');
 
 		if (!paths || paths.length < 2) {
@@ -629,7 +452,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 
 		for (var i = paths.length - 1; i > -1; i--) {
-			if (this.isNumber(+paths[i])) {
+			if (this$1.isNumber(+paths[i])) {
 				length = i + 1;
 				break;
 			}
@@ -644,7 +467,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Array}   paths
 	 * @return  {Mix}
 	 */
-	up.getDeepValue = function(target, paths) {
+	util.getDeepValue = function(target, paths) {
 		var _paths = paths.slice(0);
 
 		while (_paths.length) {
@@ -660,7 +483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param   {Array}  paths
 	 * @return  {Array}
 	 */
-	up.makeScopePaths = function(paths) {
+	util.makeScopePaths = function(paths) {
 		var index = 0, scopePaths = [];
 
 		if (paths.length % 2 === 0) {
@@ -673,369 +496,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		return scopePaths;
 	}
 
-	module.exports = new Util();
-
-
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * compiler 元素编译/指令提取模块
-	 */
-	var dom = __webpack_require__(3);
-	var util = __webpack_require__(1);
-	var Updater = __webpack_require__(4);
-	var Watcher = __webpack_require__(5);
-	// parse directive modules
-	var Von = __webpack_require__(7);
-	var Vel = __webpack_require__(9);
-	var Vif = __webpack_require__(10);
-	var Vfor = __webpack_require__(11);
-	var Vtext = __webpack_require__(12);
-	var Vhtml = __webpack_require__(13);
-	var Vshow = __webpack_require__(14);
-	var Vbind = __webpack_require__(15);
-	var Vmodel = __webpack_require__(18);
-
-	/**
-	 * 编译模块
-	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
-	 * @param  {Object}      model    [数据模型对象]
-	 */
-	function Compiler(element, model) {
-		if (!this.isElementNode(element)) {
-			return util.warn('element must be a type of DOMElement: ', element);
-		}
-
-		if (!util.isObject(model)) {
-			return util.warn('model must be a type of Object: ', model);
-		}
-
-		// 缓存根节点
-		this.$element = element;
-		// 根节点转文档碎片（element 将被清空）
-		this.$fragment = util.nodeToFragment(this.$element);
-
-		// 数据模型对象
-		this.$data = model;
-		// DOM 注册索引
-		util.defRec(model, '$els', {});
-		// 子取值域索引
-		util.defRec(model, '$scope', {});
-
-		// 未编译节点缓存队列
-		this.$unCompileNodes = [];
-		// 根节点是否已完成编译
-		this.$rootComplied = false;
-
-		// 视图刷新模块
-		this.updater = new Updater(this);
-		// 数据订阅模块
-		this.watcher = new Watcher(this.$data);
-		// 指令解析模块
-		this.von = new Von(this);
-		this.vel = new Vel(this);
-		this.vif = new Vif(this);
-		this.vfor = new Vfor(this);
-		this.vtext = new Vtext(this);
-		this.vhtml = new Vhtml(this);
-		this.vshow = new Vshow(this);
-		this.vbind = new Vbind(this);
-		this.vmodel = new Vmodel(this);
-
-		// v-model 限制使用的表单元素
-		this.$inputs = 'input|select|textarea'.split('|');
-
-		this.init();
-	}
-
-	var cp = Compiler.prototype;
-
-	cp.init = function() {
-		this.complieElement(this.$fragment, true);
-	}
-
-	/**
-	 * 编译文档碎片/节点
-	 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
-	 * @param   {Boolean}              root      [是否是编译根节点]
-	 * @param   {Object}               fors      [vfor 数据]
-	 */
-	cp.complieElement = function(element, root, fors) {
-		var node, childNodes = element.childNodes;
-
-		if (root && this.hasDirective(element)) {
-			this.$unCompileNodes.push([element, fors]);
-		}
-
-		for (var i = 0; i < childNodes.length; i++) {
-			node = childNodes[i];
-
-			if (this.hasDirective(node)) {
-				this.$unCompileNodes.push([node, fors]);
-			}
-
-			if (node.childNodes.length && !this.isLateCompile(node)) {
-				this.complieElement(node, false, fors);
-			}
-		}
-
-		if (root) {
-			this.compileAll();
-		}
-	}
-
-	/**
-	 * 节点是否含有合法指令
-	 * @param   {DOMElement}  node
-	 * @return  {Number}
-	 */
-	cp.hasDirective = function(node) {
-		var nodeAttrs, text = node.textContent;
-		var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
-
-		if (this.isElementNode(node)) {
-			nodeAttrs = node.attributes;
-			for (var i = 0; i < nodeAttrs.length; i++) {
-				if (this.isDirective(nodeAttrs[i].name)) {
-					return true;
-				}
-			}
-		}
-		else if (this.isTextNode(node) && reg.test(text)) {
-			return true;
-		}
-	}
-
-	/**
-	 * 编译节点缓存队列
-	 */
-	cp.compileAll = function() {
-		util.each(this.$unCompileNodes, function(info) {
-			this.complieDirectives(info);
-			return null;
-		}, this);
-
-		this.checkCompleted();
-	}
-
-	/**
-	 * 收集并编译节点指令
-	 * @param   {Array}  info   [node, fors]
-	 */
-	cp.complieDirectives = function(info) {
-		var node = info[0], fors = info[1];
-		var atr, name, _vfor, attrs = [], nodeAttrs;
-
-		if (this.isElementNode(node)) {
-			// node 节点集合转为数组
-			nodeAttrs = node.attributes;
-
-			for (var i = 0; i < nodeAttrs.length; i++) {
-				atr = nodeAttrs[i];
-				name = atr.name;
-				if (this.isDirective(name)) {
-					if (name === 'v-for') {
-						_vfor = atr;
-					}
-					attrs.push(atr);
-				}
-			}
-
-			// vfor 编译时标记节点的指令数
-			if (_vfor) {
-				util.def(node, '_vfor_directives', attrs.length);
-				attrs = [_vfor];
-				_vfor = null;
-			}
-
-			// 编译节点指令
-			util.each(attrs, function(attr) {
-				this.compile(node, attr, fors);
-			}, this);
-		}
-		else if (this.isTextNode(node)) {
-			this.compileText(node, fors);
-		}
-	}
-
-	/**
-	 * 编译元素节点指令
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       attr
-	 * @param   {Array}        fors
-	 */
-	cp.compile = function(node, attr, fors) {
-		var dir = attr.name;
-		var exp = attr.value;
-		var args = [fors, node, exp, dir];
-
-		// 移除指令标记
-		dom.removeAttr(node, dir);
-
-		// 动态指令：v-bind:xxx
-		if (dir.indexOf('v-bind') === 0) {
-			this.vbind.parse.apply(this.vbind, args);
-		}
-		// 动态指令：v-on:xxx
-		else if (dir.indexOf('v-on') === 0) {
-			this.von.parse.apply(this.von, args);
-		}
-		// 静态指令
-		else {
-			switch (dir) {
-				case 'v-el':
-					this.vel.parse.apply(this.vel, args);
-					break;
-				case 'v-text':
-					this.vtext.parse.apply(this.vtext, args);
-					break;
-				case 'v-html':
-					this.vhtml.parse.apply(this.vhtml, args);
-					break;
-				case 'v-show':
-					this.vshow.parse.apply(this.vshow, args);
-					break;
-				case 'v-if':
-					this.vif.parse.apply(this.vif, args);
-					break;
-				case 'v-else':
-					util.def(node, '_directive', 'v-else');
-					break;
-				case 'v-model':
-					this.vmodel.parse.apply(this.vmodel, args);
-					break;
-				case 'v-for':
-					this.vfor.parse.apply(this.vfor, args);
-					break;
-				case 'v-pre':
-					break;
-				default: util.warn(dir + ' is an unknown directive!');
-			}
-		}
-	}
-
-	/**
-	 * 编译文本节点 {{text}} or {{{html}}}
-	 * @param   {DOMElement}   node
-	 * @param   {Object}       fors
-	 */
-	cp.compileText = function(node, fors) {
-		var exp, match, matches, pieces, tokens = [];
-		var text = node.textContent.trim().replace(/\n/g, '');
-		var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
-		var isText = regtext.test(text), isHtml = reghtml.test(text);
-
-		// html match
-		if (isHtml) {
-			matches = text.match(reghtml);
-			match = matches[0];
-			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
-			if (match.length !== text.length) {
-				return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
-			}
-			this.vhtml.parse.call(this.vhtml, fors, node, exp);
-		}
-		// text match
-		else if (isText) {
-			pieces = text.split(regtext);
-			matches = text.match(regtext);
-
-			// 文本节点转化为常量和变量的组合表达式
-			// 'a {{b}} c' => '"a " + b + " c"'
-			util.each(pieces, function(piece) {
-				// {{text}}
-				if (matches.indexOf('{{' + piece + '}}') !== -1) {
-					tokens.push('(' + piece + ')');
-				}
-				// 字符常量
-				else if (piece) {
-					tokens.push('"' + piece + '"');
-				}
-			});
-
-			this.vtext.parse.call(this.vtext, fors, node, tokens.join('+'));
-		}
-	}
-
-	/**
-	 * 停止编译节点的剩余指令，如 vfor 的根节点
-	 * @param   {DOMElement}  node
-	 */
-	cp.blockCompile = function(node) {
-		util.each(this.$unCompileNodes, function(info) {
-			if (node === info[0]) {
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * 是否是元素节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	cp.isElementNode = function(element) {
-		return element.nodeType === 1;
-	}
-
-	/**
-	 * 是否是文本节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	cp.isTextNode = function(element) {
-		return element.nodeType === 3;
-	}
-
-	/**
-	 * 是否是合法指令
-	 * @param   {String}   directive
-	 * @return  {Boolean}
-	 */
-	cp.isDirective = function(directive) {
-		return directive.indexOf('v-') === 0;
-	}
-
-	/**
-	 * 节点的子节点是否延迟编译
-	 * 单独处理 vif, vfor 和 vpre 子节点的编译
-	 * @param   {DOMElement}   node
-	 * @return  {Boolean}
-	 */
-	cp.isLateCompile = function(node) {
-		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
-	}
-
-	/**
-	 * 检查根节点是否编译完成
-	 */
-	cp.checkCompleted = function() {
-		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
-			this.rootCompleted();
-		}
-	}
-
-	/**
-	 * 根节点编译完成，更新视图
-	 */
-	cp.rootCompleted = function() {
-		this.$rootComplied = true;
-		this.$element.appendChild(this.$fragment);
-	}
-
-	module.exports = Compiler;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
 	/**
 	 * dom 操作模块
 	 */
-	module.exports = {
+	var dom = {
 		/**
 		 * 清空 element 的所有子节点
 		 * @param   {DOMElement}  element
@@ -1185,16 +649,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			node.removeEventListener(evt, callback, capture);
 		}
 	}
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * updater 视图刷新模块
-	 */
-	var dom = __webpack_require__(3);
-	var util = __webpack_require__(1);
 
 	/**
 	 * 移除 DOM 注册的引用
@@ -1508,18 +962,216 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	}
 
-	module.exports = Updater;
+	/**
+	 * @param  {Object}     object    [VM 数据模型]
+	 * @param  {Function}   callback  [变化回调函数]
+	 * @param  {Object}     context   [执行上下文]
+	 * @param  {Object}     args      [<可选>回调额外参数]
+	 */
+	function Observer(object, callback, context, args) {
+		if (util.isString(callback)) {
+			callback = context[callback];
+		}
 
+		this.$args = args;
+		this.$context = context;
+		this.$callback = callback;
 
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
+		// 子对象字段，子对象的内部变更只触发顶层字段
+		this.$subPaths = [];
+
+		// 当前数组操作
+		this.$action = 921;
+		// 重写的 Array 方法
+		this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+
+		this.observe(object);
+	}
+
+	var op = Observer.prototype;
 
 	/**
-	 * watcher 数据订阅模块
+	 * 监测数据模型
+	 * @param   {Object}  object  [监测的对象]
+	 * @param   {Array}   paths   [访问路径数组]
 	 */
-	var util = __webpack_require__(1);
-	var Observer = __webpack_require__(6);
+	op.observe = function(object, paths) {
+		if (util.isArray(object)) {
+			this.rewriteMethods(object, paths);
+		}
+
+		util.each(object, function(value, property) {
+			var copies = paths && paths.slice(0);
+			if (copies) {
+				copies.push(property);
+			}
+			else {
+				copies = [property];
+			}
+
+			this.bindWatch(object, copies, value);
+		}, this);
+
+		return this;
+	}
+
+	/**
+	 * 拦截对象属性存取描述符（绑定监测）
+	 * @param   {Object|Array}  object  [对象或数组]
+	 * @param   {Array}         paths   [访问路径数组]
+	 */
+	op.bindWatch = function(object, paths, val) {
+		var path = paths.join('*');
+		var prop = paths[paths.length - 1];
+		var descriptor = Object.getOwnPropertyDescriptor(object, prop);
+		var getter = descriptor.get, setter = descriptor.set;
+
+		// 定义 object[prop] 的 getter 和 setter
+		Object.defineProperty(object, prop, {
+			get: (function Getter() {
+				return getter ? getter.call(object) : val;
+			}).bind(this),
+
+			set: (function Setter(newValue, noTrigger) {
+				var subPath, oldObjectVal, args;
+				var oldValue = getter ? getter.call(object) : val;
+				var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
+
+				if (newValue === oldValue) {
+					return;
+				}
+
+				if (
+					!isArrayAction &&
+					(util.isArray(newValue) || util.isObject(newValue))
+				) {
+					this.observe(newValue, paths);
+				}
+
+				// 获取子对象路径
+				subPath = this.getSubPath(path);
+				if (subPath) {
+					oldObjectVal = object[prop];
+				}
+
+				if (setter) {
+					setter.call(object, newValue, true);
+				}
+				else {
+					val = newValue;
+				}
+
+				if (isArrayAction || noTrigger) {
+					return;
+				}
+
+				args = subPath ? [subPath, object[prop], oldObjectVal] : [path, newValue, oldValue];
+				this.trigger.apply(this, args);
+			}).bind(this)
+		});
+
+		var value = object[prop];
+		var isObject = util.isObject(value);
+
+		// 嵌套数组或对象
+		if (util.isArray(value) || isObject) {
+			this.observe(value, paths);
+		}
+
+		// 缓存子对象字段
+		if (
+			isObject &&
+			this.$subPaths.indexOf(path) === -1 &&
+			!util.isNumber(+path.split('*').pop())
+		) {
+			this.$subPaths.push(path);
+		}
+	}
+
+	/**
+	 * 是否是子对象路径，如果是则返回对象路径
+	 * @param   {String}   path
+	 * @return  {String}
+	 */
+	op.getSubPath = function(path) {
+		var paths = this.$subPaths;
+		for (var i = 0; i < paths.length; i++) {
+			if (path.indexOf(paths[i]) === 0) {
+				return paths[i];
+			}
+		}
+	}
+
+	/**
+	 * 重写指定的 Array 方法
+	 * @param   {Array}  array  [目标数组]
+	 * @param   {Array}  paths  [访问路径数组]
+	 */
+	op.rewriteMethods = function(array, paths) {
+		var arrayProto = Array.prototype;
+		var arrayMethods = Object.create(arrayProto);
+		var path = paths && paths.join('*');
+
+		util.each(this.$methods, function(method) {
+			var self = this, original = arrayProto[method];
+			util.defRec(arrayMethods, method, function _redefineArrayMethod() {
+				var arguments$1 = arguments;
+
+				var i = arguments.length, result;
+				var args = new Array(i);
+
+				while (i--) {
+					args[i] = arguments$1[i];
+				}
+
+				self.$action = method;
+
+				result = original.apply(this, args);
+
+				self.$action = 921;
+
+				// 重新监测
+				self.observe(this, paths);
+
+				// 触发回调
+				self.trigger(path, this, method, args);
+
+				return result;
+			});
+		}, this);
+
+		// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
+		util.defRec(arrayMethods, '$set', function $set(index, value) {
+			// 超出数组长度默认在最后添加（相当于 push）
+			if (index >= this.length) {
+				index = this.length;
+			}
+
+			return this.splice(index, 1, value)[0];
+		});
+
+		// 添加 $remove 方法
+		util.defRec(arrayMethods, '$remove', function $remove(item) {
+			var index = this.indexOf(item);
+
+			if (index !== -1) {
+				return this.splice(index, 1);
+			}
+		});
+
+		array.__proto__ = arrayMethods;
+	}
+
+	/**
+	 * 触发 object 变化回调
+	 * @param   {String}       path      [变更路径]
+	 * @param   {Mix}          last      [新值]
+	 * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
+	 * @param   {Array}        args      [数组操作时的参数]
+	 */
+	op.trigger = function(path, last, old, args) {
+		this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
+	}
 
 	function Watcher(model) {
 		this.$model = model;
@@ -1791,477 +1443,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		dest = caches = null;
 	}
-
-	module.exports = Watcher;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * observer 数据变化监测模块
-	 */
-	var util = __webpack_require__(1);
-
-	/**
-	 * @param  {Object}     object    [VM 数据模型]
-	 * @param  {Function}   callback  [变化回调函数]
-	 * @param  {Object}     context   [执行上下文]
-	 * @param  {Object}     args      [<可选>回调额外参数]
-	 */
-	function Observer(object, callback, context, args) {
-		if (util.isString(callback)) {
-			callback = context[callback];
-		}
-
-		this.$args = args;
-		this.$context = context;
-		this.$callback = callback;
-
-		// 子对象字段，子对象的内部变更只触发顶层字段
-		this.$subPaths = [];
-
-		// 当前数组操作
-		this.$action = 921;
-		// 重写的 Array 方法
-		this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
-
-		this.observe(object);
-	}
-
-	var op = Observer.prototype;
-
-	/**
-	 * 监测数据模型
-	 * @param   {Object}  object  [监测的对象]
-	 * @param   {Array}   paths   [访问路径数组]
-	 */
-	op.observe = function(object, paths) {
-		if (util.isArray(object)) {
-			this.rewriteMethods(object, paths);
-		}
-
-		util.each(object, function(value, property) {
-			var copies = paths && paths.slice(0);
-			if (copies) {
-				copies.push(property);
-			}
-			else {
-				copies = [property];
-			}
-
-			this.bindWatch(object, copies, value);
-		}, this);
-
-		return this;
-	}
-
-	/**
-	 * 拦截对象属性存取描述符（绑定监测）
-	 * @param   {Object|Array}  object  [对象或数组]
-	 * @param   {Array}         paths   [访问路径数组]
-	 */
-	op.bindWatch = function(object, paths, val) {
-		var path = paths.join('*');
-		var prop = paths[paths.length - 1];
-		var descriptor = Object.getOwnPropertyDescriptor(object, prop);
-		var getter = descriptor.get, setter = descriptor.set;
-
-		// 定义 object[prop] 的 getter 和 setter
-		Object.defineProperty(object, prop, {
-			get: (function Getter() {
-				return getter ? getter.call(object) : val;
-			}).bind(this),
-
-			set: (function Setter(newValue, noTrigger) {
-				var subPath, oldObjectVal, args;
-				var oldValue = getter ? getter.call(object) : val;
-				var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
-
-				if (newValue === oldValue) {
-					return;
-				}
-
-				if (
-					!isArrayAction &&
-					(util.isArray(newValue) || util.isObject(newValue))
-				) {
-					this.observe(newValue, paths);
-				}
-
-				// 获取子对象路径
-				subPath = this.getSubPath(path);
-				if (subPath) {
-					oldObjectVal = object[prop];
-				}
-
-				if (setter) {
-					setter.call(object, newValue, true);
-				}
-				else {
-					val = newValue;
-				}
-
-				if (isArrayAction || noTrigger) {
-					return;
-				}
-
-				args = subPath ? [subPath, object[prop], oldObjectVal] : [path, newValue, oldValue];
-				this.trigger.apply(this, args);
-			}).bind(this)
-		});
-
-		var value = object[prop];
-		var isObject = util.isObject(value);
-
-		// 嵌套数组或对象
-		if (util.isArray(value) || isObject) {
-			this.observe(value, paths);
-		}
-
-		// 缓存子对象字段
-		if (
-			isObject &&
-			this.$subPaths.indexOf(path) === -1 &&
-			!util.isNumber(+path.split('*').pop())
-		) {
-			this.$subPaths.push(path);
-		}
-	}
-
-	/**
-	 * 是否是子对象路径，如果是则返回对象路径
-	 * @param   {String}   path
-	 * @return  {String}
-	 */
-	op.getSubPath = function(path) {
-		var paths = this.$subPaths;
-		for (var i = 0; i < paths.length; i++) {
-			if (path.indexOf(paths[i]) === 0) {
-				return paths[i];
-			}
-		}
-	}
-
-	/**
-	 * 重写指定的 Array 方法
-	 * @param   {Array}  array  [目标数组]
-	 * @param   {Array}  paths  [访问路径数组]
-	 */
-	op.rewriteMethods = function(array, paths) {
-		var arrayProto = util.AP;
-		var arrayMethods = Object.create(arrayProto);
-		var path = paths && paths.join('*');
-
-		util.each(this.$methods, function(method) {
-			var self = this, original = arrayProto[method];
-			util.defRec(arrayMethods, method, function _redefineArrayMethod() {
-				var i = arguments.length, result;
-				var args = new Array(i);
-
-				while (i--) {
-					args[i] = arguments[i];
-				}
-
-				self.$action = method;
-
-				result = original.apply(this, args);
-
-				self.$action = 921;
-
-				// 重新监测
-				self.observe(this, paths);
-
-				// 触发回调
-				self.trigger(path, this, method, args);
-
-				return result;
-			});
-		}, this);
-
-		// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
-		util.defRec(arrayMethods, '$set', function $set(index, value) {
-			// 超出数组长度默认在最后添加（相当于 push）
-			if (index >= this.length) {
-				index = this.length;
-			}
-
-			return this.splice(index, 1, value)[0];
-		});
-
-		// 添加 $remove 方法
-		util.defRec(arrayMethods, '$remove', function $remove(item) {
-			var index = this.indexOf(item);
-
-			if (index !== -1) {
-				return this.splice(index, 1);
-			}
-		});
-
-		array.__proto__ = arrayMethods;
-	}
-
-	/**
-	 * 触发 object 变化回调
-	 * @param   {String}       path      [变更路径]
-	 * @param   {Mix}          last      [新值]
-	 * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
-	 * @param   {Array}        args      [数组操作时的参数]
-	 */
-	op.trigger = function(path, last, old, args) {
-		this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
-	}
-
-	module.exports = Observer;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
-
-	/**
-	 * 分解字符串函数参数
-	 * @param   {String}  funcString
-	 * @return  {Object}
-	 */
-	function stringToParams(funcString) {
-		var args, func;
-		var exp = util.removeSpace(funcString);
-		var matches = exp.match(/(\(.*\))/);
-		var result = matches && matches[0];
-
-		// 有函数名和参数
-		if (result) {
-			func = exp.substr(0, exp.indexOf(result));
-			args = '[' + result.substr(1, result.length - 2) + ']';
-		}
-		// 只有函数名
-		else {
-			func = exp;
-		}
-
-		return {
-			'func': func,
-			'args': args
-		}
-	}
-
-	/**
-	 * 字符 json 转为键值对象
-	 * @param   {String}  jsonString
-	 * @return  {Object}
-	 */
-	function convertJson(jsonString) {
-		var json, props;
-		var string = jsonString.trim(), i = string.length;
-
-		if (/^\{.*\}$/.test(string)) {
-			json = {};
-			string = string.substr(1, i - 2).replace(/\s/g, '');
-			props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
-
-			util.each(props, function(prop) {
-				var vals = util.getKeyValue(prop, true);
-				var name = vals[0], value = vals[1];
-				if (name && value) {
-					name = name.replace(/(^'*)|('*$)|(^"*)|("*$)/g, '');
-					json[name] = value;
-				}
-			});
-		}
-
-		return json;
-	}
-
-
-	function Von(vm) {
-		this.vm = vm;
-		// 事件绑定回调集合
-		this.$listeners = {};
-		Parser.call(this);
-	}
-	var von = Von.prototype = Object.create(Parser.prototype);
-
-	/**
-	 * 解析 v-on 指令
-	 * @param   {Object}      fors        [vfor 数据]
-	 * @param   {DOMElement}  node        [指令节点]
-	 * @param   {String}      expression  [指令表达式]
-	 * @param   {String}      directive   [指令名称]
-	 */
-	von.parse = function(fors, node, expression, directive) {
-		// 单个事件
-		if (directive.indexOf(':') !== -1) {
-			this.parseSingle.apply(this, arguments);
-		}
-		// 多个事件
-		else {
-			this.parseJson.apply(this, arguments);
-		}
-	}
-
-	/**
-	 * 解析单个 v-on:type
-	 */
-	von.parseSingle = function(fors, node, expression, directive) {
-		// 事件信息
-		var info = stringToParams(expression);
-		// 事件类型
-		var type = util.getKeyValue(directive);
-		// 事件取值字段名称
-		var field = info.func;
-		// 参数字符串
-		var paramString = info.args;
-
-		// 获取事件函数
-		var deps = this.getDeps(fors, field);
-		var scope = this.getScope(fors, field);
-		var getter = this.getEval(fors, field);
-		var func = getter.call(scope, scope);
-
-		// 绑定事件 & 参数求值
-		this.bindEvent(fors, node, field, type, func, paramString);
-
-		// 监测依赖变化，绑定新回调，旧回调将被移除
-		this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
-			// 解除绑定
-			this.update(node, type, this.$listeners[path], false, true);
-			// 绑定新回调
-			this.bindEvent(fors, node, path, type, lastCallback, paramString);
-		}, this);
-	}
-
-	/**
-	 * 解析多个 v-on=eventJson
-	 */
-	von.parseJson = function(fors, node, expression) {
-		util.each(convertJson(expression), function(exp, type) {
-			this.parseSingle(fors, node, exp, type);
-		}, this);
-	}
-
-	/**
-	 * 绑定一个事件
-	 * @param   {Object}      fors
-	 * @param   {DOMElement}  node
-	 * @param   {String}      field
-	 * @param   {String}      evt
-	 * @param   {Function}    func
-	 * @param   {String}      paramString
-	 */
-	von.bindEvent = function(fors, node, field, evt, func, paramString) {
-		var listeners = this.$listeners;
-		var identifier = fors && fors.access || field;
-		var modals, self, stop, prevent, keyCode, capture = false;
-
-		if (!util.isFunc(func)) {
-			return;
-		}
-
-		// 支持 4 种事件修饰符 .self .stop .prevent .capture
-		if (evt.indexOf('.') !== -1) {
-			modals = evt.split('.');
-			evt = modals.shift();
-			self = modals && modals.indexOf('self') !== -1;
-			stop = modals && modals.indexOf('stop') !== -1;
-			prevent = modals && modals.indexOf('prevent') !== -1;
-			capture = modals && modals.indexOf('capture') !== -1;
-			keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
-		}
-
-		// 处理回调参数以及依赖监测
-		var deps, maps, scope, getter, args = [];
-		if (paramString) {
-			// 取值依赖
-			deps = this.getDeps(fors, paramString);
-			// 别名映射
-			maps = fors && util.copy(fors.maps);
-			// 取值域
-			scope = this.getScope(fors, paramString);
-			// 添加别名标记
-			util.defRec(scope, '$event', '$event');
-			// 取值函数
-			getter = this.getEval(fors, paramString);
-			// 事件参数
-			args = getter.call(scope, scope);
-
-			this.vm.watcher.watch(deps, function() {
-				scope = this.updateScope(scope, maps, deps, arguments);
-				args = getter.call(scope, scope);
-			}, this);
-		}
-
-		// 事件代理函数
-		var eventProxy = function _eventProxy(e) {
-			// 是否限定只能在当前节点触发事件
-			if (self && e.target !== node) {
-				return;
-			}
-
-			// 是否指定按键触发
-			if (keyCode && keyCode !== e.keyCode) {
-				return;
-			}
-
-			// 未指定参数，则原生事件对象作为唯一参数
-			if (!args.length) {
-				args.push(e);
-			}
-			else {
-				// 更新/替换事件对象
-				util.each(args, function(param, index) {
-					if (param === '$event' || param instanceof Event) {
-						args[index] = e;
-					}
-				});
-			}
-
-			// 是否阻止冒泡
-			if (stop) {
-				e.stopPropagation();
-			}
-
-			// 是否阻止默认事件
-			if (prevent) {
-				e.preventDefault();
-			}
-
-			func.apply(this, args);
-		}
-
-		listeners[identifier] = eventProxy;
-
-		// 添加绑定
-		this.update(node, evt, eventProxy, capture);
-	}
-
-	/**
-	 * 更新绑定事件
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	von.update = function() {
-		var updater = this.vm.updater;
-		updater.updateEvent.apply(updater, arguments);
-	}
-
-	module.exports = Von;
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * parser 指令解析模块
-	 */
-	var util = __webpack_require__(1);
 
 	// 表达式中允许的关键字
 	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
@@ -2568,15 +1749,233 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	}
 
-	module.exports = Parser;
+	/**
+	 * 分解字符串函数参数
+	 * @param   {String}  funcString
+	 * @return  {Object}
+	 */
+	function stringToParams(funcString) {
+		var args, func;
+		var exp = util.removeSpace(funcString);
+		var matches = exp.match(/(\(.*\))/);
+		var result = matches && matches[0];
+
+		// 有函数名和参数
+		if (result) {
+			func = exp.substr(0, exp.indexOf(result));
+			args = '[' + result.substr(1, result.length - 2) + ']';
+		}
+		// 只有函数名
+		else {
+			func = exp;
+		}
+
+		return {
+			'func': func,
+			'args': args
+		}
+	}
+
+	/**
+	 * 字符 json 转为键值对象
+	 * @param   {String}  jsonString
+	 * @return  {Object}
+	 */
+	function convertJson(jsonString) {
+		var json, props;
+		var string = jsonString.trim(), i = string.length;
+
+		if (/^\{.*\}$/.test(string)) {
+			json = {};
+			string = string.substr(1, i - 2).replace(/\s/g, '');
+			props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
+
+			util.each(props, function(prop) {
+				var vals = util.getKeyValue(prop, true);
+				var name = vals[0], value = vals[1];
+				if (name && value) {
+					name = name.replace(/(^'*)|('*$)|(^"*)|("*$)/g, '');
+					json[name] = value;
+				}
+			});
+		}
+
+		return json;
+	}
 
 
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
+	function Von(vm) {
+		this.vm = vm;
+		// 事件绑定回调集合
+		this.$listeners = {};
+		Parser.call(this);
+	}
+	var von = Von.prototype = Object.create(Parser.prototype);
 
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
+	/**
+	 * 解析 v-on 指令
+	 * @param   {Object}      fors        [vfor 数据]
+	 * @param   {DOMElement}  node        [指令节点]
+	 * @param   {String}      expression  [指令表达式]
+	 * @param   {String}      directive   [指令名称]
+	 */
+	von.parse = function(fors, node, expression, directive) {
+		// 单个事件
+		if (directive.indexOf(':') !== -1) {
+			this.parseSingle.apply(this, arguments);
+		}
+		// 多个事件
+		else {
+			this.parseJson.apply(this, arguments);
+		}
+	}
+
+	/**
+	 * 解析单个 v-on:type
+	 */
+	von.parseSingle = function(fors, node, expression, directive) {
+		// 事件信息
+		var info = stringToParams(expression);
+		// 事件类型
+		var type = util.getKeyValue(directive);
+		// 事件取值字段名称
+		var field = info.func;
+		// 参数字符串
+		var paramString = info.args;
+
+		// 获取事件函数
+		var deps = this.getDeps(fors, field);
+		var scope = this.getScope(fors, field);
+		var getter = this.getEval(fors, field);
+		var func = getter.call(scope, scope);
+
+		// 绑定事件 & 参数求值
+		this.bindEvent(fors, node, field, type, func, paramString);
+
+		// 监测依赖变化，绑定新回调，旧回调将被移除
+		this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
+			// 解除绑定
+			this.update(node, type, this.$listeners[path], false, true);
+			// 绑定新回调
+			this.bindEvent(fors, node, path, type, lastCallback, paramString);
+		}, this);
+	}
+
+	/**
+	 * 解析多个 v-on=eventJson
+	 */
+	von.parseJson = function(fors, node, expression) {
+		util.each(convertJson(expression), function(exp, type) {
+			this.parseSingle(fors, node, exp, type);
+		}, this);
+	}
+
+	/**
+	 * 绑定一个事件
+	 * @param   {Object}      fors
+	 * @param   {DOMElement}  node
+	 * @param   {String}      field
+	 * @param   {String}      evt
+	 * @param   {Function}    func
+	 * @param   {String}      paramString
+	 */
+	von.bindEvent = function(fors, node, field, evt, func, paramString) {
+		var listeners = this.$listeners;
+		var identifier = fors && fors.access || field;
+		var modals, self, stop, prevent, keyCode, capture = false;
+
+		if (!util.isFunc(func)) {
+			return;
+		}
+
+		// 支持 4 种事件修饰符 .self .stop .prevent .capture
+		if (evt.indexOf('.') !== -1) {
+			modals = evt.split('.');
+			evt = modals.shift();
+			self = modals && modals.indexOf('self') !== -1;
+			stop = modals && modals.indexOf('stop') !== -1;
+			prevent = modals && modals.indexOf('prevent') !== -1;
+			capture = modals && modals.indexOf('capture') !== -1;
+			keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
+		}
+
+		// 处理回调参数以及依赖监测
+		var deps, maps, scope, getter, args = [];
+		if (paramString) {
+			// 取值依赖
+			deps = this.getDeps(fors, paramString);
+			// 别名映射
+			maps = fors && util.copy(fors.maps);
+			// 取值域
+			scope = this.getScope(fors, paramString);
+			// 添加别名标记
+			util.defRec(scope, '$event', '$event');
+			// 取值函数
+			getter = this.getEval(fors, paramString);
+			// 事件参数
+			args = getter.call(scope, scope);
+
+			this.vm.watcher.watch(deps, function() {
+				scope = this.updateScope(scope, maps, deps, arguments);
+				args = getter.call(scope, scope);
+			}, this);
+		}
+
+		// 事件代理函数
+		var eventProxy = function _eventProxy(e) {
+			// 是否限定只能在当前节点触发事件
+			if (self && e.target !== node) {
+				return;
+			}
+
+			// 是否指定按键触发
+			if (keyCode && keyCode !== e.keyCode) {
+				return;
+			}
+
+			// 未指定参数，则原生事件对象作为唯一参数
+			if (!args.length) {
+				args.push(e);
+			}
+			else {
+				// 更新/替换事件对象
+				util.each(args, function(param, index) {
+					if (param === '$event' || param instanceof Event) {
+						args[index] = e;
+					}
+				});
+			}
+
+			// 是否阻止冒泡
+			if (stop) {
+				e.stopPropagation();
+			}
+
+			// 是否阻止默认事件
+			if (prevent) {
+				e.preventDefault();
+			}
+
+			func.apply(this, args);
+		}
+
+		listeners[identifier] = eventProxy;
+
+		// 添加绑定
+		this.update(node, evt, eventProxy, capture);
+	}
+
+	/**
+	 * 更新绑定事件
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	von.update = function() {
+		var updater = this.vm.updater;
+		updater.updateEvent.apply(updater, arguments);
+	}
 
 	function Vel(vm) {
 		this.vm = vm;
@@ -2613,15 +2012,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	}
 
-	module.exports = Vel;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-
 	function Vif(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2647,16 +2037,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		var updater = this.vm.updater;
 		updater.updateRenderContent.apply(updater, arguments);
 	}
-
-	module.exports = Vif;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
 
 	function Vfor(vm) {
 		this.vm = vm;
@@ -3200,15 +2580,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 	}
 
-	module.exports = Vfor;
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-
 	function Vtext(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -3234,15 +2605,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		var updater = this.vm.updater;
 		updater.updateTextContent.apply(updater, arguments);
 	}
-
-	module.exports = Vtext;
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
 
 	function Vhtml(vm) {
 		this.vm = vm;
@@ -3270,15 +2632,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		updater.updateHtmlContent.apply(updater, arguments);
 	}
 
-	module.exports = Vhtml;
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-
 	function Vshow(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -3305,17 +2658,156 @@ return /******/ (function(modules) { // webpackBootstrap
 		updater.updateDisplay.apply(updater, arguments);
 	}
 
-	module.exports = Vshow;
+	function VClass(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vclass = VClass.prototype = Object.create(Parser.prototype);
 
+	/**
+	 * 解析 v-bind-class
+	 * @param   {Object}      fors        [vfor 数据]
+	 * @param   {DOMElement}  node        [指令节点]
+	 * @param   {String}      expression  [指令表达式]
+	 */
+	vclass.parse = function(fors, node, expression) {
+		// 提取依赖
+		var deps = this.getDeps(fors, expression);
+		// 取值域
+		var scope = this.getScope(fors, expression);
+		// 取值函数
+		var getter = this.getEval(fors, expression);
+		// 别名映射
+		var maps = fors && util.copy(fors.maps);
 
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
+		var value = getter.call(scope, scope);
 
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
-	var VClass = __webpack_require__(16);
-	var VStyle = __webpack_require__(17);
+		this.updateClass(node, value);
+
+		// 监测依赖
+		this.vm.watcher.watch(deps, function(path, last, old) {
+			scope = this.updateScope(scope, maps, deps, arguments);
+
+			if (util.isArray(value)) {
+				value = [old];
+			}
+			// 移除旧 class
+			this.updateClass(node, value, true);
+
+			// 更新当前值
+			value = getter.call(scope, scope);
+
+			// 添加新 class
+			this.updateClass(node, value);
+		}, this);
+	}
+
+	/**
+	 * 绑定 classname
+	 * @param   {DOMElement}           node
+	 * @param   {String|Array|Object}  classValue
+	 * @param   {Boolean}              remove
+	 */
+	vclass.updateClass = function(node, classValue, remove) {
+		// single class
+		if (util.isString(classValue)) {
+			this.update(node, (remove ? null : classValue), (remove ? classValue : null));
+		}
+		// [classA, classB]
+		else if (util.isArray(classValue)) {
+			util.each(classValue, function(cls) {
+				this.update(node, (remove ? null : cls), (remove ? cls : null));
+			}, this);
+		}
+		// classObject
+		else if (util.isObject(classValue)) {
+			util.each(classValue, function(isAdd, cls) {
+				this.update(node, (remove ? false : isAdd), false, cls);
+			}, this);
+		}
+	}
+
+	/**
+	 * 更新节点的 classname
+	 * @param   {DOMElement}          node
+	 * @param   {String|Boolean}      newcls
+	 * @param   {String|Boolean}      oldcls
+	 * @param   {String}              classname
+	 */
+	vclass.update = function() {
+		var updater = this.vm.updater;
+		updater.updateClassName.apply(updater, arguments);
+	}
+
+	function VStyle(vm) {
+		this.vm = vm;
+		Parser.call(this);
+	}
+	var vstyle = VStyle.prototype = Object.create(Parser.prototype);
+
+	/**
+	 * 解析 v-bind-style
+	 * @param   {Object}      fors        [vfor 数据]
+	 * @param   {DOMElement}  node        [指令节点]
+	 * @param   {String}      expression  [指令表达式]
+	 */
+	vstyle.parse = function(fors, node, expression) {
+		// 提取依赖
+		var deps = this.getDeps(fors, expression);
+		// 取值域
+		var scope = this.getScope(fors, expression);
+		// 取值函数
+		var getter = this.getEval(fors, expression);
+		// 别名映射
+		var maps = fors && util.copy(fors.maps);
+		// 取值对象
+		var styleObject = getter.call(scope, scope);
+
+		this.updateStyle(node, styleObject);
+
+		// 监测依赖变化
+		this.vm.watcher.watch(deps, function(path, last, old) {
+			// 替换整个 styleObject
+			if (util.isObject(old)) {
+				// 移除旧样式(设为 null)
+				util.each(old, function(v, style) {
+					old[style] = null;
+				});
+				this.updateStyle(node, util.extend(last, old));
+			}
+			else {
+				scope = this.updateScope(scope, maps, deps, arguments);
+				this.updateStyle(node, getter.call(scope, scope));
+			}
+		}, this);
+	}
+
+	/**
+	 * 绑定 styleObject
+	 * @param   {DOMElement}  node
+	 * @param   {Object}      styleObject
+	 * @param   {Boolean}     remove        [是否全部移除]
+	 */
+	vstyle.updateStyle = function(node, styleObject, remove) {
+		if (!util.isObject(styleObject)) {
+			return util.warn('v-bind for style must be a type of Object!', styleObject);
+		}
+
+		util.each(styleObject, function(value, style) {
+			this.update(node, style, (remove ? null : value));
+		}, this);
+	}
+
+	/**
+	 * 更新节点 style
+	 * @param   {DOMElement}   node
+	 * @param   {String}       style
+	 * @param   {String}       value
+	 */
+	vstyle.update = function() {
+		var updater = this.vm.updater;
+		updater.updateStyle.apply(updater, arguments);
+	}
 
 	function Vbind(vm) {
 		this.vm = vm;
@@ -3460,188 +2952,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		var updater = this.vm.updater;
 		updater.updateAttribute.apply(updater, arguments);
 	}
-
-	module.exports = Vbind;
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
-
-	function VClass(vm) {
-		this.vm = vm;
-		Parser.call(this);
-	}
-	var vclass = VClass.prototype = Object.create(Parser.prototype);
-
-	/**
-	 * 解析 v-bind-class
-	 * @param   {Object}      fors        [vfor 数据]
-	 * @param   {DOMElement}  node        [指令节点]
-	 * @param   {String}      expression  [指令表达式]
-	 */
-	vclass.parse = function(fors, node, expression) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
-
-		var value = getter.call(scope, scope);
-
-		this.updateClass(node, value);
-
-		// 监测依赖
-		this.vm.watcher.watch(deps, function(path, last, old) {
-			scope = this.updateScope(scope, maps, deps, arguments);
-
-			if (util.isArray(value)) {
-				value = [old];
-			}
-			// 移除旧 class
-			this.updateClass(node, value, true);
-
-			// 更新当前值
-			value = getter.call(scope, scope);
-
-			// 添加新 class
-			this.updateClass(node, value);
-		}, this);
-	}
-
-	/**
-	 * 绑定 classname
-	 * @param   {DOMElement}           node
-	 * @param   {String|Array|Object}  classValue
-	 * @param   {Boolean}              remove
-	 */
-	vclass.updateClass = function(node, classValue, remove) {
-		// single class
-		if (util.isString(classValue)) {
-			this.update(node, (remove ? null : classValue), (remove ? classValue : null));
-		}
-		// [classA, classB]
-		else if (util.isArray(classValue)) {
-			util.each(classValue, function(cls) {
-				this.update(node, (remove ? null : cls), (remove ? cls : null));
-			}, this);
-		}
-		// classObject
-		else if (util.isObject(classValue)) {
-			util.each(classValue, function(isAdd, cls) {
-				this.update(node, (remove ? false : isAdd), false, cls);
-			}, this);
-		}
-	}
-
-	/**
-	 * 更新节点的 classname
-	 * @param   {DOMElement}          node
-	 * @param   {String|Boolean}      newcls
-	 * @param   {String|Boolean}      oldcls
-	 * @param   {String}              classname
-	 */
-	vclass.update = function() {
-		var updater = this.vm.updater;
-		updater.updateClassName.apply(updater, arguments);
-	}
-
-	module.exports = VClass;
-
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-	var util = __webpack_require__(1);
-
-	function VStyle(vm) {
-		this.vm = vm;
-		Parser.call(this);
-	}
-	var vstyle = VStyle.prototype = Object.create(Parser.prototype);
-
-	/**
-	 * 解析 v-bind-style
-	 * @param   {Object}      fors        [vfor 数据]
-	 * @param   {DOMElement}  node        [指令节点]
-	 * @param   {String}      expression  [指令表达式]
-	 */
-	vstyle.parse = function(fors, node, expression) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
-		// 取值对象
-		var styleObject = getter.call(scope, scope);
-
-		this.updateStyle(node, styleObject);
-
-		// 监测依赖变化
-		this.vm.watcher.watch(deps, function(path, last, old) {
-			// 替换整个 styleObject
-			if (util.isObject(old)) {
-				// 移除旧样式(设为 null)
-				util.each(old, function(v, style) {
-					old[style] = null;
-				});
-				this.updateStyle(node, util.extend(last, old));
-			}
-			else {
-				scope = this.updateScope(scope, maps, deps, arguments);
-				this.updateStyle(node, getter.call(scope, scope));
-			}
-		}, this);
-	}
-
-	/**
-	 * 绑定 styleObject
-	 * @param   {DOMElement}  node
-	 * @param   {Object}      styleObject
-	 * @param   {Boolean}     remove        [是否全部移除]
-	 */
-	vstyle.updateStyle = function(node, styleObject, remove) {
-		if (!util.isObject(styleObject)) {
-			return util.warn('v-bind for style must be a type of Object!', styleObject);
-		}
-
-		util.each(styleObject, function(value, style) {
-			this.update(node, style, (remove ? null : value));
-		}, this);
-	}
-
-	/**
-	 * 更新节点 style
-	 * @param   {DOMElement}   node
-	 * @param   {String}       style
-	 * @param   {String}       value
-	 */
-	vstyle.update = function() {
-		var updater = this.vm.updater;
-		updater.updateStyle.apply(updater, arguments);
-	}
-
-	module.exports = VStyle;
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Parser = __webpack_require__(8);
-	var dom = __webpack_require__(3);
-	var util = __webpack_require__(1);
 
 	/**
 	 * 格式化表单输出值
@@ -3929,10 +3239,445 @@ return /******/ (function(modules) { // webpackBootstrap
 		});
 	}
 
-	module.exports = Vmodel;
+	/**
+	 * 编译模块
+	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
+	 * @param  {Object}      model    [数据模型对象]
+	 */
+	function Compiler(element, model) {
+		if (!this.isElementNode(element)) {
+			return util.warn('element must be a type of DOMElement: ', element);
+		}
 
+		if (!util.isObject(model)) {
+			return util.warn('model must be a type of Object: ', model);
+		}
 
-/***/ }
-/******/ ])
-});
-;
+		// 缓存根节点
+		this.$element = element;
+		// 根节点转文档碎片（element 将被清空）
+		this.$fragment = util.nodeToFragment(this.$element);
+
+		// 数据模型对象
+		this.$data = model;
+		// DOM 注册索引
+		util.defRec(model, '$els', {});
+		// 子取值域索引
+		util.defRec(model, '$scope', {});
+
+		// 未编译节点缓存队列
+		this.$unCompileNodes = [];
+		// 根节点是否已完成编译
+		this.$rootComplied = false;
+
+		// 视图刷新模块
+		this.updater = new Updater(this);
+		// 数据订阅模块
+		this.watcher = new Watcher(this.$data);
+		// 指令解析模块
+		this.von = new Von(this);
+		this.vel = new Vel(this);
+		this.vif = new Vif(this);
+		this.vfor = new Vfor(this);
+		this.vtext = new Vtext(this);
+		this.vhtml = new Vhtml(this);
+		this.vshow = new Vshow(this);
+		this.vbind = new Vbind(this);
+		this.vmodel = new Vmodel(this);
+
+		// v-model 限制使用的表单元素
+		this.$inputs = 'input|select|textarea'.split('|');
+
+		this.init();
+	}
+
+	var cp = Compiler.prototype;
+
+	cp.init = function() {
+		this.complieElement(this.$fragment, true);
+	}
+
+	/**
+	 * 编译文档碎片/节点
+	 * @param   {Fragment|DOMElement}  element   [文档碎片/节点]
+	 * @param   {Boolean}              root      [是否是编译根节点]
+	 * @param   {Object}               fors      [vfor 数据]
+	 */
+	cp.complieElement = function(element, root, fors) {
+		var this$1 = this;
+
+		var node, childNodes = element.childNodes;
+
+		if (root && this.hasDirective(element)) {
+			this.$unCompileNodes.push([element, fors]);
+		}
+
+		for (var i = 0; i < childNodes.length; i++) {
+			node = childNodes[i];
+
+			if (this$1.hasDirective(node)) {
+				this$1.$unCompileNodes.push([node, fors]);
+			}
+
+			if (node.childNodes.length && !this$1.isLateCompile(node)) {
+				this$1.complieElement(node, false, fors);
+			}
+		}
+
+		if (root) {
+			this.compileAll();
+		}
+	}
+
+	/**
+	 * 节点是否含有合法指令
+	 * @param   {DOMElement}  node
+	 * @return  {Number}
+	 */
+	cp.hasDirective = function(node) {
+		var this$1 = this;
+
+		var nodeAttrs, text = node.textContent;
+		var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+
+		if (this.isElementNode(node)) {
+			nodeAttrs = node.attributes;
+			for (var i = 0; i < nodeAttrs.length; i++) {
+				if (this$1.isDirective(nodeAttrs[i].name)) {
+					return true;
+				}
+			}
+		}
+		else if (this.isTextNode(node) && reg.test(text)) {
+			return true;
+		}
+	}
+
+	/**
+	 * 编译节点缓存队列
+	 */
+	cp.compileAll = function() {
+		util.each(this.$unCompileNodes, function(info) {
+			this.complieDirectives(info);
+			return null;
+		}, this);
+
+		this.checkCompleted();
+	}
+
+	/**
+	 * 收集并编译节点指令
+	 * @param   {Array}  info   [node, fors]
+	 */
+	cp.complieDirectives = function(info) {
+		var this$1 = this;
+
+		var node = info[0], fors = info[1];
+		var atr, name, _vfor, attrs = [], nodeAttrs;
+
+		if (this.isElementNode(node)) {
+			// node 节点集合转为数组
+			nodeAttrs = node.attributes;
+
+			for (var i = 0; i < nodeAttrs.length; i++) {
+				atr = nodeAttrs[i];
+				name = atr.name;
+				if (this$1.isDirective(name)) {
+					if (name === 'v-for') {
+						_vfor = atr;
+					}
+					attrs.push(atr);
+				}
+			}
+
+			// vfor 编译时标记节点的指令数
+			if (_vfor) {
+				util.def(node, '_vfor_directives', attrs.length);
+				attrs = [_vfor];
+				_vfor = null;
+			}
+
+			// 编译节点指令
+			util.each(attrs, function(attr) {
+				this.compile(node, attr, fors);
+			}, this);
+		}
+		else if (this.isTextNode(node)) {
+			this.compileText(node, fors);
+		}
+	}
+
+	/**
+	 * 编译元素节点指令
+	 * @param   {DOMElement}   node
+	 * @param   {Object}       attr
+	 * @param   {Array}        fors
+	 */
+	cp.compile = function(node, attr, fors) {
+		var dir = attr.name;
+		var exp = attr.value;
+		var args = [fors, node, exp, dir];
+
+		// 移除指令标记
+		dom.removeAttr(node, dir);
+
+		// 动态指令：v-bind:xxx
+		if (dir.indexOf('v-bind') === 0) {
+			this.vbind.parse.apply(this.vbind, args);
+		}
+		// 动态指令：v-on:xxx
+		else if (dir.indexOf('v-on') === 0) {
+			this.von.parse.apply(this.von, args);
+		}
+		// 静态指令
+		else {
+			switch (dir) {
+				case 'v-el':
+					this.vel.parse.apply(this.vel, args);
+					break;
+				case 'v-text':
+					this.vtext.parse.apply(this.vtext, args);
+					break;
+				case 'v-html':
+					this.vhtml.parse.apply(this.vhtml, args);
+					break;
+				case 'v-show':
+					this.vshow.parse.apply(this.vshow, args);
+					break;
+				case 'v-if':
+					this.vif.parse.apply(this.vif, args);
+					break;
+				case 'v-else':
+					util.def(node, '_directive', 'v-else');
+					break;
+				case 'v-model':
+					this.vmodel.parse.apply(this.vmodel, args);
+					break;
+				case 'v-for':
+					this.vfor.parse.apply(this.vfor, args);
+					break;
+				case 'v-pre':
+					break;
+				default: util.warn(dir + ' is an unknown directive!');
+			}
+		}
+	}
+
+	/**
+	 * 编译文本节点 {{text}} or {{{html}}}
+	 * @param   {DOMElement}   node
+	 * @param   {Object}       fors
+	 */
+	cp.compileText = function(node, fors) {
+		var exp, match, matches, pieces, tokens = [];
+		var text = node.textContent.trim().replace(/\n/g, '');
+		var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
+		var isText = regtext.test(text), isHtml = reghtml.test(text);
+
+		// html match
+		if (isHtml) {
+			matches = text.match(reghtml);
+			match = matches[0];
+			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
+			if (match.length !== text.length) {
+				return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
+			}
+			this.vhtml.parse.call(this.vhtml, fors, node, exp);
+		}
+		// text match
+		else if (isText) {
+			pieces = text.split(regtext);
+			matches = text.match(regtext);
+
+			// 文本节点转化为常量和变量的组合表达式
+			// 'a {{b}} c' => '"a " + b + " c"'
+			util.each(pieces, function(piece) {
+				// {{text}}
+				if (matches.indexOf('{{' + piece + '}}') !== -1) {
+					tokens.push('(' + piece + ')');
+				}
+				// 字符常量
+				else if (piece) {
+					tokens.push('"' + piece + '"');
+				}
+			});
+
+			this.vtext.parse.call(this.vtext, fors, node, tokens.join('+'));
+		}
+	}
+
+	/**
+	 * 停止编译节点的剩余指令，如 vfor 的根节点
+	 * @param   {DOMElement}  node
+	 */
+	cp.blockCompile = function(node) {
+		util.each(this.$unCompileNodes, function(info) {
+			if (node === info[0]) {
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * 是否是元素节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	cp.isElementNode = function(element) {
+		return element.nodeType === 1;
+	}
+
+	/**
+	 * 是否是文本节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	cp.isTextNode = function(element) {
+		return element.nodeType === 3;
+	}
+
+	/**
+	 * 是否是合法指令
+	 * @param   {String}   directive
+	 * @return  {Boolean}
+	 */
+	cp.isDirective = function(directive) {
+		return directive.indexOf('v-') === 0;
+	}
+
+	/**
+	 * 节点的子节点是否延迟编译
+	 * 单独处理 vif, vfor 和 vpre 子节点的编译
+	 * @param   {DOMElement}   node
+	 * @return  {Boolean}
+	 */
+	cp.isLateCompile = function(node) {
+		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
+	}
+
+	/**
+	 * 检查根节点是否编译完成
+	 */
+	cp.checkCompleted = function() {
+		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
+			this.rootCompleted();
+		}
+	}
+
+	/**
+	 * 根节点编译完成，更新视图
+	 */
+	cp.rootCompleted = function() {
+		this.$rootComplied = true;
+		this.$element.appendChild(this.$fragment);
+	}
+
+	/**
+	 * MVVM 构造函数，封装 Complier
+	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
+	 * @param  {Object}      model    [数据模型对象]
+	 * @param  {Function}    context  [事件及 watch 的回调上下文]
+	 */
+	function MVVM(element, model, context) {
+		var ctx = this.context = context || this;
+
+		// 将事件函数 this 指向调用者
+		util.each(model, function(value, key) {
+			if (util.isFunc(value)) {
+				model[key] = value.bind(ctx);
+			}
+		});
+
+		// 初始数据备份
+		this.backup = util.copy(model);
+
+		// ViewModel 实例
+		this.vm = new Compiler(element, model);
+
+		// 数据模型
+		this.$ = this.vm.$data;
+	}
+
+	var mvp = MVVM.prototype;
+
+	/**
+	 * 获取指定数据模型
+	 * 如果获取的模型为对象或数组，将会保持引用关系
+	 * @param   {String}  key  [数据模型字段]
+	 * @return  {Mix}
+	 */
+	mvp.get = function(key) {
+		return util.isString(key) ? this.$[key] : this.$;
+	}
+
+	/**
+	 * 获取指定数据模型的副本
+	 * 如果获取的模型为对象或数组，原数据将不会保持引用关系，只返回一个拷贝的副本
+	 * @param   {String}  key  [数据模型字段]
+	 * @return  {Mix}
+	 */
+	mvp.getItem = function(key) {
+		return util.copy(this.get(key));
+	}
+
+	/**
+	 * 设置数据模型的值，key 为 json 时则批量设置
+	 * @param  {String}  key    [数据模型字段]
+	 * @param  {Mix}     value  [值]
+	 */
+	mvp.set = function(key, value) {
+		var vm = this.$;
+		// 设置单个
+		if (util.isString(key)) {
+			vm[key] = value;
+		}
+
+		// 批量设置
+		if (util.isObject(key)) {
+			util.each(key, function(v, k) {
+				vm[k] = v;
+			});
+		}
+	}
+
+	/**
+	 * 重置数据模型至初始状态
+	 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
+	 */
+	mvp.reset = function(key) {
+		var vm = this.$;
+		var backup = this.backup;
+
+		// 重置单个
+		if (util.isString(key)) {
+			vm[key] = backup[key];
+		}
+		// 重置多个
+		else if (util.isArray(key)) {
+			util.each(key, function(v) {
+				vm[v] = backup[v];
+			});
+		}
+		// 重置所有
+		else {
+			util.each(vm, function(v, k) {
+				vm[k] = backup[k];
+			});
+		}
+	}
+
+	/**
+	 * 对数据模型的字段添加监测
+	 * @param   {String}    model     [数据模型字段]
+	 * @param   {Function}  callback  [监测变化回调]
+	 * @param   {Boolean}   deep      [数组深层监测]
+	 */
+	mvp.watch = function(model, callback, deep) {
+		this.vm.watcher.watchModel(model, function(path, last, old) {
+			callback.call(this, path, last, old);
+		}, this.context, null, deep);
+	}
+
+	return MVVM;
+
+}));
