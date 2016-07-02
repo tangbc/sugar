@@ -36,7 +36,10 @@ ap._execute = function(dataType, url, method, param, callback, context) {
 
 			// 返回数据类型
 			if (dataType !== 'text') {
-				response = JSON.parse(response);
+				try {
+					response = JSON.parse(response);
+				}
+				catch (e) {}
 			}
 
 			// 请求响应成功
