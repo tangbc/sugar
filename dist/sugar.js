@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jul 01 2016 21:30:04 GMT+0800 (CST)
+ * Sat Jul 02 2016 10:39:37 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -601,7 +601,10 @@
 
 				// 返回数据类型
 				if (dataType !== 'text') {
-					response = JSON.parse(response);
+					try {
+						response = JSON.parse(response);
+					}
+					catch (e) {}
 				}
 
 				// 请求响应成功
