@@ -19,20 +19,18 @@ var vel = Vel.prototype = Object.create(Parser.prototype);
  * @param   {String}      value   [注册字段]
  */
 vel.parse = function(fors, node, value) {
-	var key, alias, scope;
-
 	if (fors) {
-		alias = util.getExpAlias(value);
+		let alias = util.getExpAlias(value);
 
 		// vel 在 vfor 循环中只能在当前循环体中赋值
 		if (alias !== fors.alias) {
 			return util.warn('when v-el use in v-for must be defined inside current loop body!');
 		}
 
-		scope = fors.scopes[alias];
+		let scope = fors.scopes[alias];
 
 		if (util.isObject(scope)) {
-			key = util.getExpKey(value);
+			let key = util.getExpKey(value);
 			scope[key] = node;
 		}
 	}

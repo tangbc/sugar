@@ -5,6 +5,7 @@
 
 import dom from '../dom';
 import util from '../util';
+import eventer from '../eventer';
 
 /**
  * 移除 DOM 注册的引用
@@ -12,21 +13,20 @@ import util from '../util';
  * @param   {DOMElement}  element
  */
 function removeDOMRegister(vm, element) {
-	var node, attr, nodeAttrs;
 	var registers = vm.$data.$els;
 	var childNodes = element.childNodes;
 
 	for (var i = 0; i < childNodes.length; i++) {
-		node = childNodes[i];
+		let node = childNodes[i];
 
 		if (!vm.isElementNode(node)) {
 			continue;
 		}
 
-		nodeAttrs = node.attributes;
+		let nodeAttrs = node.attributes;
 
 		for (var ii = 0; ii < nodeAttrs.length; ii++) {
-			attr = nodeAttrs[ii];
+			let attr = nodeAttrs[ii];
 			if (attr.name === 'v-el' && util.hasOwn(registers, attr.value)) {
 				registers[attr.value] = null;
 			}
@@ -41,8 +41,6 @@ function removeDOMRegister(vm, element) {
 
 function Updater(vm) {
 	this.vm = vm;
-	// 事件绑定回调集合
-	this.$listeners = {};
 }
 
 var up = Updater.prototype;
@@ -91,13 +89,12 @@ up.updateDisplay = function(node, show) {
  * @param  {DOMElement}  node
  */
 up.setVisible = function(node) {
-	var inlineStyle, styles, display;
-
 	if (!node._visible_display) {
-		inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
+		let display;
+		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
 		if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
-			styles = inlineStyle.split(';');
+			let styles = inlineStyle.split(';');
 
 			util.each(styles, function(style) {
 				if (style.indexOf('display') !== -1) {
@@ -146,6 +143,7 @@ up.setRender = function(node) {
 up.toggleRender = function(node, isRender) {
 	var vm = this.vm;
 	var fragment = util.stringToFragment(node._render_content);
+
 	// 渲染
 	if (isRender) {
 		vm.complieElement(fragment, true);
@@ -252,10 +250,10 @@ up.updateStyle = function(node, property, value) {
 up.updateEvent = function(node, evt, callback, capture, unbind) {
 	// 移除绑定
 	if (unbind) {
-		dom.removeEvent(node, evt, callback, capture);
+		eventer.remove(node, evt, callback, capture);
 	}
 	else {
-		dom.addEvent(node, evt, callback, capture);
+		eventer.add(node, evt, callback, capture);
 	}
 }
 
@@ -305,14 +303,13 @@ up.updateCheckboxChecked = function(checkbox, values) {
  * @param   {Boolean}        multi
  */
 up.updateSelectChecked = function(select, selected, multi) {
-	var i, option, value;
 	var getNumber = dom.hasAttr(select, 'number');
 	var options = select.options, leng = options.length;
 	var multiple = multi || dom.hasAttr(select, 'multiple');
 
-	for (i = 0; i < leng; i++) {
-		option = options[i];
-		value = option.value;
+	for (var i = 0; i < leng; i++) {
+		let option = options[i];
+		let value = option.value;
 		value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
 		option.selected = multiple ? selected.indexOf(value) !== -1 : selected === value;
 	}

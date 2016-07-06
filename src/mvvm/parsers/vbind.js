@@ -3,8 +3,8 @@
  * =================
  */
 
-import Parser from '../parser';
 import util from '../../util';
+import Parser from '../parser';
 import VClass from './vbind-class';
 import VStyle from './vbind-style';
 
@@ -24,14 +24,12 @@ var vbind = Vbind.prototype = Object.create(Parser.prototype);
  * @param   {String}      directive   [指令名称]
  */
 vbind.parse = function(fors, node, expression, directive) {
-	var parseType;
-	var vclass = this.vclass;
-	var vstyle = this.vstyle;
-
 	// 单个 attribute
 	if (directive.indexOf(':') !== -1) {
+		let vclass = this.vclass;
+		let vstyle = this.vstyle;
 		// 属性类型
-		parseType = util.getKeyValue(directive);
+		let parseType = util.getKeyValue(directive);
 
 		switch (parseType) {
 			case 'class':

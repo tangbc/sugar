@@ -39,13 +39,13 @@ function stringToParams(funcString) {
  * @return  {Object}
  */
 function convertJson(jsonString) {
-	var json, props;
-	var string = jsonString.trim(), i = string.length;
+	var json, string = jsonString.trim();
 
 	if (/^\{.*\}$/.test(string)) {
 		json = {};
-		string = string.substr(1, i - 2).replace(/\s/g, '');
-		props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
+		let leng = string.length;
+		string = string.substr(1, leng - 2).replace(/\s/g, '');
+		let props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
 
 		util.each(props, function(prop) {
 			var vals = util.getKeyValue(prop, true);
@@ -63,8 +63,6 @@ function convertJson(jsonString) {
 
 function Von(vm) {
 	this.vm = vm;
-	// 事件绑定回调集合
-	this.$listeners = {};
 	Parser.call(this);
 }
 var von = Von.prototype = Object.create(Parser.prototype);
@@ -112,7 +110,7 @@ von.parseSingle = function(fors, node, expression, directive) {
 	// 监测依赖变化，绑定新回调，旧回调将被移除
 	this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
 		// 解除绑定
-		this.update(node, type, this.$listeners[path], false, true);
+		this.update(node, type, oldCallback, false, true);
 		// 绑定新回调
 		this.bindEvent(fors, node, path, type, lastCallback, paramString);
 	}, this);
@@ -137,9 +135,7 @@ von.parseJson = function(fors, node, expression) {
  * @param   {String}      paramString
  */
 von.bindEvent = function(fors, node, field, evt, func, paramString) {
-	var listeners = this.$listeners;
-	var identifier = fors && fors.access || field;
-	var modals, self, stop, prevent, keyCode, capture = false;
+	var self, stop, prevent, keyCode, capture = false;
 
 	if (!util.isFunc(func)) {
 		return;
@@ -147,7 +143,7 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
 
 	// 支持 4 种事件修饰符 .self .stop .prevent .capture
 	if (evt.indexOf('.') !== -1) {
-		modals = evt.split('.');
+		let modals = evt.split('.');
 		evt = modals.shift();
 		self = modals && modals.indexOf('self') !== -1;
 		stop = modals && modals.indexOf('stop') !== -1;
@@ -157,18 +153,18 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
 	}
 
 	// 处理回调参数以及依赖监测
-	var deps, maps, scope, getter, args = [];
+	var args = [];
 	if (paramString) {
 		// 取值依赖
-		deps = this.getDeps(fors, paramString);
+		let deps = this.getDeps(fors, paramString);
 		// 别名映射
-		maps = fors && util.copy(fors.maps);
+		let maps = fors && util.copy(fors.maps);
 		// 取值域
-		scope = this.getScope(fors, paramString);
+		let scope = this.getScope(fors, paramString);
 		// 添加别名标记
 		util.defRec(scope, '$event', '$event');
 		// 取值函数
-		getter = this.getEval(fors, paramString);
+		let getter = this.getEval(fors, paramString);
 		// 事件参数
 		args = getter.call(scope, scope);
 
@@ -215,8 +211,6 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
 
 		func.apply(this, args);
 	}
-
-	listeners[identifier] = eventProxy;
 
 	// 添加绑定
 	this.update(node, evt, eventProxy, capture);

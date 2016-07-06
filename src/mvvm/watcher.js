@@ -34,12 +34,12 @@ var wp = Watcher.prototype;
  * @param   {Array}   args
  */
 wp.change = function(path, last, old, args) {
-	var field, isAccess = path.indexOf('*') !== -1;
+	var isAccess = path.indexOf('*') !== -1;
 	var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 	this.trigger(subs, path, last, old, args);
 
 	if (isAccess) {
-		field = path.split('*').shift();
+		let field = path.split('*').shift();
 		this.trigger(this.$deepSubs[field], path, last, old, args);
 	}
 }

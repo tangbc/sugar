@@ -23,13 +23,13 @@ function formatValue(node, value) {
  * @return  {Array}
  */
 function getSelecteds(select) {
+	var sels = [];
 	var options = select.options;
 	var getNumber = dom.hasAttr(select, 'number');
-	var i, option, value, leng = options.length, sels = [];
 
-	for (i = 0; i < leng; i++) {
-		option = options[i];
-		value = option.value;
+	for (var i = 0; i < options.length; i++) {
+		let option = options[i];
+		let value = option.value;
 		if (option.selected) {
 			sels.push(getNumber ? +value : formatValue(option, value));
 		}
@@ -210,14 +210,14 @@ vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
  */
 vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
 	dom.addEvent(node, 'change', function() {
-		var index, checked = this.checked;
-		var val = formatValue(this, this.value);
+		var checked = this.checked;
 
 		if (util.isBool(value)) {
 			duplex[field] = checked;
 		}
 		else if (util.isArray(value)) {
-			index = value.indexOf(val);
+			let val = formatValue(this, this.value);
+			let index = value.indexOf(val);
 			// hook
 			if (checked) {
 				if (index === -1) {
@@ -238,7 +238,7 @@ vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
  * v-model for select
  */
 vmodel.parseSelect = function(node, value, deps, duplex, field) {
-	var isDefined, selects;
+	var isDefined;
 	var updater = this.vm.updater;
 	var multi = dom.hasAttr(node, 'multiple');
 
@@ -266,7 +266,7 @@ vmodel.parseSelect = function(node, value, deps, duplex, field) {
 	}
 	// 模板中定义初始状态
 	else {
-		selects = getSelecteds(node);
+		let selects = getSelecteds(node);
 		duplex[field] =  multi ? selects : selects[0];
 	}
 

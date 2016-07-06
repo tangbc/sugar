@@ -221,15 +221,15 @@ vfor.update = function(parent, node, newArray, method, updates, args) {
  * @return  {Object}
  */
 vfor.updateScopes = function(update) {
-	var maps = update.maps;
 	var scopes = update.scopes;
 	var accesses = update.accesses;
 	var aleng = accesses.length;
-	var targetPaths, model = this.vm.$data;
 
 	// 更新嵌套数组的取值域
 	if (aleng > 1) {
-		targetPaths = util.makePaths(accesses[aleng - 1]);
+		let maps = update.maps;
+		let model = this.vm.$data;
+		let targetPaths = util.makePaths(accesses[aleng - 1]);
 		// 对每一个取值域进行更新
 		util.each(util.makeScopePaths(targetPaths), function(paths) {
 			var index = paths.length - 2;
@@ -352,8 +352,7 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
 		return;
 	}
 
-	var i, template, startChild, listArgs, udf, scopes;
-	var map = {}, alias = up.alias, length = newArray.length;
+	var i, udf, map = {}, alias = up.alias, length = newArray.length;
 
 	// 只删除 splice(2, 1);
 	var deleteOnly = deleteCont && !insertLength;
@@ -402,13 +401,13 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
 		}
 
 		// 开始的元素
-		startChild = this.getChild(parent, alias, start);
+		let startChild = this.getChild(parent, alias, start);
 		// 新取值域
-		scopes = this.updateScopes(up);
+		let scopes = this.updateScopes(up);
 		// 编译新添加的列表
-		listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
+		let listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 		// 新增列表模板
-		template = this.buildList.apply(this, listArgs);
+		let template = this.buildList.apply(this, listArgs);
 
 		// 更新变化部分
 		parent.insertBefore(template, startChild);
@@ -422,11 +421,11 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
  * @return  {FirstChild}
  */
 vfor.getFirst = function(parent, alias) {
-	var i, firstChild = null, child;
+	var firstChild = null;
 	var childNodes = parent.childNodes;
 
-	for (i = 0; i < childNodes.length; i++) {
-		child = childNodes[i];
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
 		if (child._vfor_alias === alias) {
 			firstChild = child;
 			break;
@@ -443,11 +442,11 @@ vfor.getFirst = function(parent, alias) {
  * @return  {LastChild}
  */
 vfor.getLast = function(parent, alias) {
-	var i, lastChild = null, child;
+	var lastChild = null;
 	var childNodes = parent.childNodes;
 
-	for (i = childNodes.length - 1; i > -1 ; i--) {
-		child = childNodes[i];
+	for (var i = childNodes.length - 1; i > -1 ; i--) {
+		let child = childNodes[i];
 		if (child._vfor_alias === alias) {
 			lastChild = child;
 			break;
@@ -465,11 +464,11 @@ vfor.getLast = function(parent, alias) {
  * @return  {DOMElement}
  */
 vfor.getChild = function(parent, alias, index) {
-	var i, e = 0, target = null, child;
+	var e = 0, target = null;
 	var childNodes = parent.childNodes;
 
-	for (i = 0; i < childNodes.length; i++) {
-		child = childNodes[i];
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
 		if (child._vfor_alias === alias) {
 			if (e === index) {
 				target = child;
@@ -490,11 +489,11 @@ vfor.getChild = function(parent, alias, index) {
  * @param   {Number}      deleteCont  [删除个数]
  */
 vfor.removeEl = function(parent, alias, start, deleteCont) {
+	var e = -1, scapegoats = [];
 	var childNodes = parent.childNodes;
-	var i, e = -1, child, scapegoats = [];
 
-	for (i = 0; i < childNodes.length; i++) {
-		child = childNodes[i];
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
 		if (child._vfor_alias === alias) {
 			e++;
 		}
@@ -514,8 +513,7 @@ vfor.removeEl = function(parent, alias, start, deleteCont) {
  * 重新编译循环体
  */
 vfor.recompile = function(parent, node, newArray, method, up) {
-	var child, scapegoat;
-	var template, alias = up.alias;
+	var scapegoat, alias = up.alias;
 	var childNodes = parent.childNodes;
 	var scopes = this.updateScopes(up);
 	var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
@@ -524,11 +522,11 @@ vfor.recompile = function(parent, node, newArray, method, up) {
 	this.vm.watcher.removeSubs(up.access);
 
 	// 重新构建循环板块
-	template = this.buildList.apply(this, listArgs);
+	var template = this.buildList.apply(this, listArgs);
 
 	// 移除旧板块
 	for (var i = 0; i < childNodes.length; i++) {
-		child = childNodes[i];
+		let child = childNodes[i];
 		if (child._vfor_alias === alias) {
 			if (!scapegoat) {
 				scapegoat = child;
