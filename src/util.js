@@ -121,6 +121,16 @@ util.defRec = function(object, property, value) {
 }
 
 /**
+ * 删除 object 所有属性
+ * @param   {Object}   object
+ */
+util.clear = function(object) {
+	this.each(object, function() {
+		return null;
+	});
+}
+
+/**
  * 遍历数组或对象，提供删除选项和退出遍历的功能
  * @param  {Array|Object}  items     [数组或对象]
  * @param  {Fuction}       callback  [回调函数]
