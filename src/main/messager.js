@@ -11,8 +11,22 @@ import cache from './cache';
  * 字符串首字母大写
  */
 function ucFirst(str) {
-	var first = str.charAt(0).toUpperCase();
-	return first + str.substr(1);
+	return str.charAt(0).toUpperCase() + str.substr(1);
+}
+
+/**
+ * 根据组件名称获取组件实例
+ * @param   {String}  name
+ */
+function getComponent(name) {
+	var component = null;
+	util.each(cache, function(instance) {
+		if ((instance._ && instance._.name) === name) {
+			component = instance;
+			return false;
+		}
+	});
+	return component;
 }
 
 
@@ -41,7 +55,7 @@ var mp = Messager.prototype;
  * @param  {Mix}     param   [<可选>附加消息参数]
  * @return {Object}
  */
-mp._create = function(type, sender, name, param) {
+mp.createMsg = function(type, sender, name, param) {
 	return {
 		// 消息类型
 		'type'   : type,
@@ -57,7 +71,7 @@ mp._create = function(type, sender, name, param) {
 		'param'  : param,
 		// 接收消息组件的调用方法 on + 首字母大写
 		'method' : 'on' + ucFirst(name),
-		// 接收消息组件的返回值
+		// 发送完毕后的返回数据
 		'returns': null
 	}
 }
@@ -66,29 +80,22 @@ mp._create = function(type, sender, name, param) {
  * 触发接收消息组件实例的处理方法
  * @param  {Object}  receiver  [接收消息的组件实例]
  * @param  {Mix}     msg       [消息体（内容）]
- * @param  {Mix}     returns   [返回给发送者的数据]
  * @return {Mix}
  */
-mp._trigger = function(receiver, msg, returns) {
-	// 接收者对该消息的接收方法
+mp.trigger = function(receiver, msg) {
+	// 接受者消息处理方法
 	var func = receiver[msg.method];
 
 	// 标识消息的发送目标
 	msg.to = receiver;
 
-	// 触发接收者的消息处理方法，若未定义则默认为 onMessage
+	// 发送次数
+	++msg.count;
+
+	// 触发接收者的消息处理方法
 	if (util.isFunc(func)) {
-		returns = func.call(receiver, msg);
-		msg.count++;
+		return func.call(receiver, msg);
 	}
-	else if (util.isFunc(receiver.onMessage)) {
-		returns = receiver.onMessage.call(receiver, msg);
-		msg.count++;
-	}
-
-	msg.returns = returns;
-
-	return returns;
 }
 
 /**
@@ -97,25 +104,15 @@ mp._trigger = function(receiver, msg, returns) {
  * @param  {Function}  callback  [通知发送者的回调函数]
  * @param  {Object}    context   [执行环境]
  */
-mp._notifySender = function(msg, callback, context) {
-	// callback 未定义时触发默认事件
-	if (!callback) {
-		callback = context.onMessageSent;
-	}
-
-	// callback 为属性值
-	if (util.isString(callback)) {
-		callback = context[callback];
-	}
-
-	// 合法的回调函数
+mp.notifySender = function(msg, callback, context) {
+	// 通知回调
 	if (util.isFunc(callback)) {
 		callback.call(context, msg);
 	}
 
 	// 继续发送队列中未完成的消息
 	if (this.queue.length) {
-		setTimeout(this._sendQueue, 0);
+		setTimeout(this.sendQueue, 0);
 	}
 	else {
 		this.busy = false;
@@ -125,7 +122,7 @@ mp._notifySender = function(msg, callback, context) {
 /**
  * 发送消息队列
  */
-mp._sendQueue = function() {
+mp.sendQueue = function() {
 	var request = messager.queue.shift();
 
 	messager.busy = false;
@@ -139,9 +136,7 @@ mp._sendQueue = function() {
 	// 消息方法
 	var func = messager[type];
 
-	if (util.isFunc(func)) {
-		func.apply(messager, request);
-	}
+	func.apply(messager, request);
 }
 
 /**
@@ -159,7 +154,7 @@ mp.fire = function(sender, name, param, callback, context) {
 	if (this.busy || sync.count) {
 		this.queue.push([type, sender, name, param, callback, context]);
 		if (sync.count) {
-			sync.addQueue(this._sendQueue, this);
+			sync.addQueue(this.sendQueue, this);
 		}
 		return;
 	}
@@ -167,23 +162,24 @@ mp.fire = function(sender, name, param, callback, context) {
 	this.busy = true;
 
 	// 创建消息
-	var msg = this._create(type, sender, name, param);
-	// 消息接收者，先从自身开始接收
-	var receiver = sender;
-	var returns;
+	var msg = this.createMsg(type, sender, name, param);
+	// 消息接收者，先从上一层模块开始接收
+	var receiver = sender.getParent();
 
 	while (receiver) {
-		returns = this._trigger(receiver, msg);
+		let ret = this.trigger(receiver, msg);
+
 		// 接收消息方法返回 false 则不再继续冒泡
-		if (returns === false) {
-			break;
+		if (ret === false) {
+			this.notifySender(msg, callback, context);
+			return;
 		}
 
 		msg.from = receiver;
 		receiver = receiver.getParent();
 	}
 
-	this._notifySender(msg, callback, context);
+	this.notifySender(msg, callback, context);
 }
 
 /**
@@ -196,7 +192,7 @@ mp.broadcast = function(sender, name, param, callback, context) {
 	if (this.busy || sync.count) {
 		this.queue.push([type, sender, name, param, callback, context]);
 		if (sync.count) {
-			sync.addQueue(this._sendQueue, this);
+			sync.addQueue(this.sendQueue, this);
 		}
 		return;
 	}
@@ -204,23 +200,22 @@ mp.broadcast = function(sender, name, param, callback, context) {
 	this.busy = true;
 
 	// 创建消息
-	var msg = this._create(type, sender, name, param);
-	// 消息接收者集合，先从自身开始接收
-	var receivers = [sender];
-	var receiver, returns;
+	var msg = this.createMsg(type, sender, name, param);
+	// 消息接收者集合，先从自身的子模块开始接收
+	var receivers = sender.getChilds(true).slice(0);
 
 	while (receivers.length) {
-		receiver = receivers.shift();
-		returns = this._trigger(receiver, msg);
-		// 接收消息方法返回 false 则不再继续广播
-		if (returns === false) {
-			break;
-		}
+		let receiver = receivers.shift();
+		let ret = this.trigger(receiver, msg);
 
-		receivers.push.apply(receivers, receiver.getChilds(true));
+		// 接收消息方法返回 false 则不再继续广播
+		if (ret !== false) {
+			msg.from = receiver;
+			Array.prototype.push.apply(receivers, receiver.getChilds(true));
+		}
 	}
 
-	this._notifySender(msg, callback, context);
+	this.notifySender(msg, callback, context);
 }
 
 /**
@@ -239,55 +234,47 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 	if (this.busy || sync.count) {
 		this.queue.push([type, sender, receiver, name, param, callback, context]);
 		if (sync.count) {
-			sync.addQueue(this._sendQueue, this);
+			sync.addQueue(this.sendQueue, this);
 		}
 		return;
 	}
 
 	this.busy = true;
 
-	// 根据名称获取系统实例
-	function _getInstanceByName(name) {
-		var target = null;
-		util.each(cache, function(instance) {
-			if ((instance._ && instance._.name) === name) {
-				target = instance;
-				return false;
-			}
-		});
-		return target;
-	}
-
 	// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
-	var ns = null, tmp, tar;
 	if (util.isString(receiver)) {
-		ns = receiver.split('.');
+		let target;
+		let paths = receiver.split('.');
+		let parent = getComponent(paths.shift());
 
 		// 有层级
-		while (ns.length > 0) {
-			if (!tmp) {
-				tmp = _getInstanceByName(ns.shift());
-				tar = ns.length === 0 ? tmp : (tmp ? tmp.getChild(ns[0]) : null);
-			}
-			else {
-				tar = tmp.getChild(ns.shift());
-			}
+		if (paths.length) {
+			util.each(paths, function(comp) {
+				target = parent.getChild(comp);
+				parent = target;
+				return null;
+			});
+		}
+		else {
+			target = parent;
 		}
 
-		if (util.isObject(tar)) {
-			receiver = tar;
+		parent = null;
+
+		if (util.isObject(target)) {
+			receiver = target;
 		}
 	}
 
 	if (!util.isObject(receiver)) {
-		return util.warn('module: \'' + receiver + '\' is not found in cache!');
+		return util.warn('component: \'' + receiver + '\' is not exist!');
 	}
 
-	var msg = this._create(type, sender, name, param);
+	var msg = this.createMsg(type, sender, name, param);
 
-	this._trigger(receiver, msg);
+	this.trigger(receiver, msg);
 
-	this._notifySender(msg, callback, context);
+	this.notifySender(msg, callback, context);
 }
 
 /**
@@ -295,25 +282,32 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
  * @param  {String}  name   [发送的消息名称]
  * @param  {Mix}     param  [<可选>附加消息参数]
  */
-mp.globalCast = function(name, param) {
+mp.globalCast = function(name, param, callback, context) {
 	var type = 'globalCast';
 
 	// 是否处于忙碌状态
 	if (this.busy || sync.count) {
 		this.queue.push([type, name, param]);
 		if (sync.count) {
-			sync.addQueue(this._sendQueue, this);
+			sync.addQueue(this.sendQueue, this);
 		}
 		return;
 	}
 
-	this.busy = false;
+	this.busy = true;
 
-	var msg = this._create(type, 'core', name, param);
+	var msg = this.createMsg(type, '__core__', name, param);
 
-	util.each(cache, function(receiver) {
-		this._trigger(receiver, msg);
+	util.each(cache, function(receiver, index) {
+		if (util.isObject(receiver) && index !== '0') {
+			this.trigger(receiver, msg);
+		}
 	}, this);
+
+	// 发送完毕回调
+	if (util.isFunc(callback)) {
+		callback.call(context || this, msg);
+	}
 }
 
 messager = new Messager();

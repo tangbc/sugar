@@ -9,6 +9,7 @@ import sync from './sync';
 import util from '../util';
 import Module from './module';
 import MVVM from '../mvvm/index';
+import eventer from '../eventer';
 
 var Component = Module.extend({
 	/**
@@ -70,20 +71,19 @@ var Component = Module.extend({
 		var c = this.getConfig();
 		var uri = c.template;
 
-		// 防止消息异步或者框架外的异步创建出现问题
 		sync.lock();
 		ajax.load(uri, c.tplParam, function(err, data) {
-			var text;
+			var html;
 
 			if (err) {
-				text = err.status + ': ' + uri;
+				html = err.status + ': ' + uri;
 				util.warn(err);
 			}
 			else {
-				text = data.result;
+				html = data.result;
 			}
 
-			this.setConfig('html', text);
+			this.setConfig('html', html);
 			this._render();
 			sync.unlock();
 		}, this);
@@ -124,37 +124,28 @@ var Component = Module.extend({
 
 	/**
 	 * 设置/读取配置对象
-	 * @param  {Object}  cData  [配置对象]
-	 * @param  {String}  name   [配置名称, 支持/分隔层次]
-	 * @param  {Mix}     value  [不传为读取配置信息, null 为删除配置, 其他为设置值]
-	 * @return {Mix}            [返回读取的配置值]
+	 * @param  {Object}   data   [配置对象]
+	 * @param  {String}   name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}      value  [不传为读取配置信息]
+	 * @return {Mix}             [返回读取的配置值]
 	 */
-	config: function(cData, name, value) {
-		// 不传cData配置对象
-		if (util.isString(cData) || arguments.length === 0) {
-			value = name;
-			name = cData;
-			cData = {};
-		}
-
-		var udf, data = cData;
-		var set = (value !== udf);
-		var remove = (value === null);
+	config: function(data, name, value) {
+		var udf, set = (value !== udf);
 
 		if (name) {
-			var ns = name.split('/');
+			let ns = name.split('/');
+
 			while (ns.length > 1 && util.hasOwn(data, ns[0])) {
 				data = data[ns.shift()];
 			}
+
 			if (ns.length > 1) {
 				if (set) {
 					return false;
 				}
-				if (remove)	{
-					return true;
-				}
 				return udf;
 			}
+
 			name = ns[0];
 		}
 		else {
@@ -163,11 +154,6 @@ var Component = Module.extend({
 
 		if (set) {
 			data[name] = value;
-			return true;
-		}
-		else if (remove) {
-			data[name] = null;
-			delete data[name];
 			return true;
 		}
 		else {
@@ -257,15 +243,21 @@ var Component = Module.extend({
 	/**
 	 * 元素添加绑定事件
 	 */
-	bind: function() {
-		return dom.addEvent.apply(dom, arguments);
+	bind: function(node, evt, callback, capture) {
+		if (util.isString(callback)) {
+			callback = this[callback];
+		}
+		return eventer.add(node, evt, callback, capture, this);
 	},
 
 	/**
 	 * 元素解除绑定事件
 	 */
-	unbind: function() {
-		return dom.removeEvent.apply(dom, arguments);
+	unbind: function(node, evt, callback, capture) {
+		if (util.isString(callback)) {
+			callback = this[callback];
+		}
+		return eventer.remove(node, evt, callback, capture);
 	},
 
 	/**
@@ -274,16 +266,19 @@ var Component = Module.extend({
 	afterDestroy: function() {
 		var vm = this.vm;
 		var el = this.el;
+		var parent = this.getConfig('target');
+
 		// 销毁 mvvm 实例
 		if (vm) {
 			vm.destroy();
-			vm = null;
 		}
+
 		// 销毁 dom 对象
-		if (el) {
-			el.parentNode.removeChild(el);
-			el = null;
+		if (parent) {
+			parent.removeChild(el);
 		}
+
+		this.$ = el = vm = null;
 	}
 });
 
