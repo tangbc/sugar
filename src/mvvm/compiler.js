@@ -345,4 +345,15 @@ cp.rootCompleted = function() {
 	this.$element.appendChild(this.$fragment);
 }
 
+/**
+ * 销毁 vm 编译实例
+ * @return  {[type]}  [description]
+ */
+cp.destroy = function() {
+	this.watcher.destroy();
+	dom.empty(this.$element);
+	this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;
+	this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
+}
+
 export default Compiler;

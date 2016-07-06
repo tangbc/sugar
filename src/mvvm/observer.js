@@ -214,4 +214,11 @@ op.trigger = function(path, last, old, args) {
 	this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
 }
 
+/**
+ * 销毁函数
+ */
+op.destroy = function() {
+	this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
+}
+
 export default Observer;

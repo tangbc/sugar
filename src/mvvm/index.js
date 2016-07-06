@@ -112,4 +112,12 @@ mvp.watch = function(model, callback, deep) {
 	}, this.context, null, deep);
 }
 
+/**
+ * 销毁 mvvm 实例
+ */
+mvp.destroy = function() {
+	this.vm.destroy();
+	this.context = this.vm = this.backup = this.$ = null;
+}
+
 export default MVVM;

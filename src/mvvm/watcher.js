@@ -277,4 +277,15 @@ wp.moveAccess = function(prefix, moveMap) {
 	dest = caches = null;
 }
 
+/**
+ * 销毁函数
+ */
+wp.destroy = function() {
+	util.clear(this.$modelSubs);
+	util.clear(this.$accessSubs);
+	util.clear(this.$indexSubs);
+	util.clear(this.$deepSubs);
+	this.observer.destroy();
+}
+
 export default Watcher;
