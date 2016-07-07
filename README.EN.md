@@ -3,6 +3,7 @@
 [![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
 
+
 * `sugar.js` is a tiny and powerfull MVVM library for building web UI component
 
 * Easy way to develop Web Components with `sugar.js`, support template layout and MVVM
@@ -12,7 +13,7 @@
 
 ## Diagram
 
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="666">
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="600">
 
 
 ## Directory
@@ -55,21 +56,7 @@ You can edit and preview a Radio-Component at [jsfiddle](https://jsfiddle.net/ta
 
 ## ChangeLog
 
-* `v1.0`
-	* `sugar` basic component system
-	* `mvvm` support basic model instruction (static expression)
-* `v1.0.2`
-	* `mvvm` support dynamic instruction expressions: `<div v-text="isError ? err_msg : suc_msg"></div>`
-* `v1.0.4`
-	* `mvvm` process splice action in v-for array operation
-* `v1.0.6`
-	* `mvvm` fixes many issues, add instruction expressions that depend on extracting and updating view's stability
-* `v1.0.8`
-	* `mvvm` update v-bind for object/json can be used with a simple diff algorithm
-* `v1.1.0`
-	* abandon requirejs (v1.0.8) and change test-runner to [Karma](https://github.com/karma-runner/karma)，add code coverage
-* `v1.1.2`
-	* use rollup, babel and es2015
+* [See release](https://github.com/tangbc/sugar/releases)
 
 
 ## Contribution

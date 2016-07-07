@@ -3,6 +3,7 @@
 [![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
 
+
 * 一个用于开发前端模块化 UI 组件的轻量级 JavaScript MVVM 库/框架
 
 * 无第三方库依赖，简单的模块化组件开发方式，支持模板布局功能和 MVVM 模式
@@ -12,7 +13,7 @@
 
 ## 核心组成
 
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="666">
+<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor" width="600">
 
 
 ## 目录结构
@@ -55,21 +56,7 @@
 
 ## 更新日志
 
-* `v1.0`
-	* `sugar` 基础的组件系统和模块化创建方式
-	* `mvvm` 支持基础数据模型指令（静态表达式）
-* `v1.0.2`
-	* `mvvm` 支持动态指令表达式: `<div v-text="isError ? err_msg : suc_msg"></div>`
-* `v1.0.4`
-	* `mvvm` 细节化 v-for 指令的 splice 操作
-* `v1.0.6`
-	* `mvvm` 修复多个问题，增加指令表达式依赖提取和更新视图的稳定性
-* `v1.0.8`
-	* `mvvm` v-bind 指令用于更新 object/json 时支持简单的 diff 差异对比
-* `v1.1.0`
-	* 摈弃 requirejs 的代码组织方式（v1.0.8）Test-runner 采用 [Karma](https://github.com/karma-runner/karma)，增加测试覆盖率的统计
-* `v1.1.2`
-	* rollup, babel, es6 搞起！
+[查看 Release 版本](https://github.com/tangbc/sugar/releases)
 
 
 ## 交流 & 贡献
