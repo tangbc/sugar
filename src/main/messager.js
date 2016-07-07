@@ -3,7 +3,6 @@
  * =======================
  */
 
-import sync from './sync';
 import util from '../util';
 import cache from './cache';
 
@@ -86,14 +85,12 @@ mp.trigger = function(receiver, msg) {
 	// 接受者消息处理方法
 	var func = receiver[msg.method];
 
-	// 标识消息的发送目标
-	msg.to = receiver;
-
-	// 发送次数
-	++msg.count;
-
 	// 触发接收者的消息处理方法
 	if (util.isFunc(func)) {
+		// 标识消息的发送目标
+		msg.to = receiver;
+		// 发送次数
+		++msg.count;
 		return func.call(receiver, msg);
 	}
 }
@@ -151,11 +148,8 @@ mp.fire = function(sender, name, param, callback, context) {
 	var type = 'fire';
 
 	// 是否处于忙碌状态
-	if (this.busy || sync.count) {
+	if (this.busy ) {
 		this.queue.push([type, sender, name, param, callback, context]);
-		if (sync.count) {
-			sync.addQueue(this.sendQueue, this);
-		}
 		return;
 	}
 
@@ -189,11 +183,8 @@ mp.broadcast = function(sender, name, param, callback, context) {
 	var type = 'broadcast';
 
 	// 是否处于忙碌状态
-	if (this.busy || sync.count) {
+	if (this.busy) {
 		this.queue.push([type, sender, name, param, callback, context]);
-		if (sync.count) {
-			sync.addQueue(this.sendQueue, this);
-		}
 		return;
 	}
 
@@ -231,11 +222,8 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 	var type = 'notify';
 
 	// 是否处于忙碌状态
-	if (this.busy || sync.count) {
+	if (this.busy) {
 		this.queue.push([type, sender, receiver, name, param, callback, context]);
-		if (sync.count) {
-			sync.addQueue(this.sendQueue, this);
-		}
 		return;
 	}
 
@@ -267,7 +255,8 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 	}
 
 	if (!util.isObject(receiver)) {
-		return util.warn('component: \'' + receiver + '\' is not exist!');
+		this.notifySender(msg, callback, context);
+		return util.warn('component: [' + receiver + '] is not exist!');
 	}
 
 	var msg = this.createMsg(type, sender, name, param);
@@ -286,11 +275,8 @@ mp.globalCast = function(name, param, callback, context) {
 	var type = 'globalCast';
 
 	// 是否处于忙碌状态
-	if (this.busy || sync.count) {
-		this.queue.push([type, name, param]);
-		if (sync.count) {
-			sync.addQueue(this.sendQueue, this);
-		}
+	if (this.busy) {
+		this.queue.push([type, name, param, callback, context]);
 		return;
 	}
 
@@ -305,9 +291,7 @@ mp.globalCast = function(name, param, callback, context) {
 	}, this);
 
 	// 发送完毕回调
-	if (util.isFunc(callback)) {
-		callback.call(context || this, msg);
-	}
+	this.notifySender(msg, callback, context);
 }
 
 messager = new Messager();

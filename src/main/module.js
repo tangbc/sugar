@@ -42,7 +42,7 @@ var Module = Root.extend({
 
 		// 判断是否已经创建过
 		if (cls['childMap'][name]) {
-			return util.warn('module\'s name already exists: ', name);
+			return util.warn('module ['+ name +'] is already exists!');
 		}
 
 		// 生成子模块实例
@@ -116,10 +116,6 @@ var Module = Root.extend({
 		var cArray = cls['childArray'] || [];
 		var child = cMap[name];
 
-		if (!child) {
-			return;
-		}
-
 		for (var i = 0, len = cArray.length; i < len; i++) {
 			if (cArray[i].id === child.id) {
 				delete cMap[name];
@@ -184,10 +180,6 @@ var Module = Root.extend({
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
 	 */
 	fire: function(name, param, callback) {
-		if (!util.isString(name)) {
-			return util.warn('message\'s name must be a type of String: ', name);
-		}
-
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;
@@ -206,10 +198,6 @@ var Module = Root.extend({
 	 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
 	 */
 	broadcast: function(name, param, callback) {
-		if (!util.isString(name)) {
-			return util.warn('message\'s name must be a type of String: ', name);
-		}
-
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;
@@ -232,10 +220,6 @@ var Module = Root.extend({
 	 * @param   {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]]
 	 */
 	notify: function(receiver, name, param, callback) {
-		if (!util.isString(name)) {
-			return util.warn('message\'s name must be a type of String: ', name);
-		}
-
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;

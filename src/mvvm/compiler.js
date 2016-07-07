@@ -231,7 +231,7 @@ cp.compile = function(node, attr, fors) {
 				break;
 			case 'v-pre':
 				break;
-			default: util.warn(dir + ' is an unknown directive!');
+			default: util.warn('[' + dir + '] is an unknown directive!');
 		}
 	}
 }
@@ -252,7 +252,7 @@ cp.compileText = function(node, fors) {
 		match = matches[0];
 		exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 		if (match.length !== text.length) {
-			return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
+			return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix!');
 		}
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
 	}

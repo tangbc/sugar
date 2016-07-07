@@ -5,7 +5,6 @@
 
 import dom from '../dom';
 import ajax from './ajax';
-import sync from './sync';
 import util from '../util';
 import Module from './module';
 import MVVM from '../mvvm/index';
@@ -71,7 +70,6 @@ var Component = Module.extend({
 		var c = this.getConfig();
 		var uri = c.template;
 
-		sync.lock();
 		ajax.load(uri, c.tplParam, function(err, data) {
 			var html;
 
@@ -85,7 +83,6 @@ var Component = Module.extend({
 
 			this.setConfig('html', html);
 			this._render();
-			sync.unlock();
 		}, this);
 	},
 
@@ -137,13 +134,6 @@ var Component = Module.extend({
 
 			while (ns.length > 1 && util.hasOwn(data, ns[0])) {
 				data = data[ns.shift()];
-			}
-
-			if (ns.length > 1) {
-				if (set) {
-					return false;
-				}
-				return udf;
 			}
 
 			name = ns[0];

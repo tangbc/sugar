@@ -2,7 +2,6 @@
  * sugar 构造函数入口
  */
 
-import sync from './sync';
 import ajax from './ajax';
 import core from './core';
 import util from '../util';
@@ -10,12 +9,6 @@ import Module from './module';
 import Component from './component';
 
 function Sugar() {
-	/**
-	 * 异步状态锁
-	 * @type  {Object}
-	 */
-	this.sync = sync;
-
 	/**
 	 * 工具方法
 	 * @type  {Object}

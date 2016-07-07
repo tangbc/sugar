@@ -27,19 +27,11 @@ var Core = Module.extend({
 	 * @return {Boolean}
 	 */
 	globalCast: function(name, param, callback, context) {
-		if (!util.isString(name)) {
-			return util.warn('message\'s name must be a type of String: ', name);
-		}
-
 		// 不传 param
 		if (util.isFunc(param)) {
+			context = callback;
 			callback = param;
 			param = null;
-		}
-
-		// callback 为属性值
-		if (util.isString(callback)) {
-			callback = context[callback];
 		}
 
 		messager.globalCast(name, param, callback, context);
