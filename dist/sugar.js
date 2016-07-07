@@ -1,9 +1,9 @@
 /*!
- * sugar.js v1.1.2
+ * sugar.js v1.1.3
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jul 02 2016 10:39:37 GMT+0800 (CST)
+ * Thu Jul 07 2016 15:19:47 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -131,6 +131,16 @@
 	 */
 	util.defRec = function(object, property, value) {
 		return this.def(object, property, value, true, false, true);
+	}
+
+	/**
+	 * 删除 object 所有属性
+	 * @param   {Object}   object
+	 */
+	util.clear = function(object) {
+		this.each(object, function() {
+			return null;
+		});
 	}
 
 	/**
@@ -498,78 +508,6 @@
 		return scopePaths;
 	}
 
-	function Sync() {
-		/**
-		 * 异步计数
-		 * @type  {Number}
-		 */
-		this.count = 0;
-
-		/**
-		 * 回调队列
-		 * @type  {Array}
-		 */
-		this.queue = [];
-	}
-
-	var sp = Sync.prototype;
-
-	/**
-	 * 加锁异步计数
-	 */
-	sp.lock = function() {
-		this.count++;
-	}
-
-	/**
-	 * 解锁异步计数
-	 */
-	sp.unlock = function() {
-		this.count--;
-		this._checkQueue();
-	}
-
-	/**
-	 * 添加一个回调到队列
-	 * @param  {Function}  callback  [回调函数]
-	 * @param  {Function}  context   [上下文]
-	 * @param  {Array}     args      [回调参数]
-	 */
-	sp.addQueue = function(callback, context, args) {
-		this.queue.push([callback, context, args]);
-	}
-
-	/**
-	 * 检查回调队列是否空闲
-	 */
-	sp._checkQueue = function() {
-		var this$1 = this;
-
-		var sync, callback, context, args;
-
-		// 依次从最后的回调开始处理
-		while (this.count === 0 && this.queue.length) {
-			sync = this$1.queue.pop();
-
-			// 回调函数
-			callback = sync[0];
-			// 执行环境
-			context = sync[1];
-			// 回调参数
-			args = sync[2];
-
-			if (util.isString(callback)) {
-				callback = context[callback];
-			}
-
-			if (util.isFunc(callback)) {
-				callback.apply(context, args);
-			}
-		}
-	}
-
-	var sync = new Sync();
-
 	function Ajax() {}
 
 	var ap = Ajax.prototype;
@@ -742,8 +680,22 @@
 	 * 字符串首字母大写
 	 */
 	function ucFirst(str) {
-		var first = str.charAt(0).toUpperCase();
-		return first + str.substr(1);
+		return str.charAt(0).toUpperCase() + str.substr(1);
+	}
+
+	/**
+	 * 根据组件名称获取组件实例
+	 * @param   {String}  name
+	 */
+	function getComponent(name) {
+		var component = null;
+		util.each(cache, function(instance) {
+			if ((instance._ && instance._.name) === name) {
+				component = instance;
+				return false;
+			}
+		});
+		return component;
 	}
 
 
@@ -772,7 +724,7 @@
 	 * @param  {Mix}     param   [<可选>附加消息参数]
 	 * @return {Object}
 	 */
-	mp._create = function(type, sender, name, param) {
+	mp.createMsg = function(type, sender, name, param) {
 		return {
 			// 消息类型
 			'type'   : type,
@@ -788,7 +740,7 @@
 			'param'  : param,
 			// 接收消息组件的调用方法 on + 首字母大写
 			'method' : 'on' + ucFirst(name),
-			// 接收消息组件的返回值
+			// 发送完毕后的返回数据
 			'returns': null
 		}
 	}
@@ -797,29 +749,20 @@
 	 * 触发接收消息组件实例的处理方法
 	 * @param  {Object}  receiver  [接收消息的组件实例]
 	 * @param  {Mix}     msg       [消息体（内容）]
-	 * @param  {Mix}     returns   [返回给发送者的数据]
 	 * @return {Mix}
 	 */
-	mp._trigger = function(receiver, msg, returns) {
-		// 接收者对该消息的接收方法
+	mp.trigger = function(receiver, msg) {
+		// 接受者消息处理方法
 		var func = receiver[msg.method];
 
-		// 标识消息的发送目标
-		msg.to = receiver;
-
-		// 触发接收者的消息处理方法，若未定义则默认为 onMessage
+		// 触发接收者的消息处理方法
 		if (util.isFunc(func)) {
-			returns = func.call(receiver, msg);
-			msg.count++;
+			// 标识消息的发送目标
+			msg.to = receiver;
+			// 发送次数
+			++msg.count;
+			return func.call(receiver, msg);
 		}
-		else if (util.isFunc(receiver.onMessage)) {
-			returns = receiver.onMessage.call(receiver, msg);
-			msg.count++;
-		}
-
-		msg.returns = returns;
-
-		return returns;
 	}
 
 	/**
@@ -828,25 +771,15 @@
 	 * @param  {Function}  callback  [通知发送者的回调函数]
 	 * @param  {Object}    context   [执行环境]
 	 */
-	mp._notifySender = function(msg, callback, context) {
-		// callback 未定义时触发默认事件
-		if (!callback) {
-			callback = context.onMessageSent;
-		}
-
-		// callback 为属性值
-		if (util.isString(callback)) {
-			callback = context[callback];
-		}
-
-		// 合法的回调函数
+	mp.notifySender = function(msg, callback, context) {
+		// 通知回调
 		if (util.isFunc(callback)) {
 			callback.call(context, msg);
 		}
 
 		// 继续发送队列中未完成的消息
 		if (this.queue.length) {
-			setTimeout(this._sendQueue, 0);
+			setTimeout(this.sendQueue, 0);
 		}
 		else {
 			this.busy = false;
@@ -856,7 +789,7 @@
 	/**
 	 * 发送消息队列
 	 */
-	mp._sendQueue = function() {
+	mp.sendQueue = function() {
 		var request = messager.queue.shift();
 
 		messager.busy = false;
@@ -870,9 +803,7 @@
 		// 消息方法
 		var func = messager[type];
 
-		if (util.isFunc(func)) {
-			func.apply(messager, request);
-		}
+		func.apply(messager, request);
 	}
 
 	/**
@@ -889,34 +820,32 @@
 		var type = 'fire';
 
 		// 是否处于忙碌状态
-		if (this.busy || sync.count) {
+		if (this.busy ) {
 			this.queue.push([type, sender, name, param, callback, context]);
-			if (sync.count) {
-				sync.addQueue(this._sendQueue, this);
-			}
 			return;
 		}
 
 		this.busy = true;
 
 		// 创建消息
-		var msg = this._create(type, sender, name, param);
-		// 消息接收者，先从自身开始接收
-		var receiver = sender;
-		var returns;
+		var msg = this.createMsg(type, sender, name, param);
+		// 消息接收者，先从上一层模块开始接收
+		var receiver = sender.getParent();
 
 		while (receiver) {
-			returns = this$1._trigger(receiver, msg);
+			var ret = this$1.trigger(receiver, msg);
+
 			// 接收消息方法返回 false 则不再继续冒泡
-			if (returns === false) {
-				break;
+			if (ret === false) {
+				this$1.notifySender(msg, callback, context);
+				return;
 			}
 
 			msg.from = receiver;
 			receiver = receiver.getParent();
 		}
 
-		this._notifySender(msg, callback, context);
+		this.notifySender(msg, callback, context);
 	}
 
 	/**
@@ -928,34 +857,30 @@
 		var type = 'broadcast';
 
 		// 是否处于忙碌状态
-		if (this.busy || sync.count) {
+		if (this.busy) {
 			this.queue.push([type, sender, name, param, callback, context]);
-			if (sync.count) {
-				sync.addQueue(this._sendQueue, this);
-			}
 			return;
 		}
 
 		this.busy = true;
 
 		// 创建消息
-		var msg = this._create(type, sender, name, param);
-		// 消息接收者集合，先从自身开始接收
-		var receivers = [sender];
-		var receiver, returns;
+		var msg = this.createMsg(type, sender, name, param);
+		// 消息接收者集合，先从自身的子模块开始接收
+		var receivers = sender.getChilds(true).slice(0);
 
 		while (receivers.length) {
-			receiver = receivers.shift();
-			returns = this$1._trigger(receiver, msg);
-			// 接收消息方法返回 false 则不再继续广播
-			if (returns === false) {
-				break;
-			}
+			var receiver = receivers.shift();
+			var ret = this$1.trigger(receiver, msg);
 
-			receivers.push.apply(receivers, receiver.getChilds(true));
+			// 接收消息方法返回 false 则不再继续广播
+			if (ret !== false) {
+				msg.from = receiver;
+				Array.prototype.push.apply(receivers, receiver.getChilds(true));
+			}
 		}
 
-		this._notifySender(msg, callback, context);
+		this.notifySender(msg, callback, context);
 	}
 
 	/**
@@ -971,58 +896,48 @@
 		var type = 'notify';
 
 		// 是否处于忙碌状态
-		if (this.busy || sync.count) {
+		if (this.busy) {
 			this.queue.push([type, sender, receiver, name, param, callback, context]);
-			if (sync.count) {
-				sync.addQueue(this._sendQueue, this);
-			}
 			return;
 		}
 
 		this.busy = true;
 
-		// 根据名称获取系统实例
-		function _getInstanceByName(name) {
-			var target = null;
-			util.each(cache, function(instance) {
-				if ((instance._ && instance._.name) === name) {
-					target = instance;
-					return false;
-				}
-			});
-			return target;
-		}
-
 		// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
-		var ns = null, tmp, tar;
 		if (util.isString(receiver)) {
-			ns = receiver.split('.');
+			var target;
+			var paths = receiver.split('.');
+			var parent = getComponent(paths.shift());
 
 			// 有层级
-			while (ns.length > 0) {
-				if (!tmp) {
-					tmp = _getInstanceByName(ns.shift());
-					tar = ns.length === 0 ? tmp : (tmp ? tmp.getChild(ns[0]) : null);
-				}
-				else {
-					tar = tmp.getChild(ns.shift());
-				}
+			if (paths.length) {
+				util.each(paths, function(comp) {
+					target = parent.getChild(comp);
+					parent = target;
+					return null;
+				});
+			}
+			else {
+				target = parent;
 			}
 
-			if (util.isObject(tar)) {
-				receiver = tar;
+			parent = null;
+
+			if (util.isObject(target)) {
+				receiver = target;
 			}
 		}
 
 		if (!util.isObject(receiver)) {
-			return util.warn('module: \'' + receiver + '\' is not found in cache!');
+			this.notifySender(msg, callback, context);
+			return util.warn('component: [' + receiver + '] is not exist!');
 		}
 
-		var msg = this._create(type, sender, name, param);
+		var msg = this.createMsg(type, sender, name, param);
 
-		this._trigger(receiver, msg);
+		this.trigger(receiver, msg);
 
-		this._notifySender(msg, callback, context);
+		this.notifySender(msg, callback, context);
 	}
 
 	/**
@@ -1030,25 +945,27 @@
 	 * @param  {String}  name   [发送的消息名称]
 	 * @param  {Mix}     param  [<可选>附加消息参数]
 	 */
-	mp.globalCast = function(name, param) {
+	mp.globalCast = function(name, param, callback, context) {
 		var type = 'globalCast';
 
 		// 是否处于忙碌状态
-		if (this.busy || sync.count) {
-			this.queue.push([type, name, param]);
-			if (sync.count) {
-				sync.addQueue(this._sendQueue, this);
-			}
+		if (this.busy) {
+			this.queue.push([type, name, param, callback, context]);
 			return;
 		}
 
-		this.busy = false;
+		this.busy = true;
 
-		var msg = this._create(type, 'core', name, param);
+		var msg = this.createMsg(type, '__core__', name, param);
 
-		util.each(cache, function(receiver) {
-			this._trigger(receiver, msg);
+		util.each(cache, function(receiver, index) {
+			if (util.isObject(receiver) && index !== '0') {
+				this.trigger(receiver, msg);
+			}
 		}, this);
+
+		// 发送完毕回调
+		this.notifySender(msg, callback, context);
 	}
 
 	messager = new Messager();
@@ -1074,10 +991,7 @@
 				return util.warn('module\'s name must be a type of String: ', name);
 			}
 			if (!util.isFunc(Class)) {
-				return util.warn('module\'s Class must be a type of Function: ', Class);
-			}
-			if (config && !util.isObject(config)) {
-				return util.warn('module\'s config must be a type of Object: ', config);
+				return util.warn('module\'s Class must be a type of Component: ', Class);
 			}
 
 			var cls = this._;
@@ -1092,7 +1006,7 @@
 
 			// 判断是否已经创建过
 			if (cls['childMap'][name]) {
-				return util.warn('Module\'s name already exists: ', name);
+				return util.warn('module ['+ name +'] is already exists!');
 			}
 
 			// 生成子模块实例
@@ -1166,10 +1080,6 @@
 			var cArray = cls['childArray'] || [];
 			var child = cMap[name];
 
-			if (!child) {
-				return;
-			}
-
 			for (var i = 0, len = cArray.length; i < len; i++) {
 				if (cArray[i].id === child.id) {
 					delete cMap[name];
@@ -1222,37 +1132,9 @@
 			if (notify === true) {
 				this.fire('subDestroyed', name);
 			}
-		},
 
-		/**
-		 * 当前模块作用域的定时器
-		 * @param {Function}  callback  [定时器回调函数]
-		 * @param {Number}    time      [<可选>回调等待时间（毫秒）不填为0]
-		 * @param {Array}     param     [<可选>回调函数的参数]
-		 */
-		setTimeout: function(callback, time, param) {
-			var self = this;
-			time = util.isNumber(time) ? time : 0;
-
-			// callback 为属性值
-			if (util.isString(callback)) {
-				callback = this[callback];
-			}
-
-			// 不合法的回调函数
-			if (!util.isFunc(callback)) {
-				return util.warn('callback must be a type of Function: ', callback);
-			}
-
-			// 参数必须为数组或 arguments 对象
-			if (param && !util.isFunc(param.callee) && !util.isArray(param)) {
-				param = [param];
-			}
-
-			return setTimeout(function() {
-				callback.apply(self, param);
-				self = callback = time = param = null;
-			}, time);
+			// 移除所有属性
+			util.clear(this);
 		},
 
 		/**
@@ -1262,10 +1144,6 @@
 		 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
 		 */
 		fire: function(name, param, callback) {
-			if (!util.isString(name)) {
-				return util.warn('message\'s name must be a type of String: ', name);
-			}
-
 			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
@@ -1275,11 +1153,6 @@
 			// callback 为属性值
 			if (util.isString(callback)) {
 				callback = this[callback];
-			}
-
-			// 不传 callback
-			if (!callback) {
-				callback = null;
 			}
 
 			messager$1.fire(this, name, param, callback, this);
@@ -1289,10 +1162,6 @@
 		 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
 		 */
 		broadcast: function(name, param, callback) {
-			if (!util.isString(name)) {
-				return util.warn('message\'s name must be a type of String: ', name);
-			}
-
 			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
@@ -1302,11 +1171,6 @@
 			// callback 为属性值
 			if (util.isString(callback)) {
 				callback = this[callback];
-			}
-
-			// 不传 callback
-			if (!callback) {
-				callback = null;
 			}
 
 			messager$1.broadcast(this, name, param, callback, this);
@@ -1320,14 +1184,6 @@
 		 * @param   {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]]
 		 */
 		notify: function(receiver, name, param, callback) {
-			if (!util.isString(receiver)) {
-				return util.warn('receiver\'s name must be a type of String: ', name);
-			}
-
-			if (!util.isString(name)) {
-				return util.warn('message\'s name must be a type of String: ', name);
-			}
-
 			// 不传 param
 			if (util.isFunc(param)) {
 				callback = param;
@@ -1337,11 +1193,6 @@
 			// callback 为属性值
 			if (util.isString(callback)) {
 				callback = this[callback];
-			}
-
-			// 不传 callback
-			if (!callback) {
-				callback = null;
 			}
 
 			messager$1.notify(this, receiver, name, param, callback, this);
@@ -1360,17 +1211,27 @@
 
 		/**
 		 * 全局广播消息，由 core 实例发出，系统全部实例接收
-		 * @param  {String}   name   [发送的消息名称]
-		 * @param  {Mix}      param  [<可选>附加消息参数]
+		 * @param  {String}    name      [发送的消息名称]
+		 * @param  {Mix}       param     [<可选>附加消息参数]
+		 * @param  {Function}  callback  [<可选>发送完毕的回调函数]
+	 	 * @param  {Object}    context   [<可选>执行环境]
 		 * @return {Boolean}
 		 */
-		globalCast: function(name, param) {
-			if (!util.isString(name)) {
-				return util.warn('message\'s name must be a type of String: ', name);
+		globalCast: function(name, param, callback, context) {
+			// 不传 param
+			if (util.isFunc(param)) {
+				context = callback;
+				callback = param;
+				param = null;
 			}
 
-			messager$1.globalCast(name, param);
-		}
+			messager$1.globalCast(name, param, callback, context);
+		},
+
+		/**
+		 * 重写 destroy, core 模块不允许销毁
+		 */
+		destroy: function() {}
 	});
 
 	var core = cache['0'] = new Core();
@@ -1531,27 +1392,101 @@
 		}
 	}
 
+	function Eventer() {
+		this.$map = {};
+		this.$guid = 1000;
+		this.$listeners = {};
+	}
+
+	var ep = Eventer.prototype;
+
+	/**
+	 * 获取一个唯一的标识
+	 * @return  {Number}
+	 */
+	ep.guid = function() {
+		return this.$guid++;
+	}
+
+	/**
+	 * 添加一个事件绑定回调
+	 * @param  {DOMElement}   node
+	 * @param  {String}       evt
+	 * @param  {Function}     callback
+	 * @param  {Boolean}      capture
+	 * @param  {Mix}          context
+	 */
+	ep.add = function(node, evt, callback, capture, context) {
+		var map = this.$map;
+		var guid = this.guid();
+		var listeners = this.$listeners;
+
+		map[guid] = callback;
+
+		listeners[guid] = function _proxy(e) {
+			callback.call(context || this, e);
+		}
+
+		dom.addEvent(node, evt, listeners[guid], capture);
+	}
+
+	/**
+	 * 移除事件绑定
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	ep.remove = function(node, evt, callback, capture) {
+		var guid, map = this.$map;
+		var listeners = this.$listeners;
+
+		// 找到对应的 callback id
+		util.each(map, function(cb, id) {
+			if (cb === callback) {
+				guid = id;
+				return false;
+			}
+		});
+
+		if (guid) {
+			dom.removeEvent(node, evt, listeners[guid], capture);
+			delete map[guid];
+			delete listeners[guid];
+		}
+	}
+
+	/**
+	 * 清除所有事件记录
+	 */
+	ep.clear = function() {
+		this.$guid = 1000;
+		util.clear(this.$map);
+		util.clear(this.$listeners);
+	}
+
+	var eventer = new Eventer();
+
 	/**
 	 * 移除 DOM 注册的引用
 	 * @param   {Object}      vm
 	 * @param   {DOMElement}  element
 	 */
 	function removeDOMRegister(vm, element) {
-		var node, attr, nodeAttrs;
 		var registers = vm.$data.$els;
 		var childNodes = element.childNodes;
 
 		for (var i = 0; i < childNodes.length; i++) {
-			node = childNodes[i];
+			var node = childNodes[i];
 
 			if (!vm.isElementNode(node)) {
 				continue;
 			}
 
-			nodeAttrs = node.attributes;
+			var nodeAttrs = node.attributes;
 
 			for (var ii = 0; ii < nodeAttrs.length; ii++) {
-				attr = nodeAttrs[ii];
+				var attr = nodeAttrs[ii];
 				if (attr.name === 'v-el' && util.hasOwn(registers, attr.value)) {
 					registers[attr.value] = null;
 				}
@@ -1566,8 +1501,6 @@
 
 	function Updater(vm) {
 		this.vm = vm;
-		// 事件绑定回调集合
-		this.$listeners = {};
 	}
 
 	var up = Updater.prototype;
@@ -1616,13 +1549,12 @@
 	 * @param  {DOMElement}  node
 	 */
 	up.setVisible = function(node) {
-		var inlineStyle, styles, display;
-
 		if (!node._visible_display) {
-			inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
+			var display;
+			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
 			if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
-				styles = inlineStyle.split(';');
+				var styles = inlineStyle.split(';');
 
 				util.each(styles, function(style) {
 					if (style.indexOf('display') !== -1) {
@@ -1671,6 +1603,7 @@
 	up.toggleRender = function(node, isRender) {
 		var vm = this.vm;
 		var fragment = util.stringToFragment(node._render_content);
+
 		// 渲染
 		if (isRender) {
 			vm.complieElement(fragment, true);
@@ -1777,10 +1710,10 @@
 	up.updateEvent = function(node, evt, callback, capture, unbind) {
 		// 移除绑定
 		if (unbind) {
-			dom.removeEvent(node, evt, callback, capture);
+			eventer.remove(node, evt, callback, capture);
 		}
 		else {
-			dom.addEvent(node, evt, callback, capture);
+			eventer.add(node, evt, callback, capture);
 		}
 	}
 
@@ -1830,14 +1763,13 @@
 	 * @param   {Boolean}        multi
 	 */
 	up.updateSelectChecked = function(select, selected, multi) {
-		var i, option, value;
 		var getNumber = dom.hasAttr(select, 'number');
 		var options = select.options, leng = options.length;
 		var multiple = multi || dom.hasAttr(select, 'multiple');
 
-		for (i = 0; i < leng; i++) {
-			option = options[i];
-			value = option.value;
+		for (var i = 0; i < leng; i++) {
+			var option = options[i];
+			var value = option.value;
 			value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
 			option.selected = multiple ? selected.indexOf(value) !== -1 : selected === value;
 		}
@@ -2054,6 +1986,13 @@
 		this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
 	}
 
+	/**
+	 * 销毁函数
+	 */
+	op.destroy = function() {
+		this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
+	}
+
 	function Watcher(model) {
 		this.$model = model;
 
@@ -2082,12 +2021,12 @@
 	 * @param   {Array}   args
 	 */
 	wp.change = function(path, last, old, args) {
-		var field, isAccess = path.indexOf('*') !== -1;
+		var isAccess = path.indexOf('*') !== -1;
 		var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 		this.trigger(subs, path, last, old, args);
 
 		if (isAccess) {
-			field = path.split('*').shift();
+			var field = path.split('*').shift();
 			this.trigger(this.$deepSubs[field], path, last, old, args);
 		}
 	}
@@ -2323,6 +2262,17 @@
 		util.extend(subs, dest);
 
 		dest = caches = null;
+	}
+
+	/**
+	 * 销毁函数
+	 */
+	wp.destroy = function() {
+		util.clear(this.$modelSubs);
+		util.clear(this.$accessSubs);
+		util.clear(this.$indexSubs);
+		util.clear(this.$deepSubs);
+		this.observer.destroy();
 	}
 
 	// 表达式中允许的关键字
@@ -2663,13 +2613,13 @@
 	 * @return  {Object}
 	 */
 	function convertJson(jsonString) {
-		var json, props;
-		var string = jsonString.trim(), i = string.length;
+		var json, string = jsonString.trim();
 
 		if (/^\{.*\}$/.test(string)) {
 			json = {};
-			string = string.substr(1, i - 2).replace(/\s/g, '');
-			props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
+			var leng = string.length;
+			string = string.substr(1, leng - 2).replace(/\s/g, '');
+			var props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
 
 			util.each(props, function(prop) {
 				var vals = util.getKeyValue(prop, true);
@@ -2687,8 +2637,6 @@
 
 	function Von(vm) {
 		this.vm = vm;
-		// 事件绑定回调集合
-		this.$listeners = {};
 		Parser.call(this);
 	}
 	var von = Von.prototype = Object.create(Parser.prototype);
@@ -2736,7 +2684,7 @@
 		// 监测依赖变化，绑定新回调，旧回调将被移除
 		this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
 			// 解除绑定
-			this.update(node, type, this.$listeners[path], false, true);
+			this.update(node, type, oldCallback, false, true);
 			// 绑定新回调
 			this.bindEvent(fors, node, path, type, lastCallback, paramString);
 		}, this);
@@ -2761,9 +2709,7 @@
 	 * @param   {String}      paramString
 	 */
 	von.bindEvent = function(fors, node, field, evt, func, paramString) {
-		var listeners = this.$listeners;
-		var identifier = fors && fors.access || field;
-		var modals, self, stop, prevent, keyCode, capture = false;
+		var self, stop, prevent, keyCode, capture = false;
 
 		if (!util.isFunc(func)) {
 			return;
@@ -2771,7 +2717,7 @@
 
 		// 支持 4 种事件修饰符 .self .stop .prevent .capture
 		if (evt.indexOf('.') !== -1) {
-			modals = evt.split('.');
+			var modals = evt.split('.');
 			evt = modals.shift();
 			self = modals && modals.indexOf('self') !== -1;
 			stop = modals && modals.indexOf('stop') !== -1;
@@ -2781,18 +2727,18 @@
 		}
 
 		// 处理回调参数以及依赖监测
-		var deps, maps, scope, getter, args = [];
+		var args = [];
 		if (paramString) {
 			// 取值依赖
-			deps = this.getDeps(fors, paramString);
+			var deps = this.getDeps(fors, paramString);
 			// 别名映射
-			maps = fors && util.copy(fors.maps);
+			var maps = fors && util.copy(fors.maps);
 			// 取值域
-			scope = this.getScope(fors, paramString);
+			var scope = this.getScope(fors, paramString);
 			// 添加别名标记
 			util.defRec(scope, '$event', '$event');
 			// 取值函数
-			getter = this.getEval(fors, paramString);
+			var getter = this.getEval(fors, paramString);
 			// 事件参数
 			args = getter.call(scope, scope);
 
@@ -2840,8 +2786,6 @@
 			func.apply(this, args);
 		}
 
-		listeners[identifier] = eventProxy;
-
 		// 添加绑定
 		this.update(node, evt, eventProxy, capture);
 	}
@@ -2871,20 +2815,18 @@
 	 * @param   {String}      value   [注册字段]
 	 */
 	vel.parse = function(fors, node, value) {
-		var key, alias, scope;
-
 		if (fors) {
-			alias = util.getExpAlias(value);
+			var alias = util.getExpAlias(value);
 
 			// vel 在 vfor 循环中只能在当前循环体中赋值
 			if (alias !== fors.alias) {
 				return util.warn('when v-el use in v-for must be defined inside current loop body!');
 			}
 
-			scope = fors.scopes[alias];
+			var scope = fors.scopes[alias];
 
 			if (util.isObject(scope)) {
-				key = util.getExpKey(value);
+				var key = util.getExpKey(value);
 				scope[key] = node;
 			}
 		}
@@ -3134,15 +3076,15 @@
 	 * @return  {Object}
 	 */
 	vfor.updateScopes = function(update) {
-		var maps = update.maps;
 		var scopes = update.scopes;
 		var accesses = update.accesses;
 		var aleng = accesses.length;
-		var targetPaths, model = this.vm.$data;
 
 		// 更新嵌套数组的取值域
 		if (aleng > 1) {
-			targetPaths = util.makePaths(accesses[aleng - 1]);
+			var maps = update.maps;
+			var model = this.vm.$data;
+			var targetPaths = util.makePaths(accesses[aleng - 1]);
 			// 对每一个取值域进行更新
 			util.each(util.makeScopePaths(targetPaths), function(paths) {
 				var index = paths.length - 2;
@@ -3265,8 +3207,7 @@
 			return;
 		}
 
-		var i, template, startChild, listArgs, udf, scopes;
-		var map = {}, alias = up.alias, length = newArray.length;
+		var i, udf, map = {}, alias = up.alias, length = newArray.length;
 
 		// 只删除 splice(2, 1);
 		var deleteOnly = deleteCont && !insertLength;
@@ -3315,13 +3256,13 @@
 			}
 
 			// 开始的元素
-			startChild = this.getChild(parent, alias, start);
+			var startChild = this.getChild(parent, alias, start);
 			// 新取值域
-			scopes = this.updateScopes(up);
+			var scopes = this.updateScopes(up);
 			// 编译新添加的列表
-			listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
+			var listArgs = [node, insertItems, start, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 			// 新增列表模板
-			template = this.buildList.apply(this, listArgs);
+			var template = this.buildList.apply(this, listArgs);
 
 			// 更新变化部分
 			parent.insertBefore(template, startChild);
@@ -3335,11 +3276,11 @@
 	 * @return  {FirstChild}
 	 */
 	vfor.getFirst = function(parent, alias) {
-		var i, firstChild = null, child;
+		var firstChild = null;
 		var childNodes = parent.childNodes;
 
-		for (i = 0; i < childNodes.length; i++) {
-			child = childNodes[i];
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
 			if (child._vfor_alias === alias) {
 				firstChild = child;
 				break;
@@ -3356,11 +3297,11 @@
 	 * @return  {LastChild}
 	 */
 	vfor.getLast = function(parent, alias) {
-		var i, lastChild = null, child;
+		var lastChild = null;
 		var childNodes = parent.childNodes;
 
-		for (i = childNodes.length - 1; i > -1 ; i--) {
-			child = childNodes[i];
+		for (var i = childNodes.length - 1; i > -1 ; i--) {
+			var child = childNodes[i];
 			if (child._vfor_alias === alias) {
 				lastChild = child;
 				break;
@@ -3378,11 +3319,11 @@
 	 * @return  {DOMElement}
 	 */
 	vfor.getChild = function(parent, alias, index) {
-		var i, e = 0, target = null, child;
+		var e = 0, target = null;
 		var childNodes = parent.childNodes;
 
-		for (i = 0; i < childNodes.length; i++) {
-			child = childNodes[i];
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
 			if (child._vfor_alias === alias) {
 				if (e === index) {
 					target = child;
@@ -3403,11 +3344,11 @@
 	 * @param   {Number}      deleteCont  [删除个数]
 	 */
 	vfor.removeEl = function(parent, alias, start, deleteCont) {
+		var e = -1, scapegoats = [];
 		var childNodes = parent.childNodes;
-		var i, e = -1, child, scapegoats = [];
 
-		for (i = 0; i < childNodes.length; i++) {
-			child = childNodes[i];
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
 			if (child._vfor_alias === alias) {
 				e++;
 			}
@@ -3427,8 +3368,7 @@
 	 * 重新编译循环体
 	 */
 	vfor.recompile = function(parent, node, newArray, method, up) {
-		var child, scapegoat;
-		var template, alias = up.alias;
+		var scapegoat, alias = up.alias;
 		var childNodes = parent.childNodes;
 		var scopes = this.updateScopes(up);
 		var listArgs = [node, newArray, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
@@ -3437,11 +3377,11 @@
 		this.vm.watcher.removeSubs(up.access);
 
 		// 重新构建循环板块
-		template = this.buildList.apply(this, listArgs);
+		var template = this.buildList.apply(this, listArgs);
 
 		// 移除旧板块
 		for (var i = 0; i < childNodes.length; i++) {
-			child = childNodes[i];
+			var child = childNodes[i];
 			if (child._vfor_alias === alias) {
 				if (!scapegoat) {
 					scapegoat = child;
@@ -3706,14 +3646,12 @@
 	 * @param   {String}      directive   [指令名称]
 	 */
 	vbind.parse = function(fors, node, expression, directive) {
-		var parseType;
-		var vclass = this.vclass;
-		var vstyle = this.vstyle;
-
 		// 单个 attribute
 		if (directive.indexOf(':') !== -1) {
+			var vclass = this.vclass;
+			var vstyle = this.vstyle;
 			// 属性类型
-			parseType = util.getKeyValue(directive);
+			var parseType = util.getKeyValue(directive);
 
 			switch (parseType) {
 				case 'class':
@@ -3850,13 +3788,13 @@
 	 * @return  {Array}
 	 */
 	function getSelecteds(select) {
+		var sels = [];
 		var options = select.options;
 		var getNumber = dom.hasAttr(select, 'number');
-		var i, option, value, leng = options.length, sels = [];
 
-		for (i = 0; i < leng; i++) {
-			option = options[i];
-			value = option.value;
+		for (var i = 0; i < options.length; i++) {
+			var option = options[i];
+			var value = option.value;
 			if (option.selected) {
 				sels.push(getNumber ? +value : formatValue(option, value));
 			}
@@ -4037,14 +3975,14 @@
 	 */
 	vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
 		dom.addEvent(node, 'change', function() {
-			var index, checked = this.checked;
-			var val = formatValue(this, this.value);
+			var checked = this.checked;
 
 			if (util.isBool(value)) {
 				duplex[field] = checked;
 			}
 			else if (util.isArray(value)) {
-				index = value.indexOf(val);
+				var val = formatValue(this, this.value);
+				var index = value.indexOf(val);
 				// hook
 				if (checked) {
 					if (index === -1) {
@@ -4065,26 +4003,26 @@
 	 * v-model for select
 	 */
 	vmodel.parseSelect = function(node, value, deps, duplex, field) {
-		var isDefined, selects;
+		var isDefined;
 		var updater = this.vm.updater;
 		var multi = dom.hasAttr(node, 'multiple');
 
 		// 数据模型定义为单选
 		if (util.isString(value)) {
 			if (multi) {
-				return util.warn('<select> cannot be multiple when the model set \'' + field + '\' as not Array!');
+				return util.warn('<select> cannot be multiple when the model set [' + field + '] as not Array!');
 			}
 			isDefined = Boolean(value);
 		}
 		// 数据模型定义为多选
 		else if (util.isArray(value)) {
 			if (!multi) {
-				return util.warn('the model \'' + field + '\' cannot set as Array when <select> has no multiple propperty!');
+				return util.warn('the model [' + field + '] cannot set as Array when <select> has no multiple propperty!');
 			}
 			isDefined = value.length > 0;
 		}
 		else {
-			return util.warn('the model ' + field + ' use in <select> must be a type of String or Array!');
+			return util.warn('the model [' + field + '] use in <select> must be a type of String or Array!');
 		}
 
 		// 数据模型中定义初始的选中状态
@@ -4093,7 +4031,7 @@
 		}
 		// 模板中定义初始状态
 		else {
-			selects = getSelecteds(node);
+			var selects = getSelecteds(node);
 			duplex[field] =  multi ? selects : selects[0];
 		}
 
@@ -4254,15 +4192,15 @@
 		var this$1 = this;
 
 		var node = info[0], fors = info[1];
-		var atr, name, _vfor, attrs = [], nodeAttrs;
 
 		if (this.isElementNode(node)) {
+			var _vfor, attrs = [];
 			// node 节点集合转为数组
-			nodeAttrs = node.attributes;
+			var nodeAttrs = node.attributes;
 
 			for (var i = 0; i < nodeAttrs.length; i++) {
-				atr = nodeAttrs[i];
-				name = atr.name;
+				var atr = nodeAttrs[i];
+				var name = atr.name;
 				if (this$1.isDirective(name)) {
 					if (name === 'v-for') {
 						_vfor = atr;
@@ -4339,7 +4277,7 @@
 					break;
 				case 'v-pre':
 					break;
-				default: util.warn(dir + ' is an unknown directive!');
+				default: util.warn('[' + dir + '] is an unknown directive!');
 			}
 		}
 	}
@@ -4352,21 +4290,20 @@
 	cp.compileText = function(node, fors) {
 		var exp, match, matches, pieces, tokens = [];
 		var text = node.textContent.trim().replace(/\n/g, '');
-		var regtext = /\{\{(.+?)\}\}/g, reghtml = /\{\{\{(.+?)\}\}\}/g;
-		var isText = regtext.test(text), isHtml = reghtml.test(text);
+		var reghtml = /\{\{\{(.+?)\}\}\}/g, regtext = /\{\{(.+?)\}\}/g;
 
 		// html match
-		if (isHtml) {
+		if (reghtml.test(text)) {
 			matches = text.match(reghtml);
 			match = matches[0];
 			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			if (match.length !== text.length) {
-				return util.warn('\'' + text + '\' compile for HTML can not have a prefix or suffix!');
+				return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix!');
 			}
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 		}
 		// text match
-		else if (isText) {
+		else {
 			pieces = text.split(regtext);
 			matches = text.match(regtext);
 
@@ -4451,6 +4388,17 @@
 	cp.rootCompleted = function() {
 		this.$rootComplied = true;
 		this.$element.appendChild(this.$fragment);
+	}
+
+	/**
+	 * 销毁 vm 编译实例
+	 * @return  {[type]}  [description]
+	 */
+	cp.destroy = function() {
+		this.watcher.destroy();
+		dom.empty(this.$element);
+		this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;
+		this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
 	}
 
 	/**
@@ -4559,6 +4507,14 @@
 		}, this.context, null, deep);
 	}
 
+	/**
+	 * 销毁 mvvm 实例
+	 */
+	mvp.destroy = function() {
+		this.vm.destroy();
+		this.context = this.vm = this.backup = this.$ = null;
+	}
+
 	var Component = Module.extend({
 		/**
 		 * init 组件初始化方法
@@ -4619,22 +4575,19 @@
 			var c = this.getConfig();
 			var uri = c.template;
 
-			// 防止消息异步或者框架外的异步创建出现问题
-			sync.lock();
 			ajax.load(uri, c.tplParam, function(err, data) {
-				var text;
+				var html;
 
 				if (err) {
-					text = err.status + ': ' + uri;
+					html = err.status + ': ' + uri;
 					util.warn(err);
 				}
 				else {
-					text = data.result;
+					html = data.result;
 				}
 
-				this.setConfig('html', text);
+				this.setConfig('html', html);
 				this._render();
-				sync.unlock();
 			}, this);
 		},
 
@@ -4673,37 +4626,21 @@
 
 		/**
 		 * 设置/读取配置对象
-		 * @param  {Object}  cData  [配置对象]
-		 * @param  {String}  name   [配置名称, 支持/分隔层次]
-		 * @param  {Mix}     value  [不传为读取配置信息, null 为删除配置, 其他为设置值]
-		 * @return {Mix}            [返回读取的配置值]
+		 * @param  {Object}   data   [配置对象]
+		 * @param  {String}   name   [配置名称, 支持/分隔层次]
+		 * @param  {Mix}      value  [不传为读取配置信息]
+		 * @return {Mix}             [返回读取的配置值]
 		 */
-		config: function(cData, name, value) {
-			// 不传cData配置对象
-			if (util.isString(cData) || arguments.length === 0) {
-				value = name;
-				name = cData;
-				cData = {};
-			}
-
-			var udf, data = cData;
-			var set = (value !== udf);
-			var remove = (value === null);
+		config: function(data, name, value) {
+			var udf, set = (value !== udf);
 
 			if (name) {
 				var ns = name.split('/');
+
 				while (ns.length > 1 && util.hasOwn(data, ns[0])) {
 					data = data[ns.shift()];
 				}
-				if (ns.length > 1) {
-					if (set) {
-						return false;
-					}
-					if (remove)	{
-						return true;
-					}
-					return udf;
-				}
+
 				name = ns[0];
 			}
 			else {
@@ -4712,11 +4649,6 @@
 
 			if (set) {
 				data[name] = value;
-				return true;
-			}
-			else if (remove) {
-				data[name] = null;
-				delete data[name];
 				return true;
 			}
 			else {
@@ -4806,15 +4738,21 @@
 		/**
 		 * 元素添加绑定事件
 		 */
-		bind: function() {
-			return dom.addEvent.apply(dom, arguments);
+		bind: function(node, evt, callback, capture) {
+			if (util.isString(callback)) {
+				callback = this[callback];
+			}
+			return eventer.add(node, evt, callback, capture, this);
 		},
 
 		/**
 		 * 元素解除绑定事件
 		 */
-		unbind: function() {
-			return dom.removeEvent.apply(dom, arguments);
+		unbind: function(node, evt, callback, capture) {
+			if (util.isString(callback)) {
+				callback = this[callback];
+			}
+			return eventer.remove(node, evt, callback, capture);
 		},
 
 		/**
@@ -4823,26 +4761,23 @@
 		afterDestroy: function() {
 			var vm = this.vm;
 			var el = this.el;
+			var parent = this.getConfig('target');
+
 			// 销毁 mvvm 实例
 			if (vm) {
 				vm.destroy();
-				vm = null;
 			}
+
 			// 销毁 dom 对象
-			if (el) {
-				el.parentNode.removeChild(el);
-				el = null;
+			if (parent) {
+				parent.removeChild(el);
 			}
+
+			this.$ = el = vm = null;
 		}
 	});
 
 	function Sugar() {
-		/**
-		 * 异步状态锁
-		 * @type  {Object}
-		 */
-		this.sync = sync;
-
 		/**
 		 * 工具方法
 		 * @type  {Object}
