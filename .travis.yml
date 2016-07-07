@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - 4
 script:
-  - npm run cover
+  - npm run build
 branches:
   only:
     - master
