@@ -2,8 +2,9 @@ language: node_js
 node_js:
   - 4
 script:
-  - npm run cover
+  - npm run build
 branches:
-  - master
+  only:
+    - master
 after_success:
   - bash <(curl -s https://codecov.io/bash)
