@@ -1,6 +1,6 @@
 // webpack config file for develop mvvm.js
 
-var baseConfig = require('./webpack.dev.sugar');
+var baseConfig = require('./dev.sugar');
 
 module.exports = Object.assign(baseConfig, {
 	'entry' : './src/mvvm/index',
