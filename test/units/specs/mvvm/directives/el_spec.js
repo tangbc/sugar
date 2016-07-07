@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util').default;
 
 /*------------------------------*/
 describe("v-el >", function() {
@@ -97,5 +98,25 @@ describe("v-el >", function() {
 
 		items.$remove(items[0]);
 		expect(items[1].el.textContent).toBe('c333');
+	});
+
+
+	it('inside v-for with invalid register', function() {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<span v-el="elSpan" v-text="item.text"></span>' +
+				'</li>' +
+			'</ul>'
+
+		new MVVM(element, {
+			'items': [
+				{'text': 'a111'},
+				{'text': 'b222'},
+				{'text': 'c333'}
+			]
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('when v-el use in v-for must be defined inside current loop body!');
 	});
 });

@@ -1,5 +1,6 @@
 var dom = require('src/dom').default;
 var MVVM = require('mvvm').default;
+var util = require('src/util').default;
 
 describe("v-bind >", function() {
 	var element;
@@ -240,6 +241,17 @@ describe("v-bind >", function() {
 
 		data.obj['font-size'] = '24px';
 		expect(div.style.fontSize).toBe('24px');
+	});
+
+
+	it('style with invalid data type', function() {
+		element.innerHTML = '<div v-bind:style="obj"></div>';
+
+		new MVVM(element, {
+			'obj': 'color: red'
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('v-bind for style must be a type of Object!', 'color: red');
 	});
 
 

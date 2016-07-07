@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util').default;
 
 describe("mvvm instance >", function() {
 	var element, vm, data;
@@ -23,6 +24,32 @@ describe("mvvm instance >", function() {
 	afterEach(function() {
 		vm = data = null;
 		document.body.removeChild(element);
+	});
+
+
+	it('invalid build', function() {
+		var text = document.createTextNode('plain text');
+		var model = {'a': 1};
+		new MVVM(text, model);
+		expect(util.warn).toHaveBeenCalledWith('element must be a type of DOMElement: ', text);
+
+		var el = document.createElement('div');
+		new MVVM(el, 'not-an-object');
+		expect(util.warn).toHaveBeenCalledWith('model must be a type of Object: ', 'not-an-object');
+	});
+
+
+	it('use invalid directive', function() {
+		var el = document.createElement('div');
+		el.innerHTML =
+			'<h1 v-text="title"></h1>' +
+			'<h2 v-beta="title"></h2>'
+		var model = {'title': 'xxdk'};
+
+		new MVVM(el, model);
+		expect(el.childNodes[0].textContent).toBe('xxdk');
+		expect(el.childNodes[1].hasAttribute('v-beta')).toBe(false);
+		expect(util.warn).toHaveBeenCalledWith('[v-beta] is an unknown directive!');
 	});
 
 
@@ -212,5 +239,27 @@ describe("mvvm instance >", function() {
 		expect(val).toBe(data.items);
 		expect(old).toBe('pop');
 		expect(count).toBe(2);
+	});
+
+
+	it('destroy', function() {
+		var compiler = vm.vm;
+
+		expect(element.innerHTML).toBe('<div id="aaa">bbb</div>');
+
+		// destroy instance
+		vm.destroy();
+
+		// model should be null
+		expect(vm.get()).toBeNull();
+
+		// watcher should be empty
+		expect(Object.keys(compiler.watcher.$modelSubs).length).toBe(0);
+		expect(Object.keys(compiler.watcher.$accessSubs).length).toBe(0);
+		expect(Object.keys(compiler.watcher.$indexSubs).length).toBe(0);
+		expect(Object.keys(compiler.watcher.$deepSubs).length).toBe(0);
+
+		// interface should be blank
+		expect(element.innerHTML).toBe('');
 	});
 });

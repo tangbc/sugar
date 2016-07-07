@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util').default;
 
 describe("v-html >", function() {
 	var element;
@@ -48,6 +49,17 @@ describe("v-html >", function() {
 
 		data.layout = 'This is a plain text string';
 		expect(div.innerHTML).toBe('This is a plain text string');
+	});
+
+
+	it('invalid mustache', function() {
+		element.innerHTML = '<div>xxx{{{ layout }}}</div>';
+
+		new MVVM(element, {
+			'layout': '<b>123</b>'
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('[xxx{{{ layout }}}] compile for HTML can not have a prefix or suffix!');
 	});
 
 

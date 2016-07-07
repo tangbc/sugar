@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util').default;
 
 function triggerEvent(target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
@@ -32,6 +33,17 @@ describe("v-model >", function() {
 
 	afterEach(function() {
 		document.body.removeChild(element);
+	});
+
+
+	it('use on invalid element', function() {
+		element.innerHTML = '<div v-model="model"></div>';
+
+		new MVVM(element, {
+			'model': 'xxxxxxxx'
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('v-model only for using in input, select, textarea');
 	});
 
 
@@ -181,6 +193,17 @@ describe("v-model >", function() {
 
 		element.childNodes[0].click();
 		expect(data.isCheck).toBe(false);
+	});
+
+
+	it('checkbox bind for invalid data type', function() {
+		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
+
+		new MVVM(element, {
+			'isCheck': 1
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('checkbox v-model value must be a type of Boolean or Array!');
 	});
 
 
@@ -798,5 +821,53 @@ describe("v-model >", function() {
 		expect(options[0].selected).toBe(false);
 		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(false);
+	});
+
+
+	it('checkbox bind for invalid data type', function() {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option>a</option>' +
+				'<option>b</option>' +
+				'<option>c</option>' +
+			'</select>'
+
+		new MVVM(element, {
+			'test': 1
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('the model [test] use in <select> must be a type of String or Array!');
+	});
+
+
+	it('select has multiple but not bind for array', function() {
+		element.innerHTML =
+			'<select v-model="test" multiple>' +
+				'<option>a</option>' +
+				'<option>b</option>' +
+				'<option>c</option>' +
+			'</select>'
+
+		new MVVM(element, {
+			'test': 'b'
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('<select> cannot be multiple when the model set [test] as not Array!');
+	});
+
+
+	it('select has no multiple but bind for array', function() {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option>a</option>' +
+				'<option>b</option>' +
+				'<option>c</option>' +
+			'</select>'
+
+		new MVVM(element, {
+			'test': ['b']
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('the model [test] cannot set as Array when <select> has no multiple propperty!');
 	});
 });
