@@ -1,8 +1,3 @@
-/**
- * Component 基础视图组件
- * ====================
- */
-
 import dom from '../dom';
 import ajax from './ajax';
 import util from '../util';
@@ -10,6 +5,9 @@ import Module from './module';
 import MVVM from '../mvvm/index';
 import eventer from '../eventer';
 
+/**
+ * Component 基础视图组件
+ */
 var Component = Module.extend({
 	/**
 	 * init 组件初始化方法

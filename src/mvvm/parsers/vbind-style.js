@@ -1,11 +1,9 @@
-/**
- * v-bind for style 指令解析模块
- * ===========================
- */
-
 import util from '../../util';
 import Parser from '../parser';
 
+/**
+ * v-bind for style 指令解析模块
+ */
 function VStyle(vm) {
 	this.vm = vm;
 	Parser.call(this);

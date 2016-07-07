@@ -1,11 +1,9 @@
-/**
- * v-el 指令解析模块
- * ===============
- */
-
 import util from '../../util';
 import Parser from '../parser';
 
+/**
+ * v-el 指令解析模块
+ */
 function Vel(vm) {
 	this.vm = vm;
 	Parser.call(this);

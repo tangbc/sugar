@@ -1,13 +1,12 @@
-/**
- * sugar 构造函数入口
- */
-
 import ajax from './ajax';
 import core from './core';
 import util from '../util';
 import Module from './module';
 import Component from './component';
 
+/**
+ * sugar 构造函数入口
+ */
 function Sugar() {
 	/**
 	 * 工具方法

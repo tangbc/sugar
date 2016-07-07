@@ -1,8 +1,3 @@
-/**
- * updater 视图刷新模块
- * ===================
- */
-
 import dom from '../dom';
 import util from '../util';
 import eventer from '../eventer';
@@ -39,6 +34,9 @@ function removeDOMRegister(vm, element) {
 }
 
 
+/**
+ * updater 视图刷新模块
+ */
 function Updater(vm) {
 	this.vm = vm;
 }

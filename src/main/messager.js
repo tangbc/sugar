@@ -1,8 +1,3 @@
-/**
- * Messager 实现组件消息通信
- * =======================
- */
-
 import util from '../util';
 import cache from './cache';
 
@@ -29,6 +24,9 @@ function getComponent(name) {
 }
 
 
+/**
+ * Messager 实现组件消息通信
+ */
 function Messager() {
 	/**
 	 * 是否正在发送消息
@@ -254,12 +252,12 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 		}
 	}
 
+	var msg = this.createMsg(type, sender, name, param);
+
 	if (!util.isObject(receiver)) {
 		this.notifySender(msg, callback, context);
 		return util.warn('component: [' + receiver + '] is not exist!');
 	}
-
-	var msg = this.createMsg(type, sender, name, param);
 
 	this.trigger(receiver, msg);
 

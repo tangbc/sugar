@@ -1,10 +1,8 @@
-/**
- * v-show 指令解析模块
- * =================
- */
-
 import Parser from '../parser';
 
+/**
+ * v-show 指令解析模块
+ */
 function Vshow(vm) {
 	this.vm = vm;
 	Parser.call(this);

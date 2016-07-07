@@ -1,10 +1,8 @@
-/**
- * Ajax 模块
- * ========
- */
-
 import util from '../util';
 
+/**
+ * Ajax 模块
+ */
 function Ajax() {}
 
 var ap = Ajax.prototype;

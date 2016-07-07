@@ -1,13 +1,11 @@
-/**
- * Core 核心模块，用于顶层组件模块的创建
- * ================================
- */
-
 import util from '../util';
 import cache from './cache';
 import Module from './module';
 import messager from './messager';
 
+/**
+ * Core 核心模块，用于顶层组件模块的创建
+ */
 var Core = Module.extend({
 	/**
 	 * 获取顶级组件实例

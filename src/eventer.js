@@ -1,12 +1,9 @@
-/**
- * 事件处理模块
- * ==========
- */
-
 import dom from './dom';
 import util from './util';
 
-
+/**
+ * 事件处理模块
+ */
 function Eventer() {
 	this.$map = {};
 	this.$guid = 1000;

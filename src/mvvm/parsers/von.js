@@ -1,8 +1,3 @@
-/**
- * v-on 指令解析模块
- * ===============
- */
-
 import util from'../../util';
 import Parser from'../parser';
 
@@ -61,6 +56,9 @@ function convertJson(jsonString) {
 }
 
 
+/**
+ * v-on 指令解析模块
+ */
 function Von(vm) {
 	this.vm = vm;
 	Parser.call(this);

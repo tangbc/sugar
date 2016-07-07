@@ -1,11 +1,9 @@
-/**
- * v-for 指令解析模块
- * ================
- */
-
 import util from '../../util';
 import Parser from '../parser';
 
+/**
+ * v-for 指令解析模块
+ */
 function Vfor(vm) {
 	this.vm = vm;
 	Parser.call(this);

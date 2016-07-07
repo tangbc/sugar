@@ -1,13 +1,11 @@
-/**
- * v-bind 指令解析模块
- * =================
- */
-
 import util from '../../util';
 import Parser from '../parser';
 import VClass from './vbind-class';
 import VStyle from './vbind-style';
 
+/**
+ * v-bind 指令解析模块
+ */
 function Vbind(vm) {
 	this.vm = vm;
 	this.vclass = new VClass(vm);

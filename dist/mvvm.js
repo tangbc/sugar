@@ -3,18 +3,13 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu Jul 07 2016 15:19:47 GMT+0800 (CST)
+ * Thu Jul 07 2016 16:02:13 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
 	(global.MVVM = factory());
 }(this, function () { 'use strict';
-
-	/**
-	 * 通用函数库
-	 * =========
-	 */
 
 	var OP = Object.prototype;
 	var hasOwn = OP.hasOwnProperty;
@@ -508,11 +503,6 @@
 		return scopePaths;
 	}
 
-	/**
-	 * dom 操作模块
-	 * ===========
-	 */
-
 	var dom = {
 		/**
 		 * 清空 element 的所有子节点
@@ -664,6 +654,9 @@
 		}
 	}
 
+	/**
+	 * 事件处理模块
+	 */
 	function Eventer() {
 		this.$map = {};
 		this.$guid = 1000;
@@ -771,6 +764,9 @@
 	}
 
 
+	/**
+	 * updater 视图刷新模块
+	 */
 	function Updater(vm) {
 		this.vm = vm;
 	}
@@ -1048,6 +1044,7 @@
 	}
 
 	/**
+	 * observer 数据变化监测模块
 	 * @param  {Object}     object    [VM 数据模型]
 	 * @param  {Function}   callback  [变化回调函数]
 	 * @param  {Object}     context   [执行上下文]
@@ -1265,6 +1262,9 @@
 		this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
 	}
 
+	/**
+	 * watcher 数据订阅模块
+	 */
 	function Watcher(model) {
 		this.$model = model;
 
@@ -1907,6 +1907,9 @@
 	}
 
 
+	/**
+	 * v-on 指令解析模块
+	 */
 	function Von(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2074,6 +2077,9 @@
 		updater.updateEvent.apply(updater, arguments);
 	}
 
+	/**
+	 * v-el 指令解析模块
+	 */
 	function Vel(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2107,6 +2113,9 @@
 		}
 	}
 
+	/**
+	 * v-if 指令解析模块
+	 */
 	function Vif(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2133,6 +2142,9 @@
 		updater.updateRenderContent.apply(updater, arguments);
 	}
 
+	/**
+	 * v-for 指令解析模块
+	 */
 	function Vfor(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2673,6 +2685,9 @@
 		}
 	}
 
+	/**
+	 * v-text 指令解析模块
+	 */
 	function Vtext(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2699,6 +2714,9 @@
 		updater.updateTextContent.apply(updater, arguments);
 	}
 
+	/**
+	 * v-html 指令解析模块
+	 */
 	function Vhtml(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2725,6 +2743,9 @@
 		updater.updateHtmlContent.apply(updater, arguments);
 	}
 
+	/**
+	 * v-show 指令解析模块
+	 */
 	function Vshow(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2751,6 +2772,9 @@
 		updater.updateDisplay.apply(updater, arguments);
 	}
 
+	/**
+	 * v-bind for class 指令解析模块
+	 */
 	function VClass(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2832,6 +2856,9 @@
 		updater.updateClassName.apply(updater, arguments);
 	}
 
+	/**
+	 * v-bind for style 指令解析模块
+	 */
 	function VStyle(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -2902,6 +2929,9 @@
 		updater.updateStyle.apply(updater, arguments);
 	}
 
+	/**
+	 * v-bind 指令解析模块
+	 */
 	function Vbind(vm) {
 		this.vm = vm;
 		this.vclass = new VClass(vm);
@@ -3076,6 +3106,9 @@
 	}
 
 
+	/**
+	 * v-model 指令解析模块
+	 */
 	function Vmodel(vm) {
 		this.vm = vm;
 		Parser.call(this);
@@ -3331,7 +3364,7 @@
 	}
 
 	/**
-	 * 编译模块
+	 * 元素编译/指令提取模块
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */

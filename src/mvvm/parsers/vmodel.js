@@ -1,8 +1,3 @@
-/**
- * v-model 指令解析模块
- * ==================
- */
-
 import dom from '../../dom';
 import util from '../../util';
 import Parser from '../parser';
@@ -39,6 +34,9 @@ function getSelecteds(select) {
 }
 
 
+/**
+ * v-model 指令解析模块
+ */
 function Vmodel(vm) {
 	this.vm = vm;
 	Parser.call(this);

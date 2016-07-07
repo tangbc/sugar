@@ -1,8 +1,3 @@
-/**
- * MVVM 构造函数入口
- * ================
- */
-
 import util from '../util';
 import Compiler from './compiler';
 

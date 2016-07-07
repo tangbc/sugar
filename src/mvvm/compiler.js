@@ -1,13 +1,7 @@
-/**
- * compiler 元素编译/指令提取模块
- * ===========================
- */
-
 import dom from '../dom';
 import util from '../util';
 import Updater from './updater';
 import Watcher from './watcher';
-// parse directive modules
 import Von from './parsers/von';
 import Vel from './parsers/vel';
 import Vif from './parsers/vif';
@@ -19,7 +13,7 @@ import Vbind from './parsers/vbind';
 import Vmodel from './parsers/vmodel';
 
 /**
- * 编译模块
+ * 元素编译/指令提取模块
  * @param  {DOMElement}  element  [视图的挂载原生 DOM]
  * @param  {Object}      model    [数据模型对象]
  */

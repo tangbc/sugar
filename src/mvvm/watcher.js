@@ -1,11 +1,9 @@
-/**
- * watcher 数据订阅模块
- * ===================
- */
-
 import util from '../util';
 import Observer from './observer';
 
+/**
+ * watcher 数据订阅模块
+ */
 function Watcher(model) {
 	this.$model = model;
 

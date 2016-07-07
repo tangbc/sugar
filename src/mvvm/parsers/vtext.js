@@ -1,10 +1,8 @@
-/**
- * v-text 指令解析模块
- * =================
- */
-
 import Parser from '../parser';
 
+/**
+ * v-text 指令解析模块
+ */
 function Vtext(vm) {
 	this.vm = vm;
 	Parser.call(this);

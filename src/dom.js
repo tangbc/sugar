@@ -1,8 +1,3 @@
-/**
- * dom 操作模块
- * ===========
- */
-
 export default {
 	/**
 	 * 清空 element 的所有子节点

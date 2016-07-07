@@ -1,11 +1,9 @@
-/**
- * v-bind for class 指令解析模块
- * ===========================
- */
-
 import util from '../../util';
 import Parser from '../parser';
 
+/**
+ * v-bind for class 指令解析模块
+ */
 function VClass(vm) {
 	this.vm = vm;
 	Parser.call(this);

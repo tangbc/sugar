@@ -1,11 +1,7 @@
-/**
- * observer 数据变化监测模块
- * =======================
- */
-
 import util from '../util';
 
 /**
+ * observer 数据变化监测模块
  * @param  {Object}     object    [VM 数据模型]
  * @param  {Function}   callback  [变化回调函数]
  * @param  {Object}     context   [执行上下文]

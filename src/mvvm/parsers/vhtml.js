@@ -1,10 +1,8 @@
-/**
- * v-html 指令解析模块
- * =================
- */
-
 import Parser from '../parser';
 
+/**
+ * v-html 指令解析模块
+ */
 function Vhtml(vm) {
 	this.vm = vm;
 	Parser.call(this);

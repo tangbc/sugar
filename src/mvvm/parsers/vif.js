@@ -1,10 +1,8 @@
-/**
- * v-if 指令解析模块
- * ===============
- */
-
 import Parser from '../parser';
 
+/**
+ * v-if 指令解析模块
+ */
 function Vif(vm) {
 	this.vm = vm;
 	Parser.call(this);

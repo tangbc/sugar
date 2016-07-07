@@ -1,8 +1,3 @@
-/**
- * 通用函数库
- * =========
- */
-
 var OP = Object.prototype;
 var hasOwn = OP.hasOwnProperty;
 
