@@ -329,6 +329,10 @@ describe("v-bind >", function() {
 
 		data.vid = 'txgc';
 		expect(dom.getAttr(div, 'id')).toBe('txgc');
+
+		// set as null to remove
+		data.vid = null;
+		expect(dom.hasAttr(div, 'id')).toBe(false);
 	});
 
 
