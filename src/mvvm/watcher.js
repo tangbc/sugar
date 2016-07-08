@@ -105,11 +105,11 @@ wp.watch = function(depends, callback, context, args) {
  */
 wp.watchModel = function(field, callback, context, args, deep) {
 	if (!util.hasOwn(this.$model, field)) {
-		return util.warn('The field: "' + field + '" does not exist in model!');
+		return util.warn('the field: [' + field + '] does not exist in model');
 	}
 
 	if (field.indexOf('*') !== -1) {
-		return util.warn('Model key cannot contain the character "*"!');
+		return util.warn('model ['+ field +'] cannot contain the character *');
 	}
 
 	this.addSubs(this.$modelSubs, field, callback, context, args);

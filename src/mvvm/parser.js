@@ -88,6 +88,8 @@ function getAlias(fors, expression) {
 	return alias;
 }
 
+function noop() {}
+
 
 /**
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -131,7 +133,8 @@ p.createGetter = function(expression) {
 		return new Function('scope', 'return ' + expression + ';');
 	}
 	catch (e) {
-		throw('Invalid generated expression: ' + expression);
+		util.error('Invalid generated expression: ' + expression);
+		return noop;
 	}
 }
 
@@ -139,23 +142,24 @@ p.createGetter = function(expression) {
  * 获取表达式的取值函数
  */
 p.getEval = function(fors, expression) {
-	var exp = this.toScope(expression);
-
-	if (regAviodKeyword.test(exp)) {
-		return util.warn('Avoid using unallow keyword in expression: ' + exp);
+	if (regAviodKeyword.test(expression)) {
+		util.warn('Avoid using unallow keyword in expression ['+ expression +']');
+		return noop;
 	}
+
+	expression = this.toScope(expression);
 
 	// 替换 vfor 取值域别名
 	if (fors) {
 		util.each(fors.aliases, function(alias) {
 			var reg = new RegExp('scope.' + alias, 'g');
-			exp = exp.replace(reg, function(scope) {
+			expression = expression.replace(reg, function(scope) {
 				return 'scope.$' + scope;
 			});
 		});
 	}
 
-	return this.createGetter(exp);
+	return this.createGetter(expression);
 }
 
 /**

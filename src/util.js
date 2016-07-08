@@ -83,6 +83,13 @@ util.warn = function() {
 	console.warn.apply(console, arguments);
 }
 
+/**
+ * 打印错误信息
+ */
+util.error = function() {
+	console.error.apply(console, arguments);
+}
+
 /*
  * 对象自有属性检测
  */
