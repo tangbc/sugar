@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu Jul 07 2016 16:08:57 GMT+0800 (CST)
+ * Fri Jul 08 2016 14:57:23 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -94,6 +94,13 @@
 	 */
 	util.warn = function() {
 		console.warn.apply(console, arguments);
+	}
+
+	/**
+	 * 打印错误信息
+	 */
+	util.error = function() {
+		console.error.apply(console, arguments);
 	}
 
 	/*
@@ -2101,11 +2108,11 @@
 	 */
 	wp.watchModel = function(field, callback, context, args, deep) {
 		if (!util.hasOwn(this.$model, field)) {
-			return util.warn('The field: "' + field + '" does not exist in model!');
+			return util.warn('the field: [' + field + '] does not exist in model');
 		}
 
 		if (field.indexOf('*') !== -1) {
-			return util.warn('Model key cannot contain the character "*"!');
+			return util.warn('model ['+ field +'] cannot contain the character *');
 		}
 
 		this.addSubs(this.$modelSubs, field, callback, context, args);
@@ -2370,6 +2377,8 @@
 		return alias;
 	}
 
+	function noop() {}
+
 
 	/**
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
@@ -2413,7 +2422,8 @@
 			return new Function('scope', 'return ' + expression + ';');
 		}
 		catch (e) {
-			throw('Invalid generated expression: ' + expression);
+			util.error('Invalid generated expression: ' + expression);
+			return noop;
 		}
 	}
 
@@ -2421,23 +2431,24 @@
 	 * 获取表达式的取值函数
 	 */
 	p.getEval = function(fors, expression) {
-		var exp = this.toScope(expression);
-
-		if (regAviodKeyword.test(exp)) {
-			return util.warn('Avoid using unallow keyword in expression: ' + exp);
+		if (regAviodKeyword.test(expression)) {
+			util.warn('Avoid using unallow keyword in expression ['+ expression +']');
+			return noop;
 		}
+
+		expression = this.toScope(expression);
 
 		// 替换 vfor 取值域别名
 		if (fors) {
 			util.each(fors.aliases, function(alias) {
 				var reg = new RegExp('scope.' + alias, 'g');
-				exp = exp.replace(reg, function(scope) {
+				expression = expression.replace(reg, function(scope) {
 					return 'scope.$' + scope;
 				});
 			});
 		}
 
-		return this.createGetter(exp);
+		return this.createGetter(expression);
 	}
 
 	/**
