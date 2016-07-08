@@ -48,7 +48,7 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 	* `sugar (about 38 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 30 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
-* Browser support: does not support IE8 and belove, used `Object.defineProperty`, `Object.create` ...
+* Browser support: does not support IE8 and below, used `Object.defineProperty`, `Object.create` ...
 
 
 ## ChangeLog
