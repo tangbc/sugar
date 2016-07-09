@@ -33,6 +33,23 @@ function removeDOMRegister(vm, element) {
 	}
 }
 
+/**
+ * 添加/移除 class, 支持空格分隔
+ * @param  {DOMElement}  node
+ * @param  {String}      classname
+ * @param  {Boolean}     remove
+ */
+function handleClass(node, classname, remove) {
+	util.each(classname.split(' '), function(cls) {
+		if (remove) {
+			dom.removeClass(node, cls);
+		}
+		else {
+			dom.addClass(node, cls);
+		}
+	});
+}
+
 
 /**
  * updater 视图刷新模块
@@ -207,20 +224,20 @@ up.updateClassName = function(node, newclass, oldclass, classname) {
 	// 指定 classname 变化值由 newclass 布尔值决定
 	if (classname) {
 		if (newclass === true) {
-			dom.addClass(node, classname);
+			handleClass(node, classname);
 		}
 		else if (newclass === false) {
-			dom.removeClass(node, classname);
+			handleClass(node, classname, true);
 		}
 	}
 	// 未指定 classname 变化值由 newclass 的值决定
 	else {
 		if (newclass) {
-			dom.addClass(node, newclass);
+			handleClass(node, newclass);
 		}
 
 		if (oldclass) {
-			dom.removeClass(node, oldclass);
+			handleClass(node, oldclass, true);
 		}
 	}
 }
@@ -284,7 +301,7 @@ up.updateCheckboxChecked = function(checkbox, values) {
 	var value = checkbox.value;
 
 	if (!util.isArray(values) && !util.isBool(values)) {
-		return util.warn('checkbox v-model value must be a type of Boolean or Array!');
+		return util.warn('Checkbox v-model value must be a type of Boolean or Array');
 	}
 
 	if (dom.hasAttr(checkbox, 'number')) {
