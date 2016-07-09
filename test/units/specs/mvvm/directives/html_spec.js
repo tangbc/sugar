@@ -59,7 +59,7 @@ describe("v-html >", function() {
 			'layout': '<b>123</b>'
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('[xxx{{{ layout }}}] compile for HTML can not have a prefix or suffix!');
+		expect(util.warn).toHaveBeenCalledWith('[xxx{{{ layout }}}] compile for HTML can not have a prefix or suffix');
 	});
 
 

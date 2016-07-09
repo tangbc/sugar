@@ -15,14 +15,24 @@ function triggerEvent(target, evt, process) {
 }
 
 describe('sugar Component api >', function() {
-	var body = document.body;
+	var wraper;
+
+	beforeEach(function() {
+		wraper = document.createElement('div');
+		document.body.appendChild(wraper);
+	});
+
+	afterEach(function() {
+		document.body.removeChild(wraper);
+	});
+
 
 
 	it('simple api', function() {
 		// define a simple component
 		var View = Component.extend({
 			init: function(config) {
-				config = this.cover({
+				config = this.cover(config, {
 					'class': 'simple-view',
 					'tag'  : 'p',
 					'css'  : {
@@ -141,10 +151,29 @@ describe('sugar Component api >', function() {
 			}
 		});
 
-		// create to body
+		// create to wraper
 		var view = sugar.core.create('view', View, {
-			'target': body
+			'target': wraper
 		});
+
+		view.destroy();
+	});
+
+
+	it('cover config must be 2 arguments', function() {
+		var View = Component.extend({
+			init: function(config) {
+				config = this.cover({
+					'target': wraper,
+					'class': 'invalid use this.cover'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(util.warn).toHaveBeenCalledWith('Failed to cover config, 2 argumenst required');
 
 		view.destroy();
 	});
@@ -169,9 +198,9 @@ describe('sugar Component api >', function() {
 			}
 		});
 
-		// create to body
+		// create to wraper
 		var view = sugar.core.create('view', View, {
-			'target': body
+			'target': wraper
 		});
 
 		view.destroy();
@@ -262,13 +291,13 @@ describe('sugar Component api >', function() {
 
 				// create for invalid component name
 				this.create(123, AnotherSub);
-				expect(util.warn).toHaveBeenCalledWith('module\'s name must be a type of String: ', 123);
+				expect(util.warn).toHaveBeenCalledWith('Module name [123] must be a type of String');
 				// create for invalid component Class
 				this.create('invalid',321);
-				expect(util.warn).toHaveBeenCalledWith('module\'s Class must be a type of Component: ', 321);
+				expect(util.warn).toHaveBeenCalledWith('Module Class [321] must be a type of Component');
 				// create for already exist component name
 				this.create('sub_another', AnotherSub);
-				expect(util.warn).toHaveBeenCalledWith('module [sub_another] is already exists!');
+				expect(util.warn).toHaveBeenCalledWith('Module [sub_another] is already exists!');
 
 
 			},
@@ -278,7 +307,7 @@ describe('sugar Component api >', function() {
 		});
 
 		var view = sugar.core.create('view', View, {
-			'target': body
+			'target': wraper
 		});
 
 		view.destroy();
@@ -289,7 +318,7 @@ describe('sugar Component api >', function() {
 		var Son = Component.extend({
 			init: function(config) {
 				config = this.cover(config, {
-					'target': body,
+					'target': wraper,
 					'all': 123,
 					'a': 'base_a'
 				});

@@ -251,7 +251,7 @@ describe("v-bind >", function() {
 			'obj': 'color: red'
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('v-bind for style must be a type of Object!', 'color: red');
+		expect(util.warn).toHaveBeenCalledWith('Bind for style must be a type of Object', 'color: red');
 	});
 
 

@@ -310,7 +310,7 @@ describe('sugar message >', function() {
 
 				// notify to an unknown component
 				this.notify('unknown', 'canYouReceiveMe');
-				expect(util.warn).toHaveBeenCalledWith('component: [unknown] is not exist!');
+				expect(util.warn).toHaveBeenCalledWith('Component: [unknown] is not exist!');
 			},
 			afterNotifyComp1: function(msg) {
 				expect(msg.returns).toBe('who are you?');

@@ -203,7 +203,7 @@ describe("v-model >", function() {
 			'isCheck': 1
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('checkbox v-model value must be a type of Boolean or Array!');
+		expect(util.warn).toHaveBeenCalledWith('Checkbox v-model value must be a type of Boolean or Array');
 	});
 
 
@@ -836,7 +836,7 @@ describe("v-model >", function() {
 			'test': 1
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('the model [test] use in <select> must be a type of String or Array!');
+		expect(util.warn).toHaveBeenCalledWith('The model [test] use in <select> must be a type of String or Array');
 	});
 
 
@@ -852,7 +852,7 @@ describe("v-model >", function() {
 			'test': 'b'
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('<select> cannot be multiple when the model set [test] as not Array!');
+		expect(util.warn).toHaveBeenCalledWith('<select> cannot be multiple when the model set [test] as not Array');
 	});
 
 
@@ -868,6 +868,6 @@ describe("v-model >", function() {
 			'test': ['b']
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('the model [test] cannot set as Array when <select> has no multiple propperty!');
+		expect(util.warn).toHaveBeenCalledWith('The model [test] cannot set as Array when <select> has no multiple propperty');
 	});
 });

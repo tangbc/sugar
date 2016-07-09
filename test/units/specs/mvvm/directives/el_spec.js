@@ -117,6 +117,6 @@ describe("v-el >", function() {
 			]
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('when v-el use in v-for must be defined inside current loop body!');
+		expect(util.warn).toHaveBeenCalledWith('If v-el use in v-for, it must be defined on loop body');
 	});
 });
