@@ -85,46 +85,13 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 组件配置参数合并、覆盖
-	 * @param  {Object}  child   [子类组件配置参数]
-	 * @param  {Object}  parent  [父类组件配置参数]
-	 * @return {Object}          [合并后的配置参数]
-	 */
-	cover: function(child, parent) {
-		if (!util.isObject(child)) {
-			child = {};
-		}
-		if (!util.isObject(parent)) {
-			parent = {};
-		}
-		return util.extend(true, {}, parent, child);
-	},
-
-	/**
-	 * 获取组件配置参数
-	 * @param  {String}  name  [参数字段名称，支持/层级]
-	 */
-	getConfig: function(name) {
-		return this.config(this._config, name);
-	},
-
-	/**
-	 * 设置组件配置参数
-	 * @param {String}  name   [配置字段名]
-	 * @param {Mix}     value  [值]
-	 */
-	setConfig: function(name, value) {
-		return this.config(this._config, name, value);
-	},
-
-	/**
 	 * 设置/读取配置对象
 	 * @param  {Object}   data   [配置对象]
 	 * @param  {String}   name   [配置名称, 支持/分隔层次]
 	 * @param  {Mix}      value  [不传为读取配置信息]
 	 * @return {Mix}             [返回读取的配置值]
 	 */
-	config: function(data, name, value) {
+	_conf: function(data, name, value) {
 		var udf, set = (value !== udf);
 
 		if (name) {
@@ -162,45 +129,52 @@ var Component = Module.extend({
 
 		var c = this.getConfig();
 
-		var el = this.el = util.createElement(c.tag);
+		var target = c.target;
+		var isAppend = target instanceof HTMLElement;
+
+		if (isAppend) {
+			this.el = util.createElement(c.tag);
+		}
+		else {
+			this.el = document.querySelector(target);
+		}
 
 		// 添加 class
 		var cls = c.class;
 		if (cls && util.isString(cls)) {
 			util.each(cls.split(' '), function(classname) {
-				dom.addClass(el, classname);
-			});
+				dom.addClass(this.el, classname);
+			}, this);
 		}
 
 		// 添加 css
 		if (util.isObject(c.css)) {
 			util.each(c.css, function(value, property) {
-				el.style[property] = value;
-			});
+				this.el.style[property] = value;
+			}, this);
 		}
 
 		// 添加attr
 		if (util.isObject(c.attr)) {
 			util.each(c.attr, function(value, name) {
-				dom.setAttr(el, name, value);
-			});
+				dom.setAttr(this.el, name, value);
+			}, this);
 		}
 
 		// 添加页面布局
 		if (c.html) {
-			el.appendChild(util.stringToFragment(c.html));
+			this.el.appendChild(util.stringToFragment(c.html));
 		}
 
 		// 初始化 mvvm 对象
 		var model = c.model;
 		if (util.isObject(model)) {
-			this.vm = new MVVM(el, model, this);
+			this.vm = new MVVM(this.el, model, this);
 		}
 
 		// 追加到目标容器
-		var target = c.target;
-		if (target) {
-			target.appendChild(el);
+		if (isAppend) {
+			target.appendChild(this.el);
 		}
 
 		// 组件视图渲染完成回调方法
@@ -208,6 +182,36 @@ var Component = Module.extend({
 		if (util.isFunc(cb)) {
 			cb.call(this);
 		}
+	},
+
+	/**
+	 * 组件配置参数合并、覆盖
+	 * @param  {Object}  child   [子类组件配置参数]
+	 * @param  {Object}  parent  [父类组件配置参数]
+	 * @return {Object}          [合并后的配置参数]
+	 */
+	cover: function(child, parent) {
+		if (!parent) {
+			util.warn('Failed to cover config, 2 argumenst required');
+		}
+		return util.extend(true, {}, parent, child);
+	},
+
+	/**
+	 * 获取组件配置参数
+	 * @param  {String}  name  [参数字段名称，支持/层级]
+	 */
+	getConfig: function(name) {
+		return this._conf(this._config, name);
+	},
+
+	/**
+	 * 设置组件配置参数
+	 * @param {String}  name   [配置字段名]
+	 * @param {Mix}     value  [值]
+	 */
+	setConfig: function(name, value) {
+		return this._conf(this._config, name, value);
 	},
 
 	/**
