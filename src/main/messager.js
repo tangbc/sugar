@@ -256,7 +256,7 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 
 	if (!util.isObject(receiver)) {
 		this.notifySender(msg, callback, context);
-		return util.warn('component: [' + receiver + '] is not exist!');
+		return util.warn('Component: [' + receiver + '] is not exist!');
 	}
 
 	this.trigger(receiver, msg);

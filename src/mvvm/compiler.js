@@ -246,7 +246,7 @@ cp.compileText = function(node, fors) {
 		match = matches[0];
 		exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 		if (match.length !== text.length) {
-			return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix!');
+			return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 		}
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
 	}

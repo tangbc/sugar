@@ -22,10 +22,10 @@ var Module = Root.extend({
 	 */
 	create: function(name, Class, config) {
 		if (!util.isString(name)) {
-			return util.warn('module\'s name must be a type of String: ', name);
+			return util.warn('Module name ['+ name +'] must be a type of String');
 		}
 		if (!util.isFunc(Class)) {
-			return util.warn('module\'s Class must be a type of Component: ', Class);
+			return util.warn('Module Class ['+ Class +'] must be a type of Component');
 		}
 
 		var cls = this._;
@@ -40,7 +40,7 @@ var Module = Root.extend({
 
 		// 判断是否已经创建过
 		if (cls['childMap'][name]) {
-			return util.warn('module ['+ name +'] is already exists!');
+			return util.warn('Module ['+ name +'] is already exists!');
 		}
 
 		// 生成子模块实例

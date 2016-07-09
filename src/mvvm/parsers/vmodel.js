@@ -243,19 +243,19 @@ vmodel.parseSelect = function(node, value, deps, duplex, field) {
 	// 数据模型定义为单选
 	if (util.isString(value)) {
 		if (multi) {
-			return util.warn('<select> cannot be multiple when the model set [' + field + '] as not Array!');
+			return util.warn('<select> cannot be multiple when the model set [' + field + '] as not Array');
 		}
 		isDefined = Boolean(value);
 	}
 	// 数据模型定义为多选
 	else if (util.isArray(value)) {
 		if (!multi) {
-			return util.warn('the model [' + field + '] cannot set as Array when <select> has no multiple propperty!');
+			return util.warn('The model [' + field + '] cannot set as Array when <select> has no multiple propperty');
 		}
 		isDefined = value.length > 0;
 	}
 	else {
-		return util.warn('the model [' + field + '] use in <select> must be a type of String or Array!');
+		return util.warn('The model [' + field + '] use in <select> must be a type of String or Array');
 	}
 
 	// 数据模型中定义初始的选中状态

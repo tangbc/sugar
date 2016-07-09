@@ -55,7 +55,7 @@ vstyle.parse = function(fors, node, expression) {
  */
 vstyle.updateStyle = function(node, styleObject, remove) {
 	if (!util.isObject(styleObject)) {
-		return util.warn('v-bind for style must be a type of Object!', styleObject);
+		return util.warn('Bind for style must be a type of Object', styleObject);
 	}
 
 	util.each(styleObject, function(value, style) {
