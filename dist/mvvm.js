@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jul 08 2016 14:57:23 GMT+0800 (CST)
+ * Sat Jul 09 2016 08:26:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -770,6 +770,23 @@
 		}
 	}
 
+	/**
+	 * 添加/移除 class, 支持空格分隔
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 * @param  {Boolean}     remove
+	 */
+	function handleClass(node, classname, remove) {
+		util.each(classname.split(' '), function(cls) {
+			if (remove) {
+				dom.removeClass(node, cls);
+			}
+			else {
+				dom.addClass(node, cls);
+			}
+		});
+	}
+
 
 	/**
 	 * updater 视图刷新模块
@@ -944,20 +961,20 @@
 		// 指定 classname 变化值由 newclass 布尔值决定
 		if (classname) {
 			if (newclass === true) {
-				dom.addClass(node, classname);
+				handleClass(node, classname);
 			}
 			else if (newclass === false) {
-				dom.removeClass(node, classname);
+				handleClass(node, classname, true);
 			}
 		}
 		// 未指定 classname 变化值由 newclass 的值决定
 		else {
 			if (newclass) {
-				dom.addClass(node, newclass);
+				handleClass(node, newclass);
 			}
 
 			if (oldclass) {
-				dom.removeClass(node, oldclass);
+				handleClass(node, oldclass, true);
 			}
 		}
 	}
@@ -1021,7 +1038,7 @@
 		var value = checkbox.value;
 
 		if (!util.isArray(values) && !util.isBool(values)) {
-			return util.warn('checkbox v-model value must be a type of Boolean or Array!');
+			return util.warn('Checkbox v-model value must be a type of Boolean or Array');
 		}
 
 		if (dom.hasAttr(checkbox, 'number')) {
@@ -2109,7 +2126,7 @@
 
 			// vel 在 vfor 循环中只能在当前循环体中赋值
 			if (alias !== fors.alias) {
-				return util.warn('when v-el use in v-for must be defined inside current loop body!');
+				return util.warn('If v-el use in v-for, it must be defined on loop body');
 			}
 
 			var scope = fors.scopes[alias];
@@ -2921,7 +2938,7 @@
 	 */
 	vstyle.updateStyle = function(node, styleObject, remove) {
 		if (!util.isObject(styleObject)) {
-			return util.warn('v-bind for style must be a type of Object!', styleObject);
+			return util.warn('Bind for style must be a type of Object', styleObject);
 		}
 
 		util.each(styleObject, function(value, style) {
@@ -3326,19 +3343,19 @@
 		// 数据模型定义为单选
 		if (util.isString(value)) {
 			if (multi) {
-				return util.warn('<select> cannot be multiple when the model set [' + field + '] as not Array!');
+				return util.warn('<select> cannot be multiple when the model set [' + field + '] as not Array');
 			}
 			isDefined = Boolean(value);
 		}
 		// 数据模型定义为多选
 		else if (util.isArray(value)) {
 			if (!multi) {
-				return util.warn('the model [' + field + '] cannot set as Array when <select> has no multiple propperty!');
+				return util.warn('The model [' + field + '] cannot set as Array when <select> has no multiple propperty');
 			}
 			isDefined = value.length > 0;
 		}
 		else {
-			return util.warn('the model [' + field + '] use in <select> must be a type of String or Array!');
+			return util.warn('The model [' + field + '] use in <select> must be a type of String or Array');
 		}
 
 		// 数据模型中定义初始的选中状态
@@ -3614,7 +3631,7 @@
 			match = matches[0];
 			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			if (match.length !== text.length) {
-				return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix!');
+				return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 			}
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 		}
