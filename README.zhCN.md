@@ -33,6 +33,39 @@
 	* **`src/mvvm/`** 为一个简单 mvvm 库，指令系统支持文本、表单双向数据绑定、属性绑定、事件绑定 和循环列表等常用功能，**mvvm 对于 sugar 没有任何依赖，可独立使用**。详细指令参见: [mvvm api](http://tangbc.github.io/sugar/mvvm.html)
 
 
+## 简单例子
+```javascript
+// 定义一个组件
+var HelloWorld = sugar.Component.extend({
+	init: function(config) {
+		this.cover(config, {
+			'class': 'demo',
+			'html': '<h1>{{ title }}</h1>',
+			'model': {
+				'title': 'Hello world!'
+			}
+		});
+		this.Super('init', arguments);
+	}
+});
+
+// 生成组件实例并添加到页面中:
+sugar.core.create('hello-world', HelloWord, {
+	'target': document.body
+});
+```
+HelloWorld 组件就添加到 `<body></body>` 中了：
+```html
+...
+<body>
+	<div class="demo">
+		<h1>Hello world!</h1>
+	</div>
+</body>
+...
+```
+
+
 ## 组件示例
 
 **`demos/`**  目录做了些示例，也可在线预览效果：

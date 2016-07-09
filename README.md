@@ -30,6 +30,39 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 	* **`src/mvvm/`** A simple MVVM library, directive support bind text, two-way data binding, bind attribute, bind event, repeat list and more. **mvvm doesn't rely on sugar, it can be used independently**. [See more API here](http://tangbc.github.io/sugar/mvvm.html)
 
 
+## Hello world
+```javascript
+// define HelloWorld component:
+var HelloWorld = sugar.Component.extend({
+	init: function(config) {
+		this.cover(config, {
+			'class': 'demo',
+			'html': '<h1>{{ title }}</h1>',
+			'model': {
+				'title': 'Hello world!'
+			}
+		});
+		this.Super('init', arguments);
+	}
+});
+
+// create to body:
+sugar.core.create('hello-world', HelloWord, {
+	'target': document.body
+});
+```
+And then the HTML structure will be:
+```html
+...
+<body>
+	<div class="demo">
+		<h1>Hello world!</h1>
+	</div>
+</body>
+...
+```
+
+
 ## Demos
 
 There are several demos in **`demos/`** directory, check it out and preview them in the following links:
