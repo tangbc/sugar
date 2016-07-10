@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-for 指令解析模块
  */
-function Vfor(vm) {
+function Vfor (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -16,7 +16,7 @@ var vfor = Vfor.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node        [指令节点]
  * @param   {String}      expression  [指令表达式]
  */
-vfor.parse = function(fors, node, expression) {
+vfor.parse = function (fors, node, expression) {
 	var vm = this.vm;
 	var match = expression.match(/(.*) in (.*)/);
 	var alias = match[1];
@@ -84,13 +84,13 @@ vfor.parse = function(fors, node, expression) {
 
 	// 监测根数组的数组操作
 	if (!fors) {
-		watcher.watchModel(loopAccess, function(path, last, method, args) {
+		watcher.watchModel(loopAccess, function (path, last, method, args) {
 			this.update(parent, node, last, method, updates, args);
 		}, this);
 	}
 	// 监测嵌套数组的操作
 	else {
-		watcher.watchAccess(loopAccess, function(path, last, method, args) {
+		watcher.watchAccess(loopAccess, function (path, last, method, args) {
 			this.update(parent, node, last, method, updates, args);
 		}, this);
 	}
@@ -101,7 +101,7 @@ vfor.parse = function(fors, node, expression) {
  * @param   {Select}  select
  * @param   {Object}  fors
  */
-vfor.updateOption = function(select, fors) {
+vfor.updateOption = function (select, fors) {
 	var model = select._vmodel;
 	var getter = this.getEval(fors, model);
 	var scope = this.getScope(fors, model);
@@ -123,11 +123,11 @@ vfor.updateOption = function(select, fors) {
  * @param   {Number}      level     [当前循环层级]
  * @return  {Fragment}              [板块文档碎片集合]
  */
-vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
+vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 	var vm = this.vm;
 	var fragments = util.createFragment();
 
-	util.each(array, function(scope, i) {
+	util.each(array, function (scope, i) {
 		var index = start + i;
 		var field = paths.split('*').pop();
 		var cloneNode = node.cloneNode(true);
@@ -178,7 +178,7 @@ vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, s
  * @param   {DOMElement}  node
  * @param   {String}      alias
  */
-vfor.signAlias = function(node, alias) {
+vfor.signAlias = function (node, alias) {
 	util.def(node, '_vfor_alias', alias);
 }
 
@@ -191,7 +191,7 @@ vfor.signAlias = function(node, alias) {
  * @param   {Array}       updates   [更新信息]
  * @param   {Array}       args      [数组操作参数]
  */
-vfor.update = function(parent, node, newArray, method, updates, args) {
+vfor.update = function (parent, node, newArray, method, updates, args) {
 	switch (method) {
 		case 'push':
 			this.push.apply(this, arguments);
@@ -218,7 +218,7 @@ vfor.update = function(parent, node, newArray, method, updates, args) {
  * @param   {Object}  update
  * @return  {Object}
  */
-vfor.updateScopes = function(update) {
+vfor.updateScopes = function (update) {
 	var scopes = update.scopes;
 	var accesses = update.accesses;
 	var aleng = accesses.length;
@@ -229,7 +229,7 @@ vfor.updateScopes = function(update) {
 		let model = this.vm.$data;
 		let targetPaths = util.makePaths(accesses[aleng - 1]);
 		// 对每一个取值域进行更新
-		util.each(util.makeScopePaths(targetPaths), function(paths) {
+		util.each(util.makeScopePaths(targetPaths), function (paths) {
 			var index = paths.length - 2;
 			var alias = maps[paths[index]];
 			var scope = util.getDeepValue(model, paths) || {};
@@ -246,7 +246,7 @@ vfor.updateScopes = function(update) {
  * @param   {Number}  length  [新数组长度]
  * @return  {Object}          [新数组下标的变化映射]
  */
-vfor.getChanges = function(method, length) {
+vfor.getChanges = function (method, length) {
 	var i, udf, map = {};
 
 	switch (method) {
@@ -270,7 +270,7 @@ vfor.getChanges = function(method, length) {
 /**
  * 在循环体的最后追加一条数据 array.push
  */
-vfor.push = function(parent, node, newArray, method, up) {
+vfor.push = function (parent, node, newArray, method, up) {
 	var last = newArray.length - 1;
 	var alias = up.alias;
 	var list = [newArray[last]];
@@ -291,7 +291,7 @@ vfor.push = function(parent, node, newArray, method, up) {
 /**
  * 移除循环体的最后一条数据 array.pop
  */
-vfor.pop = function(parent, node, newArray, method, updates) {
+vfor.pop = function (parent, node, newArray, method, updates) {
 	var lastChild = this.getLast(parent, updates.alias);
 	if (lastChild) {
 		parent.removeChild(lastChild);
@@ -301,7 +301,7 @@ vfor.pop = function(parent, node, newArray, method, updates) {
 /**
  * 在循环体最前面追加一条数据 array.unshift
  */
-vfor.unshift = function(parent, node, newArray, method, up) {
+vfor.unshift = function (parent, node, newArray, method, up) {
 	var alias = up.alias;
 	var list = [newArray[0]];
 	var map, template, firstChild;
@@ -322,7 +322,7 @@ vfor.unshift = function(parent, node, newArray, method, up) {
 /**
  * 移除循环体的第一条数据 array.shift
  */
-vfor.shift = function(parent, node, newArray, method, updates) {
+vfor.shift = function (parent, node, newArray, method, updates) {
 	var map = this.getChanges(method, newArray.length);
 	var firstChild = this.getFirst(parent, updates.alias);
 	if (firstChild) {
@@ -335,7 +335,7 @@ vfor.shift = function(parent, node, newArray, method, updates) {
 /**
  * 删除/替换循环体的指定数据 array.splice
  */
-vfor.splice = function(parent, node, newArray, method, up, args) {
+vfor.splice = function (parent, node, newArray, method, up, args) {
 	// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
 	var start = args.shift();
 	// 整数，表示要移除的数组元素的个数。
@@ -418,7 +418,7 @@ vfor.splice = function(parent, node, newArray, method, up, args) {
  * @param   {String}      alias   [循环体对象别名]
  * @return  {FirstChild}
  */
-vfor.getFirst = function(parent, alias) {
+vfor.getFirst = function (parent, alias) {
 	var firstChild = null;
 	var childNodes = parent.childNodes;
 
@@ -439,7 +439,7 @@ vfor.getFirst = function(parent, alias) {
  * @param   {String}      alias    [循环体对象别名]
  * @return  {LastChild}
  */
-vfor.getLast = function(parent, alias) {
+vfor.getLast = function (parent, alias) {
 	var lastChild = null;
 	var childNodes = parent.childNodes;
 
@@ -461,7 +461,7 @@ vfor.getLast = function(parent, alias) {
  * @param   {Number}      index   [子节点下标]
  * @return  {DOMElement}
  */
-vfor.getChild = function(parent, alias, index) {
+vfor.getChild = function (parent, alias, index) {
 	var e = 0, target = null;
 	var childNodes = parent.childNodes;
 
@@ -486,7 +486,7 @@ vfor.getChild = function(parent, alias, index) {
  * @param   {Number}      start       [删除的下标起点]
  * @param   {Number}      deleteCont  [删除个数]
  */
-vfor.removeEl = function(parent, alias, start, deleteCont) {
+vfor.removeEl = function (parent, alias, start, deleteCont) {
 	var e = -1, scapegoats = [];
 	var childNodes = parent.childNodes;
 
@@ -501,7 +501,7 @@ vfor.removeEl = function(parent, alias, start, deleteCont) {
 		}
 	}
 
-	util.each(scapegoats, function(scapegoat) {
+	util.each(scapegoats, function (scapegoat) {
 		parent.removeChild(scapegoat);
 		return null;
 	});
@@ -510,7 +510,7 @@ vfor.removeEl = function(parent, alias, start, deleteCont) {
 /**
  * 重新编译循环体
  */
-vfor.recompile = function(parent, node, newArray, method, up) {
+vfor.recompile = function (parent, node, newArray, method, up) {
 	var scapegoat, alias = up.alias;
 	var childNodes = parent.childNodes;
 	var scopes = this.updateScopes(up);

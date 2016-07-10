@@ -17,7 +17,7 @@ import Vmodel from './parsers/vmodel';
  * @param  {DOMElement}  element  [视图的挂载原生 DOM]
  * @param  {Object}      model    [数据模型对象]
  */
-function Compiler(element, model) {
+function Compiler (element, model) {
 	if (!this.isElementNode(element)) {
 		return util.warn('element must be a type of DOMElement: ', element);
 	}
@@ -66,7 +66,7 @@ function Compiler(element, model) {
 
 var cp = Compiler.prototype;
 
-cp.init = function() {
+cp.init = function () {
 	this.complieElement(this.$fragment, true);
 }
 
@@ -76,7 +76,7 @@ cp.init = function() {
  * @param   {Boolean}              root      [是否是编译根节点]
  * @param   {Object}               fors      [vfor 数据]
  */
-cp.complieElement = function(element, root, fors) {
+cp.complieElement = function (element, root, fors) {
 	var node, childNodes = element.childNodes;
 
 	if (root && this.hasDirective(element)) {
@@ -105,7 +105,7 @@ cp.complieElement = function(element, root, fors) {
  * @param   {DOMElement}  node
  * @return  {Number}
  */
-cp.hasDirective = function(node) {
+cp.hasDirective = function (node) {
 	var nodeAttrs, text = node.textContent;
 	var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
@@ -125,8 +125,8 @@ cp.hasDirective = function(node) {
 /**
  * 编译节点缓存队列
  */
-cp.compileAll = function() {
-	util.each(this.$unCompileNodes, function(info) {
+cp.compileAll = function () {
+	util.each(this.$unCompileNodes, function (info) {
 		this.complieDirectives(info);
 		return null;
 	}, this);
@@ -138,7 +138,7 @@ cp.compileAll = function() {
  * 收集并编译节点指令
  * @param   {Array}  info   [node, fors]
  */
-cp.complieDirectives = function(info) {
+cp.complieDirectives = function (info) {
 	var node = info[0], fors = info[1];
 
 	if (this.isElementNode(node)) {
@@ -165,7 +165,7 @@ cp.complieDirectives = function(info) {
 		}
 
 		// 编译节点指令
-		util.each(attrs, function(attr) {
+		util.each(attrs, function (attr) {
 			this.compile(node, attr, fors);
 		}, this);
 	}
@@ -180,7 +180,7 @@ cp.complieDirectives = function(info) {
  * @param   {Object}       attr
  * @param   {Array}        fors
  */
-cp.compile = function(node, attr, fors) {
+cp.compile = function (node, attr, fors) {
 	var dir = attr.name;
 	var exp = attr.value;
 	var args = [fors, node, exp, dir];
@@ -235,7 +235,7 @@ cp.compile = function(node, attr, fors) {
  * @param   {DOMElement}   node
  * @param   {Object}       fors
  */
-cp.compileText = function(node, fors) {
+cp.compileText = function (node, fors) {
 	var exp, match, matches, pieces, tokens = [];
 	var text = node.textContent.trim().replace(/\n/g, '');
 	var reghtml = /\{\{\{(.+?)\}\}\}/g, regtext = /\{\{(.+?)\}\}/g;
@@ -257,7 +257,7 @@ cp.compileText = function(node, fors) {
 
 		// 文本节点转化为常量和变量的组合表达式
 		// 'a {{b}} c' => '"a " + b + " c"'
-		util.each(pieces, function(piece) {
+		util.each(pieces, function (piece) {
 			// {{text}}
 			if (matches.indexOf('{{' + piece + '}}') !== -1) {
 				tokens.push('(' + piece + ')');
@@ -276,8 +276,8 @@ cp.compileText = function(node, fors) {
  * 停止编译节点的剩余指令，如 vfor 的根节点
  * @param   {DOMElement}  node
  */
-cp.blockCompile = function(node) {
-	util.each(this.$unCompileNodes, function(info) {
+cp.blockCompile = function (node) {
+	util.each(this.$unCompileNodes, function (info) {
 		if (node === info[0]) {
 			return null;
 		}
@@ -289,7 +289,7 @@ cp.blockCompile = function(node) {
  * @param   {DOMElement}   element
  * @return  {Boolean}
  */
-cp.isElementNode = function(element) {
+cp.isElementNode = function (element) {
 	return element.nodeType === 1;
 }
 
@@ -298,7 +298,7 @@ cp.isElementNode = function(element) {
  * @param   {DOMElement}   element
  * @return  {Boolean}
  */
-cp.isTextNode = function(element) {
+cp.isTextNode = function (element) {
 	return element.nodeType === 3;
 }
 
@@ -307,7 +307,7 @@ cp.isTextNode = function(element) {
  * @param   {String}   directive
  * @return  {Boolean}
  */
-cp.isDirective = function(directive) {
+cp.isDirective = function (directive) {
 	return directive.indexOf('v-') === 0;
 }
 
@@ -317,14 +317,14 @@ cp.isDirective = function(directive) {
  * @param   {DOMElement}   node
  * @return  {Boolean}
  */
-cp.isLateCompile = function(node) {
+cp.isLateCompile = function (node) {
 	return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 }
 
 /**
  * 检查根节点是否编译完成
  */
-cp.checkCompleted = function() {
+cp.checkCompleted = function () {
 	if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
 		this.rootCompleted();
 	}
@@ -333,7 +333,7 @@ cp.checkCompleted = function() {
 /**
  * 根节点编译完成，更新视图
  */
-cp.rootCompleted = function() {
+cp.rootCompleted = function () {
 	this.$rootComplied = true;
 	this.$element.appendChild(this.$fragment);
 }
@@ -342,7 +342,7 @@ cp.rootCompleted = function() {
  * 销毁 vm 编译实例
  * @return  {[type]}  [description]
  */
-cp.destroy = function() {
+cp.destroy = function () {
 	this.watcher.destroy();
 	dom.empty(this.$element);
 	this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;

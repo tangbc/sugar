@@ -7,7 +7,7 @@ import util from '../util';
  * @param  {Object}     context   [执行上下文]
  * @param  {Object}     args      [<可选>回调额外参数]
  */
-function Observer(object, callback, context, args) {
+function Observer (object, callback, context, args) {
 	if (util.isString(callback)) {
 		callback = context[callback];
 	}
@@ -34,12 +34,12 @@ var op = Observer.prototype;
  * @param   {Object}  object  [监测的对象]
  * @param   {Array}   paths   [访问路径数组]
  */
-op.observe = function(object, paths) {
+op.observe = function (object, paths) {
 	if (util.isArray(object)) {
 		this.rewriteMethods(object, paths);
 	}
 
-	util.each(object, function(value, property) {
+	util.each(object, function (value, property) {
 		var copies = paths && paths.slice(0);
 		if (copies) {
 			copies.push(property);
@@ -59,7 +59,7 @@ op.observe = function(object, paths) {
  * @param   {Object|Array}  object  [对象或数组]
  * @param   {Array}         paths   [访问路径数组]
  */
-op.bindWatch = function(object, paths, val) {
+op.bindWatch = function (object, paths, val) {
 	var path = paths.join('*');
 	var prop = paths[paths.length - 1];
 	var descriptor = Object.getOwnPropertyDescriptor(object, prop);
@@ -67,11 +67,11 @@ op.bindWatch = function(object, paths, val) {
 
 	// 定义 object[prop] 的 getter 和 setter
 	Object.defineProperty(object, prop, {
-		get: (function Getter() {
+		get: (function Getter () {
 			return getter ? getter.call(object) : val;
 		}).bind(this),
 
-		set: (function Setter(newValue, noTrigger) {
+		set: (function Setter (newValue, noTrigger) {
 			var subPath, oldObjectVal, args;
 			var oldValue = getter ? getter.call(object) : val;
 			var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
@@ -132,7 +132,7 @@ op.bindWatch = function(object, paths, val) {
  * @param   {String}   path
  * @return  {String}
  */
-op.getSubPath = function(path) {
+op.getSubPath = function (path) {
 	var paths = this.$subPaths;
 	for (var i = 0; i < paths.length; i++) {
 		if (path.indexOf(paths[i]) === 0) {
@@ -146,14 +146,14 @@ op.getSubPath = function(path) {
  * @param   {Array}  array  [目标数组]
  * @param   {Array}  paths  [访问路径数组]
  */
-op.rewriteMethods = function(array, paths) {
+op.rewriteMethods = function (array, paths) {
 	var arrayProto = Array.prototype;
 	var arrayMethods = Object.create(arrayProto);
 	var path = paths && paths.join('*');
 
-	util.each(this.$methods, function(method) {
+	util.each(this.$methods, function (method) {
 		var self = this, original = arrayProto[method];
-		util.defRec(arrayMethods, method, function _redefineArrayMethod() {
+		util.defRec(arrayMethods, method, function _redefineArrayMethod () {
 			var i = arguments.length, result;
 			var args = new Array(i);
 
@@ -178,7 +178,7 @@ op.rewriteMethods = function(array, paths) {
 	}, this);
 
 	// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
-	util.defRec(arrayMethods, '$set', function $set(index, value) {
+	util.defRec(arrayMethods, '$set', function $set (index, value) {
 		// 超出数组长度默认在最后添加（相当于 push）
 		if (index >= this.length) {
 			index = this.length;
@@ -188,7 +188,7 @@ op.rewriteMethods = function(array, paths) {
 	});
 
 	// 添加 $remove 方法
-	util.defRec(arrayMethods, '$remove', function $remove(item) {
+	util.defRec(arrayMethods, '$remove', function $remove (item) {
 		var index = this.indexOf(item);
 
 		if (index !== -1) {
@@ -206,14 +206,14 @@ op.rewriteMethods = function(array, paths) {
  * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
  * @param   {Array}        args      [数组操作时的参数]
  */
-op.trigger = function(path, last, old, args) {
+op.trigger = function (path, last, old, args) {
 	this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
 }
 
 /**
  * 销毁函数
  */
-op.destroy = function() {
+op.destroy = function () {
 	this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
 }
 

@@ -8,7 +8,7 @@ import Parser from '../parser';
  * @param   {Mix}          value
  * @return  {Mix}
  */
-function formatValue(node, value) {
+function formatValue (node, value) {
 	return dom.hasAttr(node, 'number') ? +value : value;
 }
 
@@ -17,7 +17,7 @@ function formatValue(node, value) {
  * @param   {Select}  select
  * @return  {Array}
  */
-function getSelecteds(select) {
+function getSelecteds (select) {
 	var sels = [];
 	var options = select.options;
 	var getNumber = dom.hasAttr(select, 'number');
@@ -37,7 +37,7 @@ function getSelecteds(select) {
 /**
  * v-model 指令解析模块
  */
-function Vmodel(vm) {
+function Vmodel (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -49,7 +49,7 @@ var vmodel = Vmodel.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node    [指令节点]
  * @param   {String}      field   [双向绑定的字段]
  */
-vmodel.parse = function(fors, node, field) {
+vmodel.parse = function (fors, node, field) {
 	var vm = this.vm;
 	var inputs = vm.$inputs;
 	var tagName = node.tagName.toLowerCase();
@@ -87,7 +87,7 @@ vmodel.parse = function(fors, node, field) {
 /**
  * v-model for text, textarea
  */
-vmodel.parseText = function(node, value, deps, duplex, field) {
+vmodel.parseText = function (node, value, deps, duplex, field) {
 	var vm = this.vm;
 	var updater = vm.updater;
 
@@ -95,7 +95,7 @@ vmodel.parseText = function(node, value, deps, duplex, field) {
 	updater.updateTextValue(node, value);
 
 	// 订阅依赖监听
-	vm.watcher.watch(deps, function(path, last) {
+	vm.watcher.watch(deps, function (path, last) {
 		updater.updateTextValue(node, last);
 	}, this);
 
@@ -109,27 +109,27 @@ vmodel.parseText = function(node, value, deps, duplex, field) {
  * @param   {Object}   duplex
  * @param   {String}   field
  */
-vmodel.bindTextEvent = function(node, duplex, field) {
+vmodel.bindTextEvent = function (node, duplex, field) {
 	var composeLock;
 
 	// 解决中文输入时 input 事件在未选择词组时的触发问题
 	// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
-	dom.addEvent(node, 'compositionstart', function() {
+	dom.addEvent(node, 'compositionstart', function () {
 		composeLock = true;
 	});
-	dom.addEvent(node, 'compositionend', function() {
+	dom.addEvent(node, 'compositionend', function () {
 		composeLock = false;
 	});
 
 	// input 事件(实时触发)
-	dom.addEvent(node, 'input', function() {
+	dom.addEvent(node, 'input', function () {
 		if (!composeLock) {
 			duplex[field] = this.value;
 		}
 	});
 
 	// change 事件(失去焦点触发)
-	dom.addEvent(node, 'change', function() {
+	dom.addEvent(node, 'change', function () {
 		duplex[field] = this.value;
 	});
 }
@@ -137,7 +137,7 @@ vmodel.bindTextEvent = function(node, duplex, field) {
 /**
  * v-model for radio
  */
-vmodel.parseRadio = function(node, value, deps, duplex, field) {
+vmodel.parseRadio = function (node, value, deps, duplex, field) {
 	var vm = this.vm;
 	var updater = vm.updater;
 
@@ -150,7 +150,7 @@ vmodel.parseRadio = function(node, value, deps, duplex, field) {
 	updater.updateRadioChecked(node, value);
 
 	// 订阅依赖监听
-	vm.watcher.watch(deps, function(path, last) {
+	vm.watcher.watch(deps, function (path, last) {
 		updater.updateRadioChecked(node, last);
 	}, this);
 
@@ -164,8 +164,8 @@ vmodel.parseRadio = function(node, value, deps, duplex, field) {
  * @param   {Object}   duplex
  * @param   {String}   field
  */
-vmodel.bindRadioEvent = function(node, duplex, field) {
-	dom.addEvent(node, 'change', function() {
+vmodel.bindRadioEvent = function (node, duplex, field) {
+	dom.addEvent(node, 'change', function () {
 		duplex[field] = formatValue(this, this.value);
 	});
 }
@@ -173,7 +173,7 @@ vmodel.bindRadioEvent = function(node, duplex, field) {
 /**
  * v-model for checkbox
  */
-vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
+vmodel.parseCheckbox = function (node, value, deps, duplex, field) {
 	var vm = this.vm;
 	var updater = vm.updater;
 
@@ -191,7 +191,7 @@ vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
 	updater.updateCheckboxChecked(node, value);
 
 	// 订阅依赖监听
-	vm.watcher.watch(deps, function(path, last) {
+	vm.watcher.watch(deps, function (path, last) {
 		updater.updateCheckboxChecked(node, last);
 	}, this);
 
@@ -206,8 +206,8 @@ vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
  * @param   {String}          field
  * @param   {Array|Boolean}   value
  */
-vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
-	dom.addEvent(node, 'change', function() {
+vmodel.bindCheckboxEvent = function (node, duplex, field, value) {
+	dom.addEvent(node, 'change', function () {
 		var checked = this.checked;
 
 		if (util.isBool(value)) {
@@ -235,7 +235,7 @@ vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
 /**
  * v-model for select
  */
-vmodel.parseSelect = function(node, value, deps, duplex, field) {
+vmodel.parseSelect = function (node, value, deps, duplex, field) {
 	var isDefined;
 	var updater = this.vm.updater;
 	var multi = dom.hasAttr(node, 'multiple');
@@ -269,7 +269,7 @@ vmodel.parseSelect = function(node, value, deps, duplex, field) {
 	}
 
 	// 订阅依赖监测
-	this.vm.watcher.watch(deps, function(path, last) {
+	this.vm.watcher.watch(deps, function (path, last) {
 		updater.updateSelectChecked(node, last, multi);
 	});
 
@@ -284,8 +284,8 @@ vmodel.parseSelect = function(node, value, deps, duplex, field) {
  * @param   {String}    field
  * @param   {Boolean}   multi
  */
-vmodel.bindSelectEvent = function(node, duplex, field, multi) {
-	dom.addEvent(node, 'change', function() {
+vmodel.bindSelectEvent = function (node, duplex, field, multi) {
+	dom.addEvent(node, 'change', function () {
 		var selects = getSelecteds(this);
 		duplex[field] =  multi ? selects : selects[0];
 	});

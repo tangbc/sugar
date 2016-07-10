@@ -7,11 +7,11 @@ import Compiler from './compiler';
  * @param  {Object}      model    [数据模型对象]
  * @param  {Function}    context  [事件及 watch 的回调上下文]
  */
-function MVVM(element, model, context) {
+function MVVM (element, model, context) {
 	var ctx = this.context = context || this;
 
 	// 将事件函数 this 指向调用者
-	util.each(model, function(value, key) {
+	util.each(model, function (value, key) {
 		if (util.isFunc(value)) {
 			model[key] = value.bind(ctx);
 		}
@@ -35,7 +35,7 @@ var mvp = MVVM.prototype;
  * @param   {String}  key  [数据模型字段]
  * @return  {Mix}
  */
-mvp.get = function(key) {
+mvp.get = function (key) {
 	return util.isString(key) ? this.$[key] : this.$;
 }
 
@@ -45,7 +45,7 @@ mvp.get = function(key) {
  * @param   {String}  key  [数据模型字段]
  * @return  {Mix}
  */
-mvp.getItem = function(key) {
+mvp.getItem = function (key) {
 	return util.copy(this.get(key));
 }
 
@@ -54,7 +54,7 @@ mvp.getItem = function(key) {
  * @param  {String}  key    [数据模型字段]
  * @param  {Mix}     value  [值]
  */
-mvp.set = function(key, value) {
+mvp.set = function (key, value) {
 	var vm = this.$;
 	// 设置单个
 	if (util.isString(key)) {
@@ -63,7 +63,7 @@ mvp.set = function(key, value) {
 
 	// 批量设置
 	if (util.isObject(key)) {
-		util.each(key, function(v, k) {
+		util.each(key, function (v, k) {
 			vm[k] = v;
 		});
 	}
@@ -73,7 +73,7 @@ mvp.set = function(key, value) {
  * 重置数据模型至初始状态
  * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
  */
-mvp.reset = function(key) {
+mvp.reset = function (key) {
 	var vm = this.$;
 	var backup = this.backup;
 
@@ -83,13 +83,13 @@ mvp.reset = function(key) {
 	}
 	// 重置多个
 	else if (util.isArray(key)) {
-		util.each(key, function(v) {
+		util.each(key, function (v) {
 			vm[v] = backup[v];
 		});
 	}
 	// 重置所有
 	else {
-		util.each(vm, function(v, k) {
+		util.each(vm, function (v, k) {
 			vm[k] = backup[k];
 		});
 	}
@@ -101,8 +101,8 @@ mvp.reset = function(key) {
  * @param   {Function}  callback  [监测变化回调]
  * @param   {Boolean}   deep      [数组深层监测]
  */
-mvp.watch = function(model, callback, deep) {
-	this.vm.watcher.watchModel(model, function(path, last, old) {
+mvp.watch = function (model, callback, deep) {
+	this.vm.watcher.watchModel(model, function (path, last, old) {
 		callback.call(this, path, last, old);
 	}, this.context, null, deep);
 }
@@ -110,7 +110,7 @@ mvp.watch = function(model, callback, deep) {
 /**
  * 销毁 mvvm 实例
  */
-mvp.destroy = function() {
+mvp.destroy = function () {
 	this.vm.destroy();
 	this.context = this.vm = this.backup = this.$ = null;
 }

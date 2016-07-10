@@ -4,7 +4,7 @@ import cache from './cache';
 /**
  * 字符串首字母大写
  */
-function ucFirst(str) {
+function ucFirst (str) {
 	return str.charAt(0).toUpperCase() + str.substr(1);
 }
 
@@ -12,9 +12,9 @@ function ucFirst(str) {
  * 根据组件名称获取组件实例
  * @param   {String}  name
  */
-function getComponent(name) {
+function getComponent (name) {
 	var component = null;
-	util.each(cache, function(instance) {
+	util.each(cache, function (instance) {
 		if ((instance._ && instance._.name) === name) {
 			component = instance;
 			return false;
@@ -27,7 +27,7 @@ function getComponent(name) {
 /**
  * Messager 实现组件消息通信
  */
-function Messager() {
+function Messager () {
 	/**
 	 * 是否正在发送消息
 	 * @type {Bool}
@@ -52,7 +52,7 @@ var mp = Messager.prototype;
  * @param  {Mix}     param   [<可选>附加消息参数]
  * @return {Object}
  */
-mp.createMsg = function(type, sender, name, param) {
+mp.createMsg = function (type, sender, name, param) {
 	return {
 		// 消息类型
 		'type'   : type,
@@ -79,7 +79,7 @@ mp.createMsg = function(type, sender, name, param) {
  * @param  {Mix}     msg       [消息体（内容）]
  * @return {Mix}
  */
-mp.trigger = function(receiver, msg) {
+mp.trigger = function (receiver, msg) {
 	// 接受者消息处理方法
 	var func = receiver[msg.method];
 
@@ -99,7 +99,7 @@ mp.trigger = function(receiver, msg) {
  * @param  {Function}  callback  [通知发送者的回调函数]
  * @param  {Object}    context   [执行环境]
  */
-mp.notifySender = function(msg, callback, context) {
+mp.notifySender = function (msg, callback, context) {
 	// 通知回调
 	if (util.isFunc(callback)) {
 		callback.call(context, msg);
@@ -117,7 +117,7 @@ mp.notifySender = function(msg, callback, context) {
 /**
  * 发送消息队列
  */
-mp.sendQueue = function() {
+mp.sendQueue = function () {
 	var request = messager.queue.shift();
 
 	messager.busy = false;
@@ -142,7 +142,7 @@ mp.sendQueue = function() {
  * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
  * @param  {Object}    context   [执行环境]
  */
-mp.fire = function(sender, name, param, callback, context) {
+mp.fire = function (sender, name, param, callback, context) {
 	var type = 'fire';
 
 	// 是否处于忙碌状态
@@ -177,7 +177,7 @@ mp.fire = function(sender, name, param, callback, context) {
 /**
  * 广播（由上往下）方式发送消息，由父组件实例发出，逐层子组件实例接收
  */
-mp.broadcast = function(sender, name, param, callback, context) {
+mp.broadcast = function (sender, name, param, callback, context) {
 	var type = 'broadcast';
 
 	// 是否处于忙碌状态
@@ -216,7 +216,7 @@ mp.broadcast = function(sender, name, param, callback, context) {
  * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
  * @param  {Object}    context   [执行环境]
  */
-mp.notify = function(sender, receiver, name, param, callback, context) {
+mp.notify = function (sender, receiver, name, param, callback, context) {
 	var type = 'notify';
 
 	// 是否处于忙碌状态
@@ -235,7 +235,7 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
 
 		// 有层级
 		if (paths.length) {
-			util.each(paths, function(comp) {
+			util.each(paths, function (comp) {
 				target = parent.getChild(comp);
 				parent = target;
 				return null;
@@ -269,7 +269,7 @@ mp.notify = function(sender, receiver, name, param, callback, context) {
  * @param  {String}  name   [发送的消息名称]
  * @param  {Mix}     param  [<可选>附加消息参数]
  */
-mp.globalCast = function(name, param, callback, context) {
+mp.globalCast = function (name, param, callback, context) {
 	var type = 'globalCast';
 
 	// 是否处于忙碌状态
@@ -282,7 +282,7 @@ mp.globalCast = function(name, param, callback, context) {
 
 	var msg = this.createMsg(type, '__core__', name, param);
 
-	util.each(cache, function(receiver, index) {
+	util.each(cache, function (receiver, index) {
 		if (util.isObject(receiver) && index !== '0') {
 			this.trigger(receiver, msg);
 		}

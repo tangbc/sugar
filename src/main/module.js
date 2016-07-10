@@ -20,7 +20,7 @@ var Module = Root.extend({
 	 * @param  {Object}  config  [<可选>子模块配置参数]
 	 * @return {Object}          [返回创建的子模块实例]
 	 */
-	create: function(name, Class, config) {
+	create: function (name, Class, config) {
 		if (!util.isString(name)) {
 			return util.warn('Module name ['+ name +'] must be a type of String');
 		}
@@ -76,7 +76,7 @@ var Module = Root.extend({
 	/**
 	 * 获取当前模块的父模块实例（模块创建者）
 	 */
-	getParent: function() {
+	getParent: function () {
 		var cls = this._;
 		var pid = cls && cls.pid;
 		return cache[pid] || null;
@@ -87,7 +87,7 @@ var Module = Root.extend({
 	 * @param  {String}  name  [子模块名称]
 	 * @return {Object}
 	 */
-	getChild: function(name) {
+	getChild: function (name) {
 		var cls = this._;
 		return cls && cls['childMap'] && cls['childMap'][name] || null;
 	},
@@ -97,7 +97,7 @@ var Module = Root.extend({
 	 * @param  {Boolean}  returnArray  [返回的集合是否为数组形式，否则返回映射结构]
 	 * @return {Mix}
 	 */
-	getChilds: function(returnArray) {
+	getChilds: function (returnArray) {
 		var cls = this._;
 		returnArray = util.isBool(returnArray) && returnArray;
 		return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
@@ -108,7 +108,7 @@ var Module = Root.extend({
 	 * @param  {String}   name  [子模块名称]
 	 * @return {Boolean}
 	 */
-	_removeChild: function(name) {
+	_removeChild: function (name) {
 		var cls = this._;
 		var cMap = cls['childMap'] || {};
 		var cArray = cls['childArray'] || [];
@@ -127,7 +127,7 @@ var Module = Root.extend({
 	 * 模块销毁函数，只删除缓存队列中的记录和所有子模块集合
 	 * @param  {Mix}  notify  [是否向父模块发送销毁消息]
 	 */
-	destroy: function(notify) {
+	destroy: function (notify) {
 		var cls = this._;
 		var name = cls.name;
 
@@ -138,7 +138,7 @@ var Module = Root.extend({
 
 		// 递归调用子模块的销毁函数
 		var childs = this.getChilds(true);
-		util.each(childs, function(child) {
+		util.each(childs, function (child) {
 			if (util.isFunc(child.destroy)) {
 				child.destroy(-1);
 			}
@@ -177,7 +177,7 @@ var Module = Root.extend({
 	 * @param  {Mix}       param     [<可选>附加消息参数]
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
 	 */
-	fire: function(name, param, callback) {
+	fire: function (name, param, callback) {
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;
@@ -195,7 +195,7 @@ var Module = Root.extend({
 	/**
 	 * 广播（由上往下）方式发送消息，由父模块发出，逐层子模块接收
 	 */
-	broadcast: function(name, param, callback) {
+	broadcast: function (name, param, callback) {
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;
@@ -217,7 +217,7 @@ var Module = Root.extend({
 	 * @param   {Mix}       param     [<可选>附加消息参数]
 	 * @param   {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]]
 	 */
-	notify: function(receiver, name, param, callback) {
+	notify: function (receiver, name, param, callback) {
 		// 不传 param
 		if (util.isFunc(param)) {
 			callback = param;

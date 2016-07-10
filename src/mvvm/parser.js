@@ -24,13 +24,13 @@ const regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d
  * @param   {String}   expression
  * @return  {Boolean}
  */
-function isNormal(expression) {
+function isNormal (expression) {
 	return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
 }
 
 // 保存常量，返回序号 "i"
 var consts = [];
-function saveConst(string) {
+function saveConst (string) {
 	var i = consts.length;
 	consts[i] = string;
 	return '"' + i + '"';
@@ -42,7 +42,7 @@ function saveConst(string) {
  * @param   {Number}  i
  * @return  {String}
  */
-function returnConst(string, i) {
+function returnConst (string, i) {
 	return consts[i];
 }
 
@@ -51,7 +51,7 @@ function returnConst(string, i) {
  * @param   {String}  string
  * @return  {String}
  */
-function replaceScope(string) {
+function replaceScope (string) {
 	var pad = string.charAt(0);
 	var path = string.slice(1);
 
@@ -70,7 +70,7 @@ function replaceScope(string) {
  * @param   {String}  expression   <必选>
  * @return  {String}
  */
-function getAlias(fors, expression) {
+function getAlias (fors, expression) {
 	var alias, exp = expression;
 
 	if (exp.indexOf(fors.alias) !== -1) {
@@ -78,7 +78,7 @@ function getAlias(fors, expression) {
 	}
 
 	// 跨层级的别名
-	util.each(fors.aliases, function(_alias) {
+	util.each(fors.aliases, function (_alias) {
 		if ((new RegExp('\\b' + _alias + '\\b|\\b'+ _alias +'\\.')).test(exp)) {
 			alias = _alias;
 			return false;
@@ -88,13 +88,13 @@ function getAlias(fors, expression) {
 	return alias;
 }
 
-function noop() {}
+function noop () {}
 
 
 /**
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
  */
-function Parser() {}
+function Parser () {}
 var p = Parser.prototype;
 
 /**
@@ -103,7 +103,7 @@ var p = Parser.prototype;
  * @param   {DOMElement}  node
  * @param   {String}      expression
  */
-p.bind = function(fors, node, expression) {
+p.bind = function (fors, node, expression) {
 	// 提取依赖
 	var deps = this.getDeps(fors, expression);
 	// 取值域
@@ -117,7 +117,7 @@ p.bind = function(fors, node, expression) {
 	this.update(node, getter.call(scope, scope));
 
 	// 监测依赖变化，更新取值 & 视图
-	this.vm.watcher.watch(deps, function() {
+	this.vm.watcher.watch(deps, function () {
 		scope = this.updateScope(scope, maps, deps, arguments);
 		this.update(node, getter.call(scope, scope));
 	}, this);
@@ -128,7 +128,7 @@ p.bind = function(fors, node, expression) {
  * @param   {String}    expression
  * @return  {Function}
  */
-p.createGetter = function(expression) {
+p.createGetter = function (expression) {
 	try {
 		return new Function('scope', 'return ' + expression + ';');
 	}
@@ -141,7 +141,7 @@ p.createGetter = function(expression) {
 /**
  * 获取表达式的取值函数
  */
-p.getEval = function(fors, expression) {
+p.getEval = function (fors, expression) {
 	if (regAviodKeyword.test(expression)) {
 		util.warn('Avoid using unallow keyword in expression ['+ expression +']');
 		return noop;
@@ -151,9 +151,9 @@ p.getEval = function(fors, expression) {
 
 	// 替换 vfor 取值域别名
 	if (fors) {
-		util.each(fors.aliases, function(alias) {
+		util.each(fors.aliases, function (alias) {
 			var reg = new RegExp('scope.' + alias, 'g');
-			expression = expression.replace(reg, function(scope) {
+			expression = expression.replace(reg, function (scope) {
 				return 'scope.$' + scope;
 			});
 		});
@@ -166,7 +166,7 @@ p.getEval = function(fors, expression) {
  * 转换表达式的变量为 scope 关键字参数
  * @return  {String}
  */
-p.toScope = function(expression) {
+p.toScope = function (expression) {
 	var exp = expression;
 
 	if (isNormal(exp)) {
@@ -184,7 +184,7 @@ p.toScope = function(expression) {
  * 获取数据模型
  * @return  {Object}
  */
-p.getModel = function() {
+p.getModel = function () {
 	return this.vm.$data;
 }
 
@@ -194,7 +194,7 @@ p.getModel = function() {
  * @param   {String}  expression
  * @return  {Object}
  */
-p.getScope = function(fors, expression) {
+p.getScope = function (fors, expression) {
 	var model = this.getModel();
 
 	if (fors) {
@@ -213,7 +213,7 @@ p.getScope = function(fors, expression) {
  * @param   {Array}   args       [变更参数]
  * @return  {Mix}
  */
-p.updateScope = function(oldScope, maps, deps, args) {
+p.updateScope = function (oldScope, maps, deps, args) {
 	var leng = 0, $scope = {};
 	var model = this.getModel();
 	var targetPaths, scopePaths;
@@ -221,7 +221,7 @@ p.updateScope = function(oldScope, maps, deps, args) {
 
 	// 获取最深层的依赖
 	accesses.unshift(args[0]);
-	util.each(accesses, function(access) {
+	util.each(accesses, function (access) {
 		var paths = util.makePaths(access);
 		if (paths.length > leng) {
 			targetPaths = paths;
@@ -234,7 +234,7 @@ p.updateScope = function(oldScope, maps, deps, args) {
 		// 取值路径数组
 		scopePaths = util.makeScopePaths(targetPaths);
 		// 对每一个取值路径进行更新
-		util.each(scopePaths, function(paths) {
+		util.each(scopePaths, function (paths) {
 			var leng = paths.length;
 
 			// 更新下标的情况通过变更参数来确定
@@ -262,13 +262,13 @@ p.updateScope = function(oldScope, maps, deps, args) {
  * @param   {String}  expression
  * @return  {Object}
  */
-p.getDeps = function(fors, expression) {
+p.getDeps = function (fors, expression) {
 	var deps = [], paths = [];
 	var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 	var depMatches = exp.match(regReplaceScope);
 
 	// 提取依赖和依赖的访问路径
-	util.each(depMatches, function(dep) {
+	util.each(depMatches, function (dep) {
 		var model = dep.substr(1);
 		var alias, hasIndex, access, valAccess;
 

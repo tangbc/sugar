@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-bind for class 指令解析模块
  */
-function VClass(vm) {
+function VClass (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -16,7 +16,7 @@ var vclass = VClass.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node        [指令节点]
  * @param   {String}      expression  [指令表达式]
  */
-vclass.parse = function(fors, node, expression) {
+vclass.parse = function (fors, node, expression) {
 	// 提取依赖
 	var deps = this.getDeps(fors, expression);
 	// 取值域
@@ -31,7 +31,7 @@ vclass.parse = function(fors, node, expression) {
 	this.updateClass(node, value);
 
 	// 监测依赖
-	this.vm.watcher.watch(deps, function(path, last, old) {
+	this.vm.watcher.watch(deps, function (path, last, old) {
 		scope = this.updateScope(scope, maps, deps, arguments);
 
 		if (util.isArray(value)) {
@@ -54,20 +54,20 @@ vclass.parse = function(fors, node, expression) {
  * @param   {String|Array|Object}  classValue
  * @param   {Boolean}              remove
  */
-vclass.updateClass = function(node, classValue, remove) {
+vclass.updateClass = function (node, classValue, remove) {
 	// single class
 	if (util.isString(classValue)) {
 		this.update(node, (remove ? null : classValue), (remove ? classValue : null));
 	}
 	// [classA, classB]
 	else if (util.isArray(classValue)) {
-		util.each(classValue, function(cls) {
+		util.each(classValue, function (cls) {
 			this.update(node, (remove ? null : cls), (remove ? cls : null));
 		}, this);
 	}
 	// classObject
 	else if (util.isObject(classValue)) {
-		util.each(classValue, function(isAdd, cls) {
+		util.each(classValue, function (isAdd, cls) {
 			this.update(node, (remove ? false : isAdd), false, cls);
 		}, this);
 	}
@@ -80,7 +80,7 @@ vclass.updateClass = function(node, classValue, remove) {
  * @param   {String|Boolean}      oldcls
  * @param   {String}              classname
  */
-vclass.update = function() {
+vclass.update = function () {
 	var updater = this.vm.updater;
 	updater.updateClassName.apply(updater, arguments);
 }

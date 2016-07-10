@@ -6,7 +6,7 @@ import Parser from'../parser';
  * @param   {String}  funcString
  * @return  {Object}
  */
-function stringToParams(funcString) {
+function stringToParams (funcString) {
 	var args, func;
 	var exp = util.removeSpace(funcString);
 	var matches = exp.match(/(\(.*\))/);
@@ -33,7 +33,7 @@ function stringToParams(funcString) {
  * @param   {String}  jsonString
  * @return  {Object}
  */
-function convertJson(jsonString) {
+function convertJson (jsonString) {
 	var json, string = jsonString.trim();
 
 	if (/^\{.*\}$/.test(string)) {
@@ -42,7 +42,7 @@ function convertJson(jsonString) {
 		string = string.substr(1, leng - 2).replace(/\s/g, '');
 		let props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
 
-		util.each(props, function(prop) {
+		util.each(props, function (prop) {
 			var vals = util.getKeyValue(prop, true);
 			var name = vals[0], value = vals[1];
 			if (name && value) {
@@ -59,7 +59,7 @@ function convertJson(jsonString) {
 /**
  * v-on 指令解析模块
  */
-function Von(vm) {
+function Von (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -72,7 +72,7 @@ var von = Von.prototype = Object.create(Parser.prototype);
  * @param   {String}      expression  [指令表达式]
  * @param   {String}      directive   [指令名称]
  */
-von.parse = function(fors, node, expression, directive) {
+von.parse = function (fors, node, expression, directive) {
 	// 单个事件
 	if (directive.indexOf(':') !== -1) {
 		this.parseSingle.apply(this, arguments);
@@ -86,7 +86,7 @@ von.parse = function(fors, node, expression, directive) {
 /**
  * 解析单个 v-on:type
  */
-von.parseSingle = function(fors, node, expression, directive) {
+von.parseSingle = function (fors, node, expression, directive) {
 	// 事件信息
 	var info = stringToParams(expression);
 	// 事件类型
@@ -106,7 +106,7 @@ von.parseSingle = function(fors, node, expression, directive) {
 	this.bindEvent(fors, node, field, type, func, paramString);
 
 	// 监测依赖变化，绑定新回调，旧回调将被移除
-	this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
+	this.vm.watcher.watch(deps, function (path, lastCallback, oldCallback) {
 		// 解除绑定
 		this.update(node, type, oldCallback, false, true);
 		// 绑定新回调
@@ -117,8 +117,8 @@ von.parseSingle = function(fors, node, expression, directive) {
 /**
  * 解析多个 v-on=eventJson
  */
-von.parseJson = function(fors, node, expression) {
-	util.each(convertJson(expression), function(exp, type) {
+von.parseJson = function (fors, node, expression) {
+	util.each(convertJson(expression), function (exp, type) {
 		this.parseSingle(fors, node, exp, type);
 	}, this);
 }
@@ -132,7 +132,7 @@ von.parseJson = function(fors, node, expression) {
  * @param   {Function}    func
  * @param   {String}      paramString
  */
-von.bindEvent = function(fors, node, field, evt, func, paramString) {
+von.bindEvent = function (fors, node, field, evt, func, paramString) {
 	var self, stop, prevent, keyCode, capture = false;
 
 	if (!util.isFunc(func)) {
@@ -166,14 +166,14 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
 		// 事件参数
 		args = getter.call(scope, scope);
 
-		this.vm.watcher.watch(deps, function() {
+		this.vm.watcher.watch(deps, function () {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			args = getter.call(scope, scope);
 		}, this);
 	}
 
 	// 事件代理函数
-	var eventProxy = function _eventProxy(e) {
+	var eventProxy = function _eventProxy (e) {
 		// 是否限定只能在当前节点触发事件
 		if (self && e.target !== node) {
 			return;
@@ -190,7 +190,7 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
 		}
 		else {
 			// 更新/替换事件对象
-			util.each(args, function(param, index) {
+			util.each(args, function (param, index) {
 				if (param === '$event' || param instanceof Event) {
 					args[index] = e;
 				}
@@ -221,7 +221,7 @@ von.bindEvent = function(fors, node, field, evt, func, paramString) {
  * @param   {Function}     callback
  * @param   {Boolean}      capture
  */
-von.update = function() {
+von.update = function () {
 	var updater = this.vm.updater;
 	updater.updateEvent.apply(updater, arguments);
 }

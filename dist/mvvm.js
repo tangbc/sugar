@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Sat Jul 09 2016 08:47:51 GMT+0800 (CST)
+ * Sun Jul 10 2016 08:29:22 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -17,49 +17,49 @@
 	/**
 	 * 是否是对象
 	 */
-	function isObject(object) {
+	function isObject (object) {
 		return OP.toString.call(object) === '[object Object]';
 	}
 
 	/**
 	 * 是否是数组
 	 */
-	function isArray(array) {
+	function isArray (array) {
 		return Array.isArray(array);
 	}
 
 	/**
 	 * 是否是函数
 	 */
-	function isFunc(fn) {
+	function isFunc (fn) {
 		return fn instanceof Function;
 	}
 
 	/**
 	 * 是否是字符串
 	 */
-	function isString(str) {
+	function isString (str) {
 		return typeof str === 'string';
 	}
 
 	/**
 	 * 是否是布尔值
 	 */
-	function isBool(bool) {
+	function isBool (bool) {
 		return typeof bool === 'boolean';
 	}
 
 	/**
 	 * 是否是数字
 	 */
-	function isNumber(num) {
+	function isNumber (num) {
 		return typeof num === 'number' && !isNaN(num);
 	}
 
 	/**
 	 * 是否是纯粹对象
 	 */
-	function isPlainObject(obj) {
+	function isPlainObject (obj) {
 		if (!obj || !isObject(obj) || obj.nodeType || obj === obj.window) {
 			return false;
 		}
@@ -74,7 +74,7 @@
 	 * @param   {Object}   object
 	 * @return  {Boolean}
 	 */
-	function isEmpty(object) {
+	function isEmpty (object) {
 		return Object.keys(object).length === 0;
 	}
 
@@ -92,21 +92,21 @@
 	/**
 	 * 打印警告信息
 	 */
-	util.warn = function() {
+	util.warn = function () {
 		console.warn.apply(console, arguments);
 	}
 
 	/**
 	 * 打印错误信息
 	 */
-	util.error = function() {
+	util.error = function () {
 		console.error.apply(console, arguments);
 	}
 
 	/*
 	 * 对象自有属性检测
 	 */
-	util.hasOwn = function(obj, key) {
+	util.hasOwn = function (obj, key) {
 		return obj && hasOwn.call(obj, key);
 	}
 
@@ -119,7 +119,7 @@
 	 * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
 	 * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
 	 */
-	util.def = function(object, property, value, writable, enumerable, configurable) {
+	util.def = function (object, property, value, writable, enumerable, configurable) {
 		return Object.defineProperty(object, property, {
 			'value'       : value,
 			'writable'    : !!writable,
@@ -131,7 +131,7 @@
 	/**
 	 * 将 object[property] 定义为一个不可枚举的属性
 	 */
-	util.defRec = function(object, property, value) {
+	util.defRec = function (object, property, value) {
 		return this.def(object, property, value, true, false, true);
 	}
 
@@ -139,8 +139,8 @@
 	 * 删除 object 所有属性
 	 * @param   {Object}   object
 	 */
-	util.clear = function(object) {
-		this.each(object, function() {
+	util.clear = function (object) {
+		this.each(object, function () {
 			return null;
 		});
 	}
@@ -151,7 +151,7 @@
 	 * @param  {Fuction}       callback  [回调函数]
 	 * @param  {Object}        context   [作用域]
 	 */
-	util.each = function(items, callback, context) {
+	util.each = function (items, callback, context) {
 		var this$1 = this;
 
 		var ret, i;
@@ -210,7 +210,7 @@
 	/**
 	 * 扩展合并对象，摘自 jQuery
 	 */
-	util.extend = function() {
+	util.extend = function () {
 		var arguments$1 = arguments;
 		var this$1 = this;
 
@@ -279,7 +279,7 @@
 	 * @param   {Object|Array}  target
 	 * @return  {Mix}
 	 */
-	util.copy = function(target) {
+	util.copy = function (target) {
 		var ret;
 
 		if (isArray(target)) {
@@ -297,7 +297,7 @@
 	 * @param   {String}  string
 	 * @return  {String}
 	 */
-	util.removeSpace = function(string) {
+	util.removeSpace = function (string) {
 		return string.replace(/\s/g, '');
 	}
 
@@ -307,7 +307,7 @@
 	 * @param   {Boolean}       both         [是否返回键和值]
 	 * @return  {String|Array}
 	 */
-	util.getKeyValue = function(expression, both) {
+	util.getKeyValue = function (expression, both) {
 		var array = expression.split(':');
 		return both ? array : array.pop();
 	}
@@ -317,7 +317,7 @@
 	 * @param   {String}     tag  [元素标签名称]
 	 * @return  {DOMElemnt}
 	 */
-	util.createElement = function(tag) {
+	util.createElement = function (tag) {
 		return document.createElement(tag);
 	}
 
@@ -325,7 +325,7 @@
 	 * 返回一个空文档碎片
 	 * @return  {Fragment}
 	 */
-	util.createFragment = function() {
+	util.createFragment = function () {
 		return document.createDocumentFragment();
 	}
 
@@ -333,7 +333,7 @@
 	 * element 的子节点转换成文档片段（element 将会被清空）
 	 * @param   {DOMElement}  element
 	 */
-	util.nodeToFragment = function(element) {
+	util.nodeToFragment = function (element) {
 		var child;
 		var fragment = this.createFragment();
 
@@ -349,7 +349,7 @@
 	 * @param   {String}    html
 	 * @return  {Fragment}
 	 */
-	util.stringToFragment = function(html) {
+	util.stringToFragment = function (html) {
 		var div, fragment;
 
 		// 存在标签
@@ -373,7 +373,7 @@
 	 * @param   {String}  expression
 	 * @return  {String}
 	 */
-	util.getExpAlias = function(expression) {
+	util.getExpAlias = function (expression) {
 		var pos = expression.indexOf('.');
 		return pos === -1 ? expression : expression.substr(0, pos);
 	}
@@ -384,7 +384,7 @@
 	 * @param   {String}  expression
 	 * @return  {String}
 	 */
-	util.getExpKey = function(expression) {
+	util.getExpKey = function (expression) {
 		var pos = expression.lastIndexOf('.');
 		return pos === -1 ? '' : expression.substr(pos + 1);
 	}
@@ -396,7 +396,7 @@
 	 * @param   {Object}  oldObject
 	 * @return  {Object}
 	 */
-	util.diff = function(newObject, oldObject) {
+	util.diff = function (newObject, oldObject) {
 		return {
 			'n': this.getUnique(newObject, oldObject),
 			'o': this.getUnique(oldObject, newObject)
@@ -409,10 +409,10 @@
 	 * @param   {Object}  referObject     [参照对象]
 	 * @return  {Object}
 	 */
-	util.getUnique = function(contrastObject, referObject) {
+	util.getUnique = function (contrastObject, referObject) {
 		var unique = {};
 
-		this.each(contrastObject, function(value, key) {
+		this.each(contrastObject, function (value, key) {
 			var diff, oldItem = referObject[key];
 
 			if (isObject(value)) {
@@ -424,7 +424,7 @@
 			else if (isArray(value)) {
 				var newArray = [];
 
-				this.each(value, function(nItem, index) {
+				this.each(value, function (nItem, index) {
 					var diff;
 
 					if (isObject(nItem)) {
@@ -456,7 +456,7 @@
 	 * @param   {String}  access
 	 * @return  {Array}
 	 */
-	util.makePaths = function(access) {
+	util.makePaths = function (access) {
 		var this$1 = this;
 
 		var length, paths = access && access.split('*');
@@ -481,7 +481,7 @@
 	 * @param   {Array}   paths
 	 * @return  {Mix}
 	 */
-	util.getDeepValue = function(target, paths) {
+	util.getDeepValue = function (target, paths) {
 		var _paths = paths.slice(0);
 
 		while (_paths.length) {
@@ -497,7 +497,7 @@
 	 * @param   {Array}  paths
 	 * @return  {Array}
 	 */
-	util.makeScopePaths = function(paths) {
+	util.makeScopePaths = function (paths) {
 		var index = 0, scopePaths = [];
 
 		if (paths.length % 2 === 0) {
@@ -515,7 +515,7 @@
 		 * 清空 element 的所有子节点
 		 * @param   {DOMElement}  element
 		 */
-		empty: function(element) {
+		empty: function (element) {
 			while (element.firstChild) {
 				element.removeChild(element.firstChild);
 			}
@@ -528,7 +528,7 @@
 		 * @param   {String}      name
 		 * @param   {String}      value
 		 */
-		setAttr: function(node, name, value) {
+		setAttr: function (node, name, value) {
 			if (typeof value === 'boolean') {
 				node[name] = value;
 			}
@@ -543,7 +543,7 @@
 		 * @param   {String}      name
 		 * @return  {String}
 		 */
-		getAttr: function(node, name) {
+		getAttr: function (node, name) {
 			return node.getAttribute(name) || '';
 		},
 
@@ -553,7 +553,7 @@
 		 * @param   {String}      name
 		 * @return  {Boolean}
 		 */
-		hasAttr: function(node, name) {
+		hasAttr: function (node, name) {
 			return node.hasAttribute(name);
 		},
 
@@ -562,7 +562,7 @@
 		 * @param   {DOMElement}  node
 		 * @param   {String}      name
 		 */
-		removeAttr: function(node, name) {
+		removeAttr: function (node, name) {
 			node.removeAttribute(name);
 		},
 
@@ -571,7 +571,7 @@
 		 * @param  {DOMElement}  node
 		 * @param  {String}      classname
 		 */
-		addClass: function(node, classname) {
+		addClass: function (node, classname) {
 			var current, list = node.classList;
 
 			if (this.hasClass(node, classname)) {
@@ -595,7 +595,7 @@
 		 * @param  {DOMElement}  node
 		 * @param  {String}      classname
 		 */
-		removeClass: function(node, classname) {
+		removeClass: function (node, classname) {
 			var current, target, list = node.classList;
 
 			if (!this.hasClass(node, classname)) {
@@ -626,7 +626,7 @@
 		 * @param  {String}      classname
 		 * @return {Boolean}
 		 */
-		hasClass: function(node, classname) {
+		hasClass: function (node, classname) {
 			var current, list = node.classList;
 			/* istanbul ignore else */
 			if (list) {
@@ -645,7 +645,7 @@
 		 * @param   {Function}     callback
 		 * @param   {Boolean}      capture
 		 */
-		addEvent: function(node, evt, callback, capture) {
+		addEvent: function (node, evt, callback, capture) {
 			node.addEventListener(evt, callback, capture);
 		},
 
@@ -656,7 +656,7 @@
 		 * @param   {Function}     callback
 		 * @param   {Boolean}      capture
 		 */
-		removeEvent: function(node, evt, callback, capture) {
+		removeEvent: function (node, evt, callback, capture) {
 			node.removeEventListener(evt, callback, capture);
 		}
 	}
@@ -664,7 +664,7 @@
 	/**
 	 * 事件处理模块
 	 */
-	function Eventer() {
+	function Eventer () {
 		this.$map = {};
 		this.$guid = 1000;
 		this.$listeners = {};
@@ -676,7 +676,7 @@
 	 * 获取一个唯一的标识
 	 * @return  {Number}
 	 */
-	ep.guid = function() {
+	ep.guid = function () {
 		return this.$guid++;
 	}
 
@@ -688,7 +688,7 @@
 	 * @param  {Boolean}      capture
 	 * @param  {Mix}          context
 	 */
-	ep.add = function(node, evt, callback, capture, context) {
+	ep.add = function (node, evt, callback, capture, context) {
 		var map = this.$map;
 		var guid = this.guid();
 		var listeners = this.$listeners;
@@ -709,12 +709,12 @@
 	 * @param   {Function}     callback
 	 * @param   {Boolean}      capture
 	 */
-	ep.remove = function(node, evt, callback, capture) {
+	ep.remove = function (node, evt, callback, capture) {
 		var guid, map = this.$map;
 		var listeners = this.$listeners;
 
 		// 找到对应的 callback id
-		util.each(map, function(cb, id) {
+		util.each(map, function (cb, id) {
 			if (cb === callback) {
 				guid = id;
 				return false;
@@ -731,7 +731,7 @@
 	/**
 	 * 清除所有事件记录
 	 */
-	ep.clear = function() {
+	ep.clear = function () {
 		this.$guid = 1000;
 		util.clear(this.$map);
 		util.clear(this.$listeners);
@@ -744,7 +744,7 @@
 	 * @param   {Object}      vm
 	 * @param   {DOMElement}  element
 	 */
-	function removeDOMRegister(vm, element) {
+	function removeDOMRegister (vm, element) {
 		var registers = vm.$data.$els;
 		var childNodes = element.childNodes;
 
@@ -776,8 +776,8 @@
 	 * @param  {String}      classname
 	 * @param  {Boolean}     remove
 	 */
-	function handleClass(node, classname, remove) {
-		util.each(classname.split(' '), function(cls) {
+	function handleClass (node, classname, remove) {
+		util.each(classname.split(' '), function (cls) {
 			if (remove) {
 				dom.removeClass(node, cls);
 			}
@@ -791,7 +791,7 @@
 	/**
 	 * updater 视图刷新模块
 	 */
-	function Updater(vm) {
+	function Updater (vm) {
 		this.vm = vm;
 	}
 
@@ -802,7 +802,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      text
 	 */
-	up.updateTextContent = function(node, text) {
+	up.updateTextContent = function (node, text) {
 		node.textContent = String(text);
 	}
 
@@ -812,7 +812,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      html
 	 */
-	up.updateHtmlContent = function(node, html) {
+	up.updateHtmlContent = function (node, html) {
 		dom.empty(node).appendChild(util.stringToFragment(String(html)));
 	}
 
@@ -821,7 +821,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {Boolean}     show    [是否显示]
 	 */
-	up.updateDisplay = function(node, show) {
+	up.updateDisplay = function (node, show) {
 		var siblingNode = this.getSibling(node);
 
 		this.setVisible(node);
@@ -840,7 +840,7 @@
 	 * _visible_display 用于缓存节点行内样式的 display 显示值
 	 * @param  {DOMElement}  node
 	 */
-	up.setVisible = function(node) {
+	up.setVisible = function (node) {
 		if (!node._visible_display) {
 			var display;
 			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
@@ -848,7 +848,7 @@
 			if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
 				var styles = inlineStyle.split(';');
 
-				util.each(styles, function(style) {
+				util.each(styles, function (style) {
 					if (style.indexOf('display') !== -1) {
 						display = util.getKeyValue(style);
 					}
@@ -866,7 +866,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {Boolean}     isRender  [是否渲染]
 	 */
-	up.updateRenderContent = function(node, isRender) {
+	up.updateRenderContent = function (node, isRender) {
 		var siblingNode = this.getSibling(node);
 
 		this.setRender(node);
@@ -882,7 +882,7 @@
 	/**
 	 * 缓存节点渲染内容并清空
 	 */
-	up.setRender = function(node) {
+	up.setRender = function (node) {
 		if (!node._render_content) {
 			node._render_content = node.innerHTML;
 		}
@@ -892,7 +892,7 @@
 	/**
 	 * 切换节点内容渲染
 	 */
-	up.toggleRender = function(node, isRender) {
+	up.toggleRender = function (node, isRender) {
 		var vm = this.vm;
 		var fragment = util.stringToFragment(node._render_content);
 
@@ -910,7 +910,7 @@
 	/**
 	 * 获取节点的下一个兄弟元素节点
 	 */
-	up.getSibling = function(node) {
+	up.getSibling = function (node) {
 		var el = node.nextSibling;
 		var isElementNode = this.vm.isElementNode;
 
@@ -935,7 +935,7 @@
 	 * @param   {String}      attribute
 	 * @param   {String}      value
 	 */
-	up.updateAttribute = function(node, attribute, value) {
+	up.updateAttribute = function (node, attribute, value) {
 		// null 则移除该属性
 		if (value === null) {
 			dom.removeAttr.apply(this, arguments);
@@ -957,7 +957,7 @@
 	 * @param   {String|Boolean}      oldclass
 	 * @param   {String}              classname
 	 */
-	up.updateClassName = function(node, newclass, oldclass, classname) {
+	up.updateClassName = function (node, newclass, oldclass, classname) {
 		// 指定 classname 变化值由 newclass 布尔值决定
 		if (classname) {
 			if (newclass === true) {
@@ -985,7 +985,7 @@
 	 * @param   {String}      property  [属性名称]
 	 * @param   {String}      value     [样式值]
 	 */
-	up.updateStyle = function(node, property, value) {
+	up.updateStyle = function (node, property, value) {
 		if (node.style[property] !== value) {
 			node.style[property] = value;
 		}
@@ -999,7 +999,7 @@
 	 * @param   {Boolean}      capture
 	 * @param   {Boolean}      unbind
 	 */
-	up.updateEvent = function(node, evt, callback, capture, unbind) {
+	up.updateEvent = function (node, evt, callback, capture, unbind) {
 		// 移除绑定
 		if (unbind) {
 			eventer.remove(node, evt, callback, capture);
@@ -1014,7 +1014,7 @@
 	 * @param   {Input}  text
 	 * @param   {String} value
 	 */
-	up.updateTextValue = function(text, value) {
+	up.updateTextValue = function (text, value) {
 		if (text.value !== value) {
 			text.value = value;
 		}
@@ -1025,7 +1025,7 @@
 	 * @param   {Input}  radio
 	 * @param   {String} value
 	 */
-	up.updateRadioChecked = function(radio, value) {
+	up.updateRadioChecked = function (radio, value) {
 		radio.checked = radio.value === (util.isNumber(value) ? String(value) : value);
 	}
 
@@ -1034,7 +1034,7 @@
 	 * @param   {Input}          checkbox
 	 * @param   {Array|Boolean}  values      [激活数组或状态]
 	 */
-	up.updateCheckboxChecked = function(checkbox, values) {
+	up.updateCheckboxChecked = function (checkbox, values) {
 		var value = checkbox.value;
 
 		if (!util.isArray(values) && !util.isBool(values)) {
@@ -1054,7 +1054,7 @@
 	 * @param   {Array|String}   selected  [选中值]
 	 * @param   {Boolean}        multi
 	 */
-	up.updateSelectChecked = function(select, selected, multi) {
+	up.updateSelectChecked = function (select, selected, multi) {
 		var getNumber = dom.hasAttr(select, 'number');
 		var options = select.options, leng = options.length;
 		var multiple = multi || dom.hasAttr(select, 'multiple');
@@ -1074,7 +1074,7 @@
 	 * @param  {Object}     context   [执行上下文]
 	 * @param  {Object}     args      [<可选>回调额外参数]
 	 */
-	function Observer(object, callback, context, args) {
+	function Observer (object, callback, context, args) {
 		if (util.isString(callback)) {
 			callback = context[callback];
 		}
@@ -1101,12 +1101,12 @@
 	 * @param   {Object}  object  [监测的对象]
 	 * @param   {Array}   paths   [访问路径数组]
 	 */
-	op.observe = function(object, paths) {
+	op.observe = function (object, paths) {
 		if (util.isArray(object)) {
 			this.rewriteMethods(object, paths);
 		}
 
-		util.each(object, function(value, property) {
+		util.each(object, function (value, property) {
 			var copies = paths && paths.slice(0);
 			if (copies) {
 				copies.push(property);
@@ -1126,7 +1126,7 @@
 	 * @param   {Object|Array}  object  [对象或数组]
 	 * @param   {Array}         paths   [访问路径数组]
 	 */
-	op.bindWatch = function(object, paths, val) {
+	op.bindWatch = function (object, paths, val) {
 		var path = paths.join('*');
 		var prop = paths[paths.length - 1];
 		var descriptor = Object.getOwnPropertyDescriptor(object, prop);
@@ -1134,11 +1134,11 @@
 
 		// 定义 object[prop] 的 getter 和 setter
 		Object.defineProperty(object, prop, {
-			get: (function Getter() {
+			get: (function Getter () {
 				return getter ? getter.call(object) : val;
 			}).bind(this),
 
-			set: (function Setter(newValue, noTrigger) {
+			set: (function Setter (newValue, noTrigger) {
 				var subPath, oldObjectVal, args;
 				var oldValue = getter ? getter.call(object) : val;
 				var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
@@ -1199,7 +1199,7 @@
 	 * @param   {String}   path
 	 * @return  {String}
 	 */
-	op.getSubPath = function(path) {
+	op.getSubPath = function (path) {
 		var paths = this.$subPaths;
 		for (var i = 0; i < paths.length; i++) {
 			if (path.indexOf(paths[i]) === 0) {
@@ -1213,14 +1213,14 @@
 	 * @param   {Array}  array  [目标数组]
 	 * @param   {Array}  paths  [访问路径数组]
 	 */
-	op.rewriteMethods = function(array, paths) {
+	op.rewriteMethods = function (array, paths) {
 		var arrayProto = Array.prototype;
 		var arrayMethods = Object.create(arrayProto);
 		var path = paths && paths.join('*');
 
-		util.each(this.$methods, function(method) {
+		util.each(this.$methods, function (method) {
 			var self = this, original = arrayProto[method];
-			util.defRec(arrayMethods, method, function _redefineArrayMethod() {
+			util.defRec(arrayMethods, method, function _redefineArrayMethod () {
 				var arguments$1 = arguments;
 
 				var i = arguments.length, result;
@@ -1247,7 +1247,7 @@
 		}, this);
 
 		// 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
-		util.defRec(arrayMethods, '$set', function $set(index, value) {
+		util.defRec(arrayMethods, '$set', function $set (index, value) {
 			// 超出数组长度默认在最后添加（相当于 push）
 			if (index >= this.length) {
 				index = this.length;
@@ -1257,7 +1257,7 @@
 		});
 
 		// 添加 $remove 方法
-		util.defRec(arrayMethods, '$remove', function $remove(item) {
+		util.defRec(arrayMethods, '$remove', function $remove (item) {
 			var index = this.indexOf(item);
 
 			if (index !== -1) {
@@ -1275,21 +1275,21 @@
 	 * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
 	 * @param   {Array}        args      [数组操作时的参数]
 	 */
-	op.trigger = function(path, last, old, args) {
+	op.trigger = function (path, last, old, args) {
 		this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
 	}
 
 	/**
 	 * 销毁函数
 	 */
-	op.destroy = function() {
+	op.destroy = function () {
 		this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
 	}
 
 	/**
 	 * watcher 数据订阅模块
 	 */
-	function Watcher(model) {
+	function Watcher (model) {
 		this.$model = model;
 
 		// 数据模型订阅集合
@@ -1316,7 +1316,7 @@
 	 * @param   {Mix}     old
 	 * @param   {Array}   args
 	 */
-	wp.change = function(path, last, old, args) {
+	wp.change = function (path, last, old, args) {
 		var isAccess = path.indexOf('*') !== -1;
 		var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 		this.trigger(subs, path, last, old, args);
@@ -1335,8 +1335,8 @@
 	 * @param   {Mix}     old
 	 * @param   {Array}   args
 	 */
-	wp.trigger = function(subs, path, last, old, args) {
-		util.each(subs, function(sub) {
+	wp.trigger = function (subs, path, last, old, args) {
+		util.each(subs, function (sub) {
 			sub.cb.call(sub.ct, path, last, old, args || sub.arg);
 		});
 	}
@@ -1348,13 +1348,13 @@
 	 * @param   {Object}    context
 	 * @param   {Array}     args
 	 */
-	wp.watch = function(depends, callback, context, args) {
+	wp.watch = function (depends, callback, context, args) {
 		// 依赖的数据模型
 		var depModels = depends.dep;
 		// 依赖的访问路径
 		var depAccess = depends.acc;
 
-		util.each(depModels, function(model, index) {
+		util.each(depModels, function (model, index) {
 			var access = depAccess[index];
 
 			// 暂时只有这一个需要忽略的关键字
@@ -1388,7 +1388,7 @@
 	 * @param  {Array}     args
 	 * @param  {Boolean}   deep
 	 */
-	wp.watchModel = function(field, callback, context, args, deep) {
+	wp.watchModel = function (field, callback, context, args, deep) {
 		if (!util.hasOwn(this.$model, field)) {
 			return util.warn('the field: [' + field + '] does not exist in model');
 		}
@@ -1412,7 +1412,7 @@
 	 * @param  {Object}    context
 	 * @param  {Array}     args
 	 */
-	wp.watchAccess = function(access, callback, context, args) {
+	wp.watchAccess = function (access, callback, context, args) {
 		this.addSubs(this.$accessSubs, access, callback, context, args);
 	}
 
@@ -1423,14 +1423,14 @@
 	 * @param  {Object}    context
 	 * @param  {Array}     args
 	 */
-	wp.watchIndex = function(access, callback, context, args) {
+	wp.watchIndex = function (access, callback, context, args) {
 		this.addSubs(this.$indexSubs, access, callback, context, args);
 	}
 
 	/**
 	 * 缓存订阅回调
 	 */
-	wp.addSubs = function(subs, identifier, callback, context, args) {
+	wp.addSubs = function (subs, identifier, callback, context, args) {
 		// 缓存回调函数
 		if (!subs[identifier]) {
 			subs[identifier] = [];
@@ -1446,15 +1446,15 @@
 	/**
 	 * 移除指定的访问路径/下标订阅(重新编译 vfor)
 	 */
-	wp.removeSubs = function(field) {
+	wp.removeSubs = function (field) {
 		// 下标
-		util.each(this.$indexSubs, function(sub, index) {
+		util.each(this.$indexSubs, function (sub, index) {
 			if (index.indexOf(field) === 0) {
 				return null;
 			}
 		});
 		// 访问路径
-		util.each(this.$accessSubs, function(sub, access) {
+		util.each(this.$accessSubs, function (sub, access) {
 			if (access.indexOf(field) === 0) {
 				return null;
 			}
@@ -1466,7 +1466,7 @@
 	 * @param   {String}  field     [数组字段]
 	 * @param   {String}  moveMap   [移位的映射关系]
 	 */
-	wp.moveSubs = function(field, moveMap, method) {
+	wp.moveSubs = function (field, moveMap, method) {
 		// 数组字段标识
 		var prefix = field + '*';
 		// 移位下标
@@ -1479,13 +1479,13 @@
 	 * 移位下标订阅集合
 	 * 移位的过程需要触发所有回调以更改每一个 $index
 	 */
-	wp.moveIndex = function(prefix, moveMap) {
+	wp.moveIndex = function (prefix, moveMap) {
 		var dest = {};
 		var subs = this.$indexSubs;
 		var caches = util.copy(subs);
 
 		// 根据结果映射 移位下标
-		util.each(moveMap, function(move, index) {
+		util.each(moveMap, function (move, index) {
 			var udf;
 			var nowIndex = prefix + index;
 			var moveIndex = prefix + move;
@@ -1499,9 +1499,9 @@
 		});
 
 		// 触发 $index 变更
-		util.each(dest, function(subs, index) {
+		util.each(dest, function (subs, index) {
 			var i = +index.substr(prefix.length);
-			util.each(subs, function(sub) {
+			util.each(subs, function (sub) {
 				sub.cb.call(sub.ct, '$index', i, sub.arg);
 			});
 		});
@@ -1516,20 +1516,20 @@
 	 * 移位访问路径订阅集合
 	 * 移位的过程不需要触发回调
 	 */
-	wp.moveAccess = function(prefix, moveMap) {
+	wp.moveAccess = function (prefix, moveMap) {
 		var dest = {};
 		var subs = this.$accessSubs;
 		var caches = util.copy(subs);
 
 		// 根据结果映射 移位访问路径
-		util.each(moveMap, function(move, index) {
+		util.each(moveMap, function (move, index) {
 			var udf;
 			var befores = [], afters = [];
 			var nowIndex = prefix + index;
 			var moveIndex = prefix + move;
 
 			// 提取出替换前后的访问路径集合
-			util.each(subs, function(sub, access) {
+			util.each(subs, function (sub, access) {
 				if (move === udf && access.indexOf(nowIndex) === 0) {
 					afters.push(udf);
 					befores.push(access);
@@ -1541,7 +1541,7 @@
 			});
 
 			// 进行替换
-			util.each(befores, function(before, index) {
+			util.each(befores, function (before, index) {
 				var after = afters[index];
 
 				// 被挤掉的设为 undefined
@@ -1563,7 +1563,7 @@
 	/**
 	 * 销毁函数
 	 */
-	wp.destroy = function() {
+	wp.destroy = function () {
 		util.clear(this.$modelSubs);
 		util.clear(this.$accessSubs);
 		util.clear(this.$indexSubs);
@@ -1595,13 +1595,13 @@
 	 * @param   {String}   expression
 	 * @return  {Boolean}
 	 */
-	function isNormal(expression) {
+	function isNormal (expression) {
 		return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
 	}
 
 	// 保存常量，返回序号 "i"
 	var consts = [];
-	function saveConst(string) {
+	function saveConst (string) {
 		var i = consts.length;
 		consts[i] = string;
 		return '"' + i + '"';
@@ -1613,7 +1613,7 @@
 	 * @param   {Number}  i
 	 * @return  {String}
 	 */
-	function returnConst(string, i) {
+	function returnConst (string, i) {
 		return consts[i];
 	}
 
@@ -1622,7 +1622,7 @@
 	 * @param   {String}  string
 	 * @return  {String}
 	 */
-	function replaceScope(string) {
+	function replaceScope (string) {
 		var pad = string.charAt(0);
 		var path = string.slice(1);
 
@@ -1641,7 +1641,7 @@
 	 * @param   {String}  expression   <必选>
 	 * @return  {String}
 	 */
-	function getAlias(fors, expression) {
+	function getAlias (fors, expression) {
 		var alias, exp = expression;
 
 		if (exp.indexOf(fors.alias) !== -1) {
@@ -1649,7 +1649,7 @@
 		}
 
 		// 跨层级的别名
-		util.each(fors.aliases, function(_alias) {
+		util.each(fors.aliases, function (_alias) {
 			if ((new RegExp('\\b' + _alias + '\\b|\\b'+ _alias +'\\.')).test(exp)) {
 				alias = _alias;
 				return false;
@@ -1659,13 +1659,13 @@
 		return alias;
 	}
 
-	function noop() {}
+	function noop () {}
 
 
 	/**
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
 	 */
-	function Parser() {}
+	function Parser () {}
 	var p = Parser.prototype;
 
 	/**
@@ -1674,7 +1674,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      expression
 	 */
-	p.bind = function(fors, node, expression) {
+	p.bind = function (fors, node, expression) {
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 取值域
@@ -1688,7 +1688,7 @@
 		this.update(node, getter.call(scope, scope));
 
 		// 监测依赖变化，更新取值 & 视图
-		this.vm.watcher.watch(deps, function() {
+		this.vm.watcher.watch(deps, function () {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.update(node, getter.call(scope, scope));
 		}, this);
@@ -1699,7 +1699,7 @@
 	 * @param   {String}    expression
 	 * @return  {Function}
 	 */
-	p.createGetter = function(expression) {
+	p.createGetter = function (expression) {
 		try {
 			return new Function('scope', 'return ' + expression + ';');
 		}
@@ -1712,7 +1712,7 @@
 	/**
 	 * 获取表达式的取值函数
 	 */
-	p.getEval = function(fors, expression) {
+	p.getEval = function (fors, expression) {
 		if (regAviodKeyword.test(expression)) {
 			util.warn('Avoid using unallow keyword in expression ['+ expression +']');
 			return noop;
@@ -1722,9 +1722,9 @@
 
 		// 替换 vfor 取值域别名
 		if (fors) {
-			util.each(fors.aliases, function(alias) {
+			util.each(fors.aliases, function (alias) {
 				var reg = new RegExp('scope.' + alias, 'g');
-				expression = expression.replace(reg, function(scope) {
+				expression = expression.replace(reg, function (scope) {
 					return 'scope.$' + scope;
 				});
 			});
@@ -1737,7 +1737,7 @@
 	 * 转换表达式的变量为 scope 关键字参数
 	 * @return  {String}
 	 */
-	p.toScope = function(expression) {
+	p.toScope = function (expression) {
 		var exp = expression;
 
 		if (isNormal(exp)) {
@@ -1755,7 +1755,7 @@
 	 * 获取数据模型
 	 * @return  {Object}
 	 */
-	p.getModel = function() {
+	p.getModel = function () {
 		return this.vm.$data;
 	}
 
@@ -1765,7 +1765,7 @@
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getScope = function(fors, expression) {
+	p.getScope = function (fors, expression) {
 		var model = this.getModel();
 
 		if (fors) {
@@ -1784,7 +1784,7 @@
 	 * @param   {Array}   args       [变更参数]
 	 * @return  {Mix}
 	 */
-	p.updateScope = function(oldScope, maps, deps, args) {
+	p.updateScope = function (oldScope, maps, deps, args) {
 		var leng = 0, $scope = {};
 		var model = this.getModel();
 		var targetPaths, scopePaths;
@@ -1792,7 +1792,7 @@
 
 		// 获取最深层的依赖
 		accesses.unshift(args[0]);
-		util.each(accesses, function(access) {
+		util.each(accesses, function (access) {
 			var paths = util.makePaths(access);
 			if (paths.length > leng) {
 				targetPaths = paths;
@@ -1805,7 +1805,7 @@
 			// 取值路径数组
 			scopePaths = util.makeScopePaths(targetPaths);
 			// 对每一个取值路径进行更新
-			util.each(scopePaths, function(paths) {
+			util.each(scopePaths, function (paths) {
 				var leng = paths.length;
 
 				// 更新下标的情况通过变更参数来确定
@@ -1833,13 +1833,13 @@
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getDeps = function(fors, expression) {
+	p.getDeps = function (fors, expression) {
 		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 		var depMatches = exp.match(regReplaceScope);
 
 		// 提取依赖和依赖的访问路径
-		util.each(depMatches, function(dep) {
+		util.each(depMatches, function (dep) {
 			var model = dep.substr(1);
 			var alias, hasIndex, access, valAccess;
 
@@ -1885,7 +1885,7 @@
 	 * @param   {String}  funcString
 	 * @return  {Object}
 	 */
-	function stringToParams(funcString) {
+	function stringToParams (funcString) {
 		var args, func;
 		var exp = util.removeSpace(funcString);
 		var matches = exp.match(/(\(.*\))/);
@@ -1912,7 +1912,7 @@
 	 * @param   {String}  jsonString
 	 * @return  {Object}
 	 */
-	function convertJson(jsonString) {
+	function convertJson (jsonString) {
 		var json, string = jsonString.trim();
 
 		if (/^\{.*\}$/.test(string)) {
@@ -1921,7 +1921,7 @@
 			string = string.substr(1, leng - 2).replace(/\s/g, '');
 			var props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
 
-			util.each(props, function(prop) {
+			util.each(props, function (prop) {
 				var vals = util.getKeyValue(prop, true);
 				var name = vals[0], value = vals[1];
 				if (name && value) {
@@ -1938,7 +1938,7 @@
 	/**
 	 * v-on 指令解析模块
 	 */
-	function Von(vm) {
+	function Von (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -1951,7 +1951,7 @@
 	 * @param   {String}      expression  [指令表达式]
 	 * @param   {String}      directive   [指令名称]
 	 */
-	von.parse = function(fors, node, expression, directive) {
+	von.parse = function (fors, node, expression, directive) {
 		// 单个事件
 		if (directive.indexOf(':') !== -1) {
 			this.parseSingle.apply(this, arguments);
@@ -1965,7 +1965,7 @@
 	/**
 	 * 解析单个 v-on:type
 	 */
-	von.parseSingle = function(fors, node, expression, directive) {
+	von.parseSingle = function (fors, node, expression, directive) {
 		// 事件信息
 		var info = stringToParams(expression);
 		// 事件类型
@@ -1985,7 +1985,7 @@
 		this.bindEvent(fors, node, field, type, func, paramString);
 
 		// 监测依赖变化，绑定新回调，旧回调将被移除
-		this.vm.watcher.watch(deps, function(path, lastCallback, oldCallback) {
+		this.vm.watcher.watch(deps, function (path, lastCallback, oldCallback) {
 			// 解除绑定
 			this.update(node, type, oldCallback, false, true);
 			// 绑定新回调
@@ -1996,8 +1996,8 @@
 	/**
 	 * 解析多个 v-on=eventJson
 	 */
-	von.parseJson = function(fors, node, expression) {
-		util.each(convertJson(expression), function(exp, type) {
+	von.parseJson = function (fors, node, expression) {
+		util.each(convertJson(expression), function (exp, type) {
 			this.parseSingle(fors, node, exp, type);
 		}, this);
 	}
@@ -2011,7 +2011,7 @@
 	 * @param   {Function}    func
 	 * @param   {String}      paramString
 	 */
-	von.bindEvent = function(fors, node, field, evt, func, paramString) {
+	von.bindEvent = function (fors, node, field, evt, func, paramString) {
 		var self, stop, prevent, keyCode, capture = false;
 
 		if (!util.isFunc(func)) {
@@ -2045,14 +2045,14 @@
 			// 事件参数
 			args = getter.call(scope, scope);
 
-			this.vm.watcher.watch(deps, function() {
+			this.vm.watcher.watch(deps, function () {
 				scope = this.updateScope(scope, maps, deps, arguments);
 				args = getter.call(scope, scope);
 			}, this);
 		}
 
 		// 事件代理函数
-		var eventProxy = function _eventProxy(e) {
+		var eventProxy = function _eventProxy (e) {
 			// 是否限定只能在当前节点触发事件
 			if (self && e.target !== node) {
 				return;
@@ -2069,7 +2069,7 @@
 			}
 			else {
 				// 更新/替换事件对象
-				util.each(args, function(param, index) {
+				util.each(args, function (param, index) {
 					if (param === '$event' || param instanceof Event) {
 						args[index] = e;
 					}
@@ -2100,7 +2100,7 @@
 	 * @param   {Function}     callback
 	 * @param   {Boolean}      capture
 	 */
-	von.update = function() {
+	von.update = function () {
 		var updater = this.vm.updater;
 		updater.updateEvent.apply(updater, arguments);
 	}
@@ -2108,7 +2108,7 @@
 	/**
 	 * v-el 指令解析模块
 	 */
-	function Vel(vm) {
+	function Vel (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2120,7 +2120,7 @@
 	 * @param   {DOMElement}  node    [注册节点]
 	 * @param   {String}      value   [注册字段]
 	 */
-	vel.parse = function(fors, node, value) {
+	vel.parse = function (fors, node, value) {
 		if (fors) {
 			var alias = util.getExpAlias(value);
 
@@ -2144,7 +2144,7 @@
 	/**
 	 * v-if 指令解析模块
 	 */
-	function Vif(vm) {
+	function Vif (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2156,7 +2156,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vif.parse = function() {
+	vif.parse = function () {
 		this.bind.apply(this, arguments);
 	}
 
@@ -2165,7 +2165,7 @@
 	 * @param   {DOMElement}   node
 	 * @param   {Boolean}      isRender
 	 */
-	vif.update = function() {
+	vif.update = function () {
 		var updater = this.vm.updater;
 		updater.updateRenderContent.apply(updater, arguments);
 	}
@@ -2173,7 +2173,7 @@
 	/**
 	 * v-for 指令解析模块
 	 */
-	function Vfor(vm) {
+	function Vfor (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2185,7 +2185,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vfor.parse = function(fors, node, expression) {
+	vfor.parse = function (fors, node, expression) {
 		var vm = this.vm;
 		var match = expression.match(/(.*) in (.*)/);
 		var alias = match[1];
@@ -2253,13 +2253,13 @@
 
 		// 监测根数组的数组操作
 		if (!fors) {
-			watcher.watchModel(loopAccess, function(path, last, method, args) {
+			watcher.watchModel(loopAccess, function (path, last, method, args) {
 				this.update(parent, node, last, method, updates, args);
 			}, this);
 		}
 		// 监测嵌套数组的操作
 		else {
-			watcher.watchAccess(loopAccess, function(path, last, method, args) {
+			watcher.watchAccess(loopAccess, function (path, last, method, args) {
 				this.update(parent, node, last, method, updates, args);
 			}, this);
 		}
@@ -2270,7 +2270,7 @@
 	 * @param   {Select}  select
 	 * @param   {Object}  fors
 	 */
-	vfor.updateOption = function(select, fors) {
+	vfor.updateOption = function (select, fors) {
 		var model = select._vmodel;
 		var getter = this.getEval(fors, model);
 		var scope = this.getScope(fors, model);
@@ -2292,11 +2292,11 @@
 	 * @param   {Number}      level     [当前循环层级]
 	 * @return  {Fragment}              [板块文档碎片集合]
 	 */
-	vfor.buildList = function(node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
+	vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 		var vm = this.vm;
 		var fragments = util.createFragment();
 
-		util.each(array, function(scope, i) {
+		util.each(array, function (scope, i) {
 			var index = start + i;
 			var field = paths.split('*').pop();
 			var cloneNode = node.cloneNode(true);
@@ -2347,7 +2347,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      alias
 	 */
-	vfor.signAlias = function(node, alias) {
+	vfor.signAlias = function (node, alias) {
 		util.def(node, '_vfor_alias', alias);
 	}
 
@@ -2360,7 +2360,7 @@
 	 * @param   {Array}       updates   [更新信息]
 	 * @param   {Array}       args      [数组操作参数]
 	 */
-	vfor.update = function(parent, node, newArray, method, updates, args) {
+	vfor.update = function (parent, node, newArray, method, updates, args) {
 		switch (method) {
 			case 'push':
 				this.push.apply(this, arguments);
@@ -2387,7 +2387,7 @@
 	 * @param   {Object}  update
 	 * @return  {Object}
 	 */
-	vfor.updateScopes = function(update) {
+	vfor.updateScopes = function (update) {
 		var scopes = update.scopes;
 		var accesses = update.accesses;
 		var aleng = accesses.length;
@@ -2398,7 +2398,7 @@
 			var model = this.vm.$data;
 			var targetPaths = util.makePaths(accesses[aleng - 1]);
 			// 对每一个取值域进行更新
-			util.each(util.makeScopePaths(targetPaths), function(paths) {
+			util.each(util.makeScopePaths(targetPaths), function (paths) {
 				var index = paths.length - 2;
 				var alias = maps[paths[index]];
 				var scope = util.getDeepValue(model, paths) || {};
@@ -2415,7 +2415,7 @@
 	 * @param   {Number}  length  [新数组长度]
 	 * @return  {Object}          [新数组下标的变化映射]
 	 */
-	vfor.getChanges = function(method, length) {
+	vfor.getChanges = function (method, length) {
 		var i, udf, map = {};
 
 		switch (method) {
@@ -2439,7 +2439,7 @@
 	/**
 	 * 在循环体的最后追加一条数据 array.push
 	 */
-	vfor.push = function(parent, node, newArray, method, up) {
+	vfor.push = function (parent, node, newArray, method, up) {
 		var last = newArray.length - 1;
 		var alias = up.alias;
 		var list = [newArray[last]];
@@ -2460,7 +2460,7 @@
 	/**
 	 * 移除循环体的最后一条数据 array.pop
 	 */
-	vfor.pop = function(parent, node, newArray, method, updates) {
+	vfor.pop = function (parent, node, newArray, method, updates) {
 		var lastChild = this.getLast(parent, updates.alias);
 		if (lastChild) {
 			parent.removeChild(lastChild);
@@ -2470,7 +2470,7 @@
 	/**
 	 * 在循环体最前面追加一条数据 array.unshift
 	 */
-	vfor.unshift = function(parent, node, newArray, method, up) {
+	vfor.unshift = function (parent, node, newArray, method, up) {
 		var alias = up.alias;
 		var list = [newArray[0]];
 		var map, template, firstChild;
@@ -2491,7 +2491,7 @@
 	/**
 	 * 移除循环体的第一条数据 array.shift
 	 */
-	vfor.shift = function(parent, node, newArray, method, updates) {
+	vfor.shift = function (parent, node, newArray, method, updates) {
 		var map = this.getChanges(method, newArray.length);
 		var firstChild = this.getFirst(parent, updates.alias);
 		if (firstChild) {
@@ -2504,7 +2504,7 @@
 	/**
 	 * 删除/替换循环体的指定数据 array.splice
 	 */
-	vfor.splice = function(parent, node, newArray, method, up, args) {
+	vfor.splice = function (parent, node, newArray, method, up, args) {
 		// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
 		var start = args.shift();
 		// 整数，表示要移除的数组元素的个数。
@@ -2587,7 +2587,7 @@
 	 * @param   {String}      alias   [循环体对象别名]
 	 * @return  {FirstChild}
 	 */
-	vfor.getFirst = function(parent, alias) {
+	vfor.getFirst = function (parent, alias) {
 		var firstChild = null;
 		var childNodes = parent.childNodes;
 
@@ -2608,7 +2608,7 @@
 	 * @param   {String}      alias    [循环体对象别名]
 	 * @return  {LastChild}
 	 */
-	vfor.getLast = function(parent, alias) {
+	vfor.getLast = function (parent, alias) {
 		var lastChild = null;
 		var childNodes = parent.childNodes;
 
@@ -2630,7 +2630,7 @@
 	 * @param   {Number}      index   [子节点下标]
 	 * @return  {DOMElement}
 	 */
-	vfor.getChild = function(parent, alias, index) {
+	vfor.getChild = function (parent, alias, index) {
 		var e = 0, target = null;
 		var childNodes = parent.childNodes;
 
@@ -2655,7 +2655,7 @@
 	 * @param   {Number}      start       [删除的下标起点]
 	 * @param   {Number}      deleteCont  [删除个数]
 	 */
-	vfor.removeEl = function(parent, alias, start, deleteCont) {
+	vfor.removeEl = function (parent, alias, start, deleteCont) {
 		var e = -1, scapegoats = [];
 		var childNodes = parent.childNodes;
 
@@ -2670,7 +2670,7 @@
 			}
 		}
 
-		util.each(scapegoats, function(scapegoat) {
+		util.each(scapegoats, function (scapegoat) {
 			parent.removeChild(scapegoat);
 			return null;
 		});
@@ -2679,7 +2679,7 @@
 	/**
 	 * 重新编译循环体
 	 */
-	vfor.recompile = function(parent, node, newArray, method, up) {
+	vfor.recompile = function (parent, node, newArray, method, up) {
 		var scapegoat, alias = up.alias;
 		var childNodes = parent.childNodes;
 		var scopes = this.updateScopes(up);
@@ -2716,7 +2716,7 @@
 	/**
 	 * v-text 指令解析模块
 	 */
-	function Vtext(vm) {
+	function Vtext (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2728,7 +2728,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vtext.parse = function() {
+	vtext.parse = function () {
 		this.bind.apply(this, arguments);
 	}
 
@@ -2737,7 +2737,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      text
 	 */
-	vtext.update = function() {
+	vtext.update = function () {
 		var updater = this.vm.updater;
 		updater.updateTextContent.apply(updater, arguments);
 	}
@@ -2745,7 +2745,7 @@
 	/**
 	 * v-html 指令解析模块
 	 */
-	function Vhtml(vm) {
+	function Vhtml (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2757,7 +2757,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vhtml.parse = function(fors, node, expression) {
+	vhtml.parse = function (fors, node, expression) {
 		this.bind.apply(this, [fors, (this.vm.isTextNode(node) ? node.parentNode : node), expression]);
 	}
 
@@ -2766,7 +2766,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      html
 	 */
-	vhtml.update = function() {
+	vhtml.update = function () {
 		var updater = this.vm.updater;
 		updater.updateHtmlContent.apply(updater, arguments);
 	}
@@ -2774,7 +2774,7 @@
 	/**
 	 * v-show 指令解析模块
 	 */
-	function Vshow(vm) {
+	function Vshow (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2786,7 +2786,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vshow.parse = function() {
+	vshow.parse = function () {
 		this.bind.apply(this, arguments);
 	}
 
@@ -2795,7 +2795,7 @@
 	 * @param   {DOMElement}   node
 	 * @param   {Boolean}      isShow
 	 */
-	vshow.update = function() {
+	vshow.update = function () {
 		var updater = this.vm.updater;
 		updater.updateDisplay.apply(updater, arguments);
 	}
@@ -2803,7 +2803,7 @@
 	/**
 	 * v-bind for class 指令解析模块
 	 */
-	function VClass(vm) {
+	function VClass (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2815,7 +2815,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vclass.parse = function(fors, node, expression) {
+	vclass.parse = function (fors, node, expression) {
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 取值域
@@ -2830,7 +2830,7 @@
 		this.updateClass(node, value);
 
 		// 监测依赖
-		this.vm.watcher.watch(deps, function(path, last, old) {
+		this.vm.watcher.watch(deps, function (path, last, old) {
 			scope = this.updateScope(scope, maps, deps, arguments);
 
 			if (util.isArray(value)) {
@@ -2853,20 +2853,20 @@
 	 * @param   {String|Array|Object}  classValue
 	 * @param   {Boolean}              remove
 	 */
-	vclass.updateClass = function(node, classValue, remove) {
+	vclass.updateClass = function (node, classValue, remove) {
 		// single class
 		if (util.isString(classValue)) {
 			this.update(node, (remove ? null : classValue), (remove ? classValue : null));
 		}
 		// [classA, classB]
 		else if (util.isArray(classValue)) {
-			util.each(classValue, function(cls) {
+			util.each(classValue, function (cls) {
 				this.update(node, (remove ? null : cls), (remove ? cls : null));
 			}, this);
 		}
 		// classObject
 		else if (util.isObject(classValue)) {
-			util.each(classValue, function(isAdd, cls) {
+			util.each(classValue, function (isAdd, cls) {
 				this.update(node, (remove ? false : isAdd), false, cls);
 			}, this);
 		}
@@ -2879,7 +2879,7 @@
 	 * @param   {String|Boolean}      oldcls
 	 * @param   {String}              classname
 	 */
-	vclass.update = function() {
+	vclass.update = function () {
 		var updater = this.vm.updater;
 		updater.updateClassName.apply(updater, arguments);
 	}
@@ -2887,7 +2887,7 @@
 	/**
 	 * v-bind for style 指令解析模块
 	 */
-	function VStyle(vm) {
+	function VStyle (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -2899,7 +2899,7 @@
 	 * @param   {DOMElement}  node        [指令节点]
 	 * @param   {String}      expression  [指令表达式]
 	 */
-	vstyle.parse = function(fors, node, expression) {
+	vstyle.parse = function (fors, node, expression) {
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 取值域
@@ -2914,11 +2914,11 @@
 		this.updateStyle(node, styleObject);
 
 		// 监测依赖变化
-		this.vm.watcher.watch(deps, function(path, last, old) {
+		this.vm.watcher.watch(deps, function (path, last, old) {
 			// 替换整个 styleObject
 			if (util.isObject(old)) {
 				// 移除旧样式(设为 null)
-				util.each(old, function(v, style) {
+				util.each(old, function (v, style) {
 					old[style] = null;
 				});
 				this.updateStyle(node, util.extend(last, old));
@@ -2936,12 +2936,12 @@
 	 * @param   {Object}      styleObject
 	 * @param   {Boolean}     remove        [是否全部移除]
 	 */
-	vstyle.updateStyle = function(node, styleObject, remove) {
+	vstyle.updateStyle = function (node, styleObject, remove) {
 		if (!util.isObject(styleObject)) {
 			return util.warn('Bind for style must be a type of Object', styleObject);
 		}
 
-		util.each(styleObject, function(value, style) {
+		util.each(styleObject, function (value, style) {
 			this.update(node, style, (remove ? null : value));
 		}, this);
 	}
@@ -2952,7 +2952,7 @@
 	 * @param   {String}       style
 	 * @param   {String}       value
 	 */
-	vstyle.update = function() {
+	vstyle.update = function () {
 		var updater = this.vm.updater;
 		updater.updateStyle.apply(updater, arguments);
 	}
@@ -2960,7 +2960,7 @@
 	/**
 	 * v-bind 指令解析模块
 	 */
-	function Vbind(vm) {
+	function Vbind (vm) {
 		this.vm = vm;
 		this.vclass = new VClass(vm);
 		this.vstyle = new VStyle(vm);
@@ -2975,7 +2975,7 @@
 	 * @param   {String}      expression  [指令表达式]
 	 * @param   {String}      directive   [指令名称]
 	 */
-	vbind.parse = function(fors, node, expression, directive) {
+	vbind.parse = function (fors, node, expression, directive) {
 		// 单个 attribute
 		if (directive.indexOf(':') !== -1) {
 			var vclass = this.vclass;
@@ -3006,7 +3006,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      jsonString
 	 */
-	vbind.parseJson = function(fors, node, jsonString) {
+	vbind.parseJson = function (fors, node, jsonString) {
 		// 提取依赖
 		var deps = this.getDeps(fors, jsonString);
 		// 取值域
@@ -3021,7 +3021,7 @@
 		this.updateJson(node, jsonAttr);
 
 		// 监测依赖变化
-		this.vm.watcher.watch(deps, function(path, last, old) {
+		this.vm.watcher.watch(deps, function (path, last, old) {
 			var different, newJsonAttr;
 
 			// 更新取值
@@ -3047,11 +3047,11 @@
 	 * @param   {Json}        json
 	 * @param   {Boolean}     remove
 	 */
-	vbind.updateJson = function(node, jsonAttrs, remove) {
+	vbind.updateJson = function (node, jsonAttrs, remove) {
 		var vclass = this.vclass;
 		var vstyle = this.vstyle;
 
-		util.each(jsonAttrs, function(value, type) {
+		util.each(jsonAttrs, function (value, type) {
 			switch (type) {
 				case 'class':
 					vclass.updateClass(node, value, remove);
@@ -3072,7 +3072,7 @@
 	 * @param   {String}       expression
 	 * @param   {String}       attr
 	 */
-	vbind.parseAttr = function(fors, node, expression, attr) {
+	vbind.parseAttr = function (fors, node, expression, attr) {
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 取值域
@@ -3085,7 +3085,7 @@
 		this.update(node, attr, getter.call(scope, scope));
 
 		// 监测依赖变化
-		this.vm.watcher.watch(deps, function() {
+		this.vm.watcher.watch(deps, function () {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.update(node, attr, getter.call(scope, scope));
 		}, this);
@@ -3097,7 +3097,7 @@
 	 * @param   {String}       name
 	 * @param   {String}       value
 	 */
-	vbind.update = function() {
+	vbind.update = function () {
 		var updater = this.vm.updater;
 		updater.updateAttribute.apply(updater, arguments);
 	}
@@ -3108,7 +3108,7 @@
 	 * @param   {Mix}          value
 	 * @return  {Mix}
 	 */
-	function formatValue(node, value) {
+	function formatValue (node, value) {
 		return dom.hasAttr(node, 'number') ? +value : value;
 	}
 
@@ -3117,7 +3117,7 @@
 	 * @param   {Select}  select
 	 * @return  {Array}
 	 */
-	function getSelecteds(select) {
+	function getSelecteds (select) {
 		var sels = [];
 		var options = select.options;
 		var getNumber = dom.hasAttr(select, 'number');
@@ -3137,7 +3137,7 @@
 	/**
 	 * v-model 指令解析模块
 	 */
-	function Vmodel(vm) {
+	function Vmodel (vm) {
 		this.vm = vm;
 		Parser.call(this);
 	}
@@ -3149,7 +3149,7 @@
 	 * @param   {DOMElement}  node    [指令节点]
 	 * @param   {String}      field   [双向绑定的字段]
 	 */
-	vmodel.parse = function(fors, node, field) {
+	vmodel.parse = function (fors, node, field) {
 		var vm = this.vm;
 		var inputs = vm.$inputs;
 		var tagName = node.tagName.toLowerCase();
@@ -3187,7 +3187,7 @@
 	/**
 	 * v-model for text, textarea
 	 */
-	vmodel.parseText = function(node, value, deps, duplex, field) {
+	vmodel.parseText = function (node, value, deps, duplex, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -3195,7 +3195,7 @@
 		updater.updateTextValue(node, value);
 
 		// 订阅依赖监听
-		vm.watcher.watch(deps, function(path, last) {
+		vm.watcher.watch(deps, function (path, last) {
 			updater.updateTextValue(node, last);
 		}, this);
 
@@ -3209,27 +3209,27 @@
 	 * @param   {Object}   duplex
 	 * @param   {String}   field
 	 */
-	vmodel.bindTextEvent = function(node, duplex, field) {
+	vmodel.bindTextEvent = function (node, duplex, field) {
 		var composeLock;
 
 		// 解决中文输入时 input 事件在未选择词组时的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
-		dom.addEvent(node, 'compositionstart', function() {
+		dom.addEvent(node, 'compositionstart', function () {
 			composeLock = true;
 		});
-		dom.addEvent(node, 'compositionend', function() {
+		dom.addEvent(node, 'compositionend', function () {
 			composeLock = false;
 		});
 
 		// input 事件(实时触发)
-		dom.addEvent(node, 'input', function() {
+		dom.addEvent(node, 'input', function () {
 			if (!composeLock) {
 				duplex[field] = this.value;
 			}
 		});
 
 		// change 事件(失去焦点触发)
-		dom.addEvent(node, 'change', function() {
+		dom.addEvent(node, 'change', function () {
 			duplex[field] = this.value;
 		});
 	}
@@ -3237,7 +3237,7 @@
 	/**
 	 * v-model for radio
 	 */
-	vmodel.parseRadio = function(node, value, deps, duplex, field) {
+	vmodel.parseRadio = function (node, value, deps, duplex, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -3250,7 +3250,7 @@
 		updater.updateRadioChecked(node, value);
 
 		// 订阅依赖监听
-		vm.watcher.watch(deps, function(path, last) {
+		vm.watcher.watch(deps, function (path, last) {
 			updater.updateRadioChecked(node, last);
 		}, this);
 
@@ -3264,8 +3264,8 @@
 	 * @param   {Object}   duplex
 	 * @param   {String}   field
 	 */
-	vmodel.bindRadioEvent = function(node, duplex, field) {
-		dom.addEvent(node, 'change', function() {
+	vmodel.bindRadioEvent = function (node, duplex, field) {
+		dom.addEvent(node, 'change', function () {
 			duplex[field] = formatValue(this, this.value);
 		});
 	}
@@ -3273,7 +3273,7 @@
 	/**
 	 * v-model for checkbox
 	 */
-	vmodel.parseCheckbox = function(node, value, deps, duplex, field) {
+	vmodel.parseCheckbox = function (node, value, deps, duplex, field) {
 		var vm = this.vm;
 		var updater = vm.updater;
 
@@ -3291,7 +3291,7 @@
 		updater.updateCheckboxChecked(node, value);
 
 		// 订阅依赖监听
-		vm.watcher.watch(deps, function(path, last) {
+		vm.watcher.watch(deps, function (path, last) {
 			updater.updateCheckboxChecked(node, last);
 		}, this);
 
@@ -3306,8 +3306,8 @@
 	 * @param   {String}          field
 	 * @param   {Array|Boolean}   value
 	 */
-	vmodel.bindCheckboxEvent = function(node, duplex, field, value) {
-		dom.addEvent(node, 'change', function() {
+	vmodel.bindCheckboxEvent = function (node, duplex, field, value) {
+		dom.addEvent(node, 'change', function () {
 			var checked = this.checked;
 
 			if (util.isBool(value)) {
@@ -3335,7 +3335,7 @@
 	/**
 	 * v-model for select
 	 */
-	vmodel.parseSelect = function(node, value, deps, duplex, field) {
+	vmodel.parseSelect = function (node, value, deps, duplex, field) {
 		var isDefined;
 		var updater = this.vm.updater;
 		var multi = dom.hasAttr(node, 'multiple');
@@ -3369,7 +3369,7 @@
 		}
 
 		// 订阅依赖监测
-		this.vm.watcher.watch(deps, function(path, last) {
+		this.vm.watcher.watch(deps, function (path, last) {
 			updater.updateSelectChecked(node, last, multi);
 		});
 
@@ -3384,8 +3384,8 @@
 	 * @param   {String}    field
 	 * @param   {Boolean}   multi
 	 */
-	vmodel.bindSelectEvent = function(node, duplex, field, multi) {
-		dom.addEvent(node, 'change', function() {
+	vmodel.bindSelectEvent = function (node, duplex, field, multi) {
+		dom.addEvent(node, 'change', function () {
 			var selects = getSelecteds(this);
 			duplex[field] =  multi ? selects : selects[0];
 		});
@@ -3396,7 +3396,7 @@
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */
-	function Compiler(element, model) {
+	function Compiler (element, model) {
 		if (!this.isElementNode(element)) {
 			return util.warn('element must be a type of DOMElement: ', element);
 		}
@@ -3445,7 +3445,7 @@
 
 	var cp = Compiler.prototype;
 
-	cp.init = function() {
+	cp.init = function () {
 		this.complieElement(this.$fragment, true);
 	}
 
@@ -3455,7 +3455,7 @@
 	 * @param   {Boolean}              root      [是否是编译根节点]
 	 * @param   {Object}               fors      [vfor 数据]
 	 */
-	cp.complieElement = function(element, root, fors) {
+	cp.complieElement = function (element, root, fors) {
 		var this$1 = this;
 
 		var node, childNodes = element.childNodes;
@@ -3486,7 +3486,7 @@
 	 * @param   {DOMElement}  node
 	 * @return  {Number}
 	 */
-	cp.hasDirective = function(node) {
+	cp.hasDirective = function (node) {
 		var this$1 = this;
 
 		var nodeAttrs, text = node.textContent;
@@ -3508,8 +3508,8 @@
 	/**
 	 * 编译节点缓存队列
 	 */
-	cp.compileAll = function() {
-		util.each(this.$unCompileNodes, function(info) {
+	cp.compileAll = function () {
+		util.each(this.$unCompileNodes, function (info) {
 			this.complieDirectives(info);
 			return null;
 		}, this);
@@ -3521,7 +3521,7 @@
 	 * 收集并编译节点指令
 	 * @param   {Array}  info   [node, fors]
 	 */
-	cp.complieDirectives = function(info) {
+	cp.complieDirectives = function (info) {
 		var this$1 = this;
 
 		var node = info[0], fors = info[1];
@@ -3550,7 +3550,7 @@
 			}
 
 			// 编译节点指令
-			util.each(attrs, function(attr) {
+			util.each(attrs, function (attr) {
 				this.compile(node, attr, fors);
 			}, this);
 		}
@@ -3565,7 +3565,7 @@
 	 * @param   {Object}       attr
 	 * @param   {Array}        fors
 	 */
-	cp.compile = function(node, attr, fors) {
+	cp.compile = function (node, attr, fors) {
 		var dir = attr.name;
 		var exp = attr.value;
 		var args = [fors, node, exp, dir];
@@ -3620,7 +3620,7 @@
 	 * @param   {DOMElement}   node
 	 * @param   {Object}       fors
 	 */
-	cp.compileText = function(node, fors) {
+	cp.compileText = function (node, fors) {
 		var exp, match, matches, pieces, tokens = [];
 		var text = node.textContent.trim().replace(/\n/g, '');
 		var reghtml = /\{\{\{(.+?)\}\}\}/g, regtext = /\{\{(.+?)\}\}/g;
@@ -3642,7 +3642,7 @@
 
 			// 文本节点转化为常量和变量的组合表达式
 			// 'a {{b}} c' => '"a " + b + " c"'
-			util.each(pieces, function(piece) {
+			util.each(pieces, function (piece) {
 				// {{text}}
 				if (matches.indexOf('{{' + piece + '}}') !== -1) {
 					tokens.push('(' + piece + ')');
@@ -3661,8 +3661,8 @@
 	 * 停止编译节点的剩余指令，如 vfor 的根节点
 	 * @param   {DOMElement}  node
 	 */
-	cp.blockCompile = function(node) {
-		util.each(this.$unCompileNodes, function(info) {
+	cp.blockCompile = function (node) {
+		util.each(this.$unCompileNodes, function (info) {
 			if (node === info[0]) {
 				return null;
 			}
@@ -3674,7 +3674,7 @@
 	 * @param   {DOMElement}   element
 	 * @return  {Boolean}
 	 */
-	cp.isElementNode = function(element) {
+	cp.isElementNode = function (element) {
 		return element.nodeType === 1;
 	}
 
@@ -3683,7 +3683,7 @@
 	 * @param   {DOMElement}   element
 	 * @return  {Boolean}
 	 */
-	cp.isTextNode = function(element) {
+	cp.isTextNode = function (element) {
 		return element.nodeType === 3;
 	}
 
@@ -3692,7 +3692,7 @@
 	 * @param   {String}   directive
 	 * @return  {Boolean}
 	 */
-	cp.isDirective = function(directive) {
+	cp.isDirective = function (directive) {
 		return directive.indexOf('v-') === 0;
 	}
 
@@ -3702,14 +3702,14 @@
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
-	cp.isLateCompile = function(node) {
+	cp.isLateCompile = function (node) {
 		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 	}
 
 	/**
 	 * 检查根节点是否编译完成
 	 */
-	cp.checkCompleted = function() {
+	cp.checkCompleted = function () {
 		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
 			this.rootCompleted();
 		}
@@ -3718,7 +3718,7 @@
 	/**
 	 * 根节点编译完成，更新视图
 	 */
-	cp.rootCompleted = function() {
+	cp.rootCompleted = function () {
 		this.$rootComplied = true;
 		this.$element.appendChild(this.$fragment);
 	}
@@ -3727,7 +3727,7 @@
 	 * 销毁 vm 编译实例
 	 * @return  {[type]}  [description]
 	 */
-	cp.destroy = function() {
+	cp.destroy = function () {
 		this.watcher.destroy();
 		dom.empty(this.$element);
 		this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;
@@ -3740,11 +3740,11 @@
 	 * @param  {Object}      model    [数据模型对象]
 	 * @param  {Function}    context  [事件及 watch 的回调上下文]
 	 */
-	function MVVM(element, model, context) {
+	function MVVM (element, model, context) {
 		var ctx = this.context = context || this;
 
 		// 将事件函数 this 指向调用者
-		util.each(model, function(value, key) {
+		util.each(model, function (value, key) {
 			if (util.isFunc(value)) {
 				model[key] = value.bind(ctx);
 			}
@@ -3768,7 +3768,7 @@
 	 * @param   {String}  key  [数据模型字段]
 	 * @return  {Mix}
 	 */
-	mvp.get = function(key) {
+	mvp.get = function (key) {
 		return util.isString(key) ? this.$[key] : this.$;
 	}
 
@@ -3778,7 +3778,7 @@
 	 * @param   {String}  key  [数据模型字段]
 	 * @return  {Mix}
 	 */
-	mvp.getItem = function(key) {
+	mvp.getItem = function (key) {
 		return util.copy(this.get(key));
 	}
 
@@ -3787,7 +3787,7 @@
 	 * @param  {String}  key    [数据模型字段]
 	 * @param  {Mix}     value  [值]
 	 */
-	mvp.set = function(key, value) {
+	mvp.set = function (key, value) {
 		var vm = this.$;
 		// 设置单个
 		if (util.isString(key)) {
@@ -3796,7 +3796,7 @@
 
 		// 批量设置
 		if (util.isObject(key)) {
-			util.each(key, function(v, k) {
+			util.each(key, function (v, k) {
 				vm[k] = v;
 			});
 		}
@@ -3806,7 +3806,7 @@
 	 * 重置数据模型至初始状态
 	 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
 	 */
-	mvp.reset = function(key) {
+	mvp.reset = function (key) {
 		var vm = this.$;
 		var backup = this.backup;
 
@@ -3816,13 +3816,13 @@
 		}
 		// 重置多个
 		else if (util.isArray(key)) {
-			util.each(key, function(v) {
+			util.each(key, function (v) {
 				vm[v] = backup[v];
 			});
 		}
 		// 重置所有
 		else {
-			util.each(vm, function(v, k) {
+			util.each(vm, function (v, k) {
 				vm[k] = backup[k];
 			});
 		}
@@ -3834,8 +3834,8 @@
 	 * @param   {Function}  callback  [监测变化回调]
 	 * @param   {Boolean}   deep      [数组深层监测]
 	 */
-	mvp.watch = function(model, callback, deep) {
-		this.vm.watcher.watchModel(model, function(path, last, old) {
+	mvp.watch = function (model, callback, deep) {
+		this.vm.watcher.watchModel(model, function (path, last, old) {
 			callback.call(this, path, last, old);
 		}, this.context, null, deep);
 	}
@@ -3843,7 +3843,7 @@
 	/**
 	 * 销毁 mvvm 实例
 	 */
-	mvp.destroy = function() {
+	mvp.destroy = function () {
 		this.vm.destroy();
 		this.context = this.vm = this.backup = this.$ = null;
 	}

@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-el 指令解析模块
  */
-function Vel(vm) {
+function Vel (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -16,7 +16,7 @@ var vel = Vel.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node    [注册节点]
  * @param   {String}      value   [注册字段]
  */
-vel.parse = function(fors, node, value) {
+vel.parse = function (fors, node, value) {
 	if (fors) {
 		let alias = util.getExpAlias(value);
 

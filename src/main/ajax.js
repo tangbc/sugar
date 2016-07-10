@@ -3,7 +3,7 @@ import util from '../util';
 /**
  * Ajax 模块
  */
-function Ajax() {}
+function Ajax () {}
 
 var ap = Ajax.prototype;
 
@@ -16,7 +16,7 @@ var ap = Ajax.prototype;
  * @param   {Function}  callback  [回调函数]
  * @param   {Function}  context   [作用域]
  */
-ap._execute = function(dataType, url, method, param, callback, context) {
+ap._execute = function (dataType, url, method, param, callback, context) {
 	var ct = context || this;
 	var xmlHttp = new XMLHttpRequest();
 
@@ -24,7 +24,7 @@ ap._execute = function(dataType, url, method, param, callback, context) {
 	xmlHttp.open(method, url, true);
 
 	// 状态变化回调
-	xmlHttp.onreadystatechange = function() {
+	xmlHttp.onreadystatechange = function () {
 		var response;
 		var result = null, error = null, status = xmlHttp.status;
 
@@ -70,7 +70,7 @@ ap._execute = function(dataType, url, method, param, callback, context) {
 /**
  * get 请求
  */
-ap.get = function(url, param, callback, context, dataType) {
+ap.get = function (url, param, callback, context, dataType) {
 	var params = [];
 
 	if (util.isFunc(param)) {
@@ -81,7 +81,7 @@ ap.get = function(url, param, callback, context, dataType) {
 	}
 
 	// 格式化参数对象
-	util.each(param, function(val, key) {
+	util.each(param, function (val, key) {
 		params.push(key + '=' + encodeURIComponent(val));
 	});
 
@@ -95,14 +95,14 @@ ap.get = function(url, param, callback, context, dataType) {
 /**
  * post 请求
  */
-ap.post = function(url, param, callback, context) {
+ap.post = function (url, param, callback, context) {
 	this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
 }
 
 /**
  * 拉取静态模板
  */
-ap.load = function(url, param, callback, context) {
+ap.load = function (url, param, callback, context) {
 	this.get(url, param, callback, context, 'text');
 }
 

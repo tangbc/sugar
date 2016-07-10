@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-bind for style 指令解析模块
  */
-function VStyle(vm) {
+function VStyle (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -16,7 +16,7 @@ var vstyle = VStyle.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node        [指令节点]
  * @param   {String}      expression  [指令表达式]
  */
-vstyle.parse = function(fors, node, expression) {
+vstyle.parse = function (fors, node, expression) {
 	// 提取依赖
 	var deps = this.getDeps(fors, expression);
 	// 取值域
@@ -31,11 +31,11 @@ vstyle.parse = function(fors, node, expression) {
 	this.updateStyle(node, styleObject);
 
 	// 监测依赖变化
-	this.vm.watcher.watch(deps, function(path, last, old) {
+	this.vm.watcher.watch(deps, function (path, last, old) {
 		// 替换整个 styleObject
 		if (util.isObject(old)) {
 			// 移除旧样式(设为 null)
-			util.each(old, function(v, style) {
+			util.each(old, function (v, style) {
 				old[style] = null;
 			});
 			this.updateStyle(node, util.extend(last, old));
@@ -53,12 +53,12 @@ vstyle.parse = function(fors, node, expression) {
  * @param   {Object}      styleObject
  * @param   {Boolean}     remove        [是否全部移除]
  */
-vstyle.updateStyle = function(node, styleObject, remove) {
+vstyle.updateStyle = function (node, styleObject, remove) {
 	if (!util.isObject(styleObject)) {
 		return util.warn('Bind for style must be a type of Object', styleObject);
 	}
 
-	util.each(styleObject, function(value, style) {
+	util.each(styleObject, function (value, style) {
 		this.update(node, style, (remove ? null : value));
 	}, this);
 }
@@ -69,7 +69,7 @@ vstyle.updateStyle = function(node, styleObject, remove) {
  * @param   {String}       style
  * @param   {String}       value
  */
-vstyle.update = function() {
+vstyle.update = function () {
 	var updater = this.vm.updater;
 	updater.updateStyle.apply(updater, arguments);
 }

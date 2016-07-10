@@ -14,7 +14,7 @@ var Component = Module.extend({
 	 * @param  {Object}  config  [组件参数配置]
 	 * @param  {Object}  parent  [父组件对象]
 	 */
-	init: function(config, parent) {
+	init: function (config, parent) {
 		this._config = this.cover(config, {
 			// 组件目标容器
 			'target'  : null,
@@ -64,11 +64,11 @@ var Component = Module.extend({
 	/**
 	 * 加载模板布局文件
 	 */
-	_loadTemplate: function() {
+	_loadTemplate: function () {
 		var c = this.getConfig();
 		var uri = c.template;
 
-		ajax.load(uri, c.tplParam, function(err, data) {
+		ajax.load(uri, c.tplParam, function (err, data) {
 			var html;
 
 			if (err) {
@@ -91,7 +91,7 @@ var Component = Module.extend({
 	 * @param  {Mix}      value  [不传为读取配置信息]
 	 * @return {Mix}             [返回读取的配置值]
 	 */
-	_conf: function(data, name, value) {
+	_conf: function (data, name, value) {
 		var udf, set = (value !== udf);
 
 		if (name) {
@@ -119,7 +119,7 @@ var Component = Module.extend({
 	/**
 	 * 渲染组件视图、初始化配置
 	 */
-	_render: function() {
+	_render: function () {
 		// 判断是否已创建过
 		if (this._ready) {
 			return this;
@@ -142,21 +142,21 @@ var Component = Module.extend({
 		// 添加 class
 		var cls = c.class;
 		if (cls && util.isString(cls)) {
-			util.each(cls.split(' '), function(classname) {
+			util.each(cls.split(' '), function (classname) {
 				dom.addClass(this.el, classname);
 			}, this);
 		}
 
 		// 添加 css
 		if (util.isObject(c.css)) {
-			util.each(c.css, function(value, property) {
+			util.each(c.css, function (value, property) {
 				this.el.style[property] = value;
 			}, this);
 		}
 
 		// 添加attr
 		if (util.isObject(c.attr)) {
-			util.each(c.attr, function(value, name) {
+			util.each(c.attr, function (value, name) {
 				dom.setAttr(this.el, name, value);
 			}, this);
 		}
@@ -190,7 +190,7 @@ var Component = Module.extend({
 	 * @param  {Object}  parent  [父类组件配置参数]
 	 * @return {Object}          [合并后的配置参数]
 	 */
-	cover: function(child, parent) {
+	cover: function (child, parent) {
 		if (!parent) {
 			util.warn('Failed to cover config, 2 argumenst required');
 		}
@@ -201,7 +201,7 @@ var Component = Module.extend({
 	 * 获取组件配置参数
 	 * @param  {String}  name  [参数字段名称，支持/层级]
 	 */
-	getConfig: function(name) {
+	getConfig: function (name) {
 		return this._conf(this._config, name);
 	},
 
@@ -210,7 +210,7 @@ var Component = Module.extend({
 	 * @param {String}  name   [配置字段名]
 	 * @param {Mix}     value  [值]
 	 */
-	setConfig: function(name, value) {
+	setConfig: function (name, value) {
 		return this._conf(this._config, name, value);
 	},
 
@@ -219,7 +219,7 @@ var Component = Module.extend({
 	 * @param  {String}     selector  [子元素选择器]
 	 * @return {DOMObject}
 	 */
-	query: function(selector) {
+	query: function (selector) {
 		return this.el.querySelector(selector);
 	},
 
@@ -228,14 +228,14 @@ var Component = Module.extend({
 	 * @param  {String}    selectors  [子元素选择器]
 	 * @return {NodeList}
 	 */
-	queryAll: function(selectors) {
+	queryAll: function (selectors) {
 		return this.el.querySelectorAll(selectors);
 	},
 
 	/**
 	 * 元素添加绑定事件
 	 */
-	bind: function(node, evt, callback, capture) {
+	bind: function (node, evt, callback, capture) {
 		if (util.isString(callback)) {
 			callback = this[callback];
 		}
@@ -245,7 +245,7 @@ var Component = Module.extend({
 	/**
 	 * 元素解除绑定事件
 	 */
-	unbind: function(node, evt, callback, capture) {
+	unbind: function (node, evt, callback, capture) {
 		if (util.isString(callback)) {
 			callback = this[callback];
 		}
@@ -255,7 +255,7 @@ var Component = Module.extend({
 	/**
 	 * 组件销毁后的回调函数
 	 */
-	afterDestroy: function() {
+	afterDestroy: function () {
 		var vm = this.vm;
 		var el = this.el;
 		var parent = this.getConfig('target');

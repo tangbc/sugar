@@ -7,7 +7,7 @@ import Component from './component';
 /**
  * sugar 构造函数入口
  */
-function Sugar() {
+function Sugar () {
 	/**
 	 * 工具方法
 	 * @type  {Object}

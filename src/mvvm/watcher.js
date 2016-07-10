@@ -4,7 +4,7 @@ import Observer from './observer';
 /**
  * watcher 数据订阅模块
  */
-function Watcher(model) {
+function Watcher (model) {
 	this.$model = model;
 
 	// 数据模型订阅集合
@@ -31,7 +31,7 @@ var wp = Watcher.prototype;
  * @param   {Mix}     old
  * @param   {Array}   args
  */
-wp.change = function(path, last, old, args) {
+wp.change = function (path, last, old, args) {
 	var isAccess = path.indexOf('*') !== -1;
 	var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 	this.trigger(subs, path, last, old, args);
@@ -50,8 +50,8 @@ wp.change = function(path, last, old, args) {
  * @param   {Mix}     old
  * @param   {Array}   args
  */
-wp.trigger = function(subs, path, last, old, args) {
-	util.each(subs, function(sub) {
+wp.trigger = function (subs, path, last, old, args) {
+	util.each(subs, function (sub) {
 		sub.cb.call(sub.ct, path, last, old, args || sub.arg);
 	});
 }
@@ -63,13 +63,13 @@ wp.trigger = function(subs, path, last, old, args) {
  * @param   {Object}    context
  * @param   {Array}     args
  */
-wp.watch = function(depends, callback, context, args) {
+wp.watch = function (depends, callback, context, args) {
 	// 依赖的数据模型
 	var depModels = depends.dep;
 	// 依赖的访问路径
 	var depAccess = depends.acc;
 
-	util.each(depModels, function(model, index) {
+	util.each(depModels, function (model, index) {
 		var access = depAccess[index];
 
 		// 暂时只有这一个需要忽略的关键字
@@ -103,7 +103,7 @@ wp.watch = function(depends, callback, context, args) {
  * @param  {Array}     args
  * @param  {Boolean}   deep
  */
-wp.watchModel = function(field, callback, context, args, deep) {
+wp.watchModel = function (field, callback, context, args, deep) {
 	if (!util.hasOwn(this.$model, field)) {
 		return util.warn('the field: [' + field + '] does not exist in model');
 	}
@@ -127,7 +127,7 @@ wp.watchModel = function(field, callback, context, args, deep) {
  * @param  {Object}    context
  * @param  {Array}     args
  */
-wp.watchAccess = function(access, callback, context, args) {
+wp.watchAccess = function (access, callback, context, args) {
 	this.addSubs(this.$accessSubs, access, callback, context, args);
 }
 
@@ -138,14 +138,14 @@ wp.watchAccess = function(access, callback, context, args) {
  * @param  {Object}    context
  * @param  {Array}     args
  */
-wp.watchIndex = function(access, callback, context, args) {
+wp.watchIndex = function (access, callback, context, args) {
 	this.addSubs(this.$indexSubs, access, callback, context, args);
 }
 
 /**
  * 缓存订阅回调
  */
-wp.addSubs = function(subs, identifier, callback, context, args) {
+wp.addSubs = function (subs, identifier, callback, context, args) {
 	// 缓存回调函数
 	if (!subs[identifier]) {
 		subs[identifier] = [];
@@ -161,15 +161,15 @@ wp.addSubs = function(subs, identifier, callback, context, args) {
 /**
  * 移除指定的访问路径/下标订阅(重新编译 vfor)
  */
-wp.removeSubs = function(field) {
+wp.removeSubs = function (field) {
 	// 下标
-	util.each(this.$indexSubs, function(sub, index) {
+	util.each(this.$indexSubs, function (sub, index) {
 		if (index.indexOf(field) === 0) {
 			return null;
 		}
 	});
 	// 访问路径
-	util.each(this.$accessSubs, function(sub, access) {
+	util.each(this.$accessSubs, function (sub, access) {
 		if (access.indexOf(field) === 0) {
 			return null;
 		}
@@ -181,7 +181,7 @@ wp.removeSubs = function(field) {
  * @param   {String}  field     [数组字段]
  * @param   {String}  moveMap   [移位的映射关系]
  */
-wp.moveSubs = function(field, moveMap, method) {
+wp.moveSubs = function (field, moveMap, method) {
 	// 数组字段标识
 	var prefix = field + '*';
 	// 移位下标
@@ -194,13 +194,13 @@ wp.moveSubs = function(field, moveMap, method) {
  * 移位下标订阅集合
  * 移位的过程需要触发所有回调以更改每一个 $index
  */
-wp.moveIndex = function(prefix, moveMap) {
+wp.moveIndex = function (prefix, moveMap) {
 	var dest = {};
 	var subs = this.$indexSubs;
 	var caches = util.copy(subs);
 
 	// 根据结果映射 移位下标
-	util.each(moveMap, function(move, index) {
+	util.each(moveMap, function (move, index) {
 		var udf;
 		var nowIndex = prefix + index;
 		var moveIndex = prefix + move;
@@ -214,9 +214,9 @@ wp.moveIndex = function(prefix, moveMap) {
 	});
 
 	// 触发 $index 变更
-	util.each(dest, function(subs, index) {
+	util.each(dest, function (subs, index) {
 		var i = +index.substr(prefix.length);
-		util.each(subs, function(sub) {
+		util.each(subs, function (sub) {
 			sub.cb.call(sub.ct, '$index', i, sub.arg);
 		});
 	});
@@ -231,20 +231,20 @@ wp.moveIndex = function(prefix, moveMap) {
  * 移位访问路径订阅集合
  * 移位的过程不需要触发回调
  */
-wp.moveAccess = function(prefix, moveMap) {
+wp.moveAccess = function (prefix, moveMap) {
 	var dest = {};
 	var subs = this.$accessSubs;
 	var caches = util.copy(subs);
 
 	// 根据结果映射 移位访问路径
-	util.each(moveMap, function(move, index) {
+	util.each(moveMap, function (move, index) {
 		var udf;
 		var befores = [], afters = [];
 		var nowIndex = prefix + index;
 		var moveIndex = prefix + move;
 
 		// 提取出替换前后的访问路径集合
-		util.each(subs, function(sub, access) {
+		util.each(subs, function (sub, access) {
 			if (move === udf && access.indexOf(nowIndex) === 0) {
 				afters.push(udf);
 				befores.push(access);
@@ -256,7 +256,7 @@ wp.moveAccess = function(prefix, moveMap) {
 		});
 
 		// 进行替换
-		util.each(befores, function(before, index) {
+		util.each(befores, function (before, index) {
 			var after = afters[index];
 
 			// 被挤掉的设为 undefined
@@ -278,7 +278,7 @@ wp.moveAccess = function(prefix, moveMap) {
 /**
  * 销毁函数
  */
-wp.destroy = function() {
+wp.destroy = function () {
 	util.clear(this.$modelSubs);
 	util.clear(this.$accessSubs);
 	util.clear(this.$indexSubs);

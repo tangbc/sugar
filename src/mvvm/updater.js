@@ -7,7 +7,7 @@ import eventer from '../eventer';
  * @param   {Object}      vm
  * @param   {DOMElement}  element
  */
-function removeDOMRegister(vm, element) {
+function removeDOMRegister (vm, element) {
 	var registers = vm.$data.$els;
 	var childNodes = element.childNodes;
 
@@ -39,8 +39,8 @@ function removeDOMRegister(vm, element) {
  * @param  {String}      classname
  * @param  {Boolean}     remove
  */
-function handleClass(node, classname, remove) {
-	util.each(classname.split(' '), function(cls) {
+function handleClass (node, classname, remove) {
+	util.each(classname.split(' '), function (cls) {
 		if (remove) {
 			dom.removeClass(node, cls);
 		}
@@ -54,7 +54,7 @@ function handleClass(node, classname, remove) {
 /**
  * updater 视图刷新模块
  */
-function Updater(vm) {
+function Updater (vm) {
 	this.vm = vm;
 }
 
@@ -65,7 +65,7 @@ var up = Updater.prototype;
  * @param   {DOMElement}  node
  * @param   {String}      text
  */
-up.updateTextContent = function(node, text) {
+up.updateTextContent = function (node, text) {
 	node.textContent = String(text);
 }
 
@@ -75,7 +75,7 @@ up.updateTextContent = function(node, text) {
  * @param   {DOMElement}  node
  * @param   {String}      html
  */
-up.updateHtmlContent = function(node, html) {
+up.updateHtmlContent = function (node, html) {
 	dom.empty(node).appendChild(util.stringToFragment(String(html)));
 }
 
@@ -84,7 +84,7 @@ up.updateHtmlContent = function(node, html) {
  * @param   {DOMElement}  node
  * @param   {Boolean}     show    [是否显示]
  */
-up.updateDisplay = function(node, show) {
+up.updateDisplay = function (node, show) {
 	var siblingNode = this.getSibling(node);
 
 	this.setVisible(node);
@@ -103,7 +103,7 @@ up.updateDisplay = function(node, show) {
  * _visible_display 用于缓存节点行内样式的 display 显示值
  * @param  {DOMElement}  node
  */
-up.setVisible = function(node) {
+up.setVisible = function (node) {
 	if (!node._visible_display) {
 		let display;
 		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
@@ -111,7 +111,7 @@ up.setVisible = function(node) {
 		if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
 			let styles = inlineStyle.split(';');
 
-			util.each(styles, function(style) {
+			util.each(styles, function (style) {
 				if (style.indexOf('display') !== -1) {
 					display = util.getKeyValue(style);
 				}
@@ -129,7 +129,7 @@ up.setVisible = function(node) {
  * @param   {DOMElement}  node
  * @param   {Boolean}     isRender  [是否渲染]
  */
-up.updateRenderContent = function(node, isRender) {
+up.updateRenderContent = function (node, isRender) {
 	var siblingNode = this.getSibling(node);
 
 	this.setRender(node);
@@ -145,7 +145,7 @@ up.updateRenderContent = function(node, isRender) {
 /**
  * 缓存节点渲染内容并清空
  */
-up.setRender = function(node) {
+up.setRender = function (node) {
 	if (!node._render_content) {
 		node._render_content = node.innerHTML;
 	}
@@ -155,7 +155,7 @@ up.setRender = function(node) {
 /**
  * 切换节点内容渲染
  */
-up.toggleRender = function(node, isRender) {
+up.toggleRender = function (node, isRender) {
 	var vm = this.vm;
 	var fragment = util.stringToFragment(node._render_content);
 
@@ -173,7 +173,7 @@ up.toggleRender = function(node, isRender) {
 /**
  * 获取节点的下一个兄弟元素节点
  */
-up.getSibling = function(node) {
+up.getSibling = function (node) {
 	var el = node.nextSibling;
 	var isElementNode = this.vm.isElementNode;
 
@@ -198,7 +198,7 @@ up.getSibling = function(node) {
  * @param   {String}      attribute
  * @param   {String}      value
  */
-up.updateAttribute = function(node, attribute, value) {
+up.updateAttribute = function (node, attribute, value) {
 	// null 则移除该属性
 	if (value === null) {
 		dom.removeAttr.apply(this, arguments);
@@ -220,7 +220,7 @@ up.updateAttribute = function(node, attribute, value) {
  * @param   {String|Boolean}      oldclass
  * @param   {String}              classname
  */
-up.updateClassName = function(node, newclass, oldclass, classname) {
+up.updateClassName = function (node, newclass, oldclass, classname) {
 	// 指定 classname 变化值由 newclass 布尔值决定
 	if (classname) {
 		if (newclass === true) {
@@ -248,7 +248,7 @@ up.updateClassName = function(node, newclass, oldclass, classname) {
  * @param   {String}      property  [属性名称]
  * @param   {String}      value     [样式值]
  */
-up.updateStyle = function(node, property, value) {
+up.updateStyle = function (node, property, value) {
 	if (node.style[property] !== value) {
 		node.style[property] = value;
 	}
@@ -262,7 +262,7 @@ up.updateStyle = function(node, property, value) {
  * @param   {Boolean}      capture
  * @param   {Boolean}      unbind
  */
-up.updateEvent = function(node, evt, callback, capture, unbind) {
+up.updateEvent = function (node, evt, callback, capture, unbind) {
 	// 移除绑定
 	if (unbind) {
 		eventer.remove(node, evt, callback, capture);
@@ -277,7 +277,7 @@ up.updateEvent = function(node, evt, callback, capture, unbind) {
  * @param   {Input}  text
  * @param   {String} value
  */
-up.updateTextValue = function(text, value) {
+up.updateTextValue = function (text, value) {
 	if (text.value !== value) {
 		text.value = value;
 	}
@@ -288,7 +288,7 @@ up.updateTextValue = function(text, value) {
  * @param   {Input}  radio
  * @param   {String} value
  */
-up.updateRadioChecked = function(radio, value) {
+up.updateRadioChecked = function (radio, value) {
 	radio.checked = radio.value === (util.isNumber(value) ? String(value) : value);
 }
 
@@ -297,7 +297,7 @@ up.updateRadioChecked = function(radio, value) {
  * @param   {Input}          checkbox
  * @param   {Array|Boolean}  values      [激活数组或状态]
  */
-up.updateCheckboxChecked = function(checkbox, values) {
+up.updateCheckboxChecked = function (checkbox, values) {
 	var value = checkbox.value;
 
 	if (!util.isArray(values) && !util.isBool(values)) {
@@ -317,7 +317,7 @@ up.updateCheckboxChecked = function(checkbox, values) {
  * @param   {Array|String}   selected  [选中值]
  * @param   {Boolean}        multi
  */
-up.updateSelectChecked = function(select, selected, multi) {
+up.updateSelectChecked = function (select, selected, multi) {
 	var getNumber = dom.hasAttr(select, 'number');
 	var options = select.options, leng = options.length;
 	var multiple = multi || dom.hasAttr(select, 'multiple');

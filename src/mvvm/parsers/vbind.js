@@ -6,7 +6,7 @@ import VStyle from './vbind-style';
 /**
  * v-bind 指令解析模块
  */
-function Vbind(vm) {
+function Vbind (vm) {
 	this.vm = vm;
 	this.vclass = new VClass(vm);
 	this.vstyle = new VStyle(vm);
@@ -21,7 +21,7 @@ var vbind = Vbind.prototype = Object.create(Parser.prototype);
  * @param   {String}      expression  [指令表达式]
  * @param   {String}      directive   [指令名称]
  */
-vbind.parse = function(fors, node, expression, directive) {
+vbind.parse = function (fors, node, expression, directive) {
 	// 单个 attribute
 	if (directive.indexOf(':') !== -1) {
 		let vclass = this.vclass;
@@ -52,7 +52,7 @@ vbind.parse = function(fors, node, expression, directive) {
  * @param   {DOMElement}  node
  * @param   {String}      jsonString
  */
-vbind.parseJson = function(fors, node, jsonString) {
+vbind.parseJson = function (fors, node, jsonString) {
 	// 提取依赖
 	var deps = this.getDeps(fors, jsonString);
 	// 取值域
@@ -67,7 +67,7 @@ vbind.parseJson = function(fors, node, jsonString) {
 	this.updateJson(node, jsonAttr);
 
 	// 监测依赖变化
-	this.vm.watcher.watch(deps, function(path, last, old) {
+	this.vm.watcher.watch(deps, function (path, last, old) {
 		var different, newJsonAttr;
 
 		// 更新取值
@@ -93,11 +93,11 @@ vbind.parseJson = function(fors, node, jsonString) {
  * @param   {Json}        json
  * @param   {Boolean}     remove
  */
-vbind.updateJson = function(node, jsonAttrs, remove) {
+vbind.updateJson = function (node, jsonAttrs, remove) {
 	var vclass = this.vclass;
 	var vstyle = this.vstyle;
 
-	util.each(jsonAttrs, function(value, type) {
+	util.each(jsonAttrs, function (value, type) {
 		switch (type) {
 			case 'class':
 				vclass.updateClass(node, value, remove);
@@ -118,7 +118,7 @@ vbind.updateJson = function(node, jsonAttrs, remove) {
  * @param   {String}       expression
  * @param   {String}       attr
  */
-vbind.parseAttr = function(fors, node, expression, attr) {
+vbind.parseAttr = function (fors, node, expression, attr) {
 	// 提取依赖
 	var deps = this.getDeps(fors, expression);
 	// 取值域
@@ -131,7 +131,7 @@ vbind.parseAttr = function(fors, node, expression, attr) {
 	this.update(node, attr, getter.call(scope, scope));
 
 	// 监测依赖变化
-	this.vm.watcher.watch(deps, function() {
+	this.vm.watcher.watch(deps, function () {
 		scope = this.updateScope(scope, maps, deps, arguments);
 		this.update(node, attr, getter.call(scope, scope));
 	}, this);
@@ -143,7 +143,7 @@ vbind.parseAttr = function(fors, node, expression, attr) {
  * @param   {String}       name
  * @param   {String}       value
  */
-vbind.update = function() {
+vbind.update = function () {
 	var updater = this.vm.updater;
 	updater.updateAttribute.apply(updater, arguments);
 }

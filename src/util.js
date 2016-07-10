@@ -4,49 +4,49 @@ var hasOwn = OP.hasOwnProperty;
 /**
  * 是否是对象
  */
-function isObject(object) {
+function isObject (object) {
 	return OP.toString.call(object) === '[object Object]';
 }
 
 /**
  * 是否是数组
  */
-function isArray(array) {
+function isArray (array) {
 	return Array.isArray(array);
 }
 
 /**
  * 是否是函数
  */
-function isFunc(fn) {
+function isFunc (fn) {
 	return fn instanceof Function;
 }
 
 /**
  * 是否是字符串
  */
-function isString(str) {
+function isString (str) {
 	return typeof str === 'string';
 }
 
 /**
  * 是否是布尔值
  */
-function isBool(bool) {
+function isBool (bool) {
 	return typeof bool === 'boolean';
 }
 
 /**
  * 是否是数字
  */
-function isNumber(num) {
+function isNumber (num) {
 	return typeof num === 'number' && !isNaN(num);
 }
 
 /**
  * 是否是纯粹对象
  */
-function isPlainObject(obj) {
+function isPlainObject (obj) {
 	if (!obj || !isObject(obj) || obj.nodeType || obj === obj.window) {
 		return false;
 	}
@@ -61,7 +61,7 @@ function isPlainObject(obj) {
  * @param   {Object}   object
  * @return  {Boolean}
  */
-function isEmpty(object) {
+function isEmpty (object) {
 	return Object.keys(object).length === 0;
 }
 
@@ -79,21 +79,21 @@ var util = {
 /**
  * 打印警告信息
  */
-util.warn = function() {
+util.warn = function () {
 	console.warn.apply(console, arguments);
 }
 
 /**
  * 打印错误信息
  */
-util.error = function() {
+util.error = function () {
 	console.error.apply(console, arguments);
 }
 
 /*
  * 对象自有属性检测
  */
-util.hasOwn = function(obj, key) {
+util.hasOwn = function (obj, key) {
 	return obj && hasOwn.call(obj, key);
 }
 
@@ -106,7 +106,7 @@ util.hasOwn = function(obj, key) {
  * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
  * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
  */
-util.def = function(object, property, value, writable, enumerable, configurable) {
+util.def = function (object, property, value, writable, enumerable, configurable) {
 	return Object.defineProperty(object, property, {
 		'value'       : value,
 		'writable'    : !!writable,
@@ -118,7 +118,7 @@ util.def = function(object, property, value, writable, enumerable, configurable)
 /**
  * 将 object[property] 定义为一个不可枚举的属性
  */
-util.defRec = function(object, property, value) {
+util.defRec = function (object, property, value) {
 	return this.def(object, property, value, true, false, true);
 }
 
@@ -126,8 +126,8 @@ util.defRec = function(object, property, value) {
  * 删除 object 所有属性
  * @param   {Object}   object
  */
-util.clear = function(object) {
-	this.each(object, function() {
+util.clear = function (object) {
+	this.each(object, function () {
 		return null;
 	});
 }
@@ -138,7 +138,7 @@ util.clear = function(object) {
  * @param  {Fuction}       callback  [回调函数]
  * @param  {Object}        context   [作用域]
  */
-util.each = function(items, callback, context) {
+util.each = function (items, callback, context) {
 	var ret, i;
 
 	if (!items) {
@@ -195,7 +195,7 @@ util.each = function(items, callback, context) {
 /**
  * 扩展合并对象，摘自 jQuery
  */
-util.extend = function() {
+util.extend = function () {
 	var options, name, src, copy, copyIsArray, clone;
 	var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
@@ -261,7 +261,7 @@ util.extend = function() {
  * @param   {Object|Array}  target
  * @return  {Mix}
  */
-util.copy = function(target) {
+util.copy = function (target) {
 	var ret;
 
 	if (isArray(target)) {
@@ -279,7 +279,7 @@ util.copy = function(target) {
  * @param   {String}  string
  * @return  {String}
  */
-util.removeSpace = function(string) {
+util.removeSpace = function (string) {
 	return string.replace(/\s/g, '');
 }
 
@@ -289,7 +289,7 @@ util.removeSpace = function(string) {
  * @param   {Boolean}       both         [是否返回键和值]
  * @return  {String|Array}
  */
-util.getKeyValue = function(expression, both) {
+util.getKeyValue = function (expression, both) {
 	var array = expression.split(':');
 	return both ? array : array.pop();
 }
@@ -299,7 +299,7 @@ util.getKeyValue = function(expression, both) {
  * @param   {String}     tag  [元素标签名称]
  * @return  {DOMElemnt}
  */
-util.createElement = function(tag) {
+util.createElement = function (tag) {
 	return document.createElement(tag);
 }
 
@@ -307,7 +307,7 @@ util.createElement = function(tag) {
  * 返回一个空文档碎片
  * @return  {Fragment}
  */
-util.createFragment = function() {
+util.createFragment = function () {
 	return document.createDocumentFragment();
 }
 
@@ -315,7 +315,7 @@ util.createFragment = function() {
  * element 的子节点转换成文档片段（element 将会被清空）
  * @param   {DOMElement}  element
  */
-util.nodeToFragment = function(element) {
+util.nodeToFragment = function (element) {
 	var child;
 	var fragment = this.createFragment();
 
@@ -331,7 +331,7 @@ util.nodeToFragment = function(element) {
  * @param   {String}    html
  * @return  {Fragment}
  */
-util.stringToFragment = function(html) {
+util.stringToFragment = function (html) {
 	var div, fragment;
 
 	// 存在标签
@@ -355,7 +355,7 @@ util.stringToFragment = function(html) {
  * @param   {String}  expression
  * @return  {String}
  */
-util.getExpAlias = function(expression) {
+util.getExpAlias = function (expression) {
 	var pos = expression.indexOf('.');
 	return pos === -1 ? expression : expression.substr(0, pos);
 }
@@ -366,7 +366,7 @@ util.getExpAlias = function(expression) {
  * @param   {String}  expression
  * @return  {String}
  */
-util.getExpKey = function(expression) {
+util.getExpKey = function (expression) {
 	var pos = expression.lastIndexOf('.');
 	return pos === -1 ? '' : expression.substr(pos + 1);
 }
@@ -378,7 +378,7 @@ util.getExpKey = function(expression) {
  * @param   {Object}  oldObject
  * @return  {Object}
  */
-util.diff = function(newObject, oldObject) {
+util.diff = function (newObject, oldObject) {
 	return {
 		'n': this.getUnique(newObject, oldObject),
 		'o': this.getUnique(oldObject, newObject)
@@ -391,10 +391,10 @@ util.diff = function(newObject, oldObject) {
  * @param   {Object}  referObject     [参照对象]
  * @return  {Object}
  */
-util.getUnique = function(contrastObject, referObject) {
+util.getUnique = function (contrastObject, referObject) {
 	var unique = {};
 
-	this.each(contrastObject, function(value, key) {
+	this.each(contrastObject, function (value, key) {
 		var diff, oldItem = referObject[key];
 
 		if (isObject(value)) {
@@ -406,7 +406,7 @@ util.getUnique = function(contrastObject, referObject) {
 		else if (isArray(value)) {
 			var newArray = [];
 
-			this.each(value, function(nItem, index) {
+			this.each(value, function (nItem, index) {
 				var diff;
 
 				if (isObject(nItem)) {
@@ -438,7 +438,7 @@ util.getUnique = function(contrastObject, referObject) {
  * @param   {String}  access
  * @return  {Array}
  */
-util.makePaths = function(access) {
+util.makePaths = function (access) {
 	var length, paths = access && access.split('*');
 
 	if (!paths || paths.length < 2) {
@@ -461,7 +461,7 @@ util.makePaths = function(access) {
  * @param   {Array}   paths
  * @return  {Mix}
  */
-util.getDeepValue = function(target, paths) {
+util.getDeepValue = function (target, paths) {
 	var _paths = paths.slice(0);
 
 	while (_paths.length) {
@@ -477,7 +477,7 @@ util.getDeepValue = function(target, paths) {
  * @param   {Array}  paths
  * @return  {Array}
  */
-util.makeScopePaths = function(paths) {
+util.makeScopePaths = function (paths) {
 	var index = 0, scopePaths = [];
 
 	if (paths.length % 2 === 0) {

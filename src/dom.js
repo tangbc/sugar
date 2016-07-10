@@ -3,7 +3,7 @@ export default {
 	 * 清空 element 的所有子节点
 	 * @param   {DOMElement}  element
 	 */
-	empty: function(element) {
+	empty: function (element) {
 		while (element.firstChild) {
 			element.removeChild(element.firstChild);
 		}
@@ -16,7 +16,7 @@ export default {
 	 * @param   {String}      name
 	 * @param   {String}      value
 	 */
-	setAttr: function(node, name, value) {
+	setAttr: function (node, name, value) {
 		if (typeof value === 'boolean') {
 			node[name] = value;
 		}
@@ -31,7 +31,7 @@ export default {
 	 * @param   {String}      name
 	 * @return  {String}
 	 */
-	getAttr: function(node, name) {
+	getAttr: function (node, name) {
 		return node.getAttribute(name) || '';
 	},
 
@@ -41,7 +41,7 @@ export default {
 	 * @param   {String}      name
 	 * @return  {Boolean}
 	 */
-	hasAttr: function(node, name) {
+	hasAttr: function (node, name) {
 		return node.hasAttribute(name);
 	},
 
@@ -50,7 +50,7 @@ export default {
 	 * @param   {DOMElement}  node
 	 * @param   {String}      name
 	 */
-	removeAttr: function(node, name) {
+	removeAttr: function (node, name) {
 		node.removeAttribute(name);
 	},
 
@@ -59,7 +59,7 @@ export default {
 	 * @param  {DOMElement}  node
 	 * @param  {String}      classname
 	 */
-	addClass: function(node, classname) {
+	addClass: function (node, classname) {
 		var current, list = node.classList;
 
 		if (this.hasClass(node, classname)) {
@@ -83,7 +83,7 @@ export default {
 	 * @param  {DOMElement}  node
 	 * @param  {String}      classname
 	 */
-	removeClass: function(node, classname) {
+	removeClass: function (node, classname) {
 		var current, target, list = node.classList;
 
 		if (!this.hasClass(node, classname)) {
@@ -114,7 +114,7 @@ export default {
 	 * @param  {String}      classname
 	 * @return {Boolean}
 	 */
-	hasClass: function(node, classname) {
+	hasClass: function (node, classname) {
 		var current, list = node.classList;
 		/* istanbul ignore else */
 		if (list) {
@@ -133,7 +133,7 @@ export default {
 	 * @param   {Function}     callback
 	 * @param   {Boolean}      capture
 	 */
-	addEvent: function(node, evt, callback, capture) {
+	addEvent: function (node, evt, callback, capture) {
 		node.addEventListener(evt, callback, capture);
 	},
 
@@ -144,7 +144,7 @@ export default {
 	 * @param   {Function}     callback
 	 * @param   {Boolean}      capture
 	 */
-	removeEvent: function(node, evt, callback, capture) {
+	removeEvent: function (node, evt, callback, capture) {
 		node.removeEventListener(evt, callback, capture);
 	}
 }

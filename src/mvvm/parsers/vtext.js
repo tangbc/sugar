@@ -3,7 +3,7 @@ import Parser from '../parser';
 /**
  * v-text 指令解析模块
  */
-function Vtext(vm) {
+function Vtext (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -15,7 +15,7 @@ var vtext = Vtext.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node        [指令节点]
  * @param   {String}      expression  [指令表达式]
  */
-vtext.parse = function() {
+vtext.parse = function () {
 	this.bind.apply(this, arguments);
 }
 
@@ -24,7 +24,7 @@ vtext.parse = function() {
  * @param   {DOMElement}  node
  * @param   {String}      text
  */
-vtext.update = function() {
+vtext.update = function () {
 	var updater = this.vm.updater;
 	updater.updateTextContent.apply(updater, arguments);
 }

@@ -3,7 +3,7 @@ import Parser from '../parser';
 /**
  * v-show 指令解析模块
  */
-function Vshow(vm) {
+function Vshow (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -15,7 +15,7 @@ var vshow = Vshow.prototype = Object.create(Parser.prototype);
  * @param   {DOMElement}  node        [指令节点]
  * @param   {String}      expression  [指令表达式]
  */
-vshow.parse = function() {
+vshow.parse = function () {
 	this.bind.apply(this, arguments);
 }
 
@@ -24,7 +24,7 @@ vshow.parse = function() {
  * @param   {DOMElement}   node
  * @param   {Boolean}      isShow
  */
-vshow.update = function() {
+vshow.update = function () {
 	var updater = this.vm.updater;
 	updater.updateDisplay.apply(updater, arguments);
 }

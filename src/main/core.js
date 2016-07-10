@@ -12,7 +12,7 @@ var Core = Module.extend({
 	 * @param  {String}  name  [组件实例名称]
 	 * @return {Object}
 	 */
-	get: function(name) {
+	get: function (name) {
 		return this.getChild(name);
 	},
 
@@ -24,7 +24,7 @@ var Core = Module.extend({
  	 * @param  {Object}    context   [<可选>执行环境]
 	 * @return {Boolean}
 	 */
-	globalCast: function(name, param, callback, context) {
+	globalCast: function (name, param, callback, context) {
 		// 不传 param
 		if (util.isFunc(param)) {
 			context = callback;
@@ -38,7 +38,7 @@ var Core = Module.extend({
 	/**
 	 * 重写 destroy, core 模块不允许销毁
 	 */
-	destroy: function() {}
+	destroy: function () {}
 });
 
 var core = cache['0'] = new Core();
