@@ -1,19 +1,19 @@
 var MVVM = require('mvvm').default;
 
-describe("v-text >", function() {
+describe("v-text >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal', function() {
+	it('normal', function () {
 		element.innerHTML = '<div id="test1" v-text="text"></div>';
 
 		var vm = new MVVM(element, {
@@ -28,7 +28,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('mustache', function() {
+	it('mustache', function () {
 		element.innerHTML = '<div id="test2">{{ text }}</div>';
 
 		var vm = new MVVM(element, {
@@ -43,7 +43,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('multi expression with normal', function() {
+	it('multi expression with normal', function () {
 		element.innerHTML = '<div id="test3" v-text="\'hello! \' + name"></div>';
 
 		var vm = new MVVM(element, {
@@ -58,7 +58,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('multi expression with mustache', function() {
+	it('multi expression with mustache', function () {
 		element.innerHTML = '<div id="test4">hello! {{ name }}</div>';
 
 		var vm = new MVVM(element, {
@@ -73,7 +73,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('normal in v-for', function() {
+	it('normal in v-for', function () {
 		element.innerHTML =
 			'<ul id="test5">' +
 				'<li v-for="item in items">' +
@@ -104,7 +104,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('mustache in v-for', function() {
+	it('mustache in v-for', function () {
 		element.innerHTML =
 			'<ul id="test6">' +
 				'<li v-for="item in items">' +
@@ -135,7 +135,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('multi expression with normal in v-for', function() {
+	it('multi expression with normal in v-for', function () {
 		element.innerHTML =
 			'<ul id="test7">' +
 				'<li v-for="item in items">' +
@@ -184,7 +184,7 @@ describe("v-text >", function() {
 	});
 
 
-	it('multi expression with mustache in v-for', function() {
+	it('multi expression with mustache in v-for', function () {
 		element.innerHTML =
 			'<ul id="test8">' +
 				'<li v-for="item in items">' +

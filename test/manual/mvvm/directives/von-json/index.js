@@ -1,6 +1,6 @@
 require([
 	'../../../../../bundle/mvvm'
-], function(imports) {
+], function (imports) {
 	var MVVM = imports.default;
 	var layout, model, body = document.querySelector('body');
 
@@ -13,10 +13,10 @@ require([
 	model =  {
 		'title': 'aaa',
 
-		'vmClick': function() {
+		'vmClick': function () {
 			console.log(arguments);
 		},
-		'vmMosueover': function() {
+		'vmMosueover': function () {
 			console.log('mouseover');
 		}
 	}

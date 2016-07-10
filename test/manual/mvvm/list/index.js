@@ -2,7 +2,7 @@ require([
 	'../../../../dist/mvvm.min',
 	'../../assets/mock.min',
 	'../../assets/vue.min'
-], function(MVVM, Mock, Vue) {
+], function (MVVM, Mock, Vue) {
 
 	var layout, model;
 	var Random = Mock.Random;

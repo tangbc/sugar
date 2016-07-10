@@ -1,6 +1,6 @@
 require([
 	'../../../../../bundle/mvvm'
-], function(imports) {
+], function (imports) {
 	var MVVM = imports.default;
 	var layout, model, body = document.querySelector('body');
 
@@ -22,13 +22,13 @@ require([
 
 	model =  {
 		'title': 'aaa',
-		'vmClick1': function() {
+		'vmClick1': function () {
 			console.log(arguments);
 		},
-		'vmClick2': function() {
+		'vmClick2': function () {
 			console.log(arguments);
 		},
-		'vmKeyEvent': function() {
+		'vmKeyEvent': function () {
 			console.log(arguments);
 		},
 
@@ -37,10 +37,10 @@ require([
 			{'text': 'bbb'},
 			{'text': 'ccc'},
 		],
-		'remove': function(item) {
+		'remove': function (item) {
 			console.log(item);
 		},
-		'keyup': function(e) {
+		'keyup': function (e) {
 			console.log(e instanceof Event);
 		}
 	}

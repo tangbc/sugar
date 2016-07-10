@@ -1,26 +1,26 @@
-window.onload = function buildTodoMVC() {
+window.onload = function buildTodoMVC () {
 	// todos 本地存储
 	var Storage = {
-		save: function(todos) {
+		save: function (todos) {
 			localStorage.setItem('TODOS', JSON.stringify(todos));
 		},
-		getAll: function() {
+		getAll: function () {
 			return JSON.parse(localStorage.getItem('TODOS') || '[]');
 		}
 	}
 
 	// 数据过滤器
 	var Filter = {
-		all: function(todos) {
+		all: function (todos) {
 			return todos;
 		},
-		active: function(todos) {
-			return todos.filter(function(todo) {
+		active: function (todos) {
+			return todos.filter(function (todo) {
 				return !todo.completed;
 			});
 		},
-		completed: function(todos) {
-			return todos.filter(function(todo) {
+		completed: function (todos) {
+			return todos.filter(function (todo) {
 				return todo.completed;
 			});
 		}
@@ -28,7 +28,7 @@ window.onload = function buildTodoMVC() {
 
 	// 定义 TodoMVC 组件
 	var TodoMVC = Sugar.Component.extend({
-		init: function(config) {
+		init: function (config) {
 			var todos = Storage.getAll();
 			var actives = Filter.active(todos);
 			var completeds = Filter.completed(todos);
@@ -54,7 +54,7 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 视图渲染完毕
-		viewReady: function() {
+		viewReady: function () {
 			this.updateList();
 			// 监测 checkAll 的变更
 			this.vm.watch('checkAll', this.onCheckAll);
@@ -63,14 +63,14 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 点击全选 or 全不选
-		onCheckAll: function(paths, last) {
+		onCheckAll: function (paths, last) {
 			var todos = this.vm.get('todos');
 
 			if (this.$autoCheck) {
 				return;
 			}
 
-			todos.forEach(function(item) {
+			todos.forEach(function (item) {
 				item.completed = last;
 			});
 
@@ -78,20 +78,20 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// todos 变化
-		onChangeTodos: function(path, last) {
+		onChangeTodos: function (path, last) {
 			if (!Array.isArray(last)) {
 				this.update();
 			}
 		},
 
 		// 保存数据至缓存中
-		saveTodos: function(todos) {
+		saveTodos: function (todos) {
 			Storage.save(todos);
 			return this;
 		},
 
 		// 更新缓存和界面
-		update: function() {
+		update: function () {
 			var vm = this.vm.get();
 			vm.left = Filter.active(vm.allTodos).length;
 			vm.showClear = Filter.completed(vm.allTodos).length > 0;
@@ -99,7 +99,7 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 更新 checkAll 状态
-		updateCheckAll: function() {
+		updateCheckAll: function () {
 			var vm = this.vm.get();
 			var alls = Filter.all(vm.todos).length;
 			this.$autoCheck = true;
@@ -108,7 +108,7 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 按下 enter 键
-		keyupEnter: function() {
+		keyupEnter: function () {
 			var vm = this.vm.get();
 			var todo = vm.todo;
 
@@ -122,18 +122,18 @@ window.onload = function buildTodoMVC() {
 		},
 
 		// 移除一条 todo
-		removeItem: function(item) {
+		removeItem: function (item) {
 			this.vm.$.allTodos.$remove(item);
 			this.update();
 		},
 
 		// 点击过滤器
-		clickFilter: function(type) {
+		clickFilter: function (type) {
 			this.updateList(type).updateCheckAll();
 		},
 
 		// 更新列表数据
-		updateList: function(type) {
+		updateList: function (type) {
 			var filters, vm = this.vm.get();
 
 			type = type || vm.type;

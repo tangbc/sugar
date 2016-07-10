@@ -1,6 +1,6 @@
 require([
 	'../../../../../bundle/mvvm'
-], function(imports) {
+], function (imports) {
 	var MVVM = imports.default;
 	var layout, model, body = document.querySelector('body');
 
@@ -54,11 +54,11 @@ require([
 
 	console.log('---------------------------------------------------');
 
-	vm.items.forEach(function(item, index) {
+	vm.items.forEach(function (item, index) {
 		console.log('vforEl register for items*' + index, item.vforEl);
 
 		if (item.subs) {
-			item.subs.forEach(function(sub, idx) {
+			item.subs.forEach(function (sub, idx) {
 				console.log('    subEl register for items*' + index + '*' + idx, sub.subEl);
 			});
 		}

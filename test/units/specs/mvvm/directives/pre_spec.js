@@ -1,19 +1,19 @@
 var MVVM = require('mvvm').default;
 
-describe("v-pre >", function() {
+describe("v-pre >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal', function() {
+	it('normal', function () {
 		element.innerHTML =
 			'<div id="test1" v-pre>' +
 				'<b v-show="show"></b>' +
@@ -27,7 +27,7 @@ describe("v-pre >", function() {
 	});
 
 
-	it('in v-for', function() {
+	it('in v-for', function () {
 		element.innerHTML =
 			'<ul id="test2">' +
 				'<li v-for="item in items">' +

@@ -1,20 +1,20 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
-describe('directive expression >', function() {
+describe('directive expression >', function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('valid keyword', function() {
+	it('valid keyword', function () {
 		element.innerHTML = '<h1 v-text="parseInt(n)"></h1>';
 
 		var vm = new MVVM(element, {
@@ -29,7 +29,7 @@ describe('directive expression >', function() {
 	});
 
 
-	it('invalid keyword', function() {
+	it('invalid keyword', function () {
 		element.innerHTML = '<h1 v-text="var a = 1"></h1>';
 
 		var vm = new MVVM(element, {});
@@ -39,7 +39,7 @@ describe('directive expression >', function() {
 	});
 
 
-	it('invalid expression', function() {
+	it('invalid expression', function () {
 		element.innerHTML = '<h1 v-text="a + "></h1>';
 
 		var vm = new MVVM(element, {});
@@ -49,7 +49,7 @@ describe('directive expression >', function() {
 	});
 
 
-	it('complex expression', function() {
+	it('complex expression', function () {
 		element.innerHTML = '<h1 v-text="isErr ? errMsg : sucMsg"></h1>';
 
 		var vm = new MVVM(element, {

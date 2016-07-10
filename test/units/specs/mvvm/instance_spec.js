@@ -1,10 +1,10 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
-describe("mvvm instance >", function() {
+describe("mvvm instance >", function () {
 	var element, vm, data;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 		document.body.appendChild(element);
@@ -21,13 +21,13 @@ describe("mvvm instance >", function() {
 		vm = new MVVM(element, data);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		vm = data = null;
 		document.body.removeChild(element);
 	});
 
 
-	it('invalid build', function() {
+	it('invalid build', function () {
 		var text = document.createTextNode('plain text');
 		var model = {'a': 1};
 		new MVVM(text, model);
@@ -39,7 +39,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('use invalid directive', function() {
+	it('use invalid directive', function () {
 		var el = document.createElement('div');
 		el.innerHTML =
 			'<h1 v-text="title"></h1>' +
@@ -53,7 +53,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('get', function() {
+	it('get', function () {
 		var model = vm.get();
 		var objDescriptor = Object.getOwnPropertyDescriptor(model, 'obj');
 
@@ -75,7 +75,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('getItem', function() {
+	it('getItem', function () {
 		// getItem returns model's copy
 		var modelCopy = vm.getItem();
 		var obj = modelCopy.obj;
@@ -91,7 +91,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('set', function() {
+	it('set', function () {
 		// set one
 		vm.set('text', 'BBB');
 		expect(data.text).toBe('BBB');
@@ -112,7 +112,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('reset', function() {
+	it('reset', function () {
 		data.vid = 23333;
 		data.text = 94949494;
 		data.obj = {'x': 456};
@@ -143,10 +143,10 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('watch', function() {
+	it('watch', function () {
 		var tempVid;
 
-		vm.watch('vid', function(path, lastValue) {
+		vm.watch('vid', function (path, lastValue) {
 			tempVid = lastValue;
 		});
 
@@ -155,7 +155,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('shallow watch', function() {
+	it('shallow watch', function () {
 		// clear first
 		element = data = vm = null;
 		element = document.createElement('div');
@@ -179,7 +179,7 @@ describe("mvvm instance >", function() {
 		vm = new MVVM(element, data);
 
 		var length, count = 0;
-		vm.watch('items', function(path, newArray) {
+		vm.watch('items', function (path, newArray) {
 			count++;
 			length = newArray.length;
 		});
@@ -195,7 +195,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('deep watch', function() {
+	it('deep watch', function () {
 		// clear first
 		element = data = vm = null;
 		element = document.createElement('div');
@@ -219,7 +219,7 @@ describe("mvvm instance >", function() {
 		vm = new MVVM(element, data);
 
 		var path, val, old, count = 0;
-		vm.watch('items', function(access, newVal, oldVal) {
+		vm.watch('items', function (access, newVal, oldVal) {
 			count++;
 			path = access;
 			val = newVal;
@@ -242,7 +242,7 @@ describe("mvvm instance >", function() {
 	});
 
 
-	it('destroy', function() {
+	it('destroy', function () {
 		var compiler = vm.vm;
 
 		expect(element.innerHTML).toBe('<div id="aaa">bbb</div>');

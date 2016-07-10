@@ -2,20 +2,20 @@ var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
 /*------------------------------*/
-describe("v-el >", function() {
+describe("v-el >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal', function() {
+	it('normal', function () {
 		element.innerHTML = '<span id="test1" v-el="elSpan">123</span>';
 
 		var vm = new MVVM(element, {});
@@ -27,7 +27,7 @@ describe("v-el >", function() {
 	});
 
 
-	it('inside v-if render first', function() {
+	it('inside v-if render first', function () {
 		element.innerHTML =
 			'<div v-if="isRender">' +
 				'<span id="test2" v-el="elSpan">1234</span>' +
@@ -50,7 +50,7 @@ describe("v-el >", function() {
 	});
 
 
-	it('inside v-if no-render first', function() {
+	it('inside v-if no-render first', function () {
 		element.innerHTML =
 			'<div v-if="isRender">' +
 				'<span id="test3" v-el="elSpan">12345</span>' +
@@ -72,7 +72,7 @@ describe("v-el >", function() {
 	});
 
 
-	it('inside v-for', function() {
+	it('inside v-for', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
@@ -101,7 +101,7 @@ describe("v-el >", function() {
 	});
 
 
-	it('inside v-for with invalid register', function() {
+	it('inside v-for with invalid register', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +

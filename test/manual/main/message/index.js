@@ -1,10 +1,10 @@
 require([
 	'../../../../bundle/sugar'
-], function(imports) {
+], function (imports) {
 	var sugar = imports.default;
 
 	var Subpage = sugar.Component.extend({
-		init: function(config) {
+		init: function (config) {
 			config = this.cover(config, {
 				'class': 'sub-page',
 				'html' : [
@@ -13,15 +13,15 @@ require([
 			});
 			this.Super('init', arguments);
 		},
-		viewReady: function() {
+		viewReady: function () {
 			this.fire('subCreate');
 		},
 
-		onParentCast: function(ev) {
+		onParentCast: function (ev) {
 			console.log(ev);
 		},
 
-		onNotify: function() {
+		onNotify: function () {
 			console.log('notify ~~~');
 		}
 	});
@@ -29,14 +29,14 @@ require([
 
 
 	var MainPage = sugar.Component.extend({
-		init: function(config) {
+		init: function (config) {
 			config = this.cover(config, {
 				'template': 'layout.html'
 			});
 			this.Super('init', arguments);
 		},
 
-		viewReady: function() {
+		viewReady: function () {
 
 			this.create('sub', Subpage, {
 				'target': this.query('.cont'),
@@ -47,7 +47,7 @@ require([
 			this.notify('mainPage.sub', 'notify');
 		},
 
-		onSubCreate: function() {
+		onSubCreate: function () {
 			console.log('onSubCreate')
 
 			this.broadcast('parentCast', 123);

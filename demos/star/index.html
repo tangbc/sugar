@@ -52,7 +52,7 @@
 	 * 打星评分基础模块
 	 */
 	var Star = Sugar.Component.extend({
-		init: function(config) {
+		init: function (config) {
 			// 初始数据的收集，config 为实例创建时传进来的参数
 			var def = config.def || 3, full = config.full || 5;
 
@@ -83,7 +83,7 @@
 			// 调用父类 Sugar.Component 的 init 方法进行视图渲染
 			this.Super('init', arguments);
 		},
-		eventClickStar: function(e) {
+		eventClickStar: function (e) {
 			var el = e.target;
 
 			if (el.tagName !== 'I') {

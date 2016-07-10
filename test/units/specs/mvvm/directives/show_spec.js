@@ -1,19 +1,19 @@
 var MVVM = require('mvvm').default;
 
-describe("v-show >", function() {
+describe("v-show >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal hidden first', function() {
+	it('normal hidden first', function () {
 		element.innerHTML = '<div id="test1" v-show="isShow">title</div>';
 
 		var vm = new MVVM(element, {
@@ -29,7 +29,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('normal show first', function() {
+	it('normal show first', function () {
 		element.innerHTML = '<div id="test2" v-show="isShow">title</div>';
 
 		var vm = new MVVM(element, {
@@ -45,7 +45,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('has inline style init and show first', function() {
+	it('has inline style init and show first', function () {
 		element.innerHTML = '<div id="test3" v-show="isShow" style="display: inline">title</div>';
 
 		var vm = new MVVM(element, {
@@ -64,7 +64,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('has inline style init and hidden first', function() {
+	it('has inline style init and hidden first', function () {
 		element.innerHTML = '<div id="test4" v-show="isShow" style="display: inline-block">title</div>';
 
 		var vm = new MVVM(element, {
@@ -80,7 +80,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('with v-else block', function() {
+	it('with v-else block', function () {
 		element.innerHTML =
 			'<div id="ok" v-show="ok">OK</div>' +
 			'~~~ v-show just find next sibling elementNode for v-else ~~~' +
@@ -102,7 +102,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('with v-else block and has inline style init', function() {
+	it('with v-else block and has inline style init', function () {
 		element.innerHTML =
 			'<div id="ok" v-show="ok" style="display: inline">OK</div>' +
 			'<div id="notok" v-else style="display: inline-block">Not OK</div>'
@@ -127,7 +127,7 @@ describe("v-show >", function() {
 	});
 
 
-	it('in v-for', function() {
+	it('in v-for', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +

@@ -1,6 +1,6 @@
 var eventer = require('src/eventer').default;
 
-function triggerEvent(target, evt, process) {
+function triggerEvent (target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
 	e.initEvent(evt, true, true);
 
@@ -11,10 +11,10 @@ function triggerEvent(target, evt, process) {
 	target.dispatchEvent(e);
 }
 
-describe('eventer >', function() {
+describe('eventer >', function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		element.innerHTML =
 			'<h1>aaa</h1>' +
@@ -23,16 +23,16 @@ describe('eventer >', function() {
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('add event with anonymous function', function() {
+	it('add event with anonymous function', function () {
 		var count = 0, cxtTag;
 		var h1 = element.querySelector('h1');
 
-		eventer.add(h1, 'click', function() {
+		eventer.add(h1, 'click', function () {
 			count++;
 			cxtTag = this.tagName;
 		});
@@ -50,11 +50,11 @@ describe('eventer >', function() {
 	});
 
 
-	it('add event with context', function() {
+	it('add event with context', function () {
 		var h1 = element.querySelector('h1');
 		var scope = {
 			'count'  : 0,
-			'evClick': function() {
+			'evClick': function () {
 				this.count++;
 			}
 		}
@@ -72,17 +72,17 @@ describe('eventer >', function() {
 	});
 
 
-	it('remove event without context', function() {
+	it('remove event without context', function () {
 		var h1 = element.querySelector('h1');
 		var btn = element.querySelector('button');
 
 		var count = 0;
-		var evClickH1 = function() {
+		var evClickH1 = function () {
 			count++;
 		}
 		eventer.add(h1, 'click', evClickH1);
 
-		var evClickBtn = function() {
+		var evClickBtn = function () {
 			eventer.remove(h1, 'click', evClickH1);
 			count = 0;
 		}
@@ -105,15 +105,15 @@ describe('eventer >', function() {
 	});
 
 
-	it('remove event with context', function() {
+	it('remove event with context', function () {
 		var h1 = element.querySelector('h1');
 		var btn = element.querySelector('button');
 		var scope = {
 			'count'     : 0,
-			'evClickH1' : function() {
+			'evClickH1' : function () {
 				this.count++;
 			},
-			'evClickBtn': function() {
+			'evClickBtn': function () {
 				this.count = 0;
 				eventer.remove(h1, 'click', this.evClickH1);
 			}
@@ -147,25 +147,25 @@ describe('eventer >', function() {
 	});
 
 
-	it('multiple add and remove event', function() {
+	it('multiple add and remove event', function () {
 		var h1 = element.querySelector('h1');
 		var btn = element.querySelector('button');
 		var ipt = element.querySelector('input');
 
 		var scope = {
 			'count1'     : 0,
-			'evClickH1' : function() {
+			'evClickH1' : function () {
 				this.count1 = this.count1 + 1;
 			},
-			'evClickBtn': function() {
+			'evClickBtn': function () {
 				this.count1 = this.count1 + 2;
 			},
-			'evClickIpt': function() {
+			'evClickIpt': function () {
 				this.count1 = 0;
 			},
 			// another event
 			'count2'     : 0,
-			'evClickH1_2': function() {
+			'evClickH1_2': function () {
 				this.count2 = this.count2 + 1;
 			}
 		}

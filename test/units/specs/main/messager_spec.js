@@ -2,11 +2,11 @@ var sugar = require('src/main/index').default;
 var Component = sugar.Component;
 var util = require('src/util').default;
 
-describe('sugar message >', function() {
+describe('sugar message >', function () {
 	var body = document.body;
 
 
-	it('fire message, from bottom to top', function() {
+	it('fire message, from bottom to top', function () {
 		var flag;
 		// make 4 turn down relationship components
 		// then send messages from one of them
@@ -14,19 +14,19 @@ describe('sugar message >', function() {
 		// because their relationship is parent and son, message communication can be carried out
 
 		var CompLevel3 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				this.fire('messageLevel3', 123);
 			}
 		});
 
 		var CompLevel2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
 					'target': this.el
@@ -36,15 +36,15 @@ describe('sugar message >', function() {
 				// fire another message at the same time
 				this.fire('messageLevel22', 2222);
 				// fire again next
-				this.fire('messageLevel222', function(msg) {
+				this.fire('messageLevel222', function (msg) {
 					expect(msg.count).toBe(1); // return false by CompLevel1
 				});
 			},
-			afterSent: function(msg) {
+			afterSent: function (msg) {
 				// test message returns
 				expect(msg.returns).toBe(1314);
 			},
-			onMessageLevel3: function(msg) {
+			onMessageLevel3: function (msg) {
 				expect(msg.param).toBe(123);
 				expect(msg.from).toBe(this.getChild('comp3'));
 				expect(msg.to).toBe(this);
@@ -53,10 +53,10 @@ describe('sugar message >', function() {
 		});
 
 		var CompLevel1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
 					'target': this.el
@@ -65,54 +65,54 @@ describe('sugar message >', function() {
 				// just a message, no content no sent back
 				this.fire('messageLevel1');
 			},
-			onMessageLevel3: function(msg) {
+			onMessageLevel3: function (msg) {
 				expect(msg.param).toBe(123);
 				expect(msg.from).toBe(this.getChild('comp2'));
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(2);
 			},
-			onMessageLevel2: function(msg) {
+			onMessageLevel2: function (msg) {
 				flag = 'xxdk';
 				expect(msg.param).toEqual({'id': 123});
 				msg.returns = 1314;
 				return false; // it will casue thie msg doest't fire to parent, stop here
 			},
-			onMessageLevel22: function(msg) {
+			onMessageLevel22: function (msg) {
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(2222);
 			},
-			onMessageLevel222: function(msg) {
+			onMessageLevel222: function (msg) {
 				expect(msg.from).toBe(this.getChild('comp2'));
 				return false;
 			}
 		});
 
 		var View = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
 					'target': this.el
 				});
 			},
-			onMessageLevel3: function(msg) {
+			onMessageLevel3: function (msg) {
 				expect(msg.param).toBe(123);
 				expect(msg.from).toBe(this.getChild('comp1'));
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(3);
 			},
-			onMessageLevel2: function(msg) {
+			onMessageLevel2: function (msg) {
 				// this func will not be called
 				// because messageLevel2 is cut on CompLevel1 (by return false)
 				flag = 'zzzz';
 			},
-			onMessageLevel22: function(msg) {
+			onMessageLevel22: function (msg) {
 				expect(msg.count).toBe(2);
 				expect(msg.param).toBe(2222);
 			},
-			onMessageLevel1: function(msg) {
+			onMessageLevel1: function (msg) {
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBeUndefined();
 				expect(msg.from).toBe(this.getChild('comp1'));
@@ -129,35 +129,35 @@ describe('sugar message >', function() {
 	});
 
 
-	it('broadcast message, from top to bottom', function() {
+	it('broadcast message, from top to bottom', function () {
 		var flag;
 
 		var CompLevel3 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			onViewOk: function(msg) {
+			onViewOk: function (msg) {
 				expect(msg.count).toBe(3);
 				expect(msg.to).toBe(this);
 				expect(msg.param).toEqual([1, 2, 3, 4]);
 				expect(msg.from).toBe(this.getParent());
 				expect(msg.returns).toBe(123);
 			},
-			onLevel_1_ok: function() {
+			onLevel_1_ok: function () {
 				// this func will not be called
 				// because level_1_ok is cut on CompLevel2 (by return false)
 				flag = 'level_3';
 			},
-			onLevel_2_ok: function(msg) {
+			onLevel_2_ok: function (msg) {
 				expect(msg.from).toBe(this.getParent());
 			}
 		});
 
 		var CompLevel2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
 					'target': this.el
@@ -165,10 +165,10 @@ describe('sugar message >', function() {
 
 				this.broadcast('level_2_ok', this.afterSentLevel_2_ok);
 			},
-			afterSentLevel_2_ok: function(msg) {
+			afterSentLevel_2_ok: function (msg) {
 				expect(msg.count).toBe(1);
 			},
-			onViewOk: function(msg) {
+			onViewOk: function (msg) {
 				expect(msg.count).toBe(2);
 				expect(msg.to).toBe(this);
 				expect(msg.param).toEqual([1, 2, 3, 4]);
@@ -176,7 +176,7 @@ describe('sugar message >', function() {
 				// add returns
 				msg.returns = 123;
 			},
-			onLevel_1_ok: function(msg) {
+			onLevel_1_ok: function (msg) {
 				expect(msg.param).toBe(12);
 				flag = 'level_2';
 				return false; // it will casue thie msg doest't broadcast to child, stop here
@@ -184,10 +184,10 @@ describe('sugar message >', function() {
 		});
 
 		var CompLevel1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
 					'target': this.el
@@ -195,10 +195,10 @@ describe('sugar message >', function() {
 
 				this.broadcast('level_1_ok', 12, 'afterSentLevel_1_ok');
 			},
-			afterSentLevel_1_ok: function(msg) {
+			afterSentLevel_1_ok: function (msg) {
 				expect(msg.count).toBe(1);
 			},
-			onViewOk: function(msg) {
+			onViewOk: function (msg) {
 				expect(msg.count).toBe(1);
 				expect(msg.to).toBe(this);
 				expect(msg.param).toEqual([1, 2, 3]);
@@ -209,10 +209,10 @@ describe('sugar message >', function() {
 		});
 
 		var View = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
 					'target': this.el
@@ -220,7 +220,7 @@ describe('sugar message >', function() {
 
 				this.broadcast('viewOk', [1, 2, 3], this.afterSent);
 			},
-			afterSent: function(msg) {
+			afterSent: function (msg) {
 				expect(msg.count).toBe(3);
 			}
 		});
@@ -235,12 +235,12 @@ describe('sugar message >', function() {
 	});
 
 
-	it('notify message, between any two components', function() {
+	it('notify message, between any two components', function () {
 		var CompLevel2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			onMsgSendToComp2: function(msg) {
+			onMsgSendToComp2: function (msg) {
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(null);
@@ -250,15 +250,15 @@ describe('sugar message >', function() {
 		});
 
 		var CompLevel1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				this.create('comp2', CompLevel2, {
 					'target': this.el
 				});
 			},
-			onMsgSendToComp1: function(msg) {
+			onMsgSendToComp1: function (msg) {
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(456);
@@ -268,20 +268,20 @@ describe('sugar message >', function() {
 		});
 
 		var View1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				this.create('comp1', CompLevel1, {
 					'target': this.el
 				});
 			},
-			onMsgSendToView1: function(msg) {
+			onMsgSendToView1: function (msg) {
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(123);
 			},
-			onMsgSendToView1ByName: function(msg) {
+			onMsgSendToView1ByName: function (msg) {
 				expect(msg.param).toBe(321);
 			}
 		});
@@ -292,10 +292,10 @@ describe('sugar message >', function() {
 		// View2 has no any relationship with others components
 		// but it can communicate with any one by `notify`
 		var View2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// notify by component instance
 				this.notify(sugar.core.get('view1'), 'msgSendToView1', 123);
 				// send another message
@@ -304,7 +304,7 @@ describe('sugar message >', function() {
 				// notify by component name
 				this.notify('view1.comp1', 'msgSendToComp1', 456, 'afterNotifyComp1');
 
-				this.notify('view1.comp1.comp2', 'msgSendToComp2', function(msg) {
+				this.notify('view1.comp1.comp2', 'msgSendToComp2', function (msg) {
 					expect(msg.returns).toBe('xxdk');
 				});
 
@@ -312,7 +312,7 @@ describe('sugar message >', function() {
 				this.notify('unknown', 'canYouReceiveMe');
 				expect(util.warn).toHaveBeenCalledWith('Component: [unknown] is not exist!');
 			},
-			afterNotifyComp1: function(msg) {
+			afterNotifyComp1: function (msg) {
 				expect(msg.returns).toBe('who are you?');
 			}
 		});
@@ -325,43 +325,43 @@ describe('sugar message >', function() {
 	});
 
 
-	it('globalCast message, every component create by sugar will be received', function() {
+	it('globalCast message, every component create by sugar will be received', function () {
 		var CompLevel2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			onCast: function(msg) {
+			onCast: function (msg) {
 				expect(msg.param).toBe(789);
 			}
 		});
 
 		var CompLevel1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				this.create('comp2', CompLevel2, {
 					'target': this.el
 				});
 			},
-			onCast: function(msg) {
+			onCast: function (msg) {
 				expect(msg.param).toBe(789);
 			}
 		});
 
 		var View1 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				this.create('comp2', CompLevel1, {
 					'target': this.el
 				});
 			},
-			onCast: function(msg) {
+			onCast: function (msg) {
 				expect(msg.param).toBe(789);
 			},
-			onInsideCast: function(msg) {
+			onInsideCast: function (msg) {
 				expect(msg.from).toBe('__core__');
 			}
 		});
@@ -370,21 +370,21 @@ describe('sugar message >', function() {
 		});
 
 		var View2 = Component.extend({
-			init: function() {
+			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function() {
+			viewReady: function () {
 				// cast inside componet, but it's same to everywhere
 				sugar.core.globalCast('insideCast', this.afterSentInsideCast, this);
 			},
-			afterSentInsideCast: function(msg) {
+			afterSentInsideCast: function (msg) {
 				// just view2 and view1 have the message recevier `onInsideCast`
 				expect(msg.count).toBe(2);
 			},
-			onCast: function(msg) {
+			onCast: function (msg) {
 				expect(msg.param).toBe(789);
 			},
-			onInsideCast: function(msg) {
+			onInsideCast: function (msg) {
 				expect(msg.from).toBe('__core__');
 			}
 		});
@@ -393,7 +393,7 @@ describe('sugar message >', function() {
 		});
 
 		// globalCast should be only send by sugar.core
-		sugar.core.globalCast('cast', 789, function(msg) {
+		sugar.core.globalCast('cast', 789, function (msg) {
 			expect(msg.count).toBe(4); // 4 component in this spec
 			expect(sugar.core.getChilds(true).length).toBe(2);
 		});

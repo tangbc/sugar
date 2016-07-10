@@ -1,7 +1,7 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
-function triggerEvent(target, evt, process) {
+function triggerEvent (target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
 	e.initEvent(evt, true, true);
 
@@ -23,20 +23,20 @@ function setSelect(select, value) {
 }
 
 
-describe("v-model >", function() {
+describe("v-model >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('use on invalid element', function() {
+	it('use on invalid element', function () {
 		element.innerHTML = '<div v-model="model"></div>';
 
 		new MVVM(element, {
@@ -47,7 +47,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('text and textarea', function() {
+	it('text and textarea', function () {
 		element.innerHTML =
 			'<input id="text" type="text" v-model="test">' +
 			'<textarea id="area" v-model="test"></textarea>'
@@ -86,7 +86,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('text unLetter input composition event', function() {
+	it('text unLetter input composition event', function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test">';
 
 		var vm = new MVVM(element, {
@@ -108,7 +108,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('radio', function() {
+	it('radio', function () {
 		element.innerHTML =
 			'<input type="radio" value="a" v-model="test">' +
 			'<input type="radio" value="b" v-model="test">'
@@ -133,7 +133,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('radio default checked', function() {
+	it('radio default checked', function () {
 		element.innerHTML = '<input type="radio" checked value="abc" v-model="test">';
 
 		var vm = new MVVM(element, {
@@ -144,7 +144,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('radio returns a number value', function() {
+	it('radio returns a number value', function () {
 		element.innerHTML =
 			'<input type="radio" value="1" v-model="test" number>' +
 			'<input type="radio" value="2" v-model="test">'
@@ -174,7 +174,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox for single', function() {
+	it('checkbox for single', function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
 		var vm = new MVVM(element, {
@@ -196,7 +196,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox bind for invalid data type', function() {
+	it('checkbox bind for invalid data type', function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
 		new MVVM(element, {
@@ -207,7 +207,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox default checked for single', function() {
+	it('checkbox default checked for single', function () {
 		element.innerHTML = '<input type="checkbox" checked v-model="isCheck">';
 
 		var vm = new MVVM(element, {
@@ -226,7 +226,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox bind for array', function() {
+	it('checkbox bind for array', function () {
 		element.innerHTML =
 			'<input type="checkbox" value="a" v-model="sels">' +
 			'<input type="checkbox" value="b" v-model="sels">' +
@@ -275,7 +275,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox bind for array return a number', function() {
+	it('checkbox bind for array return a number', function () {
 		element.innerHTML =
 			'<input type="checkbox" value="0" v-model="sels" number>' +
 			'<input type="checkbox" value="1" v-model="sels">' +
@@ -324,7 +324,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox bind for array and default checked', function() {
+	it('checkbox bind for array and default checked', function () {
 		element.innerHTML =
 			'<input type="checkbox" value="a" v-model="sels">' +
 			'<input type="checkbox" value="b" checked v-model="sels">' +
@@ -375,7 +375,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection without value', function() {
+	it('select single selection without value', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option>a</option>' +
@@ -413,7 +413,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection with value', function() {
+	it('select single selection with value', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option value="a">AAA</option>' +
@@ -451,7 +451,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection with default', function() {
+	it('select single selection with default', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option value="a">AAA</option>' +
@@ -467,7 +467,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection return specify number', function() {
+	it('select single selection return specify number', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option value="1" number>AAA</option>' +
@@ -514,7 +514,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection return all number', function() {
+	it('select single selection return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" number>' +
 				'<option value="1">AAA</option>' +
@@ -558,7 +558,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select multi selection without value', function() {
+	it('select multi selection without value', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option>a</option>' +
@@ -602,7 +602,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select multi selection with default', function() {
+	it('select multi selection with default', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option value="a" selected>A</option>' +
@@ -644,7 +644,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select multi selection return specify number', function() {
+	it('select multi selection return specify number', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option value="1" number>A</option>' +
@@ -690,7 +690,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select multi selection return all number', function() {
+	it('select multi selection return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple number>' +
 				'<option value="1">A</option>' +
@@ -738,7 +738,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select single selection with v-for', function() {
+	it('select single selection with v-for', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option v-for="op in options" v-bind:value="op.value">' +
@@ -778,7 +778,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select multi selection with v-for', function() {
+	it('select multi selection with v-for', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option v-for="op in options" v-bind:value="op.value">' +
@@ -824,7 +824,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('checkbox bind for invalid data type', function() {
+	it('checkbox bind for invalid data type', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option>a</option>' +
@@ -840,7 +840,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select has multiple but not bind for array', function() {
+	it('select has multiple but not bind for array', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option>a</option>' +
@@ -856,7 +856,7 @@ describe("v-model >", function() {
 	});
 
 
-	it('select has no multiple but bind for array', function() {
+	it('select has no multiple but bind for array', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option>a</option>' +

@@ -1,19 +1,19 @@
 var MVVM = require('mvvm').default;
 
-describe("v-for >", function() {
+describe("v-for >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('not array first', function() {
+	it('not array first', function () {
 		element.innerHTML =
 			'<ul id="test8">' +
 				'<li v-for="item in items">' +
@@ -32,7 +32,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('empty array first', function() {
+	it('empty array first', function () {
 		element.innerHTML =
 			'<ul id="test8">' +
 				'<li v-for="item in items">' +
@@ -54,7 +54,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('no-object item', function() {
+	it('no-object item', function () {
 		element.innerHTML =
 			'<ul id="test1">' +
 				'<li v-for="item in items">' +
@@ -139,7 +139,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('simple object item', function() {
+	it('simple object item', function () {
 		element.innerHTML =
 			'<ul id="test2">' +
 				'<li v-for="item in items">' +
@@ -227,7 +227,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('$index with no-object item', function() {
+	it('$index with no-object item', function () {
 		element.innerHTML =
 			'<ul id="test3">' +
 				'<li v-for="item in items">' +
@@ -274,7 +274,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('$index with object item', function() {
+	it('$index with object item', function () {
 		element.innerHTML =
 			'<ul id="test4">' +
 				'<li v-for="item in items">' +
@@ -324,7 +324,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('$set', function() {
+	it('$set', function () {
 		element.innerHTML =
 			'<ul id="test5">' +
 				'<li v-for="item in items">' +
@@ -365,7 +365,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('$remove', function() {
+	it('$remove', function () {
 		element.innerHTML =
 			'<ul id="test6">' +
 				'<li v-for="item in items">' +
@@ -415,7 +415,7 @@ describe("v-for >", function() {
 	});
 
 
-	it('two level v-for and cross scope', function() {
+	it('two level v-for and cross scope', function () {
 		element.innerHTML =
 			'<ul id="test7">' +
 				'<li v-for="item in items">' +

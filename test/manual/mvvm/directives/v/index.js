@@ -1,6 +1,6 @@
 require([
 	'../../../../../bundle/mvvm'
-], function(imports) {
+], function (imports) {
 	var MVVM = imports.default;
 	var layout, model, body = document.querySelector('body');
 
@@ -34,10 +34,10 @@ require([
 
 		'sex': 'boy',
 		'disabled': true,
-		'clickDisable': function() {
+		'clickDisable': function () {
 			this.$.disabled = true;
 		},
-		'clickEnable': function() {
+		'clickEnable': function () {
 			this.$.disabled = false;
 		},
 	}
@@ -48,7 +48,7 @@ require([
 	body.innerHTML = layout;
 	var vm = new MVVM(body, model);
 
-	vm.watch('pass', function() {
+	vm.watch('pass', function () {
 		console.log(arguments);
 	});
 

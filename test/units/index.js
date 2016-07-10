@@ -1,6 +1,6 @@
 var util = require('src/util').default;
 
-beforeEach(function() {
+beforeEach(function () {
 	spyOn(util, 'warn');
 	spyOn(util, 'error');
 });

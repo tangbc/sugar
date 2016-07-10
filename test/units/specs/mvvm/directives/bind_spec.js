@@ -2,15 +2,15 @@ var dom = require('src/dom').default;
 var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
-describe("v-bind >", function() {
+describe("v-bind >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
@@ -31,7 +31,7 @@ describe("v-bind >", function() {
 		return true;
 	}
 
-	it('test equalClass', function() {
+	it('test equalClass', function () {
 		expect(equalClass('a', 'a b')).toBeFalsy();
 		expect(equalClass('a c', 'a b')).toBeFalsy();
 
@@ -42,7 +42,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class single', function() {
+	it('class single', function () {
 		element.innerHTML = '<div v-bind:class="cls"></div>';
 
 		var vm = new MVVM(element, {
@@ -69,7 +69,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class single with static', function() {
+	it('class single with static', function () {
 		element.innerHTML = '<div class="static1 static2" v-bind:class="cls"></div>';
 
 		var vm = new MVVM(element, {
@@ -88,7 +88,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class array', function() {
+	it('class array', function () {
 		element.innerHTML = '<div class="static1" v-bind:class="[cls1, cls2, \'static2\']"></div>';
 
 		var vm = new MVVM(element, {
@@ -110,7 +110,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class object', function() {
+	it('class object', function () {
 		element.innerHTML = '<div v-bind:class="obj"></div>';
 
 		var vm = new MVVM(element, {
@@ -144,7 +144,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class json', function() {
+	it('class json', function () {
 		element.innerHTML = '<div v-bind:class="{classA: isA, classB: isB}"></div>';
 
 		var vm = new MVVM(element, {
@@ -166,7 +166,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('class in v-for and cross scope', function() {
+	it('class in v-for and cross scope', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
@@ -206,7 +206,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('style object', function() {
+	it('style object', function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
 		var vm = new MVVM(element, {
@@ -244,7 +244,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('style with invalid data type', function() {
+	it('style with invalid data type', function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
 		new MVVM(element, {
@@ -255,7 +255,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('style json', function() {
+	it('style json', function () {
 		element.innerHTML = '<div v-bind:style="{color: color, \'font-size\': size}"></div>';
 
 		var vm = new MVVM(element, {
@@ -276,7 +276,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('style in v-for and cross scope', function() {
+	it('style in v-for and cross scope', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
@@ -316,7 +316,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute normal', function() {
+	it('attribute normal', function () {
 		element.innerHTML = '<div v-bind:id="vid"></div>';
 
 		var vm = new MVVM(element, {
@@ -336,7 +336,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute json', function() {
+	it('attribute json', function () {
 		element.innerHTML = '<div v-bind="{id: vid, \'data-type\': dtype}"></div>';
 
 		var vm = new MVVM(element, {
@@ -357,7 +357,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute and classObject and styleObject', function() {
+	it('attribute and classObject and styleObject', function () {
 		element.innerHTML =
 			'<div v-bind="{id: vid, class: clsObj, style: styObj}"></div>';
 
@@ -406,7 +406,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute and classArray', function() {
+	it('attribute and classArray', function () {
 		element.innerHTML = '<div v-bind="{id: vid, class: [cls1, cls2]}"></div>';
 
 		var vm = new MVVM(element, {
@@ -428,7 +428,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute has no value', function() {
+	it('attribute has no value', function () {
 		element.innerHTML = '<input v-bind:disabled="dis">';
 
 		var vm = new MVVM(element, {
@@ -445,7 +445,7 @@ describe("v-bind >", function() {
 	});
 
 
-	it('attribute in v-for and cross scope', function() {
+	it('attribute in v-for and cross scope', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +

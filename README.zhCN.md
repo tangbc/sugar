@@ -37,7 +37,7 @@
 ```javascript
 // 定义一个组件
 var HelloWorld = sugar.Component.extend({
-	init: function(config) {
+	init: function (config) {
 		this.cover(config, {
 			'class': 'demo',
 			'html': '<h1>{{ title }}</h1>',

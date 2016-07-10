@@ -29,24 +29,24 @@ var jshintConfig = {
 	'evil'     : true,
 	// Avoid warning The '__proto__' property is deprecated.
 	'proto'    : true,
-	// available in es6
+	// Available in es6
 	'esversion': 6,
 	'predef'   : ['module', 'require', 'define']
 }
 
-gulp.task('jshint', function() {
+gulp.task('jshint', function () {
 	gulp.src(jsFiles)
 		.pipe(jshint(jshintConfig))
 		.pipe(jshint.reporter('default'));
 });
 
 // gulp start 开启任务监听
-gulp.task('start', function() {
+gulp.task('start', function () {
 	// 初始化时开启一次
 	gulp.start('jshint');
 
 	// 监听 js 文件变化
-	gulp.watch(jsFiles, function() {
+	gulp.watch(jsFiles, function () {
 		gulp.start('jshint');
 	});
 });

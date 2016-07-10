@@ -1,11 +1,11 @@
 var Observer = require('src/mvvm/observer').default;
 
-describe('Observer >', function() {
+describe('Observer >', function () {
 
 	var callback, access, newValue, oldValue, args;
 
-	beforeEach(function() {
-		callback = function(path, last, old, arg) {
+	beforeEach(function () {
+		callback = function (path, last, old, arg) {
 			access = path;
 			newValue = last;
 			oldValue = old;
@@ -13,11 +13,11 @@ describe('Observer >', function() {
 		}
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		callback = access = newValue = oldValue = args = undefined;
 	});
 
-	it('normal filed change', function() {
+	it('normal filed change', function () {
 		var data = {};
 		data.normal = 111;
 		data.arr = ['a'];
@@ -51,7 +51,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array const item change', function() {
+	it('array const item change', function () {
 		var data = {};
 		data.arr = ['a', 'b', 'c'];
 
@@ -66,7 +66,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array object item change', function() {
+	it('array object item change', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -91,7 +91,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method push', function() {
+	it('array method push', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -116,7 +116,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method pop', function() {
+	it('array method pop', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -139,7 +139,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method unshift', function() {
+	it('array method unshift', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -164,7 +164,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method shift', function() {
+	it('array method shift', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -187,7 +187,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method $set', function() {
+	it('array method $set', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -225,7 +225,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('array method $remove', function() {
+	it('array method $remove', function () {
 		var data = {};
 		data.arr = [
 			{'text': 'aaa', 'cap': 'A'},
@@ -248,7 +248,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('deep change for classObject in array', function() {
+	it('deep change for classObject in array', function () {
 		var data = {};
 		data.arr = [
 			{
@@ -294,7 +294,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('deep change for two-lever loops', function() {
+	it('deep change for two-lever loops', function () {
 		var data = {};
 		data.arr = [
 			{
@@ -329,7 +329,7 @@ describe('Observer >', function() {
 	});
 
 
-	it('deep change for two-lever loops and classObject', function() {
+	it('deep change for two-lever loops and classObject', function () {
 		var data = {};
 		data.arr = [
 			{

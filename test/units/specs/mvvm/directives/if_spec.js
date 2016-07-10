@@ -1,19 +1,19 @@
 var MVVM = require('mvvm').default;
 
-describe("v-if >", function() {
+describe("v-if >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal render first', function() {
+	it('normal render first', function () {
 		element.innerHTML = '<div id="test1" v-if="render"><b>123</b></div>';
 
 		var vm = new MVVM(element, {
@@ -32,7 +32,7 @@ describe("v-if >", function() {
 	});
 
 
-	it('normal no-render first', function() {
+	it('normal no-render first', function () {
 		element.innerHTML = '<div id="test2" v-if="render"><b>123</b></div>';
 
 		var vm = new MVVM(element, {
@@ -51,7 +51,7 @@ describe("v-if >", function() {
 	});
 
 
-	it('render content contains directive and render first', function() {
+	it('render content contains directive and render first', function () {
 		element.innerHTML =
 			'<div id="test3" v-if="render">' +
 				'<p>--{{ text }}--</p>' +
@@ -81,7 +81,7 @@ describe("v-if >", function() {
 	});
 
 
-	it('render content contains directive and no-render first', function() {
+	it('render content contains directive and no-render first', function () {
 		element.innerHTML =
 			'<div id="test4" v-if="render">' +
 				'<p>--{{ text }}--</p>' +
@@ -114,7 +114,7 @@ describe("v-if >", function() {
 	});
 
 
-	it('with v-else block', function() {
+	it('with v-else block', function () {
 		element.innerHTML =
 			'<div id="ok" v-if="ok">' +
 				'<i>OK</i>' +

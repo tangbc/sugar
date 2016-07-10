@@ -4,22 +4,22 @@ var ajax = sugar.ajax;
 // via the jasmine.Ajax global
 require('jasmine-ajax');
 
-describe('sugar ajax api >', function() {
+describe('sugar ajax api >', function () {
 	var doneFn;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		jasmine.Ajax.install();
 		doneFn = jasmine.createSpy('success');
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		jasmine.Ajax.uninstall();
 	});
 
-	it('ajax get without param', function() {
+	it('ajax get without param', function () {
 
 		// initiate a request
-		ajax.get('/api/to/get', function(err, data) {
+		ajax.get('/api/to/get', function (err, data) {
 			doneFn();
 			expect(err).toBeNull();
 			expect(data.success).toBeTruthy();
@@ -43,14 +43,14 @@ describe('sugar ajax api >', function() {
 	});
 
 
-	it('ajax get with query param', function() {
+	it('ajax get with query param', function () {
 		var query = {
 			'id': 1314,
 			'status': 1
 		};
 
 		// initiate a request
-		ajax.get('/api/to/get', query, function(err, data) {
+		ajax.get('/api/to/get', query, function (err, data) {
 			doneFn();
 			expect(err).toBeNull();
 			expect(data.success).toBeTruthy();
@@ -74,9 +74,9 @@ describe('sugar ajax api >', function() {
 	});
 
 
-	it('ajax get with error', function() {
+	it('ajax get with error', function () {
 		// initiate a request
-		ajax.get('/api/to/get', function(err, data) {
+		ajax.get('/api/to/get', function (err, data) {
 			doneFn();
 			expect(err.result).toBeNull();
 			expect(err.success).toBeFalsy();
@@ -95,7 +95,7 @@ describe('sugar ajax api >', function() {
 	});
 
 
-	it('ajax post', function() {
+	it('ajax post', function () {
 		var postData = {
 			'id': 1314,
 			'status': 0,
@@ -103,7 +103,7 @@ describe('sugar ajax api >', function() {
 		}
 
 		// initiate a request
-		ajax.post('/api/to/post', postData, function(err, data) {
+		ajax.post('/api/to/post', postData, function (err, data) {
 			doneFn();
 			expect(err).toBeNull();
 			expect(data.success).toBeTruthy();
@@ -134,7 +134,7 @@ describe('sugar ajax api >', function() {
 	});
 
 
-	it('ajax post with error', function() {
+	it('ajax post with error', function () {
 		var postData = {
 			'id': 1314,
 			'status': 0,
@@ -142,7 +142,7 @@ describe('sugar ajax api >', function() {
 		}
 
 		// initiate a request
-		ajax.post('/api/to/post', postData, function(err, data) {
+		ajax.post('/api/to/post', postData, function (err, data) {
 			doneFn();
 			expect(data).toBeNull();
 			expect(err.success).toBeFalsy();
@@ -167,13 +167,13 @@ describe('sugar ajax api >', function() {
 	});
 
 
-	it('load plain text', function() {
+	it('load plain text', function () {
 		var query = {
 			'timeStamp': 1467453891023
 		}
 
 		// initiate a request
-		ajax.load('/api/to/load', query, function(err, data) {
+		ajax.load('/api/to/load', query, function (err, data) {
 			doneFn();
 			expect(err).toBeNull();
 			expect(data.success).toBeTruthy();

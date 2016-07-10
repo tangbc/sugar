@@ -1,20 +1,20 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util').default;
 
-describe("v-html >", function() {
+describe("v-html >", function () {
 	var element;
 
-	beforeEach(function() {
+	beforeEach(function () {
 		element = document.createElement('div');
 		document.body.appendChild(element);
 	});
 
-	afterEach(function() {
+	afterEach(function () {
 		document.body.removeChild(element);
 	});
 
 
-	it('normal', function() {
+	it('normal', function () {
 		element.innerHTML = '<div id="test1" v-html="layout"></div>';
 
 		var vm = new MVVM(element, {
@@ -33,7 +33,7 @@ describe("v-html >", function() {
 	});
 
 
-	it('mustache', function() {
+	it('mustache', function () {
 		element.innerHTML = '<div id="test2">{{{ layout }}}</div>';
 
 		var vm = new MVVM(element, {
@@ -52,7 +52,7 @@ describe("v-html >", function() {
 	});
 
 
-	it('invalid mustache', function() {
+	it('invalid mustache', function () {
 		element.innerHTML = '<div>xxx{{{ layout }}}</div>';
 
 		new MVVM(element, {
@@ -63,7 +63,7 @@ describe("v-html >", function() {
 	});
 
 
-	it('normal in v-for', function() {
+	it('normal in v-for', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
@@ -102,7 +102,7 @@ describe("v-html >", function() {
 	});
 
 
-	it('mustache in v-for', function() {
+	it('mustache in v-for', function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
