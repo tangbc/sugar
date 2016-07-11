@@ -478,4 +478,49 @@ describe("v-for >", function () {
 		items[0].subs.shift();
 		expect(ul.textContent).toBe('A2-A2_a2 B1-B1_b4 ');
 	});
+
+
+	it('same object value', function () {
+		element.innerHTML =
+			'<ul id="test">' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'items': [
+				{'text': 'a'},
+				{'text': 'b'},
+				{'text': 'c'}
+			]
+		});
+		var data = vm.get();
+		var items = data.items;
+		var ul = element.querySelector('#test');
+
+		expect(ul.textContent).toBe('abc');
+
+		// set 0 to 2, and their value will be related
+		items.$set(0, items[2]);
+		expect(ul.textContent).toBe('cbc');
+
+		// change one of both, the other will be changed
+		items[0].text = 'x';
+		expect(ul.textContent).toBe('xbx');
+		items[2].text = 'o';
+		expect(ul.textContent).toBe('obo');
+
+		// all the same
+		var obj = {'text': 'x'};
+		data.items = [obj, obj, obj];
+		expect(ul.textContent).toBe('xxx');
+
+		obj.text = 'y';
+		expect(ul.textContent).toBe('yyy');
+
+		// take one hair and move the whole body
+		data.items[1].text = 'z';
+		expect(ul.textContent).toBe('zzz');
+	});
 });

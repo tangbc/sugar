@@ -1,5 +1,8 @@
 import util from '../util';
 
+// 重写的数组操作方法
+const rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+
 /**
  * observer 数据变化监测模块
  * @param  {Object}     object    [VM 数据模型]
@@ -16,13 +19,10 @@ function Observer (object, callback, context, args) {
 	this.$context = context;
 	this.$callback = callback;
 
-	// 子对象字段，子对象的内部变更只触发顶层字段
+	// 子对象字段
 	this.$subPaths = [];
-
-	// 当前数组操作
-	this.$action = 921;
-	// 重写的 Array 方法
-	this.$methods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+	// 当前数组操作标记
+	this.$method = 921;
 
 	this.observe(object);
 }
@@ -71,10 +71,10 @@ op.bindWatch = function (object, paths, val) {
 			return getter ? getter.call(object) : val;
 		}).bind(this),
 
-		set: (function Setter (newValue, noTrigger) {
+		set: (function Setter (newValue) {
 			var subPath, oldObjectVal, args;
 			var oldValue = getter ? getter.call(object) : val;
-			var isArrayAction = this.$methods.indexOf(this.$action) !== -1;
+			var isArrayAction = rewriteArrayMethods.indexOf(this.$method) !== -1;
 
 			if (newValue === oldValue) {
 				return;
@@ -94,13 +94,13 @@ op.bindWatch = function (object, paths, val) {
 			}
 
 			if (setter) {
-				setter.call(object, newValue, true);
+				setter.call(object, newValue);
 			}
 			else {
 				val = newValue;
 			}
 
-			if (isArrayAction || noTrigger) {
+			if (isArrayAction) {
 				return;
 			}
 
@@ -151,7 +151,7 @@ op.rewriteMethods = function (array, paths) {
 	var arrayMethods = Object.create(arrayProto);
 	var path = paths && paths.join('*');
 
-	util.each(this.$methods, function (method) {
+	util.each(rewriteArrayMethods, function (method) {
 		var self = this, original = arrayProto[method];
 		util.defRec(arrayMethods, method, function _redefineArrayMethod () {
 			var i = arguments.length, result;
@@ -161,11 +161,11 @@ op.rewriteMethods = function (array, paths) {
 				args[i] = arguments[i];
 			}
 
-			self.$action = method;
+			self.$method = method;
 
 			result = original.apply(this, args);
 
-			self.$action = 921;
+			self.$method = 921;
 
 			// 重新监测
 			self.observe(this, paths);
@@ -200,6 +200,16 @@ op.rewriteMethods = function (array, paths) {
 }
 
 /**
+ * 处理变更队列
+ */
+op.processQueue = function () {
+	util.each(this.$queue, function (args) {
+		this.trigger.apply(this, args);
+		return null;
+	}, this);
+}
+
+/**
  * 触发 object 变化回调
  * @param   {String}       path      [变更路径]
  * @param   {Mix}          last      [新值]
@@ -214,7 +224,7 @@ op.trigger = function (path, last, old, args) {
  * 销毁函数
  */
 op.destroy = function () {
-	this.$args = this.$context = this.$callback = this.$subPaths = this.$action = this.$methods = null;
+	this.$args = this.$context = this.$callback = this.$subPaths = this.$method = null;
 }
 
 export default Observer;
