@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Mon Jul 11 2016 21:08:04 GMT+0800 (CST)
+ * Tue Jul 12 2016 15:46:01 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -254,8 +254,7 @@
 							copyIsArray = false;
 							clone = src && isArray(src) ? src : [];
 
-						}
-						else {
+						} else {
 							clone = src && isPlainObject(src) ? src : {};
 						}
 
@@ -284,8 +283,7 @@
 
 		if (isArray(target)) {
 			ret = target.slice(0);
-		}
-		else if (isObject(target)) {
+		} else if (isObject(target)) {
 			ret = this.extend(true, {}, target);
 		}
 
@@ -420,8 +418,8 @@
 				if (!isEmpty(diff)) {
 					unique[key] = diff;
 				}
-			}
-			else if (isArray(value)) {
+
+			} else if (isArray(value)) {
 				var newArray = [];
 
 				this.each(value, function (nItem, index) {
@@ -440,8 +438,8 @@
 				}, this);
 
 				unique[key] = newArray;
-			}
-			else {
+
+			} else {
 				if (value !== oldItem) {
 					unique[key] = value;
 				}
@@ -556,9 +554,7 @@
 						'success': true,
 						'result' : response
 					}
-				}
-				// 响应失败
-				else {
+				} else {
 					error = {
 						'result' : null,
 						'success': false,
@@ -632,8 +628,7 @@
 				this.Super = Super;
 				method.apply(this, arguments);
 			}
-		}
-		else {
+		} else {
 			return method;
 		}
 	}
@@ -783,8 +778,7 @@
 		// 继续发送队列中未完成的消息
 		if (this.queue.length) {
 			setTimeout(this.sendQueue, 0);
-		}
-		else {
+		} else {
 			this.busy = false;
 		}
 	}
@@ -919,8 +913,7 @@
 					parent = target;
 					return null;
 				});
-			}
-			else {
+			} else {
 				target = parent;
 			}
 
@@ -1266,8 +1259,7 @@
 		setAttr: function (node, name, value) {
 			if (typeof value === 'boolean') {
 				node[name] = value;
-			}
-			else if (value !== this.getAttr(node, name)) {
+			} else if (value !== this.getAttr(node, name)) {
 				node.setAttribute(name, value);
 			}
 		},
@@ -1316,9 +1308,9 @@
 			/* istanbul ignore else */
 			if (list) {
 				list.add(classname);
-			}
-			else {
+			} else {
 				current = ' ' + this.getAttr(node, 'class') + ' ';
+
 				if (current.indexOf(' ' + classname + ' ') === -1) {
 					this.setAttr(node, 'class', (current + classname).trim());
 				}
@@ -1340,13 +1332,14 @@
 			/* istanbul ignore else */
 			if (list) {
 				list.remove(classname);
-			}
-			else {
+			} else {
 				target = ' ' + classname + ' ';
 				current = ' ' + this.getAttr(node, 'class') + ' ';
+
 				while (current.indexOf(target) !== -1) {
 					current = current.replace(target, ' ');
 				}
+
 				this.setAttr(node, 'class', current.trim());
 			}
 
@@ -1366,8 +1359,7 @@
 			/* istanbul ignore else */
 			if (list) {
 				return list.contains(classname);
-			}
-			else {
+			} else {
 				current = ' ' + this.getAttr(node, 'class') + ' ';
 				return current.indexOf(' ' + classname + ' ') !== -1;
 			}
@@ -1515,8 +1507,7 @@
 		util.each(classname.split(' '), function (cls) {
 			if (remove) {
 				dom.removeClass(node, cls);
-			}
-			else {
+			} else {
 				dom.addClass(node, cls);
 			}
 		});
@@ -1697,8 +1688,7 @@
 		if (classname) {
 			if (newclass === true) {
 				handleClass(node, classname);
-			}
-			else if (newclass === false) {
+			} else if (newclass === false) {
 				handleClass(node, classname, true);
 			}
 		}
@@ -1738,8 +1728,7 @@
 		// 移除绑定
 		if (unbind) {
 			eventer.remove(node, evt, callback, capture);
-		}
-		else {
+		} else {
 			eventer.add(node, evt, callback, capture);
 		}
 	}
@@ -1810,19 +1799,17 @@
 	 * @param  {Object}     object    [VM 数据模型]
 	 * @param  {Function}   callback  [变化回调函数]
 	 * @param  {Object}     context   [执行上下文]
-	 * @param  {Object}     args      [<可选>回调额外参数]
 	 */
-	function Observer (object, callback, context, args) {
+	function Observer (object, callback, context) {
 		if (util.isString(callback)) {
 			callback = context[callback];
 		}
 
-		this.$args = args;
 		this.$context = context;
 		this.$callback = callback;
 
-		// 子对象字段
-		this.$subPaths = [];
+		// 子对象路径
+		this.$subs = [];
 		// 当前数组操作标记
 		this.$method = 921;
 
@@ -1838,15 +1825,14 @@
 	 */
 	op.observe = function (object, paths) {
 		if (util.isArray(object)) {
-			this.rewriteMethods(object, paths);
+			this.rewriteMethod(object, paths);
 		}
 
 		util.each(object, function (value, property) {
 			var copies = paths && paths.slice(0);
 			if (copies) {
 				copies.push(property);
-			}
-			else {
+			} else {
 				copies = [property];
 			}
 
@@ -1865,50 +1851,57 @@
 		var path = paths.join('*');
 		var prop = paths[paths.length - 1];
 		var descriptor = Object.getOwnPropertyDescriptor(object, prop);
-		var getter = descriptor.get, setter = descriptor.set;
+		var getter = descriptor.get, setter = descriptor.set, ob = this;
 
 		// 定义 object[prop] 的 getter 和 setter
 		Object.defineProperty(object, prop, {
-			get: (function Getter () {
+			get: function Getter () {
 				return getter ? getter.call(object) : val;
-			}).bind(this),
+			},
 
-			set: (function Setter (newValue) {
-				var subPath, oldObjectVal, args;
-				var oldValue = getter ? getter.call(object) : val;
-				var isArrayAction = rewriteArrayMethods.indexOf(this.$method) !== -1;
+			set: function Setter (newValue) {
+				var oldObject, oldValue = getter ? getter.call(object) : val;
+				var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) !== -1;
 
 				if (newValue === oldValue) {
 					return;
 				}
 
+				// 新值为对象或数组重新监测
 				if (
-					!isArrayAction &&
+					!isArrayMethod &&
 					(util.isArray(newValue) || util.isObject(newValue))
 				) {
-					this.observe(newValue, paths);
+					ob.observe(newValue, paths);
 				}
 
 				// 获取子对象路径
-				subPath = this.getSubPath(path);
+				var subPath = ob.getSub(path);
 				if (subPath) {
-					oldObjectVal = object[prop];
+					oldObject = object[prop];
 				}
 
 				if (setter) {
 					setter.call(object, newValue);
-				}
-				else {
+				} else {
 					val = newValue;
 				}
 
-				if (isArrayAction) {
+				if (isArrayMethod) {
 					return;
 				}
 
-				args = subPath ? [subPath, object[prop], oldObjectVal] : [path, newValue, oldValue];
-				this.trigger.apply(this, args);
-			}).bind(this)
+				// 回调参数
+				var args;
+				if (subPath) {
+					args = [subPath, object[prop], oldObject];
+				} else {
+					args = [path, newValue, oldValue];
+				}
+
+				// 触发变更回调
+				ob.trigger.apply(ob, args);
+			}
 		});
 
 		var value = object[prop];
@@ -1922,20 +1915,20 @@
 		// 缓存子对象字段
 		if (
 			isObject &&
-			this.$subPaths.indexOf(path) === -1 &&
+			this.$subs.indexOf(path) === -1 &&
 			!util.isNumber(+path.split('*').pop())
 		) {
-			this.$subPaths.push(path);
+			this.$subs.push(path);
 		}
 	}
 
 	/**
-	 * 是否是子对象路径，如果是则返回对象路径
+	 * 返回子对象路径
 	 * @param   {String}   path
 	 * @return  {String}
 	 */
-	op.getSubPath = function (path) {
-		var paths = this.$subPaths;
+	op.getSub = function (path) {
+		var paths = this.$subs;
 		for (var i = 0; i < paths.length; i++) {
 			if (path.indexOf(paths[i]) === 0) {
 				return paths[i];
@@ -1948,34 +1941,34 @@
 	 * @param   {Array}  array  [目标数组]
 	 * @param   {Array}  paths  [访问路径数组]
 	 */
-	op.rewriteMethods = function (array, paths) {
-		var arrayProto = Array.prototype;
-		var arrayMethods = Object.create(arrayProto);
+	op.rewriteMethod = function (array, paths) {
+		var AP = Array.prototype;
+		var arrayMethods = Object.create(AP);
 		var path = paths && paths.join('*');
 
 		util.each(rewriteArrayMethods, function (method) {
-			var self = this, original = arrayProto[method];
+			var ob = this, original = AP[method];
 			util.defRec(arrayMethods, method, function _redefineArrayMethod () {
 				var arguments$1 = arguments;
 
-				var i = arguments.length, result;
-				var args = new Array(i);
+				var i = arguments.length;
+				var args = new Array(i), result;
 
 				while (i--) {
 					args[i] = arguments$1[i];
 				}
 
-				self.$method = method;
+				ob.$method = method;
 
 				result = original.apply(this, args);
 
-				self.$method = 921;
+				ob.$method = 921;
 
 				// 重新监测
-				self.observe(this, paths);
+				ob.observe(this, paths);
 
 				// 触发回调
-				self.trigger(path, this, method, args);
+				ob.trigger(path, this, method, args);
 
 				return result;
 			});
@@ -2004,31 +1997,21 @@
 	}
 
 	/**
-	 * 处理变更队列
-	 */
-	op.processQueue = function () {
-		util.each(this.$queue, function (args) {
-			this.trigger.apply(this, args);
-			return null;
-		}, this);
-	}
-
-	/**
-	 * 触发 object 变化回调
-	 * @param   {String}       path      [变更路径]
-	 * @param   {Mix}          last      [新值]
-	 * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
-	 * @param   {Array}        args      [数组操作时的参数]
+	 * 触发变化回调
+	 * @param   {String}       path      [变更的访问路径]
+	 * @param   {Mix}          last      [新值，数组操作为新数组]
+	 * @param   {Mix|String}   old       [旧值，数组操作为操作方法]
+	 * @param   {Array}        args      [数组操作参数]
 	 */
 	op.trigger = function (path, last, old, args) {
-		this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
+		this.$callback.apply(this.$context, arguments);
 	}
 
 	/**
 	 * 销毁函数
 	 */
 	op.destroy = function () {
-		this.$args = this.$context = this.$callback = this.$subPaths = this.$method = null;
+		this.$context = this.$callback = this.$subs = this.$method = null;
 	}
 
 	/**
@@ -2278,8 +2261,7 @@
 				if (move === udf && access.indexOf(nowIndex) === 0) {
 					afters.push(udf);
 					befores.push(access);
-				}
-				else if (access.indexOf(moveIndex) === 0) {
+				} else if (access.indexOf(moveIndex) === 0) {
 					afters.push(access);
 					befores.push(access.replace(moveIndex, nowIndex));
 				}
@@ -2292,8 +2274,7 @@
 				// 被挤掉的设为 undefined
 				if (after === udf) {
 					subs[before] = udf;
-				}
-				else {
+				} else {
 					dest[before] = caches[after];
 				}
 			});
@@ -2373,8 +2354,7 @@
 
 		if (regAllowKeyword.test(path)) {
 			return string;
-		}
-		else {
+		} else {
 			path = path.indexOf('"') !== -1 ? path.replace(regSaveConst, returnConst) : path;
 			return pad + 'scope.' + path;
 		}
@@ -2597,16 +2577,14 @@
 				if (model.indexOf(alias) !== -1 || hasIndex) {
 					access = fors.accesses[fors.aliases.indexOf(alias)];
 				}
-			}
-			else {
+			} else {
 				alias = util.getExpAlias(model);
 			}
 
 			// 取值字段访问路径，输出别名和下标
 			if (hasIndex || model === alias) {
 				valAccess = access || fors && fors.access;
-			}
-			else {
+			} else {
 				if (access && model !== '$event') {
 					valAccess = access + '*' + util.getExpKey(model);
 				}
@@ -2640,9 +2618,7 @@
 		if (result) {
 			func = exp.substr(0, exp.indexOf(result));
 			args = '[' + result.substr(1, result.length - 2) + ']';
-		}
-		// 只有函数名
-		else {
+		} else {
 			func = exp;
 		}
 
@@ -2811,8 +2787,7 @@
 			// 未指定参数，则原生事件对象作为唯一参数
 			if (!args.length) {
 				args.push(e);
-			}
-			else {
+			} else {
 				// 更新/替换事件对象
 				util.each(args, function (param, index) {
 					if (param === '$event' || param instanceof Event) {
@@ -2880,8 +2855,7 @@
 				var key = util.getExpKey(value);
 				scope[key] = node;
 			}
-		}
-		else {
+		} else {
 			this.vm.$data.$els[value] = node;
 		}
 	}
@@ -3196,8 +3170,7 @@
 		// empty list
 		if (!lastChild) {
 			parent.appendChild(template);
-		}
-		else {
+		} else {
 			parent.insertBefore(template, lastChild.nextSibling);
 		}
 	}
@@ -3282,8 +3255,7 @@
 			if (util.isEmpty(map)) {
 				this.recompile.apply(this, arguments);
 				return;
-			}
-			else {
+			} else {
 				this.vm.watcher.moveSubs(up.access, map);
 				this.removeEl(parent, alias, start, deleteCont);
 			}
@@ -3293,8 +3265,7 @@
 			for (i = 0; i < length; i++) {
 				if (insertOnly) {
 					map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - insertLength);
-				}
-				else if (deleAndIns) {
+				} else if (deleAndIns) {
 					map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - (insertLength - deleteCont));
 				}
 			}
@@ -3302,8 +3273,7 @@
 			if (util.isEmpty(map) || start === 0 && deleteCont > length) {
 				this.recompile.apply(this, arguments);
 				return;
-			}
-			else {
+			} else {
 				this.vm.watcher.moveSubs(up.access, map);
 			}
 
@@ -3452,8 +3422,7 @@
 
 		if (scapegoat) {
 			parent.replaceChild(template, scapegoat);
-		}
-		else {
+		} else {
 			parent.appendChild(template);
 		}
 	}
@@ -3667,8 +3636,8 @@
 					old[style] = null;
 				});
 				this.updateStyle(node, util.extend(last, old));
-			}
-			else {
+
+			} else {
 				scope = this.updateScope(scope, maps, deps, arguments);
 				this.updateStyle(node, getter.call(scope, scope));
 			}
@@ -4026,8 +3995,7 @@
 		if (dom.hasAttr(node, 'checked')) {
 			if (util.isBool(value)) {
 				duplex[field] = value = true;
-			}
-			else if (util.isArray(value)) {
+			} else if (util.isArray(value)) {
 				value.push(formatValue(node, node.value));
 			}
 		}
@@ -4057,18 +4025,16 @@
 
 			if (util.isBool(value)) {
 				duplex[field] = checked;
-			}
-			else if (util.isArray(value)) {
+			} else if (util.isArray(value)) {
 				var val = formatValue(this, this.value);
 				var index = value.indexOf(val);
+
 				// hook
 				if (checked) {
 					if (index === -1) {
 						value.push(val);
 					}
-				}
-				// unhook
-				else {
+				} else {
 					if (index !== -1) {
 						value.splice(index, 1);
 					}
@@ -4244,8 +4210,7 @@
 					return true;
 				}
 			}
-		}
-		else if (this.isTextNode(node) && reg.test(text)) {
+		} else if (this.isTextNode(node) && reg.test(text)) {
 			return true;
 		}
 	}
@@ -4298,8 +4263,8 @@
 			util.each(attrs, function (attr) {
 				this.compile(node, attr, fors);
 			}, this);
-		}
-		else if (this.isTextNode(node)) {
+
+		} else if (this.isTextNode(node)) {
 			this.compileText(node, fors);
 		}
 	}
@@ -4379,9 +4344,8 @@
 				return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 			}
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
-		}
-		// text match
-		else {
+
+		} else {
 			pieces = text.split(regtext);
 			matches = text.match(regtext);
 
@@ -4391,9 +4355,7 @@
 				// {{text}}
 				if (matches.indexOf('{{' + piece + '}}') !== -1) {
 					tokens.push('(' + piece + ')');
-				}
-				// 字符常量
-				else if (piece) {
+				} else if (piece) {
 					tokens.push('"' + piece + '"');
 				}
 			});
@@ -4643,8 +4605,7 @@
 			// 拉取模板
 			if (this.getConfig('template')) {
 				this._loadTemplate();
-			}
-			else {
+			} else {
 				this._render();
 			}
 		},
@@ -4662,8 +4623,7 @@
 				if (err) {
 					html = err.status + ': ' + uri;
 					util.warn(err);
-				}
-				else {
+				} else {
 					html = data.result;
 				}
 
@@ -4690,16 +4650,14 @@
 				}
 
 				name = ns[0];
-			}
-			else {
+			} else {
 				return data;
 			}
 
 			if (set) {
 				data[name] = value;
 				return true;
-			}
-			else {
+			} else {
 				return data[name];
 			}
 		},
@@ -4722,8 +4680,7 @@
 
 			if (isAppend) {
 				this.el = util.createElement(c.tag);
-			}
-			else {
+			} else {
 				this.el = document.querySelector(target);
 			}
 
