@@ -187,8 +187,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 			if (this.$month === 0) {
 				this.$month = 11;
 				this.$year--;
-			}
-			else {
+			} else {
 				this.$month--;
 			}
 			this.updateCurrentValue();
@@ -199,8 +198,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 			if (this.$month === 11) {
 				this.$month = 0;
 				this.$year++;
-			}
-			else {
+			} else {
 				this.$month++;
 			}
 			this.updateCurrentValue();

@@ -146,8 +146,7 @@ window.onload = function buildTodoMVC () {
 					'type'    : 'all',
 					'allTodos': filters
 				});
-			}
-			else {
+			} else {
 				vm.type = type;
 				filters = Filter[type](vm.allTodos);
 			}
