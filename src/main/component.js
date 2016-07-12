@@ -55,8 +55,7 @@ var Component = Module.extend({
 		// 拉取模板
 		if (this.getConfig('template')) {
 			this._loadTemplate();
-		}
-		else {
+		} else {
 			this._render();
 		}
 	},
@@ -74,8 +73,7 @@ var Component = Module.extend({
 			if (err) {
 				html = err.status + ': ' + uri;
 				util.warn(err);
-			}
-			else {
+			} else {
 				html = data.result;
 			}
 
@@ -102,16 +100,14 @@ var Component = Module.extend({
 			}
 
 			name = ns[0];
-		}
-		else {
+		} else {
 			return data;
 		}
 
 		if (set) {
 			data[name] = value;
 			return true;
-		}
-		else {
+		} else {
 			return data[name];
 		}
 	},
@@ -134,8 +130,7 @@ var Component = Module.extend({
 
 		if (isAppend) {
 			this.el = util.createElement(c.tag);
-		}
-		else {
+		} else {
 			this.el = document.querySelector(target);
 		}
 

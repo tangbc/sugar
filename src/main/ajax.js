@@ -46,9 +46,7 @@ ap._execute = function (dataType, url, method, param, callback, context) {
 					'success': true,
 					'result' : response
 				}
-			}
-			// 响应失败
-			else {
+			} else {
 				error = {
 					'result' : null,
 					'success': false,

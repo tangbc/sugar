@@ -116,8 +116,7 @@ cp.hasDirective = function (node) {
 				return true;
 			}
 		}
-	}
-	else if (this.isTextNode(node) && reg.test(text)) {
+	} else if (this.isTextNode(node) && reg.test(text)) {
 		return true;
 	}
 }
@@ -168,8 +167,8 @@ cp.complieDirectives = function (info) {
 		util.each(attrs, function (attr) {
 			this.compile(node, attr, fors);
 		}, this);
-	}
-	else if (this.isTextNode(node)) {
+
+	} else if (this.isTextNode(node)) {
 		this.compileText(node, fors);
 	}
 }
@@ -249,9 +248,8 @@ cp.compileText = function (node, fors) {
 			return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 		}
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
-	}
-	// text match
-	else {
+
+	} else {
 		pieces = text.split(regtext);
 		matches = text.match(regtext);
 
@@ -261,9 +259,7 @@ cp.compileText = function (node, fors) {
 			// {{text}}
 			if (matches.indexOf('{{' + piece + '}}') !== -1) {
 				tokens.push('(' + piece + ')');
-			}
-			// 字符常量
-			else if (piece) {
+			} else if (piece) {
 				tokens.push('"' + piece + '"');
 			}
 		});

@@ -16,9 +16,7 @@ function stringToParams (funcString) {
 	if (result) {
 		func = exp.substr(0, exp.indexOf(result));
 		args = '[' + result.substr(1, result.length - 2) + ']';
-	}
-	// 只有函数名
-	else {
+	} else {
 		func = exp;
 	}
 
@@ -187,8 +185,7 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 		// 未指定参数，则原生事件对象作为唯一参数
 		if (!args.length) {
 			args.push(e);
-		}
-		else {
+		} else {
 			// 更新/替换事件对象
 			util.each(args, function (param, index) {
 				if (param === '$event' || param instanceof Event) {

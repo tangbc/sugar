@@ -57,8 +57,7 @@ function replaceScope (string) {
 
 	if (regAllowKeyword.test(path)) {
 		return string;
-	}
-	else {
+	} else {
 		path = path.indexOf('"') !== -1 ? path.replace(regSaveConst, returnConst) : path;
 		return pad + 'scope.' + path;
 	}
@@ -281,16 +280,14 @@ p.getDeps = function (fors, expression) {
 			if (model.indexOf(alias) !== -1 || hasIndex) {
 				access = fors.accesses[fors.aliases.indexOf(alias)];
 			}
-		}
-		else {
+		} else {
 			alias = util.getExpAlias(model);
 		}
 
 		// 取值字段访问路径，输出别名和下标
 		if (hasIndex || model === alias) {
 			valAccess = access || fors && fors.access;
-		}
-		else {
+		} else {
 			if (access && model !== '$event') {
 				valAccess = access + '*' + util.getExpKey(model);
 			}

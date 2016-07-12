@@ -39,8 +39,8 @@ vstyle.parse = function (fors, node, expression) {
 				old[style] = null;
 			});
 			this.updateStyle(node, util.extend(last, old));
-		}
-		else {
+
+		} else {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.updateStyle(node, getter.call(scope, scope));
 		}

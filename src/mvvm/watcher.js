@@ -248,8 +248,7 @@ wp.moveAccess = function (prefix, moveMap) {
 			if (move === udf && access.indexOf(nowIndex) === 0) {
 				afters.push(udf);
 				befores.push(access);
-			}
-			else if (access.indexOf(moveIndex) === 0) {
+			} else if (access.indexOf(moveIndex) === 0) {
 				afters.push(access);
 				befores.push(access.replace(moveIndex, nowIndex));
 			}
@@ -262,8 +261,7 @@ wp.moveAccess = function (prefix, moveMap) {
 			// 被挤掉的设为 undefined
 			if (after === udf) {
 				subs[before] = udf;
-			}
-			else {
+			} else {
 				dest[before] = caches[after];
 			}
 		});

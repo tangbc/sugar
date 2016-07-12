@@ -43,8 +43,7 @@ function handleClass (node, classname, remove) {
 	util.each(classname.split(' '), function (cls) {
 		if (remove) {
 			dom.removeClass(node, cls);
-		}
-		else {
+		} else {
 			dom.addClass(node, cls);
 		}
 	});
@@ -225,8 +224,7 @@ up.updateClassName = function (node, newclass, oldclass, classname) {
 	if (classname) {
 		if (newclass === true) {
 			handleClass(node, classname);
-		}
-		else if (newclass === false) {
+		} else if (newclass === false) {
 			handleClass(node, classname, true);
 		}
 	}
@@ -266,8 +264,7 @@ up.updateEvent = function (node, evt, callback, capture, unbind) {
 	// 移除绑定
 	if (unbind) {
 		eventer.remove(node, evt, callback, capture);
-	}
-	else {
+	} else {
 		eventer.add(node, evt, callback, capture);
 	}
 }

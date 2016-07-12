@@ -282,8 +282,7 @@ vfor.push = function (parent, node, newArray, method, up) {
 	// empty list
 	if (!lastChild) {
 		parent.appendChild(template);
-	}
-	else {
+	} else {
 		parent.insertBefore(template, lastChild.nextSibling);
 	}
 }
@@ -368,8 +367,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		if (util.isEmpty(map)) {
 			this.recompile.apply(this, arguments);
 			return;
-		}
-		else {
+		} else {
 			this.vm.watcher.moveSubs(up.access, map);
 			this.removeEl(parent, alias, start, deleteCont);
 		}
@@ -379,8 +377,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		for (i = 0; i < length; i++) {
 			if (insertOnly) {
 				map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - insertLength);
-			}
-			else if (deleAndIns) {
+			} else if (deleAndIns) {
 				map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - (insertLength - deleteCont));
 			}
 		}
@@ -388,8 +385,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		if (util.isEmpty(map) || start === 0 && deleteCont > length) {
 			this.recompile.apply(this, arguments);
 			return;
-		}
-		else {
+		} else {
 			this.vm.watcher.moveSubs(up.access, map);
 		}
 
@@ -538,8 +534,7 @@ vfor.recompile = function (parent, node, newArray, method, up) {
 
 	if (scapegoat) {
 		parent.replaceChild(template, scapegoat);
-	}
-	else {
+	} else {
 		parent.appendChild(template);
 	}
 }

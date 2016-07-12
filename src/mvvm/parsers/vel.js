@@ -31,8 +31,7 @@ vel.parse = function (fors, node, value) {
 			let key = util.getExpKey(value);
 			scope[key] = node;
 		}
-	}
-	else {
+	} else {
 		this.vm.$data.$els[value] = node;
 	}
 }

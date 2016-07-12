@@ -8,19 +8,17 @@ const rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('
  * @param  {Object}     object    [VM 数据模型]
  * @param  {Function}   callback  [变化回调函数]
  * @param  {Object}     context   [执行上下文]
- * @param  {Object}     args      [<可选>回调额外参数]
  */
-function Observer (object, callback, context, args) {
+function Observer (object, callback, context) {
 	if (util.isString(callback)) {
 		callback = context[callback];
 	}
 
-	this.$args = args;
 	this.$context = context;
 	this.$callback = callback;
 
-	// 子对象字段
-	this.$subPaths = [];
+	// 子对象路径
+	this.$subs = [];
 	// 当前数组操作标记
 	this.$method = 921;
 
@@ -36,15 +34,14 @@ var op = Observer.prototype;
  */
 op.observe = function (object, paths) {
 	if (util.isArray(object)) {
-		this.rewriteMethods(object, paths);
+		this.rewriteMethod(object, paths);
 	}
 
 	util.each(object, function (value, property) {
 		var copies = paths && paths.slice(0);
 		if (copies) {
 			copies.push(property);
-		}
-		else {
+		} else {
 			copies = [property];
 		}
 
@@ -63,50 +60,57 @@ op.bindWatch = function (object, paths, val) {
 	var path = paths.join('*');
 	var prop = paths[paths.length - 1];
 	var descriptor = Object.getOwnPropertyDescriptor(object, prop);
-	var getter = descriptor.get, setter = descriptor.set;
+	var getter = descriptor.get, setter = descriptor.set, ob = this;
 
 	// 定义 object[prop] 的 getter 和 setter
 	Object.defineProperty(object, prop, {
-		get: (function Getter () {
+		get: function Getter () {
 			return getter ? getter.call(object) : val;
-		}).bind(this),
+		},
 
-		set: (function Setter (newValue) {
-			var subPath, oldObjectVal, args;
-			var oldValue = getter ? getter.call(object) : val;
-			var isArrayAction = rewriteArrayMethods.indexOf(this.$method) !== -1;
+		set: function Setter (newValue) {
+			var oldObject, oldValue = getter ? getter.call(object) : val;
+			var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) !== -1;
 
 			if (newValue === oldValue) {
 				return;
 			}
 
+			// 新值为对象或数组重新监测
 			if (
-				!isArrayAction &&
+				!isArrayMethod &&
 				(util.isArray(newValue) || util.isObject(newValue))
 			) {
-				this.observe(newValue, paths);
+				ob.observe(newValue, paths);
 			}
 
 			// 获取子对象路径
-			subPath = this.getSubPath(path);
+			var subPath = ob.getSub(path);
 			if (subPath) {
-				oldObjectVal = object[prop];
+				oldObject = object[prop];
 			}
 
 			if (setter) {
 				setter.call(object, newValue);
-			}
-			else {
+			} else {
 				val = newValue;
 			}
 
-			if (isArrayAction) {
+			if (isArrayMethod) {
 				return;
 			}
 
-			args = subPath ? [subPath, object[prop], oldObjectVal] : [path, newValue, oldValue];
-			this.trigger.apply(this, args);
-		}).bind(this)
+			// 回调参数
+			var args;
+			if (subPath) {
+				args = [subPath, object[prop], oldObject];
+			} else {
+				args = [path, newValue, oldValue];
+			}
+
+			// 触发变更回调
+			ob.trigger.apply(ob, args);
+		}
 	});
 
 	var value = object[prop];
@@ -120,20 +124,20 @@ op.bindWatch = function (object, paths, val) {
 	// 缓存子对象字段
 	if (
 		isObject &&
-		this.$subPaths.indexOf(path) === -1 &&
+		this.$subs.indexOf(path) === -1 &&
 		!util.isNumber(+path.split('*').pop())
 	) {
-		this.$subPaths.push(path);
+		this.$subs.push(path);
 	}
 }
 
 /**
- * 是否是子对象路径，如果是则返回对象路径
+ * 返回子对象路径
  * @param   {String}   path
  * @return  {String}
  */
-op.getSubPath = function (path) {
-	var paths = this.$subPaths;
+op.getSub = function (path) {
+	var paths = this.$subs;
 	for (var i = 0; i < paths.length; i++) {
 		if (path.indexOf(paths[i]) === 0) {
 			return paths[i];
@@ -146,32 +150,32 @@ op.getSubPath = function (path) {
  * @param   {Array}  array  [目标数组]
  * @param   {Array}  paths  [访问路径数组]
  */
-op.rewriteMethods = function (array, paths) {
-	var arrayProto = Array.prototype;
-	var arrayMethods = Object.create(arrayProto);
+op.rewriteMethod = function (array, paths) {
+	var AP = Array.prototype;
+	var arrayMethods = Object.create(AP);
 	var path = paths && paths.join('*');
 
 	util.each(rewriteArrayMethods, function (method) {
-		var self = this, original = arrayProto[method];
+		var ob = this, original = AP[method];
 		util.defRec(arrayMethods, method, function _redefineArrayMethod () {
-			var i = arguments.length, result;
-			var args = new Array(i);
+			var i = arguments.length;
+			var args = new Array(i), result;
 
 			while (i--) {
 				args[i] = arguments[i];
 			}
 
-			self.$method = method;
+			ob.$method = method;
 
 			result = original.apply(this, args);
 
-			self.$method = 921;
+			ob.$method = 921;
 
 			// 重新监测
-			self.observe(this, paths);
+			ob.observe(this, paths);
 
 			// 触发回调
-			self.trigger(path, this, method, args);
+			ob.trigger(path, this, method, args);
 
 			return result;
 		});
@@ -200,31 +204,21 @@ op.rewriteMethods = function (array, paths) {
 }
 
 /**
- * 处理变更队列
- */
-op.processQueue = function () {
-	util.each(this.$queue, function (args) {
-		this.trigger.apply(this, args);
-		return null;
-	}, this);
-}
-
-/**
- * 触发 object 变化回调
- * @param   {String}       path      [变更路径]
- * @param   {Mix}          last      [新值]
- * @param   {Mix|String}   old       [旧值，数组操作时为操作名称]
- * @param   {Array}        args      [数组操作时的参数]
+ * 触发变化回调
+ * @param   {String}       path      [变更的访问路径]
+ * @param   {Mix}          last      [新值，数组操作为新数组]
+ * @param   {Mix|String}   old       [旧值，数组操作为操作方法]
+ * @param   {Array}        args      [数组操作参数]
  */
 op.trigger = function (path, last, old, args) {
-	this.$callback.apply(this.$context, [path, last, old, args || this.$args]);
+	this.$callback.apply(this.$context, arguments);
 }
 
 /**
  * 销毁函数
  */
 op.destroy = function () {
-	this.$args = this.$context = this.$callback = this.$subPaths = this.$method = null;
+	this.$context = this.$callback = this.$subs = this.$method = null;
 }
 
 export default Observer;

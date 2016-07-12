@@ -236,8 +236,7 @@ util.extend = function () {
 						copyIsArray = false;
 						clone = src && isArray(src) ? src : [];
 
-					}
-					else {
+					} else {
 						clone = src && isPlainObject(src) ? src : {};
 					}
 
@@ -266,8 +265,7 @@ util.copy = function (target) {
 
 	if (isArray(target)) {
 		ret = target.slice(0);
-	}
-	else if (isObject(target)) {
+	} else if (isObject(target)) {
 		ret = this.extend(true, {}, target);
 	}
 
@@ -402,8 +400,8 @@ util.getUnique = function (contrastObject, referObject) {
 			if (!isEmpty(diff)) {
 				unique[key] = diff;
 			}
-		}
-		else if (isArray(value)) {
+
+		} else if (isArray(value)) {
 			var newArray = [];
 
 			this.each(value, function (nItem, index) {
@@ -422,8 +420,8 @@ util.getUnique = function (contrastObject, referObject) {
 			}, this);
 
 			unique[key] = newArray;
-		}
-		else {
+
+		} else {
 			if (value !== oldItem) {
 				unique[key] = value;
 			}

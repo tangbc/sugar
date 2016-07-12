@@ -12,8 +12,7 @@ function bindSuper (Super, method) {
 			this.Super = Super;
 			method.apply(this, arguments);
 		}
-	}
-	else {
+	} else {
 		return method;
 	}
 }

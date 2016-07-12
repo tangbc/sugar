@@ -181,8 +181,7 @@ vmodel.parseCheckbox = function (node, value, deps, duplex, field) {
 	if (dom.hasAttr(node, 'checked')) {
 		if (util.isBool(value)) {
 			duplex[field] = value = true;
-		}
-		else if (util.isArray(value)) {
+		} else if (util.isArray(value)) {
 			value.push(formatValue(node, node.value));
 		}
 	}
@@ -212,18 +211,16 @@ vmodel.bindCheckboxEvent = function (node, duplex, field, value) {
 
 		if (util.isBool(value)) {
 			duplex[field] = checked;
-		}
-		else if (util.isArray(value)) {
+		} else if (util.isArray(value)) {
 			let val = formatValue(this, this.value);
 			let index = value.indexOf(val);
+
 			// hook
 			if (checked) {
 				if (index === -1) {
 					value.push(val);
 				}
-			}
-			// unhook
-			else {
+			} else {
 				if (index !== -1) {
 					value.splice(index, 1);
 				}

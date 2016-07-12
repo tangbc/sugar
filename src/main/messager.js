@@ -108,8 +108,7 @@ mp.notifySender = function (msg, callback, context) {
 	// 继续发送队列中未完成的消息
 	if (this.queue.length) {
 		setTimeout(this.sendQueue, 0);
-	}
-	else {
+	} else {
 		this.busy = false;
 	}
 }
@@ -240,8 +239,7 @@ mp.notify = function (sender, receiver, name, param, callback, context) {
 				parent = target;
 				return null;
 			});
-		}
-		else {
+		} else {
 			target = parent;
 		}
 

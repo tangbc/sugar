@@ -19,8 +19,7 @@ export default {
 	setAttr: function (node, name, value) {
 		if (typeof value === 'boolean') {
 			node[name] = value;
-		}
-		else if (value !== this.getAttr(node, name)) {
+		} else if (value !== this.getAttr(node, name)) {
 			node.setAttribute(name, value);
 		}
 	},
@@ -69,9 +68,9 @@ export default {
 		/* istanbul ignore else */
 		if (list) {
 			list.add(classname);
-		}
-		else {
+		} else {
 			current = ' ' + this.getAttr(node, 'class') + ' ';
+
 			if (current.indexOf(' ' + classname + ' ') === -1) {
 				this.setAttr(node, 'class', (current + classname).trim());
 			}
@@ -93,13 +92,14 @@ export default {
 		/* istanbul ignore else */
 		if (list) {
 			list.remove(classname);
-		}
-		else {
+		} else {
 			target = ' ' + classname + ' ';
 			current = ' ' + this.getAttr(node, 'class') + ' ';
+
 			while (current.indexOf(target) !== -1) {
 				current = current.replace(target, ' ');
 			}
+
 			this.setAttr(node, 'class', current.trim());
 		}
 
@@ -119,8 +119,7 @@ export default {
 		/* istanbul ignore else */
 		if (list) {
 			return list.contains(classname);
-		}
-		else {
+		} else {
 			current = ' ' + this.getAttr(node, 'class') + ' ';
 			return current.indexOf(' ' + classname + ' ') !== -1;
 		}
