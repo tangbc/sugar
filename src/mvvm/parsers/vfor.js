@@ -1,6 +1,8 @@
 import util from '../../util';
 import Parser from '../parser';
 
+const forAlias = '__vfor';
+
 /**
  * v-for 指令解析模块
  */
@@ -102,7 +104,7 @@ vfor.parse = function (fors, node, expression) {
  * @param   {Object}  fors
  */
 vfor.updateOption = function (select, fors) {
-	var model = select._vmodel;
+	var model = select.__vmodel;
 	var getter = this.getEval(fors, model);
 	var scope = this.getScope(fors, model);
 	var value = getter.call(scope, scope);
@@ -158,8 +160,8 @@ vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, 
 		}
 
 		// 阻止重复编译除 vfor 以外的指令
-		if (node._vfor_directives > 1) {
-			vm.blockCompile(node);
+		if (node.__directives > 1) {
+			vm.block(node);
 		}
 
 		this.signAlias(cloneNode, alias);
@@ -179,7 +181,7 @@ vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, 
  * @param   {String}      alias
  */
 vfor.signAlias = function (node, alias) {
-	util.def(node, '_vfor_alias', alias);
+	util.def(node, forAlias, alias);
 }
 
 /**
@@ -356,7 +358,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 	// 只插入 splice(2, 0, 'xxx')
 	var insertOnly = !deleteCont && insertLength;
 	// 删除并插入 splice(2, 1, 'xxx')
-	var deleAndIns = deleteCont && insertLength;
+	var deleAndInsert = deleteCont && insertLength;
 
 	// 只删除
 	if (deleteOnly) {
@@ -373,11 +375,11 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		}
 	}
 	// 只插入 或 删除并插入
-	else if (insertOnly || deleAndIns) {
+	else if (insertOnly || deleAndInsert) {
 		for (i = 0; i < length; i++) {
 			if (insertOnly) {
 				map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - insertLength);
-			} else if (deleAndIns) {
+			} else if (deleAndInsert) {
 				map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - (insertLength - deleteCont));
 			}
 		}
@@ -390,7 +392,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		}
 
 		// 先删除选项
-		if (deleAndIns) {
+		if (deleAndInsert) {
 			this.removeEl(parent, alias, start, deleteCont);
 		}
 
@@ -415,12 +417,17 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
  * @return  {FirstChild}
  */
 vfor.getFirst = function (parent, alias) {
-	var firstChild = null;
+	var firstChild = parent.firstChild;
+
+	if (firstChild && firstChild[forAlias] === alias) {
+		return firstChild;
+	}
+
 	var childNodes = parent.childNodes;
 
 	for (var i = 0; i < childNodes.length; i++) {
 		let child = childNodes[i];
-		if (child._vfor_alias === alias) {
+		if (child[forAlias] === alias) {
 			firstChild = child;
 			break;
 		}
@@ -436,12 +443,17 @@ vfor.getFirst = function (parent, alias) {
  * @return  {LastChild}
  */
 vfor.getLast = function (parent, alias) {
-	var lastChild = null;
+	var lastChild = parent.lastChild;
+
+	if (lastChild && lastChild[forAlias] === alias) {
+		return lastChild;
+	}
+
 	var childNodes = parent.childNodes;
 
 	for (var i = childNodes.length - 1; i > -1 ; i--) {
 		let child = childNodes[i];
-		if (child._vfor_alias === alias) {
+		if (child[forAlias] === alias) {
 			lastChild = child;
 			break;
 		}
@@ -459,11 +471,16 @@ vfor.getLast = function (parent, alias) {
  */
 vfor.getChild = function (parent, alias, index) {
 	var e = 0, target = null;
+	var firstChild = parent.firstChild;
 	var childNodes = parent.childNodes;
+
+	if (firstChild && firstChild[forAlias] === alias) {
+		return childNodes[index];
+	}
 
 	for (var i = 0; i < childNodes.length; i++) {
 		let child = childNodes[i];
-		if (child._vfor_alias === alias) {
+		if (child[forAlias] === alias) {
 			if (e === index) {
 				target = child;
 				break;
@@ -488,7 +505,7 @@ vfor.removeEl = function (parent, alias, start, deleteCont) {
 
 	for (var i = 0; i < childNodes.length; i++) {
 		let child = childNodes[i];
-		if (child._vfor_alias === alias) {
+		if (child[forAlias] === alias) {
 			e++;
 		}
 		// 删除的范围内
@@ -521,7 +538,7 @@ vfor.recompile = function (parent, node, newArray, method, up) {
 	// 移除旧板块
 	for (var i = 0; i < childNodes.length; i++) {
 		let child = childNodes[i];
-		if (child._vfor_alias === alias) {
+		if (child[forAlias] === alias) {
 			if (!scapegoat) {
 				scapegoat = child;
 			}
