@@ -108,10 +108,6 @@ wp.watchModel = function (field, callback, context, args, deep) {
 		return util.warn('the field: [' + field + '] does not exist in model');
 	}
 
-	if (field.indexOf('*') !== -1) {
-		return util.warn('model ['+ field +'] cannot contain the character *');
-	}
-
 	this.addSubs(this.$modelSubs, field, callback, context, args);
 
 	// index.js watch api 调用，用于数组的深层监测
@@ -181,7 +177,7 @@ wp.removeSubs = function (field) {
  * @param   {String}  field     [数组字段]
  * @param   {String}  moveMap   [移位的映射关系]
  */
-wp.moveSubs = function (field, moveMap, method) {
+wp.moveSubs = function (field, moveMap) {
 	// 数组字段标识
 	var prefix = field + '*';
 	// 移位下标

@@ -12,13 +12,17 @@ import Vshow from './parsers/vshow';
 import Vbind from './parsers/vbind';
 import Vmodel from './parsers/vmodel';
 
+const regText = /\{\{(.+?)\}\}/g;
+const regHtml = /\{\{\{(.+?)\}\}\}/g;
+const regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+
 /**
  * 元素编译/指令提取模块
  * @param  {DOMElement}  element  [视图的挂载原生 DOM]
  * @param  {Object}      model    [数据模型对象]
  */
 function Compiler (element, model) {
-	if (!this.isElementNode(element)) {
+	if (!this.isElement(element)) {
 		return util.warn('element must be a type of DOMElement: ', element);
 	}
 
@@ -39,7 +43,7 @@ function Compiler (element, model) {
 	util.defRec(model, '$scope', {});
 
 	// 未编译节点缓存队列
-	this.$unCompileNodes = [];
+	this.$unCompiles = [];
 	// 根节点是否已完成编译
 	this.$rootComplied = false;
 
@@ -77,20 +81,20 @@ cp.init = function () {
  * @param   {Object}               fors      [vfor 数据]
  */
 cp.complieElement = function (element, root, fors) {
-	var node, childNodes = element.childNodes;
+	var childNodes = element.childNodes;
 
 	if (root && this.hasDirective(element)) {
-		this.$unCompileNodes.push([element, fors]);
+		this.$unCompiles.push([element, fors]);
 	}
 
-	for (var i = 0; i < childNodes.length; i++) {
-		node = childNodes[i];
+	for (let i = 0; i < childNodes.length; i++) {
+		let node = childNodes[i];
 
 		if (this.hasDirective(node)) {
-			this.$unCompileNodes.push([node, fors]);
+			this.$unCompiles.push([node, fors]);
 		}
 
-		if (node.childNodes.length && !this.isLateCompile(node)) {
+		if (node.hasChildNodes() && !this.isLate(node)) {
 			this.complieElement(node, false, fors);
 		}
 	}
@@ -106,17 +110,17 @@ cp.complieElement = function (element, root, fors) {
  * @return  {Number}
  */
 cp.hasDirective = function (node) {
-	var nodeAttrs, text = node.textContent;
-	var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+	var text = node.textContent;
 
-	if (this.isElementNode(node)) {
-		nodeAttrs = node.attributes;
-		for (var i = 0; i < nodeAttrs.length; i++) {
+	if (this.isElement(node) && node.hasAttributes()) {
+		let nodeAttrs = node.attributes;
+		for (let i = 0; i < nodeAttrs.length; i++) {
 			if (this.isDirective(nodeAttrs[i].name)) {
 				return true;
 			}
 		}
-	} else if (this.isTextNode(node) && reg.test(text)) {
+
+	} else if (this.isTextNode(node) && regMustache.test(text)) {
 		return true;
 	}
 }
@@ -125,12 +129,12 @@ cp.hasDirective = function (node) {
  * 编译节点缓存队列
  */
 cp.compileAll = function () {
-	util.each(this.$unCompileNodes, function (info) {
+	util.each(this.$unCompiles, function (info) {
 		this.complieDirectives(info);
 		return null;
 	}, this);
 
-	this.checkCompleted();
+	this.checkRoot();
 }
 
 /**
@@ -140,8 +144,8 @@ cp.compileAll = function () {
 cp.complieDirectives = function (info) {
 	var node = info[0], fors = info[1];
 
-	if (this.isElementNode(node)) {
-		let _vfor, attrs = [];
+	if (this.isElement(node)) {
+		let vfor, attrs = [];
 		// node 节点集合转为数组
 		let nodeAttrs = node.attributes;
 
@@ -150,17 +154,17 @@ cp.complieDirectives = function (info) {
 			let name = atr.name;
 			if (this.isDirective(name)) {
 				if (name === 'v-for') {
-					_vfor = atr;
+					vfor = atr;
 				}
 				attrs.push(atr);
 			}
 		}
 
 		// vfor 编译时标记节点的指令数
-		if (_vfor) {
-			util.def(node, '_vfor_directives', attrs.length);
-			attrs = [_vfor];
-			_vfor = null;
+		if (vfor) {
+			util.def(node, '__directives', attrs.length);
+			attrs = [vfor];
+			vfor = null;
 		}
 
 		// 编译节点指令
@@ -214,7 +218,7 @@ cp.compile = function (node, attr, fors) {
 				this.vif.parse.apply(this.vif, args);
 				break;
 			case 'v-else':
-				util.def(node, '_directive', 'v-else');
+				util.def(node, '__directive', 'v-else');
 				break;
 			case 'v-model':
 				this.vmodel.parse.apply(this.vmodel, args);
@@ -237,11 +241,10 @@ cp.compile = function (node, attr, fors) {
 cp.compileText = function (node, fors) {
 	var exp, match, matches, pieces, tokens = [];
 	var text = node.textContent.trim().replace(/\n/g, '');
-	var reghtml = /\{\{\{(.+?)\}\}\}/g, regtext = /\{\{(.+?)\}\}/g;
 
 	// html match
-	if (reghtml.test(text)) {
-		matches = text.match(reghtml);
+	if (regHtml.test(text)) {
+		matches = text.match(regHtml);
 		match = matches[0];
 		exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 		if (match.length !== text.length) {
@@ -250,8 +253,8 @@ cp.compileText = function (node, fors) {
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
 
 	} else {
-		pieces = text.split(regtext);
-		matches = text.match(regtext);
+		pieces = text.split(regText);
+		matches = text.match(regText);
 
 		// 文本节点转化为常量和变量的组合表达式
 		// 'a {{b}} c' => '"a " + b + " c"'
@@ -272,8 +275,8 @@ cp.compileText = function (node, fors) {
  * 停止编译节点的剩余指令，如 vfor 的根节点
  * @param   {DOMElement}  node
  */
-cp.blockCompile = function (node) {
-	util.each(this.$unCompileNodes, function (info) {
+cp.block = function (node) {
+	util.each(this.$unCompiles, function (info) {
 		if (node === info[0]) {
 			return null;
 		}
@@ -285,7 +288,7 @@ cp.blockCompile = function (node) {
  * @param   {DOMElement}   element
  * @return  {Boolean}
  */
-cp.isElementNode = function (element) {
+cp.isElement = function (element) {
 	return element.nodeType === 1;
 }
 
@@ -313,35 +316,27 @@ cp.isDirective = function (directive) {
  * @param   {DOMElement}   node
  * @return  {Boolean}
  */
-cp.isLateCompile = function (node) {
+cp.isLate = function (node) {
 	return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 }
 
 /**
  * 检查根节点是否编译完成
  */
-cp.checkCompleted = function () {
-	if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
-		this.rootCompleted();
+cp.checkRoot = function () {
+	if (this.$unCompiles.length === 0 && !this.$rootComplied) {
+		this.$rootComplied = true;
+		this.$element.appendChild(this.$fragment);
 	}
 }
 
 /**
- * 根节点编译完成，更新视图
- */
-cp.rootCompleted = function () {
-	this.$rootComplied = true;
-	this.$element.appendChild(this.$fragment);
-}
-
-/**
- * 销毁 vm 编译实例
- * @return  {[type]}  [description]
+ * 销毁函数
  */
 cp.destroy = function () {
 	this.watcher.destroy();
 	dom.empty(this.$element);
-	this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;
+	this.$fragment = this.$data = this.$unCompiles = this.updater = this.$inputs = null;
 	this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
 }
 

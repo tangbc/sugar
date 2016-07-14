@@ -94,7 +94,7 @@ function noop () {}
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
  */
 function Parser () {}
-var p = Parser.prototype;
+var pp = Parser.prototype;
 
 /**
  * 绑定监测 & 初始化视图
@@ -102,7 +102,7 @@ var p = Parser.prototype;
  * @param   {DOMElement}  node
  * @param   {String}      expression
  */
-p.bind = function (fors, node, expression) {
+pp.bind = function (fors, node, expression) {
 	// 提取依赖
 	var deps = this.getDeps(fors, expression);
 	// 取值域
@@ -127,7 +127,7 @@ p.bind = function (fors, node, expression) {
  * @param   {String}    expression
  * @return  {Function}
  */
-p.createGetter = function (expression) {
+pp.createGetter = function (expression) {
 	try {
 		return new Function('scope', 'return ' + expression + ';');
 	}
@@ -140,7 +140,7 @@ p.createGetter = function (expression) {
 /**
  * 获取表达式的取值函数
  */
-p.getEval = function (fors, expression) {
+pp.getEval = function (fors, expression) {
 	if (regAviodKeyword.test(expression)) {
 		util.warn('Avoid using unallow keyword in expression ['+ expression +']');
 		return noop;
@@ -165,25 +165,23 @@ p.getEval = function (fors, expression) {
  * 转换表达式的变量为 scope 关键字参数
  * @return  {String}
  */
-p.toScope = function (expression) {
-	var exp = expression;
-
-	if (isNormal(exp)) {
-		return 'scope.' + exp;
+pp.toScope = function (expression) {
+	if (isNormal(expression)) {
+		return 'scope.' + expression;
 	}
 
-	exp = (' ' + exp).replace(regReplaceConst, saveConst);
-	exp = exp.replace(regReplaceScope, replaceScope);
-	exp = exp.replace(regSaveConst, returnConst);
+	expression = (' ' + expression).replace(regReplaceConst, saveConst);
+	expression = expression.replace(regReplaceScope, replaceScope);
+	expression = expression.replace(regSaveConst, returnConst);
 
-	return exp;
+	return expression;
 }
 
 /**
  * 获取数据模型
  * @return  {Object}
  */
-p.getModel = function () {
+pp.getModel = function () {
 	return this.vm.$data;
 }
 
@@ -193,7 +191,7 @@ p.getModel = function () {
  * @param   {String}  expression
  * @return  {Object}
  */
-p.getScope = function (fors, expression) {
+pp.getScope = function (fors, expression) {
 	var model = this.getModel();
 
 	if (fors) {
@@ -212,7 +210,7 @@ p.getScope = function (fors, expression) {
  * @param   {Array}   args       [变更参数]
  * @return  {Mix}
  */
-p.updateScope = function (oldScope, maps, deps, args) {
+pp.updateScope = function (oldScope, maps, deps, args) {
 	var leng = 0, $scope = {};
 	var model = this.getModel();
 	var targetPaths, scopePaths;
@@ -261,7 +259,7 @@ p.updateScope = function (oldScope, maps, deps, args) {
  * @param   {String}  expression
  * @return  {Object}
  */
-p.getDeps = function (fors, expression) {
+pp.getDeps = function (fors, expression) {
 	var deps = [], paths = [];
 	var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 	var depMatches = exp.match(regReplaceScope);

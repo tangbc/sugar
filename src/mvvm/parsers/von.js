@@ -1,5 +1,5 @@
-import util from'../../util';
-import Parser from'../parser';
+import util from '../../util';
+import Parser from '../parser';
 
 /**
  * 分解字符串函数参数
@@ -132,10 +132,6 @@ von.parseJson = function (fors, node, expression) {
  */
 von.bindEvent = function (fors, node, field, evt, func, paramString) {
 	var self, stop, prevent, keyCode, capture = false;
-
-	if (!util.isFunc(func)) {
-		return;
-	}
 
 	// 支持 4 种事件修饰符 .self .stop .prevent .capture
 	if (evt.indexOf('.') !== -1) {

@@ -59,7 +59,7 @@ vmodel.parse = function (fors, node, field) {
 		return util.warn('v-model only for using in ' + inputs.join(', '));
 	}
 
-	util.def(node, '_vmodel', field);
+	util.def(node, '__vmodel', field);
 
 	var deps = this.getDeps(fors, field);
 	var scope = this.getScope(fors, field);

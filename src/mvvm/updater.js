@@ -2,6 +2,9 @@ import dom from '../dom';
 import util from '../util';
 import eventer from '../eventer';
 
+const renderContent = '__render';
+const visibleDisplay = '__visible';
+
 /**
  * 移除 DOM 注册的引用
  * @param   {Object}      vm
@@ -14,7 +17,7 @@ function removeDOMRegister (vm, element) {
 	for (var i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
-		if (!vm.isElementNode(node)) {
+		if (!vm.isElement(node)) {
 			continue;
 		}
 
@@ -87,23 +90,23 @@ up.updateDisplay = function (node, show) {
 	var siblingNode = this.getSibling(node);
 
 	this.setVisible(node);
-	this.updateStyle(node, 'display', show ? node._visible_display : 'none');
+	this.updateStyle(node, 'display', show ? node[visibleDisplay] : 'none');
 
 	// v-else
-	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 		this.setVisible(siblingNode);
-		this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
+		this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode[visibleDisplay]);
 	}
 }
 
 /**
  * 缓存节点行内样式值
  * 行内样式 display='' 不会影响由 classname 中的定义
- * _visible_display 用于缓存节点行内样式的 display 显示值
+ * visibleDisplay 用于缓存节点行内样式的 display 显示值
  * @param  {DOMElement}  node
  */
 up.setVisible = function (node) {
-	if (!node._visible_display) {
+	if (!node[visibleDisplay]) {
 		let display;
 		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
@@ -118,7 +121,7 @@ up.setVisible = function (node) {
 		}
 
 		if (display !== 'none') {
-			node._visible_display = display || '';
+			node[visibleDisplay] = display || '';
 		}
 	}
 }
@@ -135,7 +138,7 @@ up.updateRenderContent = function (node, isRender) {
 	this.toggleRender.apply(this, arguments);
 
 	// v-else
-	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 		this.setRender(siblingNode);
 		this.toggleRender(siblingNode, !isRender);
 	}
@@ -145,8 +148,8 @@ up.updateRenderContent = function (node, isRender) {
  * 缓存节点渲染内容并清空
  */
 up.setRender = function (node) {
-	if (!node._render_content) {
-		node._render_content = node.innerHTML;
+	if (!node[renderContent]) {
+		node[renderContent] = node.innerHTML;
 	}
 	dom.empty(node);
 }
@@ -156,7 +159,7 @@ up.setRender = function (node) {
  */
 up.toggleRender = function (node, isRender) {
 	var vm = this.vm;
-	var fragment = util.stringToFragment(node._render_content);
+	var fragment = util.stringToFragment(node[renderContent]);
 
 	// 渲染
 	if (isRender) {
@@ -174,16 +177,16 @@ up.toggleRender = function (node, isRender) {
  */
 up.getSibling = function (node) {
 	var el = node.nextSibling;
-	var isElementNode = this.vm.isElementNode;
+	var isElement = this.vm.isElement;
 
-	if (el && isElementNode(el)) {
+	if (el && isElement(el)) {
 		return el;
 	}
 
 	while (el) {
 		el = el.nextSibling;
 
-		if (el && isElementNode(el)) {
+		if (el && isElement(el)) {
 			return el;
 		}
 	}
