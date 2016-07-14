@@ -110,6 +110,10 @@ describe("v-for >", function () {
 		items.splice(2, 1, 'C', 'D');
 		expect(ul.textContent).toBe('abCD');
 
+		// no delete & no add
+		items.splice(1, 0);
+		expect(ul.textContent).toBe('abCD');
+
 		// cover
 		data.items = ['A', 'B', 'C'];
 		expect(ul.textContent).toBe('ABC');
@@ -136,6 +140,14 @@ describe("v-for >", function () {
 
 		items.splice(3, 2, 'd', 'e');
 		expect(ul.textContent).toBe('ABCdeF');
+
+		// splice for over length
+		items.splice(2, 70, 'X');
+		expect(ul.textContent).toBe('ABX');
+
+		// splice from first & over length, will be recompiled
+		items.splice(0, 140, 'O');
+		expect(ul.textContent).toBe('O');
 	});
 
 
@@ -522,5 +534,39 @@ describe("v-for >", function () {
 		// take one hair and move the whole body
 		data.items[1].text = 'z';
 		expect(ul.textContent).toBe('zzz');
+	});
+
+
+	it('with non-directive element equal to v-for', function () {
+		element.innerHTML =
+			'<ul id="test">' +
+				'<a>XX</a>' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
+				'<b>OO</b>' +
+			'</ul>'
+
+		var vm = new MVVM(element, {
+			'items': [
+				{'text': 'a'},
+				{'text': 'b'},
+				{'text': 'c'}
+			]
+		});
+		var data = vm.get();
+		var items = data.items;
+		var ul = element.querySelector('#test');
+
+		expect(ul.textContent).toBe('XXabcOO');
+
+		items.$set(1, {'text': 'B'});
+		expect(ul.textContent).toBe('XXaBcOO');
+
+		items.splice(1, 1);
+		expect(ul.textContent).toBe('XXacOO');
+
+		data.items = [];
+		expect(ul.textContent).toBe('XXOO');
 	});
 });
