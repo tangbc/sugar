@@ -1,6 +1,6 @@
 {
   "name": "sugar",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A lightweight JavaScript library for building web UI component.",
   "keywords": [
     "framework",
@@ -26,7 +26,7 @@
     "pack-sugar-min": "node node_modules/.bin/rollup -c build/pack.sugar.min.js",
     "pack-mvvm": "node node_modules/.bin/rollup -c build/pack.mvvm.js",
     "pack-mvvm-min": "node node_modules/.bin/rollup -c build/pack.mvvm.min.js",
-    "build": "npm run pack & npm run cover"
+    "build": "gulp jshint & npm run pack & npm run cover"
   },
   "author": "TANG",
   "license": "MIT",
