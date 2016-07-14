@@ -1,9 +1,9 @@
 /*!
- * mvvm.js v1.1.4
+ * mvvm.js v1.1.5
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Tue Jul 12 2016 15:46:01 GMT+0800 (CST)
+ * Thu Jul 14 2016 16:17:50 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -63,7 +63,7 @@
 		if (!obj || !isObject(obj) || obj.nodeType || obj === obj.window) {
 			return false;
 		}
-		if (obj.constructor && !hasOwn.call(obj.constructor.prototype, "isPrototypeOf")) {
+		if (obj.constructor && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
 			return false;
 		}
 		return true;
@@ -164,10 +164,6 @@
 			context = this;
 		}
 
-		if (isString(callback)) {
-			callback = context[callback];
-		}
-
 		// 数组
 		if (isArray(items)) {
 			for (i = 0; i < items.length; i++) {
@@ -225,7 +221,7 @@
 		}
 
 		// Handle case when target is a string or something (possible in deep copy)
-		if (typeof target !== "object" && !isFunc(target)) {
+		if (typeof target !== 'object' && !isFunc(target)) {
 			target = {};
 		}
 
@@ -736,6 +732,9 @@
 
 	var eventer = new Eventer();
 
+	var renderContent = '__render';
+	var visibleDisplay = '__visible';
+
 	/**
 	 * 移除 DOM 注册的引用
 	 * @param   {Object}      vm
@@ -748,7 +747,7 @@
 		for (var i = 0; i < childNodes.length; i++) {
 			var node = childNodes[i];
 
-			if (!vm.isElementNode(node)) {
+			if (!vm.isElement(node)) {
 				continue;
 			}
 
@@ -821,23 +820,23 @@
 		var siblingNode = this.getSibling(node);
 
 		this.setVisible(node);
-		this.updateStyle(node, 'display', show ? node._visible_display : 'none');
+		this.updateStyle(node, 'display', show ? node[visibleDisplay] : 'none');
 
 		// v-else
-		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 			this.setVisible(siblingNode);
-			this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode._visible_display);
+			this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode[visibleDisplay]);
 		}
 	}
 
 	/**
 	 * 缓存节点行内样式值
 	 * 行内样式 display='' 不会影响由 classname 中的定义
-	 * _visible_display 用于缓存节点行内样式的 display 显示值
+	 * visibleDisplay 用于缓存节点行内样式的 display 显示值
 	 * @param  {DOMElement}  node
 	 */
 	up.setVisible = function (node) {
-		if (!node._visible_display) {
+		if (!node[visibleDisplay]) {
 			var display;
 			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
@@ -852,7 +851,7 @@
 			}
 
 			if (display !== 'none') {
-				node._visible_display = display || '';
+				node[visibleDisplay] = display || '';
 			}
 		}
 	}
@@ -869,7 +868,7 @@
 		this.toggleRender.apply(this, arguments);
 
 		// v-else
-		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode._directive === 'v-else')) {
+		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 			this.setRender(siblingNode);
 			this.toggleRender(siblingNode, !isRender);
 		}
@@ -879,8 +878,8 @@
 	 * 缓存节点渲染内容并清空
 	 */
 	up.setRender = function (node) {
-		if (!node._render_content) {
-			node._render_content = node.innerHTML;
+		if (!node[renderContent]) {
+			node[renderContent] = node.innerHTML;
 		}
 		dom.empty(node);
 	}
@@ -890,7 +889,7 @@
 	 */
 	up.toggleRender = function (node, isRender) {
 		var vm = this.vm;
-		var fragment = util.stringToFragment(node._render_content);
+		var fragment = util.stringToFragment(node[renderContent]);
 
 		// 渲染
 		if (isRender) {
@@ -908,16 +907,16 @@
 	 */
 	up.getSibling = function (node) {
 		var el = node.nextSibling;
-		var isElementNode = this.vm.isElementNode;
+		var isElement = this.vm.isElement;
 
-		if (el && isElementNode(el)) {
+		if (el && isElement(el)) {
 			return el;
 		}
 
 		while (el) {
 			el = el.nextSibling;
 
-			if (el && isElementNode(el)) {
+			if (el && isElement(el)) {
 				return el;
 			}
 		}
@@ -1391,10 +1390,6 @@
 			return util.warn('the field: [' + field + '] does not exist in model');
 		}
 
-		if (field.indexOf('*') !== -1) {
-			return util.warn('model ['+ field +'] cannot contain the character *');
-		}
-
 		this.addSubs(this.$modelSubs, field, callback, context, args);
 
 		// index.js watch api 调用，用于数组的深层监测
@@ -1464,7 +1459,7 @@
 	 * @param   {String}  field     [数组字段]
 	 * @param   {String}  moveMap   [移位的映射关系]
 	 */
-	wp.moveSubs = function (field, moveMap, method) {
+	wp.moveSubs = function (field, moveMap) {
 		// 数组字段标识
 		var prefix = field + '*';
 		// 移位下标
@@ -1661,7 +1656,7 @@
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
 	 */
 	function Parser () {}
-	var p = Parser.prototype;
+	var pp = Parser.prototype;
 
 	/**
 	 * 绑定监测 & 初始化视图
@@ -1669,7 +1664,7 @@
 	 * @param   {DOMElement}  node
 	 * @param   {String}      expression
 	 */
-	p.bind = function (fors, node, expression) {
+	pp.bind = function (fors, node, expression) {
 		// 提取依赖
 		var deps = this.getDeps(fors, expression);
 		// 取值域
@@ -1694,7 +1689,7 @@
 	 * @param   {String}    expression
 	 * @return  {Function}
 	 */
-	p.createGetter = function (expression) {
+	pp.createGetter = function (expression) {
 		try {
 			return new Function('scope', 'return ' + expression + ';');
 		}
@@ -1707,7 +1702,7 @@
 	/**
 	 * 获取表达式的取值函数
 	 */
-	p.getEval = function (fors, expression) {
+	pp.getEval = function (fors, expression) {
 		if (regAviodKeyword.test(expression)) {
 			util.warn('Avoid using unallow keyword in expression ['+ expression +']');
 			return noop;
@@ -1732,25 +1727,23 @@
 	 * 转换表达式的变量为 scope 关键字参数
 	 * @return  {String}
 	 */
-	p.toScope = function (expression) {
-		var exp = expression;
-
-		if (isNormal(exp)) {
-			return 'scope.' + exp;
+	pp.toScope = function (expression) {
+		if (isNormal(expression)) {
+			return 'scope.' + expression;
 		}
 
-		exp = (' ' + exp).replace(regReplaceConst, saveConst);
-		exp = exp.replace(regReplaceScope, replaceScope);
-		exp = exp.replace(regSaveConst, returnConst);
+		expression = (' ' + expression).replace(regReplaceConst, saveConst);
+		expression = expression.replace(regReplaceScope, replaceScope);
+		expression = expression.replace(regSaveConst, returnConst);
 
-		return exp;
+		return expression;
 	}
 
 	/**
 	 * 获取数据模型
 	 * @return  {Object}
 	 */
-	p.getModel = function () {
+	pp.getModel = function () {
 		return this.vm.$data;
 	}
 
@@ -1760,7 +1753,7 @@
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getScope = function (fors, expression) {
+	pp.getScope = function (fors, expression) {
 		var model = this.getModel();
 
 		if (fors) {
@@ -1779,7 +1772,7 @@
 	 * @param   {Array}   args       [变更参数]
 	 * @return  {Mix}
 	 */
-	p.updateScope = function (oldScope, maps, deps, args) {
+	pp.updateScope = function (oldScope, maps, deps, args) {
 		var leng = 0, $scope = {};
 		var model = this.getModel();
 		var targetPaths, scopePaths;
@@ -1828,7 +1821,7 @@
 	 * @param   {String}  expression
 	 * @return  {Object}
 	 */
-	p.getDeps = function (fors, expression) {
+	pp.getDeps = function (fors, expression) {
 		var deps = [], paths = [];
 		var exp = ' ' + expression.replace(regReplaceConst, saveConst);
 		var depMatches = exp.match(regReplaceScope);
@@ -2005,10 +1998,6 @@
 	von.bindEvent = function (fors, node, field, evt, func, paramString) {
 		var self, stop, prevent, keyCode, capture = false;
 
-		if (!util.isFunc(func)) {
-			return;
-		}
-
 		// 支持 4 种事件修饰符 .self .stop .prevent .capture
 		if (evt.indexOf('.') !== -1) {
 			var modals = evt.split('.');
@@ -2159,6 +2148,8 @@
 		updater.updateRenderContent.apply(updater, arguments);
 	}
 
+	var forAlias = '__vfor';
+
 	/**
 	 * v-for 指令解析模块
 	 */
@@ -2260,7 +2251,7 @@
 	 * @param   {Object}  fors
 	 */
 	vfor.updateOption = function (select, fors) {
-		var model = select._vmodel;
+		var model = select.__vmodel;
 		var getter = this.getEval(fors, model);
 		var scope = this.getScope(fors, model);
 		var value = getter.call(scope, scope);
@@ -2316,8 +2307,8 @@
 			}
 
 			// 阻止重复编译除 vfor 以外的指令
-			if (node._vfor_directives > 1) {
-				vm.blockCompile(node);
+			if (node.__directives > 1) {
+				vm.block(node);
 			}
 
 			this.signAlias(cloneNode, alias);
@@ -2337,7 +2328,7 @@
 	 * @param   {String}      alias
 	 */
 	vfor.signAlias = function (node, alias) {
-		util.def(node, '_vfor_alias', alias);
+		util.def(node, forAlias, alias);
 	}
 
 	/**
@@ -2514,7 +2505,7 @@
 		// 只插入 splice(2, 0, 'xxx')
 		var insertOnly = !deleteCont && insertLength;
 		// 删除并插入 splice(2, 1, 'xxx')
-		var deleAndIns = deleteCont && insertLength;
+		var deleAndInsert = deleteCont && insertLength;
 
 		// 只删除
 		if (deleteOnly) {
@@ -2531,11 +2522,11 @@
 			}
 		}
 		// 只插入 或 删除并插入
-		else if (insertOnly || deleAndIns) {
+		else if (insertOnly || deleAndInsert) {
 			for (i = 0; i < length; i++) {
 				if (insertOnly) {
 					map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - insertLength);
-				} else if (deleAndIns) {
+				} else if (deleAndInsert) {
 					map[i] = i < start ? i : (i >= start && i < start + insertLength ? udf : i - (insertLength - deleteCont));
 				}
 			}
@@ -2548,7 +2539,7 @@
 			}
 
 			// 先删除选项
-			if (deleAndIns) {
+			if (deleAndInsert) {
 				this.removeEl(parent, alias, start, deleteCont);
 			}
 
@@ -2573,12 +2564,17 @@
 	 * @return  {FirstChild}
 	 */
 	vfor.getFirst = function (parent, alias) {
-		var firstChild = null;
+		var firstChild = parent.firstChild;
+
+		if (firstChild && firstChild[forAlias] === alias) {
+			return firstChild;
+		}
+
 		var childNodes = parent.childNodes;
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var child = childNodes[i];
-			if (child._vfor_alias === alias) {
+			if (child[forAlias] === alias) {
 				firstChild = child;
 				break;
 			}
@@ -2594,12 +2590,17 @@
 	 * @return  {LastChild}
 	 */
 	vfor.getLast = function (parent, alias) {
-		var lastChild = null;
+		var lastChild = parent.lastChild;
+
+		if (lastChild && lastChild[forAlias] === alias) {
+			return lastChild;
+		}
+
 		var childNodes = parent.childNodes;
 
 		for (var i = childNodes.length - 1; i > -1 ; i--) {
 			var child = childNodes[i];
-			if (child._vfor_alias === alias) {
+			if (child[forAlias] === alias) {
 				lastChild = child;
 				break;
 			}
@@ -2617,11 +2618,16 @@
 	 */
 	vfor.getChild = function (parent, alias, index) {
 		var e = 0, target = null;
+		var firstChild = parent.firstChild;
 		var childNodes = parent.childNodes;
+
+		if (firstChild && firstChild[forAlias] === alias) {
+			return childNodes[index];
+		}
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var child = childNodes[i];
-			if (child._vfor_alias === alias) {
+			if (child[forAlias] === alias) {
 				if (e === index) {
 					target = child;
 					break;
@@ -2646,7 +2652,7 @@
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var child = childNodes[i];
-			if (child._vfor_alias === alias) {
+			if (child[forAlias] === alias) {
 				e++;
 			}
 			// 删除的范围内
@@ -2679,7 +2685,7 @@
 		// 移除旧板块
 		for (var i = 0; i < childNodes.length; i++) {
 			var child = childNodes[i];
-			if (child._vfor_alias === alias) {
+			if (child[forAlias] === alias) {
 				if (!scapegoat) {
 					scapegoat = child;
 				}
@@ -3143,7 +3149,7 @@
 			return util.warn('v-model only for using in ' + inputs.join(', '));
 		}
 
-		util.def(node, '_vmodel', field);
+		util.def(node, '__vmodel', field);
 
 		var deps = this.getDeps(fors, field);
 		var scope = this.getScope(fors, field);
@@ -3372,13 +3378,17 @@
 		});
 	}
 
+	var regText = /\{\{(.+?)\}\}/g;
+	var regHtml = /\{\{\{(.+?)\}\}\}/g;
+	var regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+
 	/**
 	 * 元素编译/指令提取模块
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */
 	function Compiler (element, model) {
-		if (!this.isElementNode(element)) {
+		if (!this.isElement(element)) {
 			return util.warn('element must be a type of DOMElement: ', element);
 		}
 
@@ -3399,7 +3409,7 @@
 		util.defRec(model, '$scope', {});
 
 		// 未编译节点缓存队列
-		this.$unCompileNodes = [];
+		this.$unCompiles = [];
 		// 根节点是否已完成编译
 		this.$rootComplied = false;
 
@@ -3439,20 +3449,20 @@
 	cp.complieElement = function (element, root, fors) {
 		var this$1 = this;
 
-		var node, childNodes = element.childNodes;
+		var childNodes = element.childNodes;
 
 		if (root && this.hasDirective(element)) {
-			this.$unCompileNodes.push([element, fors]);
+			this.$unCompiles.push([element, fors]);
 		}
 
 		for (var i = 0; i < childNodes.length; i++) {
-			node = childNodes[i];
+			var node = childNodes[i];
 
 			if (this$1.hasDirective(node)) {
-				this$1.$unCompileNodes.push([node, fors]);
+				this$1.$unCompiles.push([node, fors]);
 			}
 
-			if (node.childNodes.length && !this$1.isLateCompile(node)) {
+			if (node.hasChildNodes() && !this$1.isLate(node)) {
 				this$1.complieElement(node, false, fors);
 			}
 		}
@@ -3470,17 +3480,17 @@
 	cp.hasDirective = function (node) {
 		var this$1 = this;
 
-		var nodeAttrs, text = node.textContent;
-		var reg = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
+		var text = node.textContent;
 
-		if (this.isElementNode(node)) {
-			nodeAttrs = node.attributes;
+		if (this.isElement(node) && node.hasAttributes()) {
+			var nodeAttrs = node.attributes;
 			for (var i = 0; i < nodeAttrs.length; i++) {
 				if (this$1.isDirective(nodeAttrs[i].name)) {
 					return true;
 				}
 			}
-		} else if (this.isTextNode(node) && reg.test(text)) {
+
+		} else if (this.isTextNode(node) && regMustache.test(text)) {
 			return true;
 		}
 	}
@@ -3489,12 +3499,12 @@
 	 * 编译节点缓存队列
 	 */
 	cp.compileAll = function () {
-		util.each(this.$unCompileNodes, function (info) {
+		util.each(this.$unCompiles, function (info) {
 			this.complieDirectives(info);
 			return null;
 		}, this);
 
-		this.checkCompleted();
+		this.checkRoot();
 	}
 
 	/**
@@ -3506,8 +3516,8 @@
 
 		var node = info[0], fors = info[1];
 
-		if (this.isElementNode(node)) {
-			var _vfor, attrs = [];
+		if (this.isElement(node)) {
+			var vfor, attrs = [];
 			// node 节点集合转为数组
 			var nodeAttrs = node.attributes;
 
@@ -3516,17 +3526,17 @@
 				var name = atr.name;
 				if (this$1.isDirective(name)) {
 					if (name === 'v-for') {
-						_vfor = atr;
+						vfor = atr;
 					}
 					attrs.push(atr);
 				}
 			}
 
 			// vfor 编译时标记节点的指令数
-			if (_vfor) {
-				util.def(node, '_vfor_directives', attrs.length);
-				attrs = [_vfor];
-				_vfor = null;
+			if (vfor) {
+				util.def(node, '__directives', attrs.length);
+				attrs = [vfor];
+				vfor = null;
 			}
 
 			// 编译节点指令
@@ -3580,7 +3590,7 @@
 					this.vif.parse.apply(this.vif, args);
 					break;
 				case 'v-else':
-					util.def(node, '_directive', 'v-else');
+					util.def(node, '__directive', 'v-else');
 					break;
 				case 'v-model':
 					this.vmodel.parse.apply(this.vmodel, args);
@@ -3603,11 +3613,10 @@
 	cp.compileText = function (node, fors) {
 		var exp, match, matches, pieces, tokens = [];
 		var text = node.textContent.trim().replace(/\n/g, '');
-		var reghtml = /\{\{\{(.+?)\}\}\}/g, regtext = /\{\{(.+?)\}\}/g;
 
 		// html match
-		if (reghtml.test(text)) {
-			matches = text.match(reghtml);
+		if (regHtml.test(text)) {
+			matches = text.match(regHtml);
 			match = matches[0];
 			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
 			if (match.length !== text.length) {
@@ -3616,8 +3625,8 @@
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 
 		} else {
-			pieces = text.split(regtext);
-			matches = text.match(regtext);
+			pieces = text.split(regText);
+			matches = text.match(regText);
 
 			// 文本节点转化为常量和变量的组合表达式
 			// 'a {{b}} c' => '"a " + b + " c"'
@@ -3638,8 +3647,8 @@
 	 * 停止编译节点的剩余指令，如 vfor 的根节点
 	 * @param   {DOMElement}  node
 	 */
-	cp.blockCompile = function (node) {
-		util.each(this.$unCompileNodes, function (info) {
+	cp.block = function (node) {
+		util.each(this.$unCompiles, function (info) {
 			if (node === info[0]) {
 				return null;
 			}
@@ -3651,7 +3660,7 @@
 	 * @param   {DOMElement}   element
 	 * @return  {Boolean}
 	 */
-	cp.isElementNode = function (element) {
+	cp.isElement = function (element) {
 		return element.nodeType === 1;
 	}
 
@@ -3679,35 +3688,27 @@
 	 * @param   {DOMElement}   node
 	 * @return  {Boolean}
 	 */
-	cp.isLateCompile = function (node) {
+	cp.isLate = function (node) {
 		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 	}
 
 	/**
 	 * 检查根节点是否编译完成
 	 */
-	cp.checkCompleted = function () {
-		if (this.$unCompileNodes.length === 0 && !this.$rootComplied) {
-			this.rootCompleted();
+	cp.checkRoot = function () {
+		if (this.$unCompiles.length === 0 && !this.$rootComplied) {
+			this.$rootComplied = true;
+			this.$element.appendChild(this.$fragment);
 		}
 	}
 
 	/**
-	 * 根节点编译完成，更新视图
-	 */
-	cp.rootCompleted = function () {
-		this.$rootComplied = true;
-		this.$element.appendChild(this.$fragment);
-	}
-
-	/**
-	 * 销毁 vm 编译实例
-	 * @return  {[type]}  [description]
+	 * 销毁函数
 	 */
 	cp.destroy = function () {
 		this.watcher.destroy();
 		dom.empty(this.$element);
-		this.$fragment = this.$data = this.$unCompileNodes = this.updater = this.$inputs = null;
+		this.$fragment = this.$data = this.$unCompiles = this.updater = this.$inputs = null;
 		this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
 	}
 
