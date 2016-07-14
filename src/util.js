@@ -50,7 +50,7 @@ function isPlainObject (obj) {
 	if (!obj || !isObject(obj) || obj.nodeType || obj === obj.window) {
 		return false;
 	}
-	if (obj.constructor && !hasOwn.call(obj.constructor.prototype, "isPrototypeOf")) {
+	if (obj.constructor && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
 		return false;
 	}
 	return true;
@@ -149,10 +149,6 @@ util.each = function (items, callback, context) {
 		context = this;
 	}
 
-	if (isString(callback)) {
-		callback = context[callback];
-	}
-
 	// 数组
 	if (isArray(items)) {
 		for (i = 0; i < items.length; i++) {
@@ -207,7 +203,7 @@ util.extend = function () {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if (typeof target !== "object" && !isFunc(target)) {
+	if (typeof target !== 'object' && !isFunc(target)) {
 		target = {};
 	}
 
