@@ -1,17 +1,21 @@
 require([
-	'../../../../dist/mvvm.min',
+	'../../../../bundle/mvvm',
 	'../../assets/mock.min',
 	'../../assets/vue.min'
 ], function (MVVM, Mock, Vue) {
 
-	var layout, model;
+	MVVM = MVVM.default || MVVM;
+
 	var Random = Mock.Random;
+	var layout, model, before, after;
 	var body = document.querySelector('body');
 
 
 	layout =
 	`
 	<h2>items count: {{ items.length }}</h2>
+	<h2>test library: {{ library }}</h2>
+	<h2>completed time: {{ time }}ms</h2>
 	<ul>
 		<li v-for="item in items" v-bind="{
 			'title'  : 'ID: ' + item.id,
@@ -35,27 +39,34 @@ require([
 		});
 	}
 
-	model =  {
-		'items': items
-	}
+	// ==========================================
 
 
 	// // Vue.js 测试
 	// body.innerHTML = layout;
-	// console.time('compileVue');
-	// new Vue({
+	// before = Date.now();
+	// var vue = new Vue({
 	// 	'el': body,
 	// 	'data': {
+	// 		'time': 0,
+	// 		'library': 'Vue',
 	// 		'items': items
 	// 	}
 	// });
-	// console.timeEnd('compileVue');
+	// after = Date.now();
+	// vue.$data.time = after - before;
 
 
+	// ==========================================
 
 	// start compile
 	body.innerHTML = layout;
-	console.time('compile');
-	var vm = new MVVM(body, model);
-	console.timeEnd('compile');
+	before = Date.now();
+	var vm = new MVVM(body, {
+		'time': 0,
+		'library': 'Sugar',
+		'items': items
+	});
+	after = Date.now();
+	vm.set('time', after - before);
 });
