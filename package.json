@@ -17,16 +17,17 @@
   },
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
-    "cover": "karma start build/karma.cover.js",
+    "dev": "npm run dev-sugar & npm run dev-mvvm",
     "test": "karma start build/karma.unit.js",
+    "cover": "karma start build/karma.cover.js",
+    "build": "gulp jshint & npm run pack & npm run cover",
     "dev-mvvm": "webpack --watch --config build/dev.mvvm.js",
     "dev-sugar": "webpack --watch --config build/dev.sugar.js",
     "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
     "pack-sugar": "node node_modules/.bin/rollup -c build/pack.sugar.js",
     "pack-sugar-min": "node node_modules/.bin/rollup -c build/pack.sugar.min.js",
     "pack-mvvm": "node node_modules/.bin/rollup -c build/pack.mvvm.js",
-    "pack-mvvm-min": "node node_modules/.bin/rollup -c build/pack.mvvm.min.js",
-    "build": "gulp jshint & npm run pack & npm run cover"
+    "pack-mvvm-min": "node node_modules/.bin/rollup -c build/pack.mvvm.min.js"
   },
   "author": "TANG",
   "license": "MIT",
