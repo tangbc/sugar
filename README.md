@@ -30,7 +30,7 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 	* **`src/mvvm/`** A simple MVVM library, directive support bind text, two-way data binding, bind attribute, bind event, repeat list and more. **mvvm doesn't rely on sugar, it can be used independently**. [See more API here](http://tangbc.github.io/sugar/mvvm.html)
 
 
-## Hello world
+## HelloWorld
 ```javascript
 // define HelloWorld component:
 var HelloWorld = sugar.Component.extend({
@@ -77,7 +77,7 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Usage
 
-* Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>` tag.
+* Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>`.
 	* `sugar (about 38 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 30 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
 
@@ -91,16 +91,12 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Contribution
 
-1. Clone to local **`git clone https://github.com/tangbc/sugar.git`**
+1. Clone it: **`git clone https://github.com/tangbc/sugar.git`**
 
-2. Install nodejs packages：**`npm install`**
+2. Install nodejs packages: **`npm install`**
 
-3. Dev and debug for sugar ：**`npm run dev-sugar`**
+3. Develop and debug: **`npm run dev`** *(generate sourcemap files in `bundle/`)*
 
-4. Dev and debug for mvvm ：**`npm run dev-mvvm`**
+4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**
 
-5. Running uint test：**`npm run test`**
-
-6. Generate the test coverage report：**`npm run cover`**
-
-7. Bundle and compress source code：**`npm run pack`**
+5. Generate the test coverage report, jshint check-up and compress source code: **`npm run build`**
