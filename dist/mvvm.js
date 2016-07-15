@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Thu Jul 14 2016 16:17:50 GMT+0800 (CST)
+ * Fri Jul 15 2016 16:56:49 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -602,7 +602,7 @@
 				target = ' ' + classname + ' ';
 				current = ' ' + this.getAttr(node, 'class') + ' ';
 
-				while (current.indexOf(target) !== -1) {
+				while (current.indexOf(target) > -1) {
 					current = current.replace(target, ' ');
 				}
 
@@ -622,12 +622,13 @@
 		 */
 		hasClass: function (node, classname) {
 			var current, list = node.classList;
+
 			/* istanbul ignore else */
 			if (list) {
 				return list.contains(classname);
 			} else {
 				current = ' ' + this.getAttr(node, 'class') + ' ';
-				return current.indexOf(' ' + classname + ' ') !== -1;
+				return current.indexOf(' ' + classname + ' ') > -1;
 			}
 		},
 
@@ -688,7 +689,7 @@
 
 		map[guid] = callback;
 
-		listeners[guid] = function _proxy(e) {
+		listeners[guid] = function _proxy (e) {
 			callback.call(context || this, e);
 		}
 
@@ -840,11 +841,11 @@
 			var display;
 			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
-			if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
+			if (inlineStyle && inlineStyle.indexOf('display') > -1) {
 				var styles = inlineStyle.split(';');
 
 				util.each(styles, function (style) {
-					if (style.indexOf('display') !== -1) {
+					if (style.indexOf('display') > -1) {
 						display = util.getKeyValue(style);
 					}
 				});
@@ -1038,7 +1039,7 @@
 			value = +value;
 		}
 
-		checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) !== -1);
+		checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) > -1);
 	}
 
 	/**
@@ -1056,7 +1057,7 @@
 			var option = options[i];
 			var value = option.value;
 			value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
-			option.selected = multiple ? selected.indexOf(value) !== -1 : selected === value;
+			option.selected = multiple ? selected.indexOf(value) > -1 : selected === value;
 		}
 	}
 
@@ -1130,7 +1131,7 @@
 
 			set: function Setter (newValue) {
 				var oldObject, oldValue = getter ? getter.call(object) : val;
-				var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) !== -1;
+				var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) > -1;
 
 				if (newValue === oldValue) {
 					return;
@@ -1257,7 +1258,7 @@
 		util.defRec(arrayMethods, '$remove', function $remove (item) {
 			var index = this.indexOf(item);
 
-			if (index !== -1) {
+			if (index > -1) {
 				return this.splice(index, 1);
 			}
 		});
@@ -1314,7 +1315,7 @@
 	 * @param   {Array}   args
 	 */
 	wp.change = function (path, last, old, args) {
-		var isAccess = path.indexOf('*') !== -1;
+		var isAccess = path.indexOf('*') > -1;
 		var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 		this.trigger(subs, path, last, old, args);
 
@@ -1360,7 +1361,7 @@
 			}
 
 			// 下标取值
-			if (model.indexOf('$index') !== -1) {
+			if (model.indexOf('$index') > -1) {
 				this.watchIndex(access, callback, context, args);
 				return;
 			}
@@ -1620,7 +1621,7 @@
 		if (regAllowKeyword.test(path)) {
 			return string;
 		} else {
-			path = path.indexOf('"') !== -1 ? path.replace(regSaveConst, returnConst) : path;
+			path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path;
 			return pad + 'scope.' + path;
 		}
 	}
@@ -1634,7 +1635,7 @@
 	function getAlias (fors, expression) {
 		var alias, exp = expression;
 
-		if (exp.indexOf(fors.alias) !== -1) {
+		if (exp.indexOf(fors.alias) > -1) {
 			return fors.alias;
 		}
 
@@ -1834,10 +1835,10 @@
 			// 取值域别名或 items.length -> items
 			if (fors) {
 				alias = getAlias(fors, dep);
-				hasIndex = model.indexOf('$index') !== -1;
+				hasIndex = model.indexOf('$index') > -1;
 
 				// 取值域路径
-				if (model.indexOf(alias) !== -1 || hasIndex) {
+				if (model.indexOf(alias) > -1 || hasIndex) {
 					access = fors.accesses[fors.aliases.indexOf(alias)];
 				}
 			} else {
@@ -1937,7 +1938,7 @@
 	 */
 	von.parse = function (fors, node, expression, directive) {
 		// 单个事件
-		if (directive.indexOf(':') !== -1) {
+		if (directive.indexOf(':') > -1) {
 			this.parseSingle.apply(this, arguments);
 		}
 		// 多个事件
@@ -1999,13 +2000,13 @@
 		var self, stop, prevent, keyCode, capture = false;
 
 		// 支持 4 种事件修饰符 .self .stop .prevent .capture
-		if (evt.indexOf('.') !== -1) {
+		if (evt.indexOf('.') > -1) {
 			var modals = evt.split('.');
 			evt = modals.shift();
-			self = modals && modals.indexOf('self') !== -1;
-			stop = modals && modals.indexOf('stop') !== -1;
-			prevent = modals && modals.indexOf('prevent') !== -1;
-			capture = modals && modals.indexOf('capture') !== -1;
+			self = modals && modals.indexOf('self') > -1;
+			stop = modals && modals.indexOf('stop') > -1;
+			prevent = modals && modals.indexOf('prevent') > -1;
+			capture = modals && modals.indexOf('capture') > -1;
 			keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 		}
 
@@ -2149,6 +2150,7 @@
 	}
 
 	var forAlias = '__vfor';
+	var regForExp = /(.*) in (.*)/;
 
 	/**
 	 * v-for 指令解析模块
@@ -2167,7 +2169,7 @@
 	 */
 	vfor.parse = function (fors, node, expression) {
 		var vm = this.vm;
-		var match = expression.match(/(.*) in (.*)/);
+		var match = expression.match(regForExp);
 		var alias = match[1];
 		var iterator = match[2];
 
@@ -2222,13 +2224,13 @@
 
 		// 数组更新信息
 		updates = {
-			'alias'   : alias,
-			'aliases' : aliases,
-			'access'  : loopAccess,
-			'accesses': accesses,
-			'scopes'  : scopes,
-			'level'   : level,
-			'maps'    : maps
+			alias: alias,
+			aliases: aliases,
+			'access': loopAccess,
+			accesses: accesses,
+			scopes: scopes,
+			level: level,
+			maps: maps
 		}
 
 		// 监测根数组的数组操作
@@ -2274,36 +2276,36 @@
 	 */
 	vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 		var vm = this.vm;
-		var fragments = util.createFragment();
+		var listFragment = util.createFragment();
 
-		util.each(array, function (scope, i) {
+		util.each(array, function (item, i) {
 			var index = start + i;
 			var field = paths.split('*').pop();
-			var cloneNode = node.cloneNode(true);
-			var fors, access = paths + '*' + index;
+			var plate = node.cloneNode(true);
+			var access = paths + '*' + index;
 
-			scopes[alias] = scope;
+			scopes[alias] = item;
 			aliases[level] = alias;
 			accesses[level] = access;
 			maps[field] = alias;
 
-			fors = {
+			var fors = {
 				// 别名
-				'alias'   : alias,
+				alias: alias,
 				// 别名集合
-				'aliases' : aliases,
+				aliases: aliases,
 				// 取值域访问路径
-				'access'  : access,
+				access: access,
 				// 取值域访问路径集合
-				'accesses': accesses,
+				accesses: accesses,
 				// 取值域集合
-				'scopes'  : scopes,
+				scopes: scopes,
 				// 数组取值域映射
-				'maps'    : maps,
+				maps: maps,
 				// 当前循环层级
-				'level'   : level,
+				level: level,
 				// 当前取值域下标
-				'index'   : index
+				index: index
 			}
 
 			// 阻止重复编译除 vfor 以外的指令
@@ -2311,15 +2313,15 @@
 				vm.block(node);
 			}
 
-			this.signAlias(cloneNode, alias);
+			this.signAlias(plate, alias);
 
 			// 传入 vfor 数据编译板块
-			vm.complieElement(cloneNode, true, fors);
+			vm.complieElement(plate, true, fors);
 
-			fragments.appendChild(cloneNode);
+			listFragment.appendChild(plate);
 		}, this);
 
-		return fragments;
+		return listFragment;
 	}
 
 	/**
@@ -2967,7 +2969,7 @@
 	 */
 	vbind.parse = function (fors, node, expression, directive) {
 		// 单个 attribute
-		if (directive.indexOf(':') !== -1) {
+		if (directive.indexOf(':') > -1) {
 			var vclass = this.vclass;
 			var vstyle = this.vstyle;
 			// 属性类型
@@ -3311,7 +3313,7 @@
 						value.push(val);
 					}
 				} else {
-					if (index !== -1) {
+					if (index > -1) {
 						value.splice(index, 1);
 					}
 				}
@@ -3378,8 +3380,10 @@
 		});
 	}
 
+	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
 	var regHtml = /\{\{\{(.+?)\}\}\}/g;
+	var regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
 	var regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 	/**
@@ -3612,16 +3616,18 @@
 	 */
 	cp.compileText = function (node, fors) {
 		var exp, match, matches, pieces, tokens = [];
-		var text = node.textContent.trim().replace(/\n/g, '');
+		var text = node.textContent.trim().replace(regNewline, '');
 
 		// html match
 		if (regHtml.test(text)) {
 			matches = text.match(regHtml);
 			match = matches[0];
-			exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
+			exp = match.replace(regMustacheSpace, '');
+
 			if (match.length !== text.length) {
 				return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 			}
+
 			this.vhtml.parse.call(this.vhtml, fors, node, exp);
 
 		} else {
@@ -3632,7 +3638,7 @@
 			// 'a {{b}} c' => '"a " + b + " c"'
 			util.each(pieces, function (piece) {
 				// {{text}}
-				if (matches.indexOf('{{' + piece + '}}') !== -1) {
+				if (matches.indexOf('{{' + piece + '}}') > -1) {
 					tokens.push('(' + piece + ')');
 				} else if (piece) {
 					tokens.push('"' + piece + '"');
