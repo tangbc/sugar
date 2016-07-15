@@ -58,7 +58,7 @@ function replaceScope (string) {
 	if (regAllowKeyword.test(path)) {
 		return string;
 	} else {
-		path = path.indexOf('"') !== -1 ? path.replace(regSaveConst, returnConst) : path;
+		path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path;
 		return pad + 'scope.' + path;
 	}
 }
@@ -72,7 +72,7 @@ function replaceScope (string) {
 function getAlias (fors, expression) {
 	var alias, exp = expression;
 
-	if (exp.indexOf(fors.alias) !== -1) {
+	if (exp.indexOf(fors.alias) > -1) {
 		return fors.alias;
 	}
 
@@ -272,10 +272,10 @@ pp.getDeps = function (fors, expression) {
 		// 取值域别名或 items.length -> items
 		if (fors) {
 			alias = getAlias(fors, dep);
-			hasIndex = model.indexOf('$index') !== -1;
+			hasIndex = model.indexOf('$index') > -1;
 
 			// 取值域路径
-			if (model.indexOf(alias) !== -1 || hasIndex) {
+			if (model.indexOf(alias) > -1 || hasIndex) {
 				access = fors.accesses[fors.aliases.indexOf(alias)];
 			}
 		} else {

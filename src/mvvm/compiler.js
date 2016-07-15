@@ -12,8 +12,10 @@ import Vshow from './parsers/vshow';
 import Vbind from './parsers/vbind';
 import Vmodel from './parsers/vmodel';
 
+const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
 const regHtml = /\{\{\{(.+?)\}\}\}/g;
+const regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
 const regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 /**
@@ -240,16 +242,18 @@ cp.compile = function (node, attr, fors) {
  */
 cp.compileText = function (node, fors) {
 	var exp, match, matches, pieces, tokens = [];
-	var text = node.textContent.trim().replace(/\n/g, '');
+	var text = node.textContent.trim().replace(regNewline, '');
 
 	// html match
 	if (regHtml.test(text)) {
 		matches = text.match(regHtml);
 		match = matches[0];
-		exp = match.replace(/\s\{|\{|\{|\}|\}|\}/g, '');
+		exp = match.replace(regMustacheSpace, '');
+
 		if (match.length !== text.length) {
 			return util.warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 		}
+
 		this.vhtml.parse.call(this.vhtml, fors, node, exp);
 
 	} else {
@@ -260,7 +264,7 @@ cp.compileText = function (node, fors) {
 		// 'a {{b}} c' => '"a " + b + " c"'
 		util.each(pieces, function (piece) {
 			// {{text}}
-			if (matches.indexOf('{{' + piece + '}}') !== -1) {
+			if (matches.indexOf('{{' + piece + '}}') > -1) {
 				tokens.push('(' + piece + ')');
 			} else if (piece) {
 				tokens.push('"' + piece + '"');

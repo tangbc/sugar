@@ -72,7 +72,7 @@ var von = Von.prototype = Object.create(Parser.prototype);
  */
 von.parse = function (fors, node, expression, directive) {
 	// 单个事件
-	if (directive.indexOf(':') !== -1) {
+	if (directive.indexOf(':') > -1) {
 		this.parseSingle.apply(this, arguments);
 	}
 	// 多个事件
@@ -134,13 +134,13 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 	var self, stop, prevent, keyCode, capture = false;
 
 	// 支持 4 种事件修饰符 .self .stop .prevent .capture
-	if (evt.indexOf('.') !== -1) {
+	if (evt.indexOf('.') > -1) {
 		let modals = evt.split('.');
 		evt = modals.shift();
-		self = modals && modals.indexOf('self') !== -1;
-		stop = modals && modals.indexOf('stop') !== -1;
-		prevent = modals && modals.indexOf('prevent') !== -1;
-		capture = modals && modals.indexOf('capture') !== -1;
+		self = modals && modals.indexOf('self') > -1;
+		stop = modals && modals.indexOf('stop') > -1;
+		prevent = modals && modals.indexOf('prevent') > -1;
+		capture = modals && modals.indexOf('capture') > -1;
 		keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 	}
 

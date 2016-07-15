@@ -35,7 +35,7 @@ ep.add = function (node, evt, callback, capture, context) {
 
 	map[guid] = callback;
 
-	listeners[guid] = function _proxy(e) {
+	listeners[guid] = function _proxy (e) {
 		callback.call(context || this, e);
 	}
 

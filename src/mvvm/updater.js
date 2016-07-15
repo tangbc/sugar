@@ -110,11 +110,11 @@ up.setVisible = function (node) {
 		let display;
 		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
 
-		if (inlineStyle && inlineStyle.indexOf('display') !== -1) {
+		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
 			let styles = inlineStyle.split(';');
 
 			util.each(styles, function (style) {
-				if (style.indexOf('display') !== -1) {
+				if (style.indexOf('display') > -1) {
 					display = util.getKeyValue(style);
 				}
 			});
@@ -308,7 +308,7 @@ up.updateCheckboxChecked = function (checkbox, values) {
 		value = +value;
 	}
 
-	checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) !== -1);
+	checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) > -1);
 }
 
 /**
@@ -326,7 +326,7 @@ up.updateSelectChecked = function (select, selected, multi) {
 		let option = options[i];
 		let value = option.value;
 		value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
-		option.selected = multiple ? selected.indexOf(value) !== -1 : selected === value;
+		option.selected = multiple ? selected.indexOf(value) > -1 : selected === value;
 	}
 }
 

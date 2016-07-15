@@ -2,6 +2,7 @@ import util from '../../util';
 import Parser from '../parser';
 
 const forAlias = '__vfor';
+const regForExp = /(.*) in (.*)/;
 
 /**
  * v-for 指令解析模块
@@ -20,7 +21,7 @@ var vfor = Vfor.prototype = Object.create(Parser.prototype);
  */
 vfor.parse = function (fors, node, expression) {
 	var vm = this.vm;
-	var match = expression.match(/(.*) in (.*)/);
+	var match = expression.match(regForExp);
 	var alias = match[1];
 	var iterator = match[2];
 
@@ -75,13 +76,13 @@ vfor.parse = function (fors, node, expression) {
 
 	// 数组更新信息
 	updates = {
-		'alias'   : alias,
-		'aliases' : aliases,
-		'access'  : loopAccess,
-		'accesses': accesses,
-		'scopes'  : scopes,
-		'level'   : level,
-		'maps'    : maps
+		alias,
+		aliases,
+		'access': loopAccess,
+		accesses,
+		scopes,
+		level,
+		maps
 	}
 
 	// 监测根数组的数组操作
@@ -127,36 +128,36 @@ vfor.updateOption = function (select, fors) {
  */
 vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, scopes, maps, level) {
 	var vm = this.vm;
-	var fragments = util.createFragment();
+	var listFragment = util.createFragment();
 
-	util.each(array, function (scope, i) {
+	util.each(array, function (item, i) {
 		var index = start + i;
 		var field = paths.split('*').pop();
-		var cloneNode = node.cloneNode(true);
-		var fors, access = paths + '*' + index;
+		var plate = node.cloneNode(true);
+		var access = paths + '*' + index;
 
-		scopes[alias] = scope;
+		scopes[alias] = item;
 		aliases[level] = alias;
 		accesses[level] = access;
 		maps[field] = alias;
 
-		fors = {
+		var fors = {
 			// 别名
-			'alias'   : alias,
+			alias,
 			// 别名集合
-			'aliases' : aliases,
+			aliases,
 			// 取值域访问路径
-			'access'  : access,
+			access,
 			// 取值域访问路径集合
-			'accesses': accesses,
+			accesses,
 			// 取值域集合
-			'scopes'  : scopes,
+			scopes,
 			// 数组取值域映射
-			'maps'    : maps,
+			maps,
 			// 当前循环层级
-			'level'   : level,
+			level,
 			// 当前取值域下标
-			'index'   : index
+			index
 		}
 
 		// 阻止重复编译除 vfor 以外的指令
@@ -164,15 +165,15 @@ vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, 
 			vm.block(node);
 		}
 
-		this.signAlias(cloneNode, alias);
+		this.signAlias(plate, alias);
 
 		// 传入 vfor 数据编译板块
-		vm.complieElement(cloneNode, true, fors);
+		vm.complieElement(plate, true, fors);
 
-		fragments.appendChild(cloneNode);
+		listFragment.appendChild(plate);
 	}, this);
 
-	return fragments;
+	return listFragment;
 }
 
 /**

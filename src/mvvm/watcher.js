@@ -32,7 +32,7 @@ var wp = Watcher.prototype;
  * @param   {Array}   args
  */
 wp.change = function (path, last, old, args) {
-	var isAccess = path.indexOf('*') !== -1;
+	var isAccess = path.indexOf('*') > -1;
 	var subs = isAccess ? this.$accessSubs[path] : this.$modelSubs[path];
 	this.trigger(subs, path, last, old, args);
 
@@ -78,7 +78,7 @@ wp.watch = function (depends, callback, context, args) {
 		}
 
 		// 下标取值
-		if (model.indexOf('$index') !== -1) {
+		if (model.indexOf('$index') > -1) {
 			this.watchIndex(access, callback, context, args);
 			return;
 		}

@@ -140,13 +140,13 @@ var Module = Root.extend({
 		var childs = this.getChilds(true);
 		util.each(childs, function (child) {
 			if (util.isFunc(child.destroy)) {
-				child.destroy(-1);
+				child.destroy(1);
 			}
 		});
 
 		// 从父模块删除（递归调用时不需要）
 		var parent = this.getParent();
-		if (notify !== -1 && parent) {
+		if (notify !== 1 && parent) {
 			parent._removeChild(name);
 		}
 

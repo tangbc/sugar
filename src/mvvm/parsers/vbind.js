@@ -23,7 +23,7 @@ var vbind = Vbind.prototype = Object.create(Parser.prototype);
  */
 vbind.parse = function (fors, node, expression, directive) {
 	// 单个 attribute
-	if (directive.indexOf(':') !== -1) {
+	if (directive.indexOf(':') > -1) {
 		let vclass = this.vclass;
 		let vstyle = this.vstyle;
 		// 属性类型

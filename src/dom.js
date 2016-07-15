@@ -96,7 +96,7 @@ export default {
 			target = ' ' + classname + ' ';
 			current = ' ' + this.getAttr(node, 'class') + ' ';
 
-			while (current.indexOf(target) !== -1) {
+			while (current.indexOf(target) > -1) {
 				current = current.replace(target, ' ');
 			}
 
@@ -116,12 +116,13 @@ export default {
 	 */
 	hasClass: function (node, classname) {
 		var current, list = node.classList;
+
 		/* istanbul ignore else */
 		if (list) {
 			return list.contains(classname);
 		} else {
 			current = ' ' + this.getAttr(node, 'class') + ' ';
-			return current.indexOf(' ' + classname + ' ') !== -1;
+			return current.indexOf(' ' + classname + ' ') > -1;
 		}
 	},
 

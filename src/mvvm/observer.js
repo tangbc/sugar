@@ -70,7 +70,7 @@ op.bindWatch = function (object, paths, val) {
 
 		set: function Setter (newValue) {
 			var oldObject, oldValue = getter ? getter.call(object) : val;
-			var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) !== -1;
+			var isArrayMethod = rewriteArrayMethods.indexOf(ob.$method) > -1;
 
 			if (newValue === oldValue) {
 				return;
@@ -195,7 +195,7 @@ op.rewriteMethod = function (array, paths) {
 	util.defRec(arrayMethods, '$remove', function $remove (item) {
 		var index = this.indexOf(item);
 
-		if (index !== -1) {
+		if (index > -1) {
 			return this.splice(index, 1);
 		}
 	});

@@ -221,7 +221,7 @@ vmodel.bindCheckboxEvent = function (node, duplex, field, value) {
 					value.push(val);
 				}
 			} else {
-				if (index !== -1) {
+				if (index > -1) {
 					value.splice(index, 1);
 				}
 			}
