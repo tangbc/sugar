@@ -19,12 +19,50 @@ const regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
 const regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 /**
+ * 是否是合法指令
+ * @param   {String}   directive
+ * @return  {Boolean}
+ */
+function isDirective (directive) {
+	return directive.indexOf('v-') === 0;
+}
+
+/**
+ * 节点的子节点是否延迟编译
+ * 单独处理 vif, vfor 和 vpre 子节点的编译
+ * @param   {DOMElement}   node
+ * @return  {Boolean}
+ */
+function isLateCompileChilds (node) {
+	return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
+}
+
+/**
+ * 节点是否含有合法指令
+ * @param   {DOMElement}  node
+ * @return  {Number}
+ */
+function hasDirective (node) {
+	if (dom.isElement(node) && node.hasAttributes()) {
+		let nodeAttrs = node.attributes;
+		for (let i = 0; i < nodeAttrs.length; i++) {
+			if (isDirective(nodeAttrs[i].name)) {
+				return true;
+			}
+		}
+
+	} else if (dom.isTextNode(node) && regMustache.test(node.textContent)) {
+		return true;
+	}
+}
+
+/**
  * 元素编译/指令提取模块
  * @param  {DOMElement}  element  [视图的挂载原生 DOM]
  * @param  {Object}      model    [数据模型对象]
  */
 function Compiler (element, model) {
-	if (!this.isElement(element)) {
+	if (!dom.isElement(element)) {
 		return util.warn('element must be a type of DOMElement: ', element);
 	}
 
@@ -85,45 +123,24 @@ cp.init = function () {
 cp.complieElement = function (element, root, fors) {
 	var childNodes = element.childNodes;
 
-	if (root && this.hasDirective(element)) {
+	if (root && hasDirective(element)) {
 		this.$unCompiles.push([element, fors]);
 	}
 
 	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
-		if (this.hasDirective(node)) {
+		if (hasDirective(node)) {
 			this.$unCompiles.push([node, fors]);
 		}
 
-		if (node.hasChildNodes() && !this.isLate(node)) {
+		if (node.hasChildNodes() && !isLateCompileChilds(node)) {
 			this.complieElement(node, false, fors);
 		}
 	}
 
 	if (root) {
 		this.compileAll();
-	}
-}
-
-/**
- * 节点是否含有合法指令
- * @param   {DOMElement}  node
- * @return  {Number}
- */
-cp.hasDirective = function (node) {
-	var text = node.textContent;
-
-	if (this.isElement(node) && node.hasAttributes()) {
-		let nodeAttrs = node.attributes;
-		for (let i = 0; i < nodeAttrs.length; i++) {
-			if (this.isDirective(nodeAttrs[i].name)) {
-				return true;
-			}
-		}
-
-	} else if (this.isTextNode(node) && regMustache.test(text)) {
-		return true;
 	}
 }
 
@@ -146,7 +163,7 @@ cp.compileAll = function () {
 cp.complieDirectives = function (info) {
 	var node = info[0], fors = info[1];
 
-	if (this.isElement(node)) {
+	if (dom.isElement(node)) {
 		let vfor, attrs = [];
 		// node 节点集合转为数组
 		let nodeAttrs = node.attributes;
@@ -154,7 +171,7 @@ cp.complieDirectives = function (info) {
 		for (var i = 0; i < nodeAttrs.length; i++) {
 			let atr = nodeAttrs[i];
 			let name = atr.name;
-			if (this.isDirective(name)) {
+			if (isDirective(name)) {
 				if (name === 'v-for') {
 					vfor = atr;
 				}
@@ -174,7 +191,7 @@ cp.complieDirectives = function (info) {
 			this.compile(node, attr, fors);
 		}, this);
 
-	} else if (this.isTextNode(node)) {
+	} else if (dom.isTextNode(node)) {
 		this.compileText(node, fors);
 	}
 }
@@ -285,43 +302,6 @@ cp.block = function (node) {
 			return null;
 		}
 	});
-}
-
-/**
- * 是否是元素节点
- * @param   {DOMElement}   element
- * @return  {Boolean}
- */
-cp.isElement = function (element) {
-	return element.nodeType === 1;
-}
-
-/**
- * 是否是文本节点
- * @param   {DOMElement}   element
- * @return  {Boolean}
- */
-cp.isTextNode = function (element) {
-	return element.nodeType === 3;
-}
-
-/**
- * 是否是合法指令
- * @param   {String}   directive
- * @return  {Boolean}
- */
-cp.isDirective = function (directive) {
-	return directive.indexOf('v-') === 0;
-}
-
-/**
- * 节点的子节点是否延迟编译
- * 单独处理 vif, vfor 和 vpre 子节点的编译
- * @param   {DOMElement}   node
- * @return  {Boolean}
- */
-cp.isLate = function (node) {
-	return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 }
 
 /**

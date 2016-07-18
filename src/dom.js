@@ -1,5 +1,23 @@
 export default {
 	/**
+	 * 是否是元素节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	isElement: function (element) {
+		return element.nodeType === 1;
+	},
+
+	/**
+	 * 是否是文本节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	isTextNode: function (element) {
+		return element.nodeType === 3;
+	},
+
+	/**
 	 * 清空 element 的所有子节点
 	 * @param   {DOMElement}  element
 	 */

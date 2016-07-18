@@ -14,23 +14,23 @@ function removeDOMRegister (vm, element) {
 	var registers = vm.$data.$els;
 	var childNodes = element.childNodes;
 
-	for (var i = 0; i < childNodes.length; i++) {
+	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
-		if (!vm.isElement(node)) {
+		if (!dom.isElement(node)) {
 			continue;
 		}
 
 		let nodeAttrs = node.attributes;
 
-		for (var ii = 0; ii < nodeAttrs.length; ii++) {
+		for (let ii = 0; ii < nodeAttrs.length; ii++) {
 			let attr = nodeAttrs[ii];
 			if (attr.name === 'v-el' && util.hasOwn(registers, attr.value)) {
 				registers[attr.value] = null;
 			}
 		}
 
-		if (node.childNodes.length) {
+		if (node.hasChildNodes()) {
 			removeDOMRegister(vm, node);
 		}
 	}
@@ -50,6 +50,64 @@ function handleClass (node, classname, remove) {
 			dom.addClass(node, cls);
 		}
 	});
+}
+
+/**
+ * 获取节点的下一个兄弟元素节点
+ */
+function getNextSiblingElement (node) {
+	var el = node.nextSibling;
+
+	if (el && dom.isElement(el)) {
+		return el;
+	}
+
+	while (el) {
+		el = el.nextSibling;
+
+		if (el && dom.isElement(el)) {
+			return el;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * 缓存节点行内样式值
+ * 行内样式 display='' 不会影响由 classname 中的定义
+ * visibleDisplay 用于缓存节点行内样式的 display 显示值
+ * @param  {DOMElement}  node
+ */
+function setVisibleDisplay (node) {
+	if (!node[visibleDisplay]) {
+		let display;
+		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
+
+		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
+			let styles = inlineStyle.split(';');
+
+			util.each(styles, function (style) {
+				if (style.indexOf('display') > -1) {
+					display = util.getKeyValue(style);
+				}
+			});
+		}
+
+		if (display !== 'none') {
+			node[visibleDisplay] = display || '';
+		}
+	}
+}
+
+/**
+ * 缓存节点渲染内容并清空
+ */
+function setRenderContent (node) {
+	if (!node[renderContent]) {
+		node[renderContent] = node.innerHTML;
+	}
+	dom.empty(node);
 }
 
 
@@ -87,42 +145,15 @@ up.updateHtmlContent = function (node, html) {
  * @param   {Boolean}     show    [是否显示]
  */
 up.updateDisplay = function (node, show) {
-	var siblingNode = this.getSibling(node);
+	var siblingNode = getNextSiblingElement(node);
 
-	this.setVisible(node);
+	setVisibleDisplay(node);
 	this.updateStyle(node, 'display', show ? node[visibleDisplay] : 'none');
 
 	// v-else
 	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
-		this.setVisible(siblingNode);
+		setVisibleDisplay(siblingNode);
 		this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode[visibleDisplay]);
-	}
-}
-
-/**
- * 缓存节点行内样式值
- * 行内样式 display='' 不会影响由 classname 中的定义
- * visibleDisplay 用于缓存节点行内样式的 display 显示值
- * @param  {DOMElement}  node
- */
-up.setVisible = function (node) {
-	if (!node[visibleDisplay]) {
-		let display;
-		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
-
-		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-			let styles = inlineStyle.split(';');
-
-			util.each(styles, function (style) {
-				if (style.indexOf('display') > -1) {
-					display = util.getKeyValue(style);
-				}
-			});
-		}
-
-		if (display !== 'none') {
-			node[visibleDisplay] = display || '';
-		}
 	}
 }
 
@@ -132,26 +163,16 @@ up.setVisible = function (node) {
  * @param   {Boolean}     isRender  [是否渲染]
  */
 up.updateRenderContent = function (node, isRender) {
-	var siblingNode = this.getSibling(node);
+	var siblingNode = getNextSiblingElement(node);
 
-	this.setRender(node);
+	setRenderContent(node);
 	this.toggleRender.apply(this, arguments);
 
 	// v-else
 	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
-		this.setRender(siblingNode);
+		setRenderContent(siblingNode);
 		this.toggleRender(siblingNode, !isRender);
 	}
-}
-
-/**
- * 缓存节点渲染内容并清空
- */
-up.setRender = function (node) {
-	if (!node[renderContent]) {
-		node[renderContent] = node.innerHTML;
-	}
-	dom.empty(node);
 }
 
 /**
@@ -170,28 +191,6 @@ up.toggleRender = function (node, isRender) {
 	else {
 		removeDOMRegister(vm, fragment);
 	}
-}
-
-/**
- * 获取节点的下一个兄弟元素节点
- */
-up.getSibling = function (node) {
-	var el = node.nextSibling;
-	var isElement = this.vm.isElement;
-
-	if (el && isElement(el)) {
-		return el;
-	}
-
-	while (el) {
-		el = el.nextSibling;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-	}
-
-	return null;
 }
 
 /**

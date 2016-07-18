@@ -91,6 +91,38 @@ function noop () {}
 
 
 /**
+ * 生成表达式取值函数
+ * @param   {String}    expression
+ * @return  {Function}
+ */
+function createGetter (expression) {
+	try {
+		return new Function('scope', 'return ' + expression + ';');
+	}
+	catch (e) {
+		util.error('Invalid generated expression: ' + expression);
+		return noop;
+	}
+}
+
+/**
+ * 转换表达式的变量为 scope 关键字参数
+ * @return  {String}
+ */
+function addWithScope (expression) {
+	if (isNormal(expression)) {
+		return 'scope.' + expression;
+	}
+
+	expression = (' ' + expression).replace(regReplaceConst, saveConst);
+	expression = expression.replace(regReplaceScope, replaceScope);
+	expression = expression.replace(regSaveConst, returnConst);
+
+	return expression;
+}
+
+
+/**
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
  */
 function Parser () {}
@@ -123,21 +155,6 @@ pp.bind = function (fors, node, expression) {
 }
 
 /**
- * 生成表达式取值函数
- * @param   {String}    expression
- * @return  {Function}
- */
-pp.createGetter = function (expression) {
-	try {
-		return new Function('scope', 'return ' + expression + ';');
-	}
-	catch (e) {
-		util.error('Invalid generated expression: ' + expression);
-		return noop;
-	}
-}
-
-/**
  * 获取表达式的取值函数
  */
 pp.getEval = function (fors, expression) {
@@ -146,7 +163,7 @@ pp.getEval = function (fors, expression) {
 		return noop;
 	}
 
-	expression = this.toScope(expression);
+	expression = addWithScope(expression);
 
 	// 替换 vfor 取值域别名
 	if (fors) {
@@ -158,23 +175,7 @@ pp.getEval = function (fors, expression) {
 		});
 	}
 
-	return this.createGetter(expression);
-}
-
-/**
- * 转换表达式的变量为 scope 关键字参数
- * @return  {String}
- */
-pp.toScope = function (expression) {
-	if (isNormal(expression)) {
-		return 'scope.' + expression;
-	}
-
-	expression = (' ' + expression).replace(regReplaceConst, saveConst);
-	expression = expression.replace(regReplaceScope, replaceScope);
-	expression = expression.replace(regSaveConst, returnConst);
-
-	return expression;
+	return createGetter(expression);
 }
 
 /**

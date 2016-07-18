@@ -6,6 +6,37 @@ import MVVM from '../mvvm/index';
 import eventer from '../eventer';
 
 /**
+ * 设置/读取配置对象
+ * @param  {Object}   data   [配置对象]
+ * @param  {String}   name   [配置名称, 支持/分隔层次]
+ * @param  {Mix}      value  [不传为读取配置信息]
+ * @return {Mix}             [返回读取的配置值]
+ */
+function config (data, name, value) {
+	var udf, set = (value !== udf);
+
+	if (name) {
+		let ns = name.split('/');
+
+		while (ns.length > 1 && util.hasOwn(data, ns[0])) {
+			data = data[ns.shift()];
+		}
+
+		name = ns[0];
+	} else {
+		return data;
+	}
+
+	if (set) {
+		data[name] = value;
+		return true;
+	} else {
+		return data[name];
+	}
+}
+
+
+/**
  * Component 基础视图组件
  */
 var Component = Module.extend({
@@ -80,36 +111,6 @@ var Component = Module.extend({
 			this.setConfig('html', html);
 			this._render();
 		}, this);
-	},
-
-	/**
-	 * 设置/读取配置对象
-	 * @param  {Object}   data   [配置对象]
-	 * @param  {String}   name   [配置名称, 支持/分隔层次]
-	 * @param  {Mix}      value  [不传为读取配置信息]
-	 * @return {Mix}             [返回读取的配置值]
-	 */
-	_conf: function (data, name, value) {
-		var udf, set = (value !== udf);
-
-		if (name) {
-			let ns = name.split('/');
-
-			while (ns.length > 1 && util.hasOwn(data, ns[0])) {
-				data = data[ns.shift()];
-			}
-
-			name = ns[0];
-		} else {
-			return data;
-		}
-
-		if (set) {
-			data[name] = value;
-			return true;
-		} else {
-			return data[name];
-		}
 	},
 
 	/**
@@ -197,7 +198,7 @@ var Component = Module.extend({
 	 * @param  {String}  name  [参数字段名称，支持/层级]
 	 */
 	getConfig: function (name) {
-		return this._conf(this._config, name);
+		return config(this._config, name);
 	},
 
 	/**
@@ -206,7 +207,7 @@ var Component = Module.extend({
 	 * @param {Mix}     value  [值]
 	 */
 	setConfig: function (name, value) {
-		return this._conf(this._config, name, value);
+		return config(this._config, name, value);
 	},
 
 	/**

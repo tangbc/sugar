@@ -4,6 +4,19 @@ import util from '../util';
 const rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 /**
+ * 寻找匹配路径
+ * @param   {String}   path
+ * @return  {String}
+ */
+function getMatchPath (paths, path) {
+	for (var i = 0; i < paths.length; i++) {
+		if (path.indexOf(paths[i]) === 0) {
+			return paths[i];
+		}
+	}
+}
+
+/**
  * observer 数据变化监测模块
  * @param  {Object}     object    [VM 数据模型]
  * @param  {Function}   callback  [变化回调函数]
@@ -85,7 +98,7 @@ op.bindWatch = function (object, paths, val) {
 			}
 
 			// 获取子对象路径
-			var subPath = ob.getSub(path);
+			var subPath = getMatchPath(ob.$subs, path);
 			if (subPath) {
 				oldObject = object[prop];
 			}
@@ -128,20 +141,6 @@ op.bindWatch = function (object, paths, val) {
 		!util.isNumber(+path.split('*').pop())
 	) {
 		this.$subs.push(path);
-	}
-}
-
-/**
- * 返回子对象路径
- * @param   {String}   path
- * @return  {String}
- */
-op.getSub = function (path) {
-	var paths = this.$subs;
-	for (var i = 0; i < paths.length; i++) {
-		if (path.indexOf(paths[i]) === 0) {
-			return paths[i];
-		}
 	}
 }
 

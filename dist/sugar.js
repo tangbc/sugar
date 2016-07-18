@@ -3,7 +3,7 @@
  * (c) 2016 TANG
  * Released under the MIT license
  * https://github.com/tangbc/sugar
- * Fri Jul 15 2016 16:56:49 GMT+0800 (CST)
+ * Mon Jul 18 2016 21:19:50 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -612,6 +612,9 @@
 
 	var cache = {'id': 1, 'length': 0}
 
+	var regSuper = /\b\.Super\b/;
+	var toString = Function.prototype.toString;
+
 	/**
 	 * 对子类方法挂载 Super
 	 * @param   {Function}  Super   [Super 函数]
@@ -619,7 +622,7 @@
 	 * @return  {Mix}
 	 */
 	function bindSuper (Super, method) {
-		if (util.isFunc(method) && /\b\.Super\b/.test(Function.prototype.toString.call(method))) {
+		if (util.isFunc(method) && regSuper.test(toString.call(method))) {
 			return function () {
 				this.Super = Super;
 				method.apply(this, arguments);
@@ -1236,6 +1239,24 @@
 
 	var dom = {
 		/**
+		 * 是否是元素节点
+		 * @param   {DOMElement}   element
+		 * @return  {Boolean}
+		 */
+		isElement: function (element) {
+			return element.nodeType === 1;
+		},
+
+		/**
+		 * 是否是文本节点
+		 * @param   {DOMElement}   element
+		 * @return  {Boolean}
+		 */
+		isTextNode: function (element) {
+			return element.nodeType === 3;
+		},
+
+		/**
 		 * 清空 element 的所有子节点
 		 * @param   {DOMElement}  element
 		 */
@@ -1478,7 +1499,7 @@
 		for (var i = 0; i < childNodes.length; i++) {
 			var node = childNodes[i];
 
-			if (!vm.isElement(node)) {
+			if (!dom.isElement(node)) {
 				continue;
 			}
 
@@ -1491,7 +1512,7 @@
 				}
 			}
 
-			if (node.childNodes.length) {
+			if (node.hasChildNodes()) {
 				removeDOMRegister(vm, node);
 			}
 		}
@@ -1511,6 +1532,64 @@
 				dom.addClass(node, cls);
 			}
 		});
+	}
+
+	/**
+	 * 获取节点的下一个兄弟元素节点
+	 */
+	function getNextSiblingElement (node) {
+		var el = node.nextSibling;
+
+		if (el && dom.isElement(el)) {
+			return el;
+		}
+
+		while (el) {
+			el = el.nextSibling;
+
+			if (el && dom.isElement(el)) {
+				return el;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * 缓存节点行内样式值
+	 * 行内样式 display='' 不会影响由 classname 中的定义
+	 * visibleDisplay 用于缓存节点行内样式的 display 显示值
+	 * @param  {DOMElement}  node
+	 */
+	function setVisibleDisplay (node) {
+		if (!node[visibleDisplay]) {
+			var display;
+			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
+
+			if (inlineStyle && inlineStyle.indexOf('display') > -1) {
+				var styles = inlineStyle.split(';');
+
+				util.each(styles, function (style) {
+					if (style.indexOf('display') > -1) {
+						display = util.getKeyValue(style);
+					}
+				});
+			}
+
+			if (display !== 'none') {
+				node[visibleDisplay] = display || '';
+			}
+		}
+	}
+
+	/**
+	 * 缓存节点渲染内容并清空
+	 */
+	function setRenderContent (node) {
+		if (!node[renderContent]) {
+			node[renderContent] = node.innerHTML;
+		}
+		dom.empty(node);
 	}
 
 
@@ -1548,42 +1627,15 @@
 	 * @param   {Boolean}     show    [是否显示]
 	 */
 	up.updateDisplay = function (node, show) {
-		var siblingNode = this.getSibling(node);
+		var siblingNode = getNextSiblingElement(node);
 
-		this.setVisible(node);
+		setVisibleDisplay(node);
 		this.updateStyle(node, 'display', show ? node[visibleDisplay] : 'none');
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
-			this.setVisible(siblingNode);
+			setVisibleDisplay(siblingNode);
 			this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode[visibleDisplay]);
-		}
-	}
-
-	/**
-	 * 缓存节点行内样式值
-	 * 行内样式 display='' 不会影响由 classname 中的定义
-	 * visibleDisplay 用于缓存节点行内样式的 display 显示值
-	 * @param  {DOMElement}  node
-	 */
-	up.setVisible = function (node) {
-		if (!node[visibleDisplay]) {
-			var display;
-			var inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
-
-			if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-				var styles = inlineStyle.split(';');
-
-				util.each(styles, function (style) {
-					if (style.indexOf('display') > -1) {
-						display = util.getKeyValue(style);
-					}
-				});
-			}
-
-			if (display !== 'none') {
-				node[visibleDisplay] = display || '';
-			}
 		}
 	}
 
@@ -1593,26 +1645,16 @@
 	 * @param   {Boolean}     isRender  [是否渲染]
 	 */
 	up.updateRenderContent = function (node, isRender) {
-		var siblingNode = this.getSibling(node);
+		var siblingNode = getNextSiblingElement(node);
 
-		this.setRender(node);
+		setRenderContent(node);
 		this.toggleRender.apply(this, arguments);
 
 		// v-else
 		if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
-			this.setRender(siblingNode);
+			setRenderContent(siblingNode);
 			this.toggleRender(siblingNode, !isRender);
 		}
-	}
-
-	/**
-	 * 缓存节点渲染内容并清空
-	 */
-	up.setRender = function (node) {
-		if (!node[renderContent]) {
-			node[renderContent] = node.innerHTML;
-		}
-		dom.empty(node);
 	}
 
 	/**
@@ -1631,28 +1673,6 @@
 		else {
 			removeDOMRegister(vm, fragment);
 		}
-	}
-
-	/**
-	 * 获取节点的下一个兄弟元素节点
-	 */
-	up.getSibling = function (node) {
-		var el = node.nextSibling;
-		var isElement = this.vm.isElement;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-
-		while (el) {
-			el = el.nextSibling;
-
-			if (el && isElement(el)) {
-				return el;
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -1795,6 +1815,19 @@
 	var rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
 
 	/**
+	 * 寻找匹配路径
+	 * @param   {String}   path
+	 * @return  {String}
+	 */
+	function getMatchPath (paths, path) {
+		for (var i = 0; i < paths.length; i++) {
+			if (path.indexOf(paths[i]) === 0) {
+				return paths[i];
+			}
+		}
+	}
+
+	/**
 	 * observer 数据变化监测模块
 	 * @param  {Object}     object    [VM 数据模型]
 	 * @param  {Function}   callback  [变化回调函数]
@@ -1876,7 +1909,7 @@
 				}
 
 				// 获取子对象路径
-				var subPath = ob.getSub(path);
+				var subPath = getMatchPath(ob.$subs, path);
 				if (subPath) {
 					oldObject = object[prop];
 				}
@@ -1919,20 +1952,6 @@
 			!util.isNumber(+path.split('*').pop())
 		) {
 			this.$subs.push(path);
-		}
-	}
-
-	/**
-	 * 返回子对象路径
-	 * @param   {String}   path
-	 * @return  {String}
-	 */
-	op.getSub = function (path) {
-		var paths = this.$subs;
-		for (var i = 0; i < paths.length; i++) {
-			if (path.indexOf(paths[i]) === 0) {
-				return paths[i];
-			}
 		}
 	}
 
@@ -2384,6 +2403,38 @@
 
 
 	/**
+	 * 生成表达式取值函数
+	 * @param   {String}    expression
+	 * @return  {Function}
+	 */
+	function createGetter (expression) {
+		try {
+			return new Function('scope', 'return ' + expression + ';');
+		}
+		catch (e) {
+			util.error('Invalid generated expression: ' + expression);
+			return noop;
+		}
+	}
+
+	/**
+	 * 转换表达式的变量为 scope 关键字参数
+	 * @return  {String}
+	 */
+	function addWithScope (expression) {
+		if (isNormal(expression)) {
+			return 'scope.' + expression;
+		}
+
+		expression = (' ' + expression).replace(regReplaceConst, saveConst);
+		expression = expression.replace(regReplaceScope, replaceScope);
+		expression = expression.replace(regSaveConst, returnConst);
+
+		return expression;
+	}
+
+
+	/**
 	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
 	 */
 	function Parser () {}
@@ -2416,21 +2467,6 @@
 	}
 
 	/**
-	 * 生成表达式取值函数
-	 * @param   {String}    expression
-	 * @return  {Function}
-	 */
-	pp.createGetter = function (expression) {
-		try {
-			return new Function('scope', 'return ' + expression + ';');
-		}
-		catch (e) {
-			util.error('Invalid generated expression: ' + expression);
-			return noop;
-		}
-	}
-
-	/**
 	 * 获取表达式的取值函数
 	 */
 	pp.getEval = function (fors, expression) {
@@ -2439,7 +2475,7 @@
 			return noop;
 		}
 
-		expression = this.toScope(expression);
+		expression = addWithScope(expression);
 
 		// 替换 vfor 取值域别名
 		if (fors) {
@@ -2451,23 +2487,7 @@
 			});
 		}
 
-		return this.createGetter(expression);
-	}
-
-	/**
-	 * 转换表达式的变量为 scope 关键字参数
-	 * @return  {String}
-	 */
-	pp.toScope = function (expression) {
-		if (isNormal(expression)) {
-			return 'scope.' + expression;
-		}
-
-		expression = (' ' + expression).replace(regReplaceConst, saveConst);
-		expression = expression.replace(regReplaceScope, replaceScope);
-		expression = expression.replace(regSaveConst, returnConst);
-
-		return expression;
+		return createGetter(expression);
 	}
 
 	/**
@@ -2883,6 +2903,153 @@
 	var regForExp = /(.*) in (.*)/;
 
 	/**
+	 * 获取 vfor 循环体的第一个子节点
+	 * @param   {DOMElement}  parent  [父节点]
+	 * @param   {String}      alias   [循环体对象别名]
+	 * @return  {FirstChild}
+	 */
+	function getVforFirstChild (parent, alias) {
+		var firstChild = parent.firstChild;
+
+		if (firstChild && firstChild[forAlias] === alias) {
+			return firstChild;
+		}
+
+		var childNodes = parent.childNodes;
+
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
+			if (child[forAlias] === alias) {
+				firstChild = child;
+				break;
+			}
+		}
+
+		return firstChild;
+	}
+
+	/**
+	 * 获取 vfor 循环体的最后一个子节点
+	 * @param   {DOMElement}  parent   [父节点]
+	 * @param   {String}      alias    [循环体对象别名]
+	 * @return  {LastChild}
+	 */
+	function getVforLastChild (parent, alias) {
+		var lastChild = parent.lastChild;
+
+		if (lastChild && lastChild[forAlias] === alias) {
+			return lastChild;
+		}
+
+		var childNodes = parent.childNodes;
+
+		for (var i = childNodes.length - 1; i > -1 ; i--) {
+			var child = childNodes[i];
+			if (child[forAlias] === alias) {
+				lastChild = child;
+				break;
+			}
+		}
+
+		return lastChild;
+	}
+
+	/**
+	 * 获取 vfor 循环体指定下标的子节点
+	 * @param   {DOMElement}  parent  [父节点]
+	 * @param   {String}      alias   [循环体对象别名]
+	 * @param   {Number}      index   [子节点下标]
+	 * @return  {DOMElement}
+	 */
+	function getVforChild (parent, alias, index) {
+		var e = 0, target = null;
+		var firstChild = parent.firstChild;
+		var childNodes = parent.childNodes;
+
+		if (firstChild && firstChild[forAlias] === alias) {
+			return childNodes[index];
+		}
+
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
+			if (child[forAlias] === alias) {
+				if (e === index) {
+					target = child;
+					break;
+				}
+				e++;
+			}
+		}
+
+		return target;
+	}
+
+	/**
+	 * 删除 vfor 循环体指定的数据
+	 * @param   {DOMElement}  parent      [父节点]
+	 * @param   {String}      alias       [循环体对象别名]
+	 * @param   {Number}      start       [删除的下标起点]
+	 * @param   {Number}      deleteCont  [删除个数]
+	 */
+	function removeVforChild (parent, alias, start, deleteCont) {
+		var e = -1, scapegoats = [];
+		var childNodes = parent.childNodes;
+
+		for (var i = 0; i < childNodes.length; i++) {
+			var child = childNodes[i];
+			if (child[forAlias] === alias) {
+				e++;
+			}
+			// 删除的范围内
+			if (e >= start && e < start + deleteCont) {
+				scapegoats.push(child);
+			}
+		}
+
+		util.each(scapegoats, function (scapegoat) {
+			parent.removeChild(scapegoat);
+			return null;
+		});
+	}
+
+	/**
+	 * 获取 shift 或 unshift 操作对应列表下标变化的关系
+	 * @param   {String}  method  [数组操作]
+	 * @param   {Number}  length  [新数组长度]
+	 * @return  {Object}          [新数组下标的变化映射]
+	 */
+	function getArrayMoveMap (method, length) {
+		var i, udf, map = {};
+
+		switch (method) {
+			case 'unshift':
+				map[0] = udf;
+				for (i = 1; i < length; i++) {
+					map[i] = i - 1;
+				}
+				break;
+			case 'shift':
+				for (i = 0; i < length + 1; i++) {
+					map[i] = i + 1;
+				}
+				map[length] = udf;
+				break;
+		}
+
+		return map;
+	}
+
+	/**
+	 * 标记节点的 vfor 别名
+	 * @param   {DOMElement}  node
+	 * @param   {String}      alias
+	 */
+	function signVforAlias (node, alias) {
+		util.def(node, forAlias, alias);
+	}
+
+
+	/**
 	 * v-for 指令解析模块
 	 */
 	function Vfor (vm) {
@@ -3043,7 +3210,7 @@
 				vm.block(node);
 			}
 
-			this.signAlias(plate, alias);
+			signVforAlias(plate, alias);
 
 			// 传入 vfor 数据编译板块
 			vm.complieElement(plate, true, fors);
@@ -3052,15 +3219,6 @@
 		}, this);
 
 		return listFragment;
-	}
-
-	/**
-	 * 标记节点的 vfor 别名
-	 * @param   {DOMElement}  node
-	 * @param   {String}      alias
-	 */
-	vfor.signAlias = function (node, alias) {
-		util.def(node, forAlias, alias);
 	}
 
 	/**
@@ -3122,33 +3280,6 @@
 	}
 
 	/**
-	 * 获取 shift 或 unshift 操作对应列表下标变化的关系
-	 * @param   {String}  method  [数组操作]
-	 * @param   {Number}  length  [新数组长度]
-	 * @return  {Object}          [新数组下标的变化映射]
-	 */
-	vfor.getChanges = function (method, length) {
-		var i, udf, map = {};
-
-		switch (method) {
-			case 'unshift':
-				map[0] = udf;
-				for (i = 1; i < length; i++) {
-					map[i] = i - 1;
-				}
-				break;
-			case 'shift':
-				for (i = 0; i < length + 1; i++) {
-					map[i] = i + 1;
-				}
-				map[length] = udf;
-				break;
-		}
-
-		return map;
-	}
-
-	/**
 	 * 在循环体的最后追加一条数据 array.push
 	 */
 	vfor.push = function (parent, node, newArray, method, up) {
@@ -3157,7 +3288,7 @@
 		var list = [newArray[last]];
 		var scopes = this.updateScopes(up);
 		var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
-		var lastChild = this.getLast(parent, alias);
+		var lastChild = getVforLastChild(parent, alias);
 		var template = this.buildList.apply(this, listArgs);
 
 		// empty list
@@ -3172,7 +3303,7 @@
 	 * 移除循环体的最后一条数据 array.pop
 	 */
 	vfor.pop = function (parent, node, newArray, method, updates) {
-		var lastChild = this.getLast(parent, updates.alias);
+		var lastChild = getVforLastChild(parent, updates.alias);
 		if (lastChild) {
 			parent.removeChild(lastChild);
 		}
@@ -3189,11 +3320,11 @@
 		var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 		// 移位相关的订阅回调
-		map = this.getChanges(method, newArray.length);
+		map = getArrayMoveMap(method, newArray.length);
 		this.vm.watcher.moveSubs(up.access, map);
 
 		template = this.buildList.apply(this, listArgs);
-		firstChild = this.getFirst(parent, alias);
+		firstChild = getVforFirstChild(parent, alias);
 
 		// 当 firstChild 为 null 时也会添加到父节点
 		parent.insertBefore(template, firstChild);
@@ -3203,8 +3334,8 @@
 	 * 移除循环体的第一条数据 array.shift
 	 */
 	vfor.shift = function (parent, node, newArray, method, updates) {
-		var map = this.getChanges(method, newArray.length);
-		var firstChild = this.getFirst(parent, updates.alias);
+		var map = getArrayMoveMap(method, newArray.length);
+		var firstChild = getVforFirstChild(parent, updates.alias);
 		if (firstChild) {
 			parent.removeChild(firstChild);
 			// 移位相关的订阅回调
@@ -3250,7 +3381,7 @@
 				return;
 			} else {
 				this.vm.watcher.moveSubs(up.access, map);
-				this.removeEl(parent, alias, start, deleteCont);
+				removeVforChild(parent, alias, start, deleteCont);
 			}
 		}
 		// 只插入 或 删除并插入
@@ -3272,11 +3403,11 @@
 
 			// 先删除选项
 			if (deleAndInsert) {
-				this.removeEl(parent, alias, start, deleteCont);
+				removeVforChild(parent, alias, start, deleteCont);
 			}
 
 			// 开始的元素
-			var startChild = this.getChild(parent, alias, start);
+			var startChild = getVforChild(parent, alias, start);
 			// 新取值域
 			var scopes = this.updateScopes(up);
 			// 编译新添加的列表
@@ -3287,116 +3418,6 @@
 			// 更新变化部分
 			parent.insertBefore(template, startChild);
 		}
-	}
-
-	/**
-	 * 获取 vfor 循环体的第一个子节点
-	 * @param   {DOMElement}  parent  [父节点]
-	 * @param   {String}      alias   [循环体对象别名]
-	 * @return  {FirstChild}
-	 */
-	vfor.getFirst = function (parent, alias) {
-		var firstChild = parent.firstChild;
-
-		if (firstChild && firstChild[forAlias] === alias) {
-			return firstChild;
-		}
-
-		var childNodes = parent.childNodes;
-
-		for (var i = 0; i < childNodes.length; i++) {
-			var child = childNodes[i];
-			if (child[forAlias] === alias) {
-				firstChild = child;
-				break;
-			}
-		}
-
-		return firstChild;
-	}
-
-	/**
-	 * 获取 vfor 循环体的最后一个子节点
-	 * @param   {DOMElement}  parent   [父节点]
-	 * @param   {String}      alias    [循环体对象别名]
-	 * @return  {LastChild}
-	 */
-	vfor.getLast = function (parent, alias) {
-		var lastChild = parent.lastChild;
-
-		if (lastChild && lastChild[forAlias] === alias) {
-			return lastChild;
-		}
-
-		var childNodes = parent.childNodes;
-
-		for (var i = childNodes.length - 1; i > -1 ; i--) {
-			var child = childNodes[i];
-			if (child[forAlias] === alias) {
-				lastChild = child;
-				break;
-			}
-		}
-
-		return lastChild;
-	}
-
-	/**
-	 * 获取 vfor 循环体指定下标的子节点
-	 * @param   {DOMElement}  parent  [父节点]
-	 * @param   {String}      alias   [循环体对象别名]
-	 * @param   {Number}      index   [子节点下标]
-	 * @return  {DOMElement}
-	 */
-	vfor.getChild = function (parent, alias, index) {
-		var e = 0, target = null;
-		var firstChild = parent.firstChild;
-		var childNodes = parent.childNodes;
-
-		if (firstChild && firstChild[forAlias] === alias) {
-			return childNodes[index];
-		}
-
-		for (var i = 0; i < childNodes.length; i++) {
-			var child = childNodes[i];
-			if (child[forAlias] === alias) {
-				if (e === index) {
-					target = child;
-					break;
-				}
-				e++;
-			}
-		}
-
-		return target;
-	}
-
-	/**
-	 * 删除 vfor 循环体指定的数据
-	 * @param   {DOMElement}  parent      [父节点]
-	 * @param   {String}      alias       [循环体对象别名]
-	 * @param   {Number}      start       [删除的下标起点]
-	 * @param   {Number}      deleteCont  [删除个数]
-	 */
-	vfor.removeEl = function (parent, alias, start, deleteCont) {
-		var e = -1, scapegoats = [];
-		var childNodes = parent.childNodes;
-
-		for (var i = 0; i < childNodes.length; i++) {
-			var child = childNodes[i];
-			if (child[forAlias] === alias) {
-				e++;
-			}
-			// 删除的范围内
-			if (e >= start && e < start + deleteCont) {
-				scapegoats.push(child);
-			}
-		}
-
-		util.each(scapegoats, function (scapegoat) {
-			parent.removeChild(scapegoat);
-			return null;
-		});
 	}
 
 	/**
@@ -3480,7 +3501,7 @@
 	 * @param   {String}      expression  [指令表达式]
 	 */
 	vhtml.parse = function (fors, node, expression) {
-		this.bind.apply(this, [fors, (this.vm.isTextNode(node) ? node.parentNode : node), expression]);
+		this.bind.apply(this, [fors, (dom.isTextNode(node) ? node.parentNode : node), expression]);
 	}
 
 	/**
@@ -4117,12 +4138,50 @@
 	var regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 	/**
+	 * 是否是合法指令
+	 * @param   {String}   directive
+	 * @return  {Boolean}
+	 */
+	function isDirective (directive) {
+		return directive.indexOf('v-') === 0;
+	}
+
+	/**
+	 * 节点的子节点是否延迟编译
+	 * 单独处理 vif, vfor 和 vpre 子节点的编译
+	 * @param   {DOMElement}   node
+	 * @return  {Boolean}
+	 */
+	function isLateCompileChilds (node) {
+		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
+	}
+
+	/**
+	 * 节点是否含有合法指令
+	 * @param   {DOMElement}  node
+	 * @return  {Number}
+	 */
+	function hasDirective (node) {
+		if (dom.isElement(node) && node.hasAttributes()) {
+			var nodeAttrs = node.attributes;
+			for (var i = 0; i < nodeAttrs.length; i++) {
+				if (isDirective(nodeAttrs[i].name)) {
+					return true;
+				}
+			}
+
+		} else if (dom.isTextNode(node) && regMustache.test(node.textContent)) {
+			return true;
+		}
+	}
+
+	/**
 	 * 元素编译/指令提取模块
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 */
 	function Compiler (element, model) {
-		if (!this.isElement(element)) {
+		if (!dom.isElement(element)) {
 			return util.warn('element must be a type of DOMElement: ', element);
 		}
 
@@ -4185,47 +4244,24 @@
 
 		var childNodes = element.childNodes;
 
-		if (root && this.hasDirective(element)) {
+		if (root && hasDirective(element)) {
 			this.$unCompiles.push([element, fors]);
 		}
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var node = childNodes[i];
 
-			if (this$1.hasDirective(node)) {
+			if (hasDirective(node)) {
 				this$1.$unCompiles.push([node, fors]);
 			}
 
-			if (node.hasChildNodes() && !this$1.isLate(node)) {
+			if (node.hasChildNodes() && !isLateCompileChilds(node)) {
 				this$1.complieElement(node, false, fors);
 			}
 		}
 
 		if (root) {
 			this.compileAll();
-		}
-	}
-
-	/**
-	 * 节点是否含有合法指令
-	 * @param   {DOMElement}  node
-	 * @return  {Number}
-	 */
-	cp.hasDirective = function (node) {
-		var this$1 = this;
-
-		var text = node.textContent;
-
-		if (this.isElement(node) && node.hasAttributes()) {
-			var nodeAttrs = node.attributes;
-			for (var i = 0; i < nodeAttrs.length; i++) {
-				if (this$1.isDirective(nodeAttrs[i].name)) {
-					return true;
-				}
-			}
-
-		} else if (this.isTextNode(node) && regMustache.test(text)) {
-			return true;
 		}
 	}
 
@@ -4246,11 +4282,9 @@
 	 * @param   {Array}  info   [node, fors]
 	 */
 	cp.complieDirectives = function (info) {
-		var this$1 = this;
-
 		var node = info[0], fors = info[1];
 
-		if (this.isElement(node)) {
+		if (dom.isElement(node)) {
 			var vfor, attrs = [];
 			// node 节点集合转为数组
 			var nodeAttrs = node.attributes;
@@ -4258,7 +4292,7 @@
 			for (var i = 0; i < nodeAttrs.length; i++) {
 				var atr = nodeAttrs[i];
 				var name = atr.name;
-				if (this$1.isDirective(name)) {
+				if (isDirective(name)) {
 					if (name === 'v-for') {
 						vfor = atr;
 					}
@@ -4278,7 +4312,7 @@
 				this.compile(node, attr, fors);
 			}, this);
 
-		} else if (this.isTextNode(node)) {
+		} else if (dom.isTextNode(node)) {
 			this.compileText(node, fors);
 		}
 	}
@@ -4389,43 +4423,6 @@
 				return null;
 			}
 		});
-	}
-
-	/**
-	 * 是否是元素节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	cp.isElement = function (element) {
-		return element.nodeType === 1;
-	}
-
-	/**
-	 * 是否是文本节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	cp.isTextNode = function (element) {
-		return element.nodeType === 3;
-	}
-
-	/**
-	 * 是否是合法指令
-	 * @param   {String}   directive
-	 * @return  {Boolean}
-	 */
-	cp.isDirective = function (directive) {
-		return directive.indexOf('v-') === 0;
-	}
-
-	/**
-	 * 节点的子节点是否延迟编译
-	 * 单独处理 vif, vfor 和 vpre 子节点的编译
-	 * @param   {DOMElement}   node
-	 * @return  {Boolean}
-	 */
-	cp.isLate = function (node) {
-		return dom.hasAttr(node, 'v-if') || dom.hasAttr(node, 'v-for') || dom.hasAttr(node, 'v-pre');
 	}
 
 	/**
@@ -4563,6 +4560,37 @@
 	}
 
 	/**
+	 * 设置/读取配置对象
+	 * @param  {Object}   data   [配置对象]
+	 * @param  {String}   name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}      value  [不传为读取配置信息]
+	 * @return {Mix}             [返回读取的配置值]
+	 */
+	function config (data, name, value) {
+		var udf, set = (value !== udf);
+
+		if (name) {
+			var ns = name.split('/');
+
+			while (ns.length > 1 && util.hasOwn(data, ns[0])) {
+				data = data[ns.shift()];
+			}
+
+			name = ns[0];
+		} else {
+			return data;
+		}
+
+		if (set) {
+			data[name] = value;
+			return true;
+		} else {
+			return data[name];
+		}
+	}
+
+
+	/**
 	 * Component 基础视图组件
 	 */
 	var Component = Module.extend({
@@ -4637,36 +4665,6 @@
 				this.setConfig('html', html);
 				this._render();
 			}, this);
-		},
-
-		/**
-		 * 设置/读取配置对象
-		 * @param  {Object}   data   [配置对象]
-		 * @param  {String}   name   [配置名称, 支持/分隔层次]
-		 * @param  {Mix}      value  [不传为读取配置信息]
-		 * @return {Mix}             [返回读取的配置值]
-		 */
-		_conf: function (data, name, value) {
-			var udf, set = (value !== udf);
-
-			if (name) {
-				var ns = name.split('/');
-
-				while (ns.length > 1 && util.hasOwn(data, ns[0])) {
-					data = data[ns.shift()];
-				}
-
-				name = ns[0];
-			} else {
-				return data;
-			}
-
-			if (set) {
-				data[name] = value;
-				return true;
-			} else {
-				return data[name];
-			}
 		},
 
 		/**
@@ -4754,7 +4752,7 @@
 		 * @param  {String}  name  [参数字段名称，支持/层级]
 		 */
 		getConfig: function (name) {
-			return this._conf(this._config, name);
+			return config(this._config, name);
 		},
 
 		/**
@@ -4763,7 +4761,7 @@
 		 * @param {Mix}     value  [值]
 		 */
 		setConfig: function (name, value) {
-			return this._conf(this._config, name, value);
+			return config(this._config, name, value);
 		},
 
 		/**

@@ -1,3 +1,4 @@
+import dom from '../../dom';
 import Parser from '../parser';
 
 /**
@@ -16,7 +17,7 @@ var vhtml = Vhtml.prototype = Object.create(Parser.prototype);
  * @param   {String}      expression  [指令表达式]
  */
 vhtml.parse = function (fors, node, expression) {
-	this.bind.apply(this, [fors, (this.vm.isTextNode(node) ? node.parentNode : node), expression]);
+	this.bind.apply(this, [fors, (dom.isTextNode(node) ? node.parentNode : node), expression]);
 }
 
 /**

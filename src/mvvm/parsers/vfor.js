@@ -5,6 +5,153 @@ const forAlias = '__vfor';
 const regForExp = /(.*) in (.*)/;
 
 /**
+ * 获取 vfor 循环体的第一个子节点
+ * @param   {DOMElement}  parent  [父节点]
+ * @param   {String}      alias   [循环体对象别名]
+ * @return  {FirstChild}
+ */
+function getVforFirstChild (parent, alias) {
+	var firstChild = parent.firstChild;
+
+	if (firstChild && firstChild[forAlias] === alias) {
+		return firstChild;
+	}
+
+	var childNodes = parent.childNodes;
+
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
+		if (child[forAlias] === alias) {
+			firstChild = child;
+			break;
+		}
+	}
+
+	return firstChild;
+}
+
+/**
+ * 获取 vfor 循环体的最后一个子节点
+ * @param   {DOMElement}  parent   [父节点]
+ * @param   {String}      alias    [循环体对象别名]
+ * @return  {LastChild}
+ */
+function getVforLastChild (parent, alias) {
+	var lastChild = parent.lastChild;
+
+	if (lastChild && lastChild[forAlias] === alias) {
+		return lastChild;
+	}
+
+	var childNodes = parent.childNodes;
+
+	for (var i = childNodes.length - 1; i > -1 ; i--) {
+		let child = childNodes[i];
+		if (child[forAlias] === alias) {
+			lastChild = child;
+			break;
+		}
+	}
+
+	return lastChild;
+}
+
+/**
+ * 获取 vfor 循环体指定下标的子节点
+ * @param   {DOMElement}  parent  [父节点]
+ * @param   {String}      alias   [循环体对象别名]
+ * @param   {Number}      index   [子节点下标]
+ * @return  {DOMElement}
+ */
+function getVforChild (parent, alias, index) {
+	var e = 0, target = null;
+	var firstChild = parent.firstChild;
+	var childNodes = parent.childNodes;
+
+	if (firstChild && firstChild[forAlias] === alias) {
+		return childNodes[index];
+	}
+
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
+		if (child[forAlias] === alias) {
+			if (e === index) {
+				target = child;
+				break;
+			}
+			e++;
+		}
+	}
+
+	return target;
+}
+
+/**
+ * 删除 vfor 循环体指定的数据
+ * @param   {DOMElement}  parent      [父节点]
+ * @param   {String}      alias       [循环体对象别名]
+ * @param   {Number}      start       [删除的下标起点]
+ * @param   {Number}      deleteCont  [删除个数]
+ */
+function removeVforChild (parent, alias, start, deleteCont) {
+	var e = -1, scapegoats = [];
+	var childNodes = parent.childNodes;
+
+	for (var i = 0; i < childNodes.length; i++) {
+		let child = childNodes[i];
+		if (child[forAlias] === alias) {
+			e++;
+		}
+		// 删除的范围内
+		if (e >= start && e < start + deleteCont) {
+			scapegoats.push(child);
+		}
+	}
+
+	util.each(scapegoats, function (scapegoat) {
+		parent.removeChild(scapegoat);
+		return null;
+	});
+}
+
+/**
+ * 获取 shift 或 unshift 操作对应列表下标变化的关系
+ * @param   {String}  method  [数组操作]
+ * @param   {Number}  length  [新数组长度]
+ * @return  {Object}          [新数组下标的变化映射]
+ */
+function getArrayMoveMap (method, length) {
+	var i, udf, map = {};
+
+	switch (method) {
+		case 'unshift':
+			map[0] = udf;
+			for (i = 1; i < length; i++) {
+				map[i] = i - 1;
+			}
+			break;
+		case 'shift':
+			for (i = 0; i < length + 1; i++) {
+				map[i] = i + 1;
+			}
+			map[length] = udf;
+			break;
+	}
+
+	return map;
+}
+
+/**
+ * 标记节点的 vfor 别名
+ * @param   {DOMElement}  node
+ * @param   {String}      alias
+ */
+function signVforAlias (node, alias) {
+	util.def(node, forAlias, alias);
+}
+
+
+/**
  * v-for 指令解析模块
  */
 function Vfor (vm) {
@@ -165,7 +312,7 @@ vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, 
 			vm.block(node);
 		}
 
-		this.signAlias(plate, alias);
+		signVforAlias(plate, alias);
 
 		// 传入 vfor 数据编译板块
 		vm.complieElement(plate, true, fors);
@@ -174,15 +321,6 @@ vfor.buildList = function (node, array, start, paths, alias, aliases, accesses, 
 	}, this);
 
 	return listFragment;
-}
-
-/**
- * 标记节点的 vfor 别名
- * @param   {DOMElement}  node
- * @param   {String}      alias
- */
-vfor.signAlias = function (node, alias) {
-	util.def(node, forAlias, alias);
 }
 
 /**
@@ -244,33 +382,6 @@ vfor.updateScopes = function (update) {
 }
 
 /**
- * 获取 shift 或 unshift 操作对应列表下标变化的关系
- * @param   {String}  method  [数组操作]
- * @param   {Number}  length  [新数组长度]
- * @return  {Object}          [新数组下标的变化映射]
- */
-vfor.getChanges = function (method, length) {
-	var i, udf, map = {};
-
-	switch (method) {
-		case 'unshift':
-			map[0] = udf;
-			for (i = 1; i < length; i++) {
-				map[i] = i - 1;
-			}
-			break;
-		case 'shift':
-			for (i = 0; i < length + 1; i++) {
-				map[i] = i + 1;
-			}
-			map[length] = udf;
-			break;
-	}
-
-	return map;
-}
-
-/**
  * 在循环体的最后追加一条数据 array.push
  */
 vfor.push = function (parent, node, newArray, method, up) {
@@ -279,7 +390,7 @@ vfor.push = function (parent, node, newArray, method, up) {
 	var list = [newArray[last]];
 	var scopes = this.updateScopes(up);
 	var listArgs = [node, list, last, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
-	var lastChild = this.getLast(parent, alias);
+	var lastChild = getVforLastChild(parent, alias);
 	var template = this.buildList.apply(this, listArgs);
 
 	// empty list
@@ -294,7 +405,7 @@ vfor.push = function (parent, node, newArray, method, up) {
  * 移除循环体的最后一条数据 array.pop
  */
 vfor.pop = function (parent, node, newArray, method, updates) {
-	var lastChild = this.getLast(parent, updates.alias);
+	var lastChild = getVforLastChild(parent, updates.alias);
 	if (lastChild) {
 		parent.removeChild(lastChild);
 	}
@@ -311,11 +422,11 @@ vfor.unshift = function (parent, node, newArray, method, up) {
 	var listArgs = [node, list, 0, up.access, alias, up.aliases, up.accesses, scopes, up.maps, up.level];
 
 	// 移位相关的订阅回调
-	map = this.getChanges(method, newArray.length);
+	map = getArrayMoveMap(method, newArray.length);
 	this.vm.watcher.moveSubs(up.access, map);
 
 	template = this.buildList.apply(this, listArgs);
-	firstChild = this.getFirst(parent, alias);
+	firstChild = getVforFirstChild(parent, alias);
 
 	// 当 firstChild 为 null 时也会添加到父节点
 	parent.insertBefore(template, firstChild);
@@ -325,8 +436,8 @@ vfor.unshift = function (parent, node, newArray, method, up) {
  * 移除循环体的第一条数据 array.shift
  */
 vfor.shift = function (parent, node, newArray, method, updates) {
-	var map = this.getChanges(method, newArray.length);
-	var firstChild = this.getFirst(parent, updates.alias);
+	var map = getArrayMoveMap(method, newArray.length);
+	var firstChild = getVforFirstChild(parent, updates.alias);
 	if (firstChild) {
 		parent.removeChild(firstChild);
 		// 移位相关的订阅回调
@@ -372,7 +483,7 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 			return;
 		} else {
 			this.vm.watcher.moveSubs(up.access, map);
-			this.removeEl(parent, alias, start, deleteCont);
+			removeVforChild(parent, alias, start, deleteCont);
 		}
 	}
 	// 只插入 或 删除并插入
@@ -394,11 +505,11 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 
 		// 先删除选项
 		if (deleAndInsert) {
-			this.removeEl(parent, alias, start, deleteCont);
+			removeVforChild(parent, alias, start, deleteCont);
 		}
 
 		// 开始的元素
-		let startChild = this.getChild(parent, alias, start);
+		let startChild = getVforChild(parent, alias, start);
 		// 新取值域
 		let scopes = this.updateScopes(up);
 		// 编译新添加的列表
@@ -409,116 +520,6 @@ vfor.splice = function (parent, node, newArray, method, up, args) {
 		// 更新变化部分
 		parent.insertBefore(template, startChild);
 	}
-}
-
-/**
- * 获取 vfor 循环体的第一个子节点
- * @param   {DOMElement}  parent  [父节点]
- * @param   {String}      alias   [循环体对象别名]
- * @return  {FirstChild}
- */
-vfor.getFirst = function (parent, alias) {
-	var firstChild = parent.firstChild;
-
-	if (firstChild && firstChild[forAlias] === alias) {
-		return firstChild;
-	}
-
-	var childNodes = parent.childNodes;
-
-	for (var i = 0; i < childNodes.length; i++) {
-		let child = childNodes[i];
-		if (child[forAlias] === alias) {
-			firstChild = child;
-			break;
-		}
-	}
-
-	return firstChild;
-}
-
-/**
- * 获取 vfor 循环体的最后一个子节点
- * @param   {DOMElement}  parent   [父节点]
- * @param   {String}      alias    [循环体对象别名]
- * @return  {LastChild}
- */
-vfor.getLast = function (parent, alias) {
-	var lastChild = parent.lastChild;
-
-	if (lastChild && lastChild[forAlias] === alias) {
-		return lastChild;
-	}
-
-	var childNodes = parent.childNodes;
-
-	for (var i = childNodes.length - 1; i > -1 ; i--) {
-		let child = childNodes[i];
-		if (child[forAlias] === alias) {
-			lastChild = child;
-			break;
-		}
-	}
-
-	return lastChild;
-}
-
-/**
- * 获取 vfor 循环体指定下标的子节点
- * @param   {DOMElement}  parent  [父节点]
- * @param   {String}      alias   [循环体对象别名]
- * @param   {Number}      index   [子节点下标]
- * @return  {DOMElement}
- */
-vfor.getChild = function (parent, alias, index) {
-	var e = 0, target = null;
-	var firstChild = parent.firstChild;
-	var childNodes = parent.childNodes;
-
-	if (firstChild && firstChild[forAlias] === alias) {
-		return childNodes[index];
-	}
-
-	for (var i = 0; i < childNodes.length; i++) {
-		let child = childNodes[i];
-		if (child[forAlias] === alias) {
-			if (e === index) {
-				target = child;
-				break;
-			}
-			e++;
-		}
-	}
-
-	return target;
-}
-
-/**
- * 删除 vfor 循环体指定的数据
- * @param   {DOMElement}  parent      [父节点]
- * @param   {String}      alias       [循环体对象别名]
- * @param   {Number}      start       [删除的下标起点]
- * @param   {Number}      deleteCont  [删除个数]
- */
-vfor.removeEl = function (parent, alias, start, deleteCont) {
-	var e = -1, scapegoats = [];
-	var childNodes = parent.childNodes;
-
-	for (var i = 0; i < childNodes.length; i++) {
-		let child = childNodes[i];
-		if (child[forAlias] === alias) {
-			e++;
-		}
-		// 删除的范围内
-		if (e >= start && e < start + deleteCont) {
-			scapegoats.push(child);
-		}
-	}
-
-	util.each(scapegoats, function (scapegoat) {
-		parent.removeChild(scapegoat);
-		return null;
-	});
 }
 
 /**

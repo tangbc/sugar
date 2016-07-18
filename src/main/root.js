@@ -1,5 +1,8 @@
 import util from '../util';
 
+const regSuper = /\b\.Super\b/;
+const toString = Function.prototype.toString;
+
 /**
  * 对子类方法挂载 Super
  * @param   {Function}  Super   [Super 函数]
@@ -7,7 +10,7 @@ import util from '../util';
  * @return  {Mix}
  */
 function bindSuper (Super, method) {
-	if (util.isFunc(method) && /\b\.Super\b/.test(Function.prototype.toString.call(method))) {
+	if (util.isFunc(method) && regSuper.test(toString.call(method))) {
 		return function () {
 			this.Super = Super;
 			method.apply(this, arguments);
