@@ -1,22 +1,30 @@
 /**
  * banner description
  */
-var mvvmBanner, sugarBanner;
+
+var date = Date();
+var regFristNewline = /\n/;
+var year = (new Date()).getFullYear();
 var version = require('../package.json').version;
-var description = [
-	'/*!',
-	undefined,
-	' * (c) ' + (new Date()).getFullYear() + ' TANG',
-	' * Released under the MIT license',
-	' * https://github.com/tangbc/sugar',
-	' * ' + Date(),
-	' */'
-];
 
-description[1] = ' * mvvm.js v' + version;
-mvvmBanner = description.join('\n');
+function getBanner (library) {
+	return `
+/*!
+ * ${library} v${version} (c) ${year} TANG
+ * Released under the MIT license
+ * ${date}
+ */`
+}
 
-description[1] = ' * sugar.js v' + version;
-sugarBanner = description.join('\n');
+var outputConfig = {
+	comments: function (node, comment) {
+		// multiline comment
+		return comment.type === 'comment2' && /TANG/i.test(comment.value);
+	}
+}
 
-export { mvvmBanner, sugarBanner };
+var mvvmBanner = getBanner('mvvm.js').replace(regFristNewline, '');
+var sugarBanner = getBanner('sugar.js').replace(regFristNewline, '');
+
+
+export { mvvmBanner, sugarBanner, outputConfig }
