@@ -123,7 +123,7 @@ window.onload = function buildTodoMVC () {
 
 		// 移除一条 todo
 		removeItem: function (item) {
-			this.vm.$.allTodos.$remove(item);
+			this.vm.$data.allTodos.$remove(item);
 			this.update();
 		},
 
