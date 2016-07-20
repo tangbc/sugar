@@ -280,7 +280,7 @@ pp.getDeps = function (fors, expression) {
 				access = fors.accesses[fors.aliases.indexOf(alias)];
 			}
 		} else {
-			alias = util.getExpAlias(model);
+			alias = util.getExpValue(model);
 		}
 
 		// 取值字段访问路径，输出别名和下标

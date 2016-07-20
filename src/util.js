@@ -357,7 +357,7 @@ util.stringToFragment = function (html) {
  * @param   {String}  expression
  * @return  {String}
  */
-util.getExpAlias = function (expression) {
+util.getExpValue = function (expression) {
 	var pos = expression.indexOf('.');
 	return pos === -1 ? expression : expression.substr(0, pos);
 }

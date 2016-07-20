@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Wed Jul 20 2016 14:25:55 GMT+0800 (CST)
+ * Wed Jul 20 2016 14:47:00 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -373,7 +373,7 @@
 	 * @param   {String}  expression
 	 * @return  {String}
 	 */
-	util.getExpAlias = function (expression) {
+	util.getExpValue = function (expression) {
 		var pos = expression.indexOf('.');
 		return pos === -1 ? expression : expression.substr(0, pos);
 	}
@@ -1403,7 +1403,7 @@
 			}
 
 			// 顶层数据模型
-			this.watchModel(util.getExpAlias(model), callback, context, args);
+			this.watchModel(util.getExpValue(model), callback, context, args);
 
 		}, this);
 	}
@@ -1873,7 +1873,7 @@
 					access = fors.accesses[fors.aliases.indexOf(alias)];
 				}
 			} else {
-				alias = util.getExpAlias(model);
+				alias = util.getExpValue(model);
 			}
 
 			// 取值字段访问路径，输出别名和下标
@@ -2133,7 +2133,7 @@
 	 */
 	vel.parse = function (fors, node, value) {
 		if (fors) {
-			var alias = util.getExpAlias(value);
+			var alias = util.getExpValue(value);
 
 			// vel 在 vfor 循环中只能在当前循环体中赋值
 			if (alias !== fors.alias) {

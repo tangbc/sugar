@@ -90,7 +90,7 @@ wp.watch = function (depends, callback, context, args) {
 		}
 
 		// 顶层数据模型
-		this.watchModel(util.getExpAlias(model), callback, context, args);
+		this.watchModel(util.getExpValue(model), callback, context, args);
 
 	}, this);
 }

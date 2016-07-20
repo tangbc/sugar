@@ -18,7 +18,7 @@ var vel = Vel.prototype = Object.create(Parser.prototype);
  */
 vel.parse = function (fors, node, value) {
 	if (fors) {
-		let alias = util.getExpAlias(value);
+		let alias = util.getExpValue(value);
 
 		// vel 在 vfor 循环中只能在当前循环体中赋值
 		if (alias !== fors.alias) {
