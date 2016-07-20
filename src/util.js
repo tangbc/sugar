@@ -76,18 +76,26 @@ var util = {
 	isString
 }
 
+var cons = window.console;
+
 /**
  * 打印警告信息
  */
+/* istanbul ignore next */
 util.warn = function () {
-	console.warn.apply(console, arguments);
+	if (cons) {
+		cons.warn.apply(cons, arguments);
+	}
 }
 
 /**
  * 打印错误信息
  */
+/* istanbul ignore next */
 util.error = function () {
-	console.error.apply(console, arguments);
+	if (cons) {
+		cons.error.apply(cons, arguments);
+	}
 }
 
 /*

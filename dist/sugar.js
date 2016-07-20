@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Wed Jul 20 2016 10:16:25 GMT+0800 (CST)
+ * Wed Jul 20 2016 14:25:55 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -87,18 +87,26 @@
 		isString: isString
 	}
 
+	var cons = window.console;
+
 	/**
 	 * 打印警告信息
 	 */
+	/* istanbul ignore next */
 	util.warn = function () {
-		console.warn.apply(console, arguments);
+		if (cons) {
+			cons.warn.apply(cons, arguments);
+		}
 	}
 
 	/**
 	 * 打印错误信息
 	 */
+	/* istanbul ignore next */
 	util.error = function () {
-		console.error.apply(console, arguments);
+		if (cons) {
+			cons.error.apply(cons, arguments);
+		}
 	}
 
 	/*
