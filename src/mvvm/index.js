@@ -2,7 +2,7 @@ import util from '../util';
 import Compiler from './compiler';
 
 /**
- * MVVM 构造函数，封装 Complier
+ * MVVM 构造函数入口
  * @param  {DOMElement}  element  [视图的挂载原生 DOM]
  * @param  {Object}      model    [数据模型对象]
  * @param  {Function}    context  [事件及 watch 的回调上下文]
@@ -24,7 +24,7 @@ function MVVM (element, model, context) {
 	this.vm = new Compiler(element, model);
 
 	// 数据模型
-	this.$ = this.vm.$data;
+	this.$data = this.vm.$data;
 }
 
 var mvp = MVVM.prototype;
@@ -36,7 +36,7 @@ var mvp = MVVM.prototype;
  * @return  {Mix}
  */
 mvp.get = function (key) {
-	return util.isString(key) ? this.$[key] : this.$;
+	return util.isString(key) ? this.$data[key] : this.$data;
 }
 
 /**
@@ -55,7 +55,7 @@ mvp.getItem = function (key) {
  * @param  {Mix}     value  [值]
  */
 mvp.set = function (key, value) {
-	var vm = this.$;
+	var vm = this.$data;
 	// 设置单个
 	if (util.isString(key)) {
 		vm[key] = value;
@@ -74,7 +74,7 @@ mvp.set = function (key, value) {
  * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
  */
 mvp.reset = function (key) {
-	var vm = this.$;
+	var vm = this.$data;
 	var backup = this.backup;
 
 	// 重置单个
@@ -112,7 +112,7 @@ mvp.watch = function (model, callback, deep) {
  */
 mvp.destroy = function () {
 	this.vm.destroy();
-	this.context = this.vm = this.backup = this.$ = null;
+	this.context = this.vm = this.backup = this.$data = null;
 }
 
 export default MVVM;

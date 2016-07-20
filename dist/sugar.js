@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Tue Jul 19 2016 14:22:59 GMT+0800 (CST)
+ * Wed Jul 20 2016 10:16:25 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1810,7 +1810,15 @@
 	}
 
 	// 重写的数组操作方法
-	var rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+	var rewriteArrayMethods = [
+		'pop',
+		'push',
+		'sort',
+		'shift',
+		'splice',
+		'unshift',
+		'reverse'
+	];
 
 	/**
 	 * 寻找匹配路径
@@ -3843,6 +3851,13 @@
 		updater.updateAttribute.apply(updater, arguments);
 	}
 
+	// 双向数据绑定可用的表单元素
+	var validForms = [
+		'input',
+		'select',
+		'textarea'
+	];
+
 	/**
 	 * 格式化表单输出值
 	 * @param   {DOMElement}   node
@@ -3891,19 +3906,20 @@
 	 * @param   {String}      field   [双向绑定的字段]
 	 */
 	vmodel.parse = function (fors, node, field) {
-		var vm = this.vm;
-		var inputs = vm.$inputs;
 		var tagName = node.tagName.toLowerCase();
 		var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
 
-		if (inputs.indexOf(tagName) === -1) {
-			return util.warn('v-model only for using in ' + inputs.join(', '));
+		if (validForms.indexOf(tagName) === -1) {
+			return util.warn('v-model only for using in ' + validForms.join(', '));
 		}
 
 		util.def(node, '__vmodel', field);
 
+		// 提取依赖
 		var deps = this.getDeps(fors, field);
+		// 取值域
 		var scope = this.getScope(fors, field);
+		// 取值函数
 		var getter = this.getEval(fors, field);
 
 		// v-model 只支持静态指令
@@ -4219,9 +4235,6 @@
 		this.vbind = new Vbind(this);
 		this.vmodel = new Vmodel(this);
 
-		// v-model 限制使用的表单元素
-		this.$inputs = 'input|select|textarea'.split('|');
-
 		this.init();
 	}
 
@@ -4439,12 +4452,12 @@
 	cp.destroy = function () {
 		this.watcher.destroy();
 		dom.empty(this.$element);
-		this.$fragment = this.$data = this.$unCompiles = this.updater = this.$inputs = null;
+		this.$fragment = this.$data = this.$unCompiles = this.updater = null;
 		this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
 	}
 
 	/**
-	 * MVVM 构造函数，封装 Complier
+	 * MVVM 构造函数入口
 	 * @param  {DOMElement}  element  [视图的挂载原生 DOM]
 	 * @param  {Object}      model    [数据模型对象]
 	 * @param  {Function}    context  [事件及 watch 的回调上下文]
@@ -4466,7 +4479,7 @@
 		this.vm = new Compiler(element, model);
 
 		// 数据模型
-		this.$ = this.vm.$data;
+		this.$data = this.vm.$data;
 	}
 
 	var mvp = MVVM.prototype;
@@ -4478,7 +4491,7 @@
 	 * @return  {Mix}
 	 */
 	mvp.get = function (key) {
-		return util.isString(key) ? this.$[key] : this.$;
+		return util.isString(key) ? this.$data[key] : this.$data;
 	}
 
 	/**
@@ -4497,7 +4510,7 @@
 	 * @param  {Mix}     value  [值]
 	 */
 	mvp.set = function (key, value) {
-		var vm = this.$;
+		var vm = this.$data;
 		// 设置单个
 		if (util.isString(key)) {
 			vm[key] = value;
@@ -4516,7 +4529,7 @@
 	 * @param   {Array|String}  key  [数据模型字段，或字段数组，空则重置所有]
 	 */
 	mvp.reset = function (key) {
-		var vm = this.$;
+		var vm = this.$data;
 		var backup = this.backup;
 
 		// 重置单个
@@ -4554,7 +4567,7 @@
 	 */
 	mvp.destroy = function () {
 		this.vm.destroy();
-		this.context = this.vm = this.backup = this.$ = null;
+		this.context = this.vm = this.backup = this.$data = null;
 	}
 
 	/**
