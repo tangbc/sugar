@@ -102,9 +102,6 @@ function Compiler (element, model) {
 	this.vbind = new Vbind(this);
 	this.vmodel = new Vmodel(this);
 
-	// v-model 限制使用的表单元素
-	this.$inputs = 'input|select|textarea'.split('|');
-
 	this.init();
 }
 
@@ -320,7 +317,7 @@ cp.checkRoot = function () {
 cp.destroy = function () {
 	this.watcher.destroy();
 	dom.empty(this.$element);
-	this.$fragment = this.$data = this.$unCompiles = this.updater = this.$inputs = null;
+	this.$fragment = this.$data = this.$unCompiles = this.updater = null;
 	this.von = this.vel = this.vif = this.vfor = this.vtext = this.vhtml = this.vshow = this.vbind = this.vmodel = null;
 }
 

@@ -1,7 +1,15 @@
 import util from '../util';
 
 // 重写的数组操作方法
-const rewriteArrayMethods = 'push|pop|shift|unshift|splice|sort|reverse'.split('|');
+const rewriteArrayMethods = [
+	'pop',
+	'push',
+	'sort',
+	'shift',
+	'splice',
+	'unshift',
+	'reverse'
+];
 
 /**
  * 寻找匹配路径

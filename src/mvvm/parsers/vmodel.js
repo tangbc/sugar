@@ -2,6 +2,13 @@ import dom from '../../dom';
 import util from '../../util';
 import Parser from '../parser';
 
+// 双向数据绑定可用的表单元素
+const validForms = [
+	'input',
+	'select',
+	'textarea'
+];
+
 /**
  * 格式化表单输出值
  * @param   {DOMElement}   node
@@ -50,19 +57,20 @@ var vmodel = Vmodel.prototype = Object.create(Parser.prototype);
  * @param   {String}      field   [双向绑定的字段]
  */
 vmodel.parse = function (fors, node, field) {
-	var vm = this.vm;
-	var inputs = vm.$inputs;
 	var tagName = node.tagName.toLowerCase();
 	var type = tagName === 'input' ? dom.getAttr(node, 'type') : tagName;
 
-	if (inputs.indexOf(tagName) === -1) {
-		return util.warn('v-model only for using in ' + inputs.join(', '));
+	if (validForms.indexOf(tagName) === -1) {
+		return util.warn('v-model only for using in ' + validForms.join(', '));
 	}
 
 	util.def(node, '__vmodel', field);
 
+	// 提取依赖
 	var deps = this.getDeps(fors, field);
+	// 取值域
 	var scope = this.getScope(fors, field);
+	// 取值函数
 	var getter = this.getEval(fors, field);
 
 	// v-model 只支持静态指令
