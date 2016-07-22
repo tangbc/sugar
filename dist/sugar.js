@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Fri Jul 22 2016 11:55:37 GMT+0800 (CST)
+ * Fri Jul 22 2016 15:08:02 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2631,6 +2631,11 @@
 		}
 	}
 
+	var regBigBrackets = /^\{.*\}$/;
+	var regSmallBrackets = /(\(.*\))/;
+	var regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
+	var regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g;
+
 	/**
 	 * 分解字符串函数参数
 	 * @param   {String}  funcString
@@ -2639,7 +2644,7 @@
 	function stringToParams (funcString) {
 		var args, func;
 		var exp = util.removeSpace(funcString);
-		var matches = exp.match(/(\(.*\))/);
+		var matches = exp.match(regSmallBrackets);
 		var result = matches && matches[0];
 
 		// 有函数名和参数
@@ -2650,10 +2655,7 @@
 			func = exp;
 		}
 
-		return {
-			'func': func,
-			'args': args
-		}
+		return { func: func, args: args };
 	}
 
 	/**
@@ -2664,17 +2666,17 @@
 	function convertJson (jsonString) {
 		var json, string = jsonString.trim();
 
-		if (/^\{.*\}$/.test(string)) {
+		if (regBigBrackets.test(string)) {
 			json = {};
 			var leng = string.length;
 			string = string.substr(1, leng - 2).replace(/\s/g, '');
-			var props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
+			var props = string.match(regJsonFormat);
 
 			util.each(props, function (prop) {
 				var vals = util.getKeyValue(prop, true);
 				var name = vals[0], value = vals[1];
 				if (name && value) {
-					name = name.replace(/(^'*)|('*$)|(^"*)|("*$)/g, '');
+					name = name.replace(regQuotes, '');
 					json[name] = value;
 				}
 			});
