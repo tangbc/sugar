@@ -1,6 +1,11 @@
 import util from '../../util';
 import Parser from '../parser';
 
+const regBigBrackets = /^\{.*\}$/;
+const regSmallBrackets = /(\(.*\))/;
+const regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
+const regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g;
+
 /**
  * 分解字符串函数参数
  * @param   {String}  funcString
@@ -9,7 +14,7 @@ import Parser from '../parser';
 function stringToParams (funcString) {
 	var args, func;
 	var exp = util.removeSpace(funcString);
-	var matches = exp.match(/(\(.*\))/);
+	var matches = exp.match(regSmallBrackets);
 	var result = matches && matches[0];
 
 	// 有函数名和参数
@@ -20,10 +25,7 @@ function stringToParams (funcString) {
 		func = exp;
 	}
 
-	return {
-		'func': func,
-		'args': args
-	}
+	return { func, args };
 }
 
 /**
@@ -34,17 +36,17 @@ function stringToParams (funcString) {
 function convertJson (jsonString) {
 	var json, string = jsonString.trim();
 
-	if (/^\{.*\}$/.test(string)) {
+	if (regBigBrackets.test(string)) {
 		json = {};
 		let leng = string.length;
 		string = string.substr(1, leng - 2).replace(/\s/g, '');
-		let props = string.match(/[^,]+:[^:]+((?=,[^:]+:)|$)/g);
+		let props = string.match(regJsonFormat);
 
 		util.each(props, function (prop) {
 			var vals = util.getKeyValue(prop, true);
 			var name = vals[0], value = vals[1];
 			if (name && value) {
-				name = name.replace(/(^'*)|('*$)|(^"*)|("*$)/g, '');
+				name = name.replace(regQuotes, '');
 				json[name] = value;
 			}
 		});
