@@ -1,7 +1,7 @@
 {
   "name": "sugar",
   "version": "1.1.5",
-  "description": "A lightweight JavaScript library for building web UI component.",
+  "description": "A lightweight JavaScript MVVM library for building web UI component.",
   "keywords": [
     "framework",
     "mvvm",
@@ -21,9 +21,10 @@
     "test": "karma start build/karma.unit.js",
     "cover": "karma start build/karma.cover.js",
     "build": "gulp jshint & npm run pack & npm run cover",
+    "release": "bash build/release.sh",
+    "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
     "dev-mvvm": "webpack --watch --config build/dev.mvvm.js",
     "dev-sugar": "webpack --watch --config build/dev.sugar.js",
-    "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
     "pack-sugar": "node node_modules/.bin/rollup -c build/pack.sugar.js",
     "pack-sugar-min": "node node_modules/.bin/rollup -c build/pack.sugar.min.js",
     "pack-mvvm": "node node_modules/.bin/rollup -c build/pack.mvvm.js",
