@@ -47,7 +47,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 	# update gh-pages
 	echo -e '\033[33m Updating gh-pages ... \033[0m'
 	git checkout gh-pages
-	git rebase master
+	git merge master
 	git commit -m 'Update gh-pages ['`date '+%Y%m%d-%H:%M:%S'`']'
 	git push origin gh-pages
 	echo -e '\033[32m Origin gh-pages is updated! \033[0m'
