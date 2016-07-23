@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Sat Jul 23 2016 09:28:33 GMT+0800 (CST)
+ * Sat Jul 23 2016 18:09:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2769,10 +2769,10 @@
 		if (evt.indexOf('.') > -1) {
 			var modals = evt.split('.');
 			evt = modals.shift();
-			self = modals && modals.indexOf('self') > -1;
-			stop = modals && modals.indexOf('stop') > -1;
-			prevent = modals && modals.indexOf('prevent') > -1;
-			capture = modals && modals.indexOf('capture') > -1;
+			self = modals.indexOf('self') > -1;
+			stop = modals.indexOf('stop') > -1;
+			prevent = modals.indexOf('prevent') > -1;
+			capture = modals.indexOf('capture') > -1;
 			keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 		}
 
