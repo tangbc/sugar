@@ -139,10 +139,10 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 	if (evt.indexOf('.') > -1) {
 		let modals = evt.split('.');
 		evt = modals.shift();
-		self = modals && modals.indexOf('self') > -1;
-		stop = modals && modals.indexOf('stop') > -1;
-		prevent = modals && modals.indexOf('prevent') > -1;
-		capture = modals && modals.indexOf('capture') > -1;
+		self = modals.indexOf('self') > -1;
+		stop = modals.indexOf('stop') > -1;
+		prevent = modals.indexOf('prevent') > -1;
+		capture = modals.indexOf('capture') > -1;
 		keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
 	}
 
