@@ -8,6 +8,7 @@ import util from '../util';
  * @param   {String}    param     [请求参数]
  * @param   {Function}  callback  [回调函数]
  * @param   {Function}  context   [作用域]
+ * @return  {Object}
  */
 function execute (dataType, url, method, param, callback, context) {
 	var ct = context || this;
@@ -56,6 +57,8 @@ function execute (dataType, url, method, param, callback, context) {
 	}
 
 	xhr.send(param);
+
+	return xhr;
 }
 
 /**
@@ -80,21 +83,21 @@ function get (url, param, callback, context, dataType) {
 		url = url + '?' + params.join('&');
 	}
 
-	execute(dataType || 'json', url, 'GET', null, callback, context);
+	return execute(dataType || 'json', url, 'GET', null, callback, context);
 }
 
 /**
  * post 请求
  */
 function post (url, param, callback, context) {
-	execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
+	return execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
 }
 
 /**
  * 拉取静态模板
  */
 function load (url, param, callback, context) {
-	get(url, param, callback, context, 'text');
+	return get(url, param, callback, context, 'text');
 }
 
 export default { get, post, load }
