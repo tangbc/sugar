@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.5 (c) 2016 TANG
  * Released under the MIT license
- * Sun Jul 24 2016 09:14:11 GMT+0800 (CST)
+ * Sun Jul 24 2016 13:29:56 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -518,6 +518,7 @@
 	 * @param   {String}    param     [请求参数]
 	 * @param   {Function}  callback  [回调函数]
 	 * @param   {Function}  context   [作用域]
+	 * @return  {Object}
 	 */
 	function execute (dataType, url, method, param, callback, context) {
 		var ct = context || this;
@@ -566,6 +567,8 @@
 		}
 
 		xhr.send(param);
+
+		return xhr;
 	}
 
 	/**
@@ -590,21 +593,21 @@
 			url = url + '?' + params.join('&');
 		}
 
-		execute(dataType || 'json', url, 'GET', null, callback, context);
+		return execute(dataType || 'json', url, 'GET', null, callback, context);
 	}
 
 	/**
 	 * post 请求
 	 */
 	function post (url, param, callback, context) {
-		execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
+		return execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
 	}
 
 	/**
 	 * 拉取静态模板
 	 */
 	function load (url, param, callback, context) {
-		get(url, param, callback, context, 'text');
+		return get(url, param, callback, context, 'text');
 	}
 
 	var ajax = { get: get, post: post, load: load }
@@ -4822,7 +4825,7 @@
 		afterDestroy: function () {
 			var vm = this.vm;
 			var el = this.el;
-			var parent = this.getConfig('target');
+			var parent = el.parentNode;
 
 			// 销毁 mvvm 实例
 			if (vm) {
