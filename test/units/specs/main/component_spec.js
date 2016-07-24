@@ -27,7 +27,6 @@ describe('sugar Component api >', function () {
 	});
 
 
-
 	it('simple api', function () {
 		// define a simple component
 		var View = Component.extend({
@@ -202,6 +201,59 @@ describe('sugar Component api >', function () {
 		var view = sugar.core.create('view', View, {
 			'target': wraper
 		});
+
+		view.destroy();
+	});
+
+
+	it('use selector target', function () {
+		wraper.innerHTML =
+			'<div id="app">' +
+				'<h1>{{ title }}</h1>' +
+			'</div>'
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'model': {
+						'title': 'xxdk'
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View, {
+			'target': '#app'
+		});
+
+		expect(wraper.querySelector('h1').textContent).toBe('xxdk');
+
+		view.destroy();
+	});
+
+
+	it('use beforeRender', function () {
+		var flag;
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html': '<p>xxdk</p>'
+				});
+				this.Super('init', arguments);
+			},
+			beforeRender: function () {
+				expect(flag).toBe(undefined);
+				flag = true;
+			},
+			viewReady: function () {
+				expect(flag).toBe(true);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
 
 		view.destroy();
 	});
