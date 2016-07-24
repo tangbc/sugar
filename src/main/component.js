@@ -254,7 +254,7 @@ var Component = Module.extend({
 	afterDestroy: function () {
 		var vm = this.vm;
 		var el = this.el;
-		var parent = this.getConfig('target');
+		var parent = el.parentNode;
 
 		// 销毁 mvvm 实例
 		if (vm) {
