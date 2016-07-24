@@ -1,13 +1,6 @@
 import util from '../util';
 
 /**
- * Ajax 模块
- */
-function Ajax () {}
-
-var ap = Ajax.prototype;
-
-/**
  * 执行一个 http 请求
  * @param   {String}    dataType  [回调数据类型 json/text ]
  * @param   {String}    url       [请求url]
@@ -16,21 +9,21 @@ var ap = Ajax.prototype;
  * @param   {Function}  callback  [回调函数]
  * @param   {Function}  context   [作用域]
  */
-ap._execute = function (dataType, url, method, param, callback, context) {
+function execute (dataType, url, method, param, callback, context) {
 	var ct = context || this;
-	var xmlHttp = new XMLHttpRequest();
+	var xhr = new XMLHttpRequest();
 
 	// 初始化请求
-	xmlHttp.open(method, url, true);
+	xhr.open(method, url, true);
 
 	// 状态变化回调
-	xmlHttp.onreadystatechange = function () {
-		var response;
-		var result = null, error = null, status = xmlHttp.status;
+	xhr.onreadystatechange = function () {
+		var status = xhr.status;
+		var result = null, error = null;
 
 		// 请求完成
-		if (xmlHttp.readyState === 4) {
-			response = xmlHttp.responseText;
+		if (xhr.readyState === 4) {
+			let response = xhr.responseText;
 
 			// 返回数据类型
 			if (dataType !== 'text') {
@@ -59,16 +52,16 @@ ap._execute = function (dataType, url, method, param, callback, context) {
 	}
 
 	if (param) {
-		xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 	}
 
-	xmlHttp.send(param);
+	xhr.send(param);
 }
 
 /**
  * get 请求
  */
-ap.get = function (url, param, callback, context, dataType) {
+function get (url, param, callback, context, dataType) {
 	var params = [];
 
 	if (util.isFunc(param)) {
@@ -87,21 +80,21 @@ ap.get = function (url, param, callback, context, dataType) {
 		url = url + '?' + params.join('&');
 	}
 
-	this._execute(dataType || 'json', url, 'GET', null, callback, context);
+	execute(dataType || 'json', url, 'GET', null, callback, context);
 }
 
 /**
  * post 请求
  */
-ap.post = function (url, param, callback, context) {
-	this._execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
+function post (url, param, callback, context) {
+	execute('json', url, 'POST', param ? JSON.stringify(param) : null, callback, context);
 }
 
 /**
  * 拉取静态模板
  */
-ap.load = function (url, param, callback, context) {
-	this.get(url, param, callback, context, 'text');
+function load (url, param, callback, context) {
+	get(url, param, callback, context, 'text');
 }
 
-export default new Ajax();
+export default { get, post, load }
