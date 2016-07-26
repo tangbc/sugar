@@ -172,7 +172,7 @@ describe('sugar Component api >', function () {
 
 		var view = sugar.core.create('view', View);
 
-		expect(util.warn).toHaveBeenCalledWith('Failed to cover config, 2 argumenst required');
+		expect(util.warn).toHaveBeenCalledWith('Failed to cover config, 2 arguments required');
 
 		view.destroy();
 	});
@@ -259,7 +259,32 @@ describe('sugar Component api >', function () {
 	});
 
 
-	it('create sub component', function () {
+	it('replace component target', function () {
+		wraper.innerHTML = '<div class="target"></div>';
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper.querySelector('.target'),
+					// this component will replace .target
+					'replace': true,
+					'tag': 'span',
+					'class': 'comp',
+					'html': 'component-replace-target'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe('<span class="comp">component-replace-target</span>');
+
+		view.destroy();
+	});
+
+
+	it('create subComponent', function () {
 		var subInstance,
 			anotherSubInstance;
 		var flag;
@@ -283,7 +308,7 @@ describe('sugar Component api >', function () {
 				expect(flag).toBe('in view component');
 			},
 			changeFlag: function () {
-				flag = 'in sub component';
+				flag = 'in subComponent';
 			}
 		});
 
@@ -307,21 +332,21 @@ describe('sugar Component api >', function () {
 				var box = this.query('.box');
 				var p = this.query('p');
 
-				// create sub component to current component
+				// create subComponent to current component
 				subInstance = this.create('sub', SubComponent, {
 					'target': box,
-					'title': 'I am sub component'
+					'title': 'I am subComponent'
 				});
 
 				// already append to view
-				expect(box.innerHTML).toBe('<p class="aa bb"><h2>I am sub component</h2></p>');
+				expect(box.innerHTML).toBe('<p class="aa bb"><h2>I am subComponent</h2></p>');
 
 				// test getChild api
 				expect(this.getChild('sub')).toBe(subInstance);
 				subInstance.changeFlag();
-				expect(flag).toBe('in sub component');
+				expect(flag).toBe('in subComponent');
 
-				// create another sub component
+				// create another subComponent
 				anotherSubInstance = this.create('sub_another', AnotherSub, {
 					'target': p
 				});
@@ -361,6 +386,251 @@ describe('sugar Component api >', function () {
 		var view = sugar.core.create('view', View, {
 			'target': wraper
 		});
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + single + no-config', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp',
+					'html': '<p>SUB</p>'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<SubComponent></SubComponent>',
+					// declare subComponent
+					'childs': {
+						'SubComponent': Sub
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe(
+			'<div>' +
+				'<h1>title</h1>' +
+				'<div class="subComp">' +
+					'<p>SUB</p>' +
+				'</div>' +
+			'</div>'
+		);
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + single + config', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<SubComponent></SubComponent>',
+					// declare subComponent
+					'childs': {
+						'SubComponent': [Sub, {'html': 'SSS'}]
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe(
+			'<div>' +
+				'<h1>title</h1>' +
+				'<div class="subComp">SSS</div>' +
+			'</div>'
+		);
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + multi + no-config', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp',
+					'html': '<p>SUB</p>'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<SubComponent></SubComponent>' +
+						'<SubComponent></SubComponent>' +
+						'<SubComponent></SubComponent>',
+					// declare subComponent
+					'childs': {
+						'SubComponent': Sub
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe(
+			'<div>' +
+				'<h1>title</h1>' +
+				'<div class="subComp"><p>SUB</p></div>' +
+				'<div class="subComp"><p>SUB</p></div>' +
+				'<div class="subComp"><p>SUB</p></div>' +
+			'</div>'
+		);
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + multi + config', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<SubComponent></SubComponent>' +
+						'<SubComponent></SubComponent>' +
+						'<SubComponent></SubComponent>',
+					// declare subComponent
+					'childs': {
+						'SubComponent': [Sub, {'html': 'BBB'}]
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe(
+			'<div>' +
+				'<h1>title</h1>' +
+				'<div class="subComp">BBB</div>' +
+				'<div class="subComp">BBB</div>' +
+				'<div class="subComp">BBB</div>' +
+			'</div>'
+		);
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + name property', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp',
+					'html': '<p>SUB</p>'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<SubComponent name="xxdk"></SubComponent>',
+					// declare subComponent
+					'childs': {
+						'xxdk': Sub
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(wraper.innerHTML).toBe(
+			'<div>' +
+				'<h1>title</h1>' +
+				'<div class="subComp">' +
+					'<p>SUB</p>' +
+				'</div>' +
+			'</div>'
+		);
+
+		view.destroy();
+	});
+
+
+	it('subComponent declarative nested + not find target', function () {
+		var Sub = Component.extend({
+			init: function (config) {
+				config = this.cover(config, {
+					'class': 'subComp',
+					'html': '<p>SUB</p>'
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var View = Component.extend({
+			init: function (config) {
+				config = this.cover({
+					'target': wraper,
+					'html':
+						'<h1>title</h1>' +
+						'<Sub></Sub>',
+					// declare subComponent
+					'childs': {
+						'xxdk': Sub
+					}
+				});
+				this.Super('init', arguments);
+			}
+		});
+
+		var view = sugar.core.create('view', View);
+
+		expect(util.warn).toHaveBeenCalledWith('Cannot find target element for sub component [xxdk]');
 
 		view.destroy();
 	});
