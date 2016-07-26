@@ -104,33 +104,6 @@ mp.notifySender = function (msg, callback, context) {
 	if (util.isFunc(callback)) {
 		callback.call(context, msg);
 	}
-
-	// 继续发送队列中未完成的消息
-	if (this.queue.length) {
-		setTimeout(this.sendQueue, 0);
-	} else {
-		this.busy = false;
-	}
-}
-
-/**
- * 发送消息队列
- */
-mp.sendQueue = function () {
-	var request = messager.queue.shift();
-
-	messager.busy = false;
-
-	if (!request) {
-		return false;
-	}
-
-	// 消息类型
-	var type = request.shift();
-	// 消息方法
-	var func = messager[type];
-
-	func.apply(messager, request);
 }
 
 /**
@@ -143,14 +116,6 @@ mp.sendQueue = function () {
  */
 mp.fire = function (sender, name, param, callback, context) {
 	var type = 'fire';
-
-	// 是否处于忙碌状态
-	if (this.busy ) {
-		this.queue.push([type, sender, name, param, callback, context]);
-		return;
-	}
-
-	this.busy = true;
 
 	// 创建消息
 	var msg = this.createMsg(type, sender, name, param);
@@ -178,14 +143,6 @@ mp.fire = function (sender, name, param, callback, context) {
  */
 mp.broadcast = function (sender, name, param, callback, context) {
 	var type = 'broadcast';
-
-	// 是否处于忙碌状态
-	if (this.busy) {
-		this.queue.push([type, sender, name, param, callback, context]);
-		return;
-	}
-
-	this.busy = true;
 
 	// 创建消息
 	var msg = this.createMsg(type, sender, name, param);
@@ -217,14 +174,6 @@ mp.broadcast = function (sender, name, param, callback, context) {
  */
 mp.notify = function (sender, receiver, name, param, callback, context) {
 	var type = 'notify';
-
-	// 是否处于忙碌状态
-	if (this.busy) {
-		this.queue.push([type, sender, receiver, name, param, callback, context]);
-		return;
-	}
-
-	this.busy = true;
 
 	// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
 	if (util.isString(receiver)) {
@@ -269,14 +218,6 @@ mp.notify = function (sender, receiver, name, param, callback, context) {
  */
 mp.globalCast = function (name, param, callback, context) {
 	var type = 'globalCast';
-
-	// 是否处于忙碌状态
-	if (this.busy) {
-		this.queue.push([type, name, param, callback, context]);
-		return;
-	}
-
-	this.busy = true;
 
 	var msg = this.createMsg(type, '__core__', name, param);
 
