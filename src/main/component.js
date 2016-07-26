@@ -13,8 +13,6 @@ import eventer from '../eventer';
  * @return {Mix}             [返回读取的配置值]
  */
 function config (data, name, value) {
-	var udf, set = (value !== udf);
-
 	if (name) {
 		let ns = name.split('/');
 
@@ -27,7 +25,7 @@ function config (data, name, value) {
 		return data;
 	}
 
-	if (set) {
+	if (typeof value !== 'undefined') {
 		data[name] = value;
 		return true;
 	} else {
@@ -41,7 +39,7 @@ function config (data, name, value) {
  */
 var Component = Module.extend({
 	/**
-	 * init 组件初始化方法
+	 * init 组件初始化
 	 * @param  {Object}  config  [组件参数配置]
 	 * @param  {Object}  parent  [父组件对象]
 	 */
@@ -49,6 +47,8 @@ var Component = Module.extend({
 		this._config = this.cover(config, {
 			// 组件目标容器
 			'target'  : null,
+			// 组件是否替换目标容器
+			'replace' : false,
 			// dom 元素的标签
 			'tag'     : 'div',
 			// 元素的 class
@@ -65,12 +65,12 @@ var Component = Module.extend({
 			'tplParam': null,
 			// mvvm 数据模型对象
 			'model'   : null,
+			// 子组件注册对象
+			'childs'  : null,
 			// 视图渲染完成后的回调函数
 			'cbRender': 'viewReady'
 		});
 
-		// 通用 dom 处理方法
-		this.$ = dom;
 		// 组件元素
 		this.el = null;
 		// mvvm 实例
@@ -168,15 +168,69 @@ var Component = Module.extend({
 			this.vm = new MVVM(this.el, model, this);
 		}
 
+		// 创建子组件
+		util.each(c.childs, this._buildBatch, this);
+
 		// 追加到目标容器
 		if (isAppend) {
-			target.appendChild(this.el);
+			if (c.replace) {
+				target.parentNode.replaceChild(this.el, target);
+			} else {
+				target.appendChild(this.el);
+			}
 		}
 
 		// 组件视图渲染完成回调方法
 		var cb = this[c.cbRender];
 		if (util.isFunc(cb)) {
 			cb.call(this);
+		}
+	},
+
+	/**
+	 * 批量创建子组件
+	 * @param   {Function}  ChildComp  [子组件类]
+	 * @param   {String}    symbol     [子组件名称]
+	 */
+	_buildBatch: function (ChildComp, symbol) {
+		var target = this.queryAll(symbol.toLowerCase());
+
+		if (!target.length) {
+			target = this.queryAll('[name='+ symbol +']');
+		}
+
+		switch (target.length) {
+			case 0:
+				util.warn('Cannot find target element for sub component ['+ symbol +']');
+				break;
+			case 1:
+				this._createChild(target[0], symbol, ChildComp);
+				break;
+			default: {
+				for (let i = 0; i < target.length; i++) {
+					this._createChild(target[i], symbol + i, ChildComp);
+				}
+			}
+		}
+	},
+
+	/**
+	 * 创建一个子组件实例
+	 * @param   {DOMElement}  target
+	 * @param   {String}      childName
+	 * @param   {Function}    ChildComp
+	 */
+	_createChild: function (target, childName, ChildComp) {
+		// 默认全部替换子组件标记
+		var childConfig = { target, 'replace': true };
+
+		// 直接传入子组件
+		if (util.isFunc(ChildComp)) {
+			this.create(childName, ChildComp, childConfig);
+		}
+		// 传子组件和其配置参数 [component, config]
+		else if (util.isArray(ChildComp)) {
+			this.create(childName, ChildComp[0], util.extend(ChildComp[1], childConfig));
 		}
 	},
 
@@ -188,7 +242,7 @@ var Component = Module.extend({
 	 */
 	cover: function (child, parent) {
 		if (!parent) {
-			util.warn('Failed to cover config, 2 argumenst required');
+			util.warn('Failed to cover config, 2 arguments required');
 		}
 		return util.extend(true, {}, parent, child);
 	},
@@ -266,7 +320,7 @@ var Component = Module.extend({
 			parent.removeChild(el);
 		}
 
-		this.$ = el = vm = null;
+		el = vm = null;
 	}
 });
 
