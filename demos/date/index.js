@@ -148,7 +148,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 				return;
 			}
 
-			index = this.$.getAttr(elm, 'data-index');
+			index = elm.getAttribute('data-index');
 			selectDate = vm.dates[index];
 			this.updateDateValue(selectDate.year, selectDate.month, selectDate.date).highlightSelectDate();
 

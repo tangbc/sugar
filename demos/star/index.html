@@ -90,7 +90,7 @@
 				return;
 			}
 
-			var i = +this.$.getAttr(el, 'data-index');
+			var i = +el.getAttribute('data-index');
 			var stars = this.vm.get('stars');
 			var index = this.$scores.indexOf(stars[i]);
 			var next = ++index % 3;
