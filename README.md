@@ -63,6 +63,11 @@ And then the HTML structure will be:
 ```
 
 
+## Document
+
+[Get start and document.](https://github.com/tangbc/sugar/wiki)
+
+
 ## Demos
 
 There are several demos in **`demos/`** directory, check it out and preview them in the following links:
@@ -100,3 +105,8 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**
 
 5. Generate the test coverage report, jshint check-up and compress source code: **`npm run build`**
+
+
+## License
+
+[MIT License](https://github.com/tangbc/sugar/blob/master/LICENSE)
