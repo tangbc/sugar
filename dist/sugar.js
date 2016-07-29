@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.6 (c) 2016 TANG
  * Released under the MIT license
- * Wed Jul 27 2016 09:38:52 GMT+0800 (CST)
+ * Fri Jul 29 2016 22:07:22 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -674,46 +674,28 @@
 
 	/**
 	 * 字符串首字母大写
+	 * @param   {String}  string
 	 */
-	function ucFirst (str) {
-		return str.charAt(0).toUpperCase() + str.substr(1);
+	function ucFirst (string) {
+		return string.charAt(0).toUpperCase() + string.substr(1);
 	}
 
 	/**
 	 * 根据组件名称获取组件实例
 	 * @param   {String}  name
 	 */
-	function getComponent (name) {
+	function getComponentByName (name) {
 		var component = null;
+
 		util.each(cache, function (instance) {
 			if ((instance._ && instance._.name) === name) {
 				component = instance;
 				return false;
 			}
 		});
+
 		return component;
 	}
-
-
-	/**
-	 * Messager 实现组件消息通信
-	 */
-	function Messager () {
-		/**
-		 * 是否正在发送消息
-		 * @type {Bool}
-		 */
-		this.busy = false;
-
-		/**
-		 * 等待发送的消息队列
-		 * @type {Array}
-		 */
-		this.queue = [];
-	}
-
-	var messager;
-	var mp = Messager.prototype;
 
 	/**
 	 * 创建一条消息
@@ -723,7 +705,7 @@
 	 * @param  {Mix}     param   [<可选>附加消息参数]
 	 * @return {Object}
 	 */
-	mp.createMsg = function (type, sender, name, param) {
+	function createMessage (type, sender, name, param) {
 		return {
 			// 消息类型
 			'type'   : type,
@@ -739,7 +721,7 @@
 			'param'  : param,
 			// 接收消息组件的调用方法 on + 首字母大写
 			'method' : 'on' + ucFirst(name),
-			// 发送完毕后的返回数据
+			// 消息接收者的返回数据
 			'returns': null
 		}
 	}
@@ -750,7 +732,7 @@
 	 * @param  {Mix}     msg       [消息体（内容）]
 	 * @return {Mix}
 	 */
-	mp.trigger = function (receiver, msg) {
+	function triggerReceiver (receiver, msg) {
 		// 接受者消息处理方法
 		var func = receiver[msg.method];
 
@@ -770,8 +752,7 @@
 	 * @param  {Function}  callback  [通知发送者的回调函数]
 	 * @param  {Object}    context   [执行环境]
 	 */
-	mp.notifySender = function (msg, callback, context) {
-		// 通知回调
+	function feedbackSender (msg, callback, context) {
 		if (util.isFunc(callback)) {
 			callback.call(context, msg);
 		}
@@ -785,22 +766,19 @@
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
 	 * @param  {Object}    context   [执行环境]
 	 */
-	mp.fire = function (sender, name, param, callback, context) {
-		var this$1 = this;
-
-		var type = 'fire';
-
+	function fire (sender, name, param, callback, context) {
 		// 创建消息
-		var msg = this.createMsg(type, sender, name, param);
+		var msg = createMessage('fire', sender, name, param);
+
 		// 消息接收者，先从上一层模块开始接收
 		var receiver = sender.getParent();
 
 		while (receiver) {
-			var ret = this$1.trigger(receiver, msg);
+			var ret = triggerReceiver(receiver, msg);
 
 			// 接收消息方法返回 false 则不再继续冒泡
 			if (ret === false) {
-				this$1.notifySender(msg, callback, context);
+				feedbackSender(msg, callback, context);
 				return;
 			}
 
@@ -808,25 +786,27 @@
 			receiver = receiver.getParent();
 		}
 
-		this.notifySender(msg, callback, context);
+		feedbackSender(msg, callback, context);
 	}
 
 	/**
 	 * 广播（由上往下）方式发送消息，由父组件实例发出，逐层子组件实例接收
+	 * @param  {Object}    sender    [发送消息的子组件实例]
+	 * @param  {String}    name      [发送的消息名称]
+	 * @param  {Mix}       param     [<可选>附加消息参数]
+	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+	 * @param  {Object}    context   [执行环境]
 	 */
-	mp.broadcast = function (sender, name, param, callback, context) {
-		var this$1 = this;
-
-		var type = 'broadcast';
-
+	function broadcast (sender, name, param, callback, context) {
 		// 创建消息
-		var msg = this.createMsg(type, sender, name, param);
+		var msg = createMessage('broadcast', sender, name, param);
+
 		// 消息接收者集合，先从自身的子模块开始接收
 		var receivers = sender.getChilds(true).slice(0);
 
 		while (receivers.length) {
 			var receiver = receivers.shift();
-			var ret = this$1.trigger(receiver, msg);
+			var ret = triggerReceiver(receiver, msg);
 
 			// 接收消息方法返回 false 则不再继续广播
 			if (ret !== false) {
@@ -835,7 +815,7 @@
 			}
 		}
 
-		this.notifySender(msg, callback, context);
+		feedbackSender(msg, callback, context);
 	}
 
 	/**
@@ -847,14 +827,12 @@
 	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
 	 * @param  {Object}    context   [执行环境]
 	 */
-	mp.notify = function (sender, receiver, name, param, callback, context) {
-		var type = 'notify';
-
+	function notify (sender, receiver, name, param, callback, context) {
 		// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
 		if (util.isString(receiver)) {
 			var target;
 			var paths = receiver.split('.');
-			var parent = getComponent(paths.shift());
+			var parent = getComponentByName(paths.shift());
 
 			// 有层级
 			if (paths.length) {
@@ -874,41 +852,38 @@
 			}
 		}
 
-		var msg = this.createMsg(type, sender, name, param);
+		var msg = createMessage('notify', sender, name, param);
 
 		if (!util.isObject(receiver)) {
-			this.notifySender(msg, callback, context);
+			feedbackSender(msg, callback, context);
 			return util.warn('Component: [' + receiver + '] is not exist!');
 		}
 
-		this.trigger(receiver, msg);
+		triggerReceiver(receiver, msg);
 
-		this.notifySender(msg, callback, context);
+		feedbackSender(msg, callback, context);
 	}
 
 	/**
 	 * 全局广播发消息，系统全部组件实例接受
-	 * @param  {String}  name   [发送的消息名称]
-	 * @param  {Mix}     param  [<可选>附加消息参数]
+	 * @param  {String}    name      [发送的消息名称]
+	 * @param  {Mix}       param     [<可选>附加消息参数]
+	 * @param  {Function}  callback  [<可选>发送完毕的回调函数，可在回调中指定回应数据]
+	 * @param  {Object}    context   [执行环境]
 	 */
-	mp.globalCast = function (name, param, callback, context) {
-		var type = 'globalCast';
-
-		var msg = this.createMsg(type, '__core__', name, param);
+	function globalCast (name, param, callback, context) {
+		var msg = createMessage('globalCast', '__core__', name, param);
 
 		util.each(cache, function (receiver, index) {
 			if (util.isObject(receiver) && index !== '0') {
-				this.trigger(receiver, msg);
+				triggerReceiver(receiver, msg);
 			}
-		}, this);
+		});
 
-		// 发送完毕回调
-		this.notifySender(msg, callback, context);
+		feedbackSender(msg, callback, context);
 	}
 
-	messager = new Messager();
-
-	var messager$1 = messager;
+	var messager = { fire: fire, broadcast: broadcast, notify: notify, globalCast: globalCast }
 
 	/**
 	 * Module 系统组件模块基础类，实现所有模块的通用方法
@@ -1096,7 +1071,7 @@
 				callback = this[callback];
 			}
 
-			messager$1.fire(this, name, param, callback, this);
+			messager.fire(this, name, param, callback, this);
 		},
 
 		/**
@@ -1114,7 +1089,7 @@
 				callback = this[callback];
 			}
 
-			messager$1.broadcast(this, name, param, callback, this);
+			messager.broadcast(this, name, param, callback, this);
 		},
 
 		/**
@@ -1136,7 +1111,7 @@
 				callback = this[callback];
 			}
 
-			messager$1.notify(this, receiver, name, param, callback, this);
+			messager.notify(this, receiver, name, param, callback, this);
 		}
 	});
 
@@ -1169,7 +1144,7 @@
 				param = null;
 			}
 
-			messager$1.globalCast(name, param, callback, context);
+			messager.globalCast(name, param, callback, context);
 		},
 
 		/**
