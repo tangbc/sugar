@@ -1,0 +1,1 @@
+<div v-html="content"></div>
