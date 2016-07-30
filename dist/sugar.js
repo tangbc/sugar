@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.6 (c) 2016 TANG
  * Released under the MIT license
- * Fri Jul 29 2016 22:07:22 GMT+0800 (CST)
+ * Sat Jul 30 2016 09:30:36 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -885,6 +885,9 @@
 
 	var messager = { fire: fire, broadcast: broadcast, notify: notify, globalCast: globalCast }
 
+	var childMap = 'map';
+	var childArray = 'array';
+
 	/**
 	 * Module 系统组件模块基础类，实现所有模块的通用方法
 	 */
@@ -913,15 +916,15 @@
 			var cls = this._;
 
 			// 建立模块关系信息
-			if (!util.hasOwn(cls, 'childArray')) {
+			if (!util.hasOwn(cls, childArray)) {
 				// 子模块实例缓存数组
-				cls['childArray'] = [];
+				cls[childArray] = [];
 				// 子模块命名索引
-				cls['childMap'] = {};
+				cls[childMap] = {};
 			}
 
 			// 判断是否已经创建过
-			if (cls['childMap'][name]) {
+			if (cls[childMap][name]) {
 				return util.warn('Module ['+ name +'] is already exists!');
 			}
 
@@ -944,8 +947,8 @@
 			cache.length++;
 
 			// 缓存子模块实例
-			cls['childArray'].push(instance);
-			cls['childMap'][name] = instance;
+			cls[childArray].push(instance);
+			cls[childMap][name] = instance;
 
 			// 调用模块实例的 init 方法，传入配置参数和父模块
 			if (util.isFunc(instance.init)) {
@@ -971,7 +974,7 @@
 		 */
 		getChild: function (name) {
 			var cls = this._;
-			return cls && cls['childMap'] && cls['childMap'][name] || null;
+			return cls && cls[childMap] && cls[childMap][name] || null;
 		},
 
 		/**
@@ -982,7 +985,7 @@
 		getChilds: function (returnArray) {
 			var cls = this._;
 			returnArray = util.isBool(returnArray) && returnArray;
-			return returnArray ? (cls['childArray'] || []) : (cls['childMap'] || {});
+			return returnArray ? (cls[childArray] || []) : (cls[childMap] || {});
 		},
 
 		/**
@@ -992,8 +995,8 @@
 		 */
 		_removeChild: function (name) {
 			var cls = this._;
-			var cMap = cls['childMap'] || {};
-			var cArray = cls['childArray'] || [];
+			var cMap = cls[childMap] || {};
+			var cArray = cls[childArray] || [];
 			var child = cMap[name];
 
 			for (var i = 0, len = cArray.length; i < len; i++) {
