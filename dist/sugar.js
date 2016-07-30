@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.6 (c) 2016 TANG
  * Released under the MIT license
- * Sat Jul 30 2016 09:30:36 GMT+0800 (CST)
+ * Sat Jul 30 2016 10:02:18 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4548,7 +4548,7 @@
 				// 元素的 attr
 				'attr'    : null,
 				// 视图布局内容
-				'html'    : '',
+				'view'    : '',
 				// 静态模板 uri
 				'template': '',
 				// 模板拉取请求参数
@@ -4558,7 +4558,7 @@
 				// 子组件注册对象
 				'childs'  : null,
 				// 视图渲染完成后的回调函数
-				'cbRender': 'viewReady'
+				'cbRender': 'afterRender'
 			});
 
 			// 组件元素
@@ -4589,16 +4589,16 @@
 			var uri = c.template;
 
 			ajax.load(uri, c.tplParam, function (err, data) {
-				var html;
+				var view;
 
 				if (err) {
-					html = err.status + ': ' + uri;
+					view = err.status + ': ' + uri;
 					util.warn(err);
 				} else {
-					html = data.result;
+					view = data.result;
 				}
 
-				this.setConfig('html', html);
+				this.setConfig('view', view);
 				this._render();
 			}, this);
 		},
@@ -4647,9 +4647,9 @@
 				}, this);
 			}
 
-			// 添加页面布局
-			if (c.html) {
-				this.el.appendChild(util.stringToFragment(c.html));
+			// 添加页面视图布局
+			if (c.view) {
+				this.el.appendChild(util.stringToFragment(c.view));
 			}
 
 			// 初始化 mvvm 对象
