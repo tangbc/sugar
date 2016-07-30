@@ -37,7 +37,7 @@ var HelloWorld = sugar.Component.extend({
 	init: function (config) {
 		this.cover(config, {
 			'class': 'demo',
-			'html': '<h1>{{ title }}</h1>',
+			'view': '<h1>{{ title }}</h1>',
 			'model': {
 				'title': 'Hello world!'
 			}
@@ -65,7 +65,7 @@ And then the HTML structure will be:
 
 ## Document
 
-[Get start and document.](https://github.com/tangbc/sugar/wiki)
+[Get start and check document on Wiki.](https://github.com/tangbc/sugar/wiki)
 
 
 ## Demos
@@ -83,8 +83,8 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 ## Usage
 
 * Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>`.
-	* `sugar (about 38 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 	* `mvvm (about 30 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (about 38 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 
 * Browser support: does not support IE8 and below, used `Object.defineProperty`, `Object.create` ...
 
