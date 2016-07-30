@@ -11,7 +11,7 @@ require([
 			this.Super('init', arguments);
 		},
 
-		viewReady: function () {
+		afterRender: function () {
 			var span = this.query('span');
 
 			this.bind(span, 'click', function (e) {

@@ -58,7 +58,7 @@ var Component = Module.extend({
 			// 元素的 attr
 			'attr'    : null,
 			// 视图布局内容
-			'html'    : '',
+			'view'    : '',
 			// 静态模板 uri
 			'template': '',
 			// 模板拉取请求参数
@@ -68,7 +68,7 @@ var Component = Module.extend({
 			// 子组件注册对象
 			'childs'  : null,
 			// 视图渲染完成后的回调函数
-			'cbRender': 'viewReady'
+			'cbRender': 'afterRender'
 		});
 
 		// 组件元素
@@ -99,16 +99,16 @@ var Component = Module.extend({
 		var uri = c.template;
 
 		ajax.load(uri, c.tplParam, function (err, data) {
-			var html;
+			var view;
 
 			if (err) {
-				html = err.status + ': ' + uri;
+				view = err.status + ': ' + uri;
 				util.warn(err);
 			} else {
-				html = data.result;
+				view = data.result;
 			}
 
-			this.setConfig('html', html);
+			this.setConfig('view', view);
 			this._render();
 		}, this);
 	},
@@ -157,9 +157,9 @@ var Component = Module.extend({
 			}, this);
 		}
 
-		// 添加页面布局
-		if (c.html) {
-			this.el.appendChild(util.stringToFragment(c.html));
+		// 添加页面视图布局
+		if (c.view) {
+			this.el.appendChild(util.stringToFragment(c.view));
 		}
 
 		// 初始化 mvvm 对象

@@ -22,7 +22,7 @@ describe('sugar module api >', function () {
 		var Comp2 = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<h2>Comp2</h2>'
+					'view': '<h2>Comp2</h2>'
 				});
 				this.Super('init', arguments);
 			}
@@ -31,11 +31,11 @@ describe('sugar module api >', function () {
 		var Comp1 = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<h1>Comp1</h1>'
+					'view': '<h1>Comp1</h1>'
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				var comp2 = this.create('comp2', Comp2, {
 					'target': this.el
 				});
@@ -49,7 +49,7 @@ describe('sugar module api >', function () {
 			init: function (config) {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				var comp1 = this.create('comp1', Comp1, {
 					'target': this.el
 				});
@@ -83,11 +83,11 @@ describe('sugar module api >', function () {
 		var Comp = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<h1>Comp</h1>'
+					'view': '<h1>Comp</h1>'
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.bind(this.el, 'click', function () {
 					// pass true means fire a message to parent after this component is destroyed
 					this.destroy(true);
@@ -99,7 +99,7 @@ describe('sugar module api >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.create('comp', Comp, {
 					'target': this.el
 				});
@@ -130,7 +130,7 @@ describe('sugar module api >', function () {
 				this.$data = {'money': '$699'};
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.$data.money = '$998';
 			},
 			beforeDestroy: function () {
@@ -156,7 +156,7 @@ describe('sugar module api >', function () {
 			init: function (config) {
 				config = this.cover(config, {
 					'target': wraper,
-					'html': 'Comp'
+					'view': 'Comp'
 				});
 				this.Super('init', arguments);
 			}

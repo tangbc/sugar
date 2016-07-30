@@ -35,7 +35,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 			// 定义模块配置
 			config = this.cover(config, {
 				'css'  : {'padding': '20px'},
-				'html' : layout,
+				'view' : layout,
 				'model': {
 					// 是否显示日历版面
 					'showPannel': false,
@@ -58,7 +58,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 		},
 
 		// 视图渲染完毕
-		viewReady: function () {
+		afterRender: function () {
 			var self = this;
 			// 点击空白隐藏 pannel
 			this.bind(document.querySelector('body'), 'click', function (e) {

@@ -40,7 +40,7 @@ describe('sugar Component api >', function () {
 					'attr' : {
 						'id': 'su-view'
 					},
-					'html' : '<h1 class="aa">a component</h1><h2 class="aa">a title</h2>',
+					'view' : '<h1 class="aa">a component</h1><h2 class="aa">a title</h2>',
 					// this is custom configuration
 					'aaa': {
 						'bbb': {
@@ -51,7 +51,7 @@ describe('sugar Component api >', function () {
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.test_interface() // test interface
 					.test_getConfig() // test api getConfig
 					.test_setConfig() // test api setConfig
@@ -73,7 +73,7 @@ describe('sugar Component api >', function () {
 			test_getConfig: function () {
 				var c = this.getConfig();
 
-				expect(c.html).toBe('<h1 class="aa">a component</h1><h2 class="aa">a title</h2>');
+				expect(c.view).toBe('<h1 class="aa">a component</h1><h2 class="aa">a title</h2>');
 				expect(c.css).toEqual({
 					'width': '100px'
 				});
@@ -182,14 +182,14 @@ describe('sugar Component api >', function () {
 		var View = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<h1>{{ title }}</h1>',
+					'view': '<h1>{{ title }}</h1>',
 					'model': {
 						'title': 'hello sugar~'
 					}
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				expect(this.el.innerHTML).toBe('<h1>hello sugar~</h1>');
 
 				this.vm.set('title', 'xxdk');
@@ -240,7 +240,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html': '<p>xxdk</p>'
+					'view': '<p>xxdk</p>'
 				});
 				this.Super('init', arguments);
 			},
@@ -248,7 +248,7 @@ describe('sugar Component api >', function () {
 				expect(flag).toBe(undefined);
 				flag = true;
 			},
-			viewReady: function () {
+			afterRender: function () {
 				expect(flag).toBe(true);
 			}
 		});
@@ -270,7 +270,7 @@ describe('sugar Component api >', function () {
 					'replace': true,
 					'tag': 'span',
 					'class': 'comp',
-					'html': 'component-replace-target'
+					'view': 'component-replace-target'
 				});
 				this.Super('init', arguments);
 			}
@@ -294,14 +294,14 @@ describe('sugar Component api >', function () {
 				config = this.cover(config, {
 					'tag': 'p',
 					'class': 'aa bb',
-					'html': '<h2>{{ title }}</h2>',
+					'view': '<h2>{{ title }}</h2>',
 					'model': {
 						'title': config.title
 					}
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// test getParent
 				var parent = this.getParent();
 				parent.changeFlag();
@@ -315,7 +315,7 @@ describe('sugar Component api >', function () {
 		var AnotherSub = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<h3>AnotherSub</h3>'
+					'view': '<h3>AnotherSub</h3>'
 				});
 				this.Super('init', arguments);
 			}
@@ -324,11 +324,11 @@ describe('sugar Component api >', function () {
 		var View = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
-					'html': '<div class="box"></div><p></p>'
+					'view': '<div class="box"></div><p></p>'
 				});
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				var box = this.query('.box');
 				var p = this.query('p');
 
@@ -396,7 +396,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover(config, {
 					'class': 'subComp',
-					'html': '<p>SUB</p>'
+					'view': '<p>SUB</p>'
 				});
 				this.Super('init', arguments);
 			}
@@ -406,7 +406,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
@@ -447,12 +447,12 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
 					'childs': {
-						'SubComponent': [Sub, {'html': 'SSS'}]
+						'SubComponent': [Sub, {'view': 'SSS'}]
 					}
 				});
 				this.Super('init', arguments);
@@ -477,7 +477,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover(config, {
 					'class': 'subComp',
-					'html': '<p>SUB</p>'
+					'view': '<p>SUB</p>'
 				});
 				this.Super('init', arguments);
 			}
@@ -487,7 +487,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>' +
@@ -530,14 +530,14 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
 					'childs': {
-						'SubComponent': [Sub, {'html': 'BBB'}]
+						'SubComponent': [Sub, {'view': 'BBB'}]
 					}
 				});
 				this.Super('init', arguments);
@@ -564,7 +564,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover(config, {
 					'class': 'subComp',
-					'html': '<p>SUB</p>'
+					'view': '<p>SUB</p>'
 				});
 				this.Super('init', arguments);
 			}
@@ -574,7 +574,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<SubComponent name="xxdk"></SubComponent>',
 					// declare subComponent
@@ -606,7 +606,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover(config, {
 					'class': 'subComp',
-					'html': '<p>SUB</p>'
+					'view': '<p>SUB</p>'
 				});
 				this.Super('init', arguments);
 			}
@@ -616,7 +616,7 @@ describe('sugar Component api >', function () {
 			init: function (config) {
 				config = this.cover({
 					'target': wraper,
-					'html':
+					'view':
 						'<h1>title</h1>' +
 						'<Sub></Sub>',
 					// declare subComponent

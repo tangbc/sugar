@@ -13,7 +13,7 @@ require([
 			});
 			this.Super('init', arguments);
 		},
-		viewReady: function () {
+		afterRender: function () {
 			this.fire('subCreate');
 		},
 
@@ -36,7 +36,7 @@ require([
 			this.Super('init', arguments);
 		},
 
-		viewReady: function () {
+		afterRender: function () {
 
 			this.create('sub', Subpage, {
 				'target': this.query('.cont'),

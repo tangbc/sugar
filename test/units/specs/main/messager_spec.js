@@ -17,7 +17,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.fire('messageLevel3', 123);
 			}
 		});
@@ -26,7 +26,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
 					'target': this.el
@@ -56,7 +56,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
 					'target': this.el
@@ -91,7 +91,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
 					'target': this.el
@@ -157,7 +157,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
 					'target': this.el
@@ -187,7 +187,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
 					'target': this.el
@@ -212,7 +212,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
 					'target': this.el
@@ -253,7 +253,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.create('comp2', CompLevel2, {
 					'target': this.el
 				});
@@ -271,7 +271,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.create('comp1', CompLevel1, {
 					'target': this.el
 				});
@@ -295,7 +295,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// notify by component instance
 				this.notify(sugar.core.get('view1'), 'msgSendToView1', 123);
 				// send another message
@@ -339,7 +339,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.create('comp2', CompLevel2, {
 					'target': this.el
 				});
@@ -353,7 +353,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				this.create('comp2', CompLevel1, {
 					'target': this.el
 				});
@@ -373,7 +373,7 @@ describe('sugar message >', function () {
 			init: function () {
 				this.Super('init', arguments);
 			},
-			viewReady: function () {
+			afterRender: function () {
 				// cast inside componet, but it's same to everywhere
 				sugar.core.globalCast('insideCast', this.afterSentInsideCast, this);
 			},

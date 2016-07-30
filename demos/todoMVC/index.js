@@ -54,7 +54,7 @@ window.onload = function buildTodoMVC () {
 		},
 
 		// 视图渲染完毕
-		viewReady: function () {
+		afterRender: function () {
 			this.updateList();
 			// 监测 checkAll 的变更
 			this.vm.watch('checkAll', this.onCheckAll);

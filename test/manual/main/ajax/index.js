@@ -8,7 +8,7 @@ require([
 			this.Super('init', arguments);
 		},
 
-		viewReady: function () {
+		afterRender: function () {
 			// request 1
 			sugar.ajax.get('../../../bin/test1.json', function (err, data) {
 				console.log('test1', err, data);
