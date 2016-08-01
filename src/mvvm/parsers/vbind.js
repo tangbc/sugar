@@ -53,16 +53,11 @@ vbind.parse = function (fors, node, expression, directive) {
  * @param   {String}      jsonString
  */
 vbind.parseJson = function (fors, node, jsonString) {
-	// 提取依赖
-	var deps = this.getDeps(fors, jsonString);
-	// 取值域
-	var scope = this.getScope(fors, jsonString);
-	// 取值函数
-	var getter = this.getEval(fors, jsonString);
+	var packet = this.get(fors, jsonString);
+	var { deps, scope, getter, maps } = packet;
+
 	// attr 取值
 	var jsonAttr = util.copy(getter.call(scope, scope));
-	// 别名映射
-	var maps = fors && util.copy(fors.maps);
 
 	this.updateJson(node, jsonAttr);
 
@@ -119,14 +114,8 @@ vbind.updateJson = function (node, jsonAttrs, remove) {
  * @param   {String}       attr
  */
 vbind.parseAttr = function (fors, node, expression, attr) {
-	// 提取依赖
-	var deps = this.getDeps(fors, expression);
-	// 取值域
-	var scope = this.getScope(fors, expression);
-	// 取值函数
-	var getter = this.getEval(fors, expression);
-	// 别名映射
-	var maps = fors && util.copy(fors.maps);
+	var packet = this.get(fors, expression);
+	var { deps, scope, getter, maps } = packet;
 
 	this.update(node, attr, getter.call(scope, scope));
 

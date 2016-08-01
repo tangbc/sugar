@@ -17,14 +17,8 @@ var vclass = VClass.prototype = Object.create(Parser.prototype);
  * @param   {String}      expression  [指令表达式]
  */
 vclass.parse = function (fors, node, expression) {
-	// 提取依赖
-	var deps = this.getDeps(fors, expression);
-	// 取值域
-	var scope = this.getScope(fors, expression);
-	// 取值函数
-	var getter = this.getEval(fors, expression);
-	// 别名映射
-	var maps = fors && util.copy(fors.maps);
+	var packet = this.get(fors, expression);
+	var { deps, scope, getter, maps } = packet;
 
 	var value = getter.call(scope, scope);
 

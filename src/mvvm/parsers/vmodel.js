@@ -66,12 +66,8 @@ vmodel.parse = function (fors, node, field) {
 
 	util.def(node, '__vmodel', field);
 
-	// 提取依赖
-	var deps = this.getDeps(fors, field);
-	// 取值域
-	var scope = this.getScope(fors, field);
-	// 取值函数
-	var getter = this.getEval(fors, field);
+	var packet = this.get(fors, field);
+	var { deps, scope, getter } = packet;
 
 	// v-model 只支持静态指令
 	var paths = util.makePaths(deps.acc[0] || deps.dep[0]);

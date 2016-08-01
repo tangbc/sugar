@@ -96,10 +96,9 @@ von.parseSingle = function (fors, node, expression, directive) {
 	// 参数字符串
 	var paramString = info.args;
 
-	// 获取事件函数
-	var deps = this.getDeps(fors, field);
-	var scope = this.getScope(fors, field);
-	var getter = this.getEval(fors, field);
+	var packet = this.get(fors, field);
+	var { deps, scope, getter } = packet;
+
 	var func = getter.call(scope, scope);
 
 	// 绑定事件 & 参数求值
@@ -149,16 +148,11 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 	// 处理回调参数以及依赖监测
 	var args = [];
 	if (paramString) {
-		// 取值依赖
-		let deps = this.getDeps(fors, paramString);
-		// 别名映射
-		let maps = fors && util.copy(fors.maps);
-		// 取值域
-		let scope = this.getScope(fors, paramString);
+		let packet = this.get(fors, paramString);
+		let { deps, scope, getter, maps } = packet;
+
 		// 添加别名标记
 		util.defRec(scope, '$event', '$event');
-		// 取值函数
-		let getter = this.getEval(fors, paramString);
 		// 事件参数
 		args = getter.call(scope, scope);
 

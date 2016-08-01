@@ -1,13 +1,5 @@
 import util from '../util';
 
-// 表达式中允许的关键字
-const allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
-const regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
-
-// 表达式中禁止的关键字
-const avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
-const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
-
 // 匹配常量缓存序号 "1"
 const regSaveConst = /"(\d+)"/g;
 // 只含有 true 或 false
@@ -18,6 +10,14 @@ const regReplaceConst = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g;
 const regReplaceScope = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*)/g;
 // 匹配常规取值: item or item['x'] or item["y"] or item[0]
 const regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
+
+// 表达式中允许的关键字
+const allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
+const regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
+
+// 表达式中禁止的关键字
+const avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
+const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 /**
  * 是否是常规指令表达式
@@ -135,14 +135,8 @@ var pp = Parser.prototype;
  * @param   {String}      expression
  */
 pp.bind = function (fors, node, expression) {
-	// 提取依赖
-	var deps = this.getDeps(fors, expression);
-	// 取值域
-	var scope = this.getScope(fors, expression);
-	// 取值函数
-	var getter = this.getEval(fors, expression);
-	// 别名映射
-	var maps = fors && util.copy(fors.maps);
+	var packet = this.get(fors, expression);
+	var { deps, scope, getter, maps } = packet;
 
 	// 初始视图更新
 	this.update(node, getter.call(scope, scope));
@@ -152,6 +146,22 @@ pp.bind = function (fors, node, expression) {
 		scope = this.updateScope(scope, maps, deps, arguments);
 		this.update(node, getter.call(scope, scope));
 	}, this);
+}
+
+/**
+ * 获取取值信息集合
+ */
+pp.get = function (fors, expression) {
+	// 提取依赖
+	var deps = this.getDeps.apply(this, arguments);
+	// 取值域
+	var scope = this.getScope.apply(this, arguments);
+	// 取值函数
+	var getter = this.getEval.apply(this, arguments);
+	// 别名映射
+	var maps = fors && util.copy(fors.maps);
+
+	return { deps, scope, getter, maps };
 }
 
 /**

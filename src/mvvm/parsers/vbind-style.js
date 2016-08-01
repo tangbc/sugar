@@ -17,14 +17,9 @@ var vstyle = VStyle.prototype = Object.create(Parser.prototype);
  * @param   {String}      expression  [指令表达式]
  */
 vstyle.parse = function (fors, node, expression) {
-	// 提取依赖
-	var deps = this.getDeps(fors, expression);
-	// 取值域
-	var scope = this.getScope(fors, expression);
-	// 取值函数
-	var getter = this.getEval(fors, expression);
-	// 别名映射
-	var maps = fors && util.copy(fors.maps);
+	var packet = this.get(fors, expression);
+	var { deps, scope, getter, maps } = packet;
+
 	// 取值对象
 	var styleObject = getter.call(scope, scope);
 
@@ -39,7 +34,6 @@ vstyle.parse = function (fors, node, expression) {
 				old[style] = null;
 			});
 			this.updateStyle(node, util.extend(last, old));
-
 		} else {
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.updateStyle(node, getter.call(scope, scope));
