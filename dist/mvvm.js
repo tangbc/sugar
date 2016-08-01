@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.1.7 (c) 2016 TANG
  * Released under the MIT license
- * Mon Aug 01 2016 08:56:50 GMT+0800 (CST)
+ * Mon Aug 01 2016 22:02:09 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1593,14 +1593,6 @@
 		this.observer.destroy();
 	}
 
-	// 表达式中允许的关键字
-	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
-	var regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
-
-	// 表达式中禁止的关键字
-	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
-	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
-
 	// 匹配常量缓存序号 "1"
 	var regSaveConst = /"(\d+)"/g;
 	// 只含有 true 或 false
@@ -1611,6 +1603,14 @@
 	var regReplaceScope = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*)/g;
 	// 匹配常规取值: item or item['x'] or item["y"] or item[0]
 	var regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
+
+	// 表达式中允许的关键字
+	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
+	var regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
+
+	// 表达式中禁止的关键字
+	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
+	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 	/**
 	 * 是否是常规指令表达式
@@ -1728,14 +1728,11 @@
 	 * @param   {String}      expression
 	 */
 	pp.bind = function (fors, node, expression) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
+		var packet = this.get(fors, expression);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+		var maps = packet.maps;
 
 		// 初始视图更新
 		this.update(node, getter.call(scope, scope));
@@ -1745,6 +1742,22 @@
 			scope = this.updateScope(scope, maps, deps, arguments);
 			this.update(node, getter.call(scope, scope));
 		}, this);
+	}
+
+	/**
+	 * 获取取值信息集合
+	 */
+	pp.get = function (fors, expression) {
+		// 提取依赖
+		var deps = this.getDeps.apply(this, arguments);
+		// 取值域
+		var scope = this.getScope.apply(this, arguments);
+		// 取值函数
+		var getter = this.getEval.apply(this, arguments);
+		// 别名映射
+		var maps = fors && util.copy(fors.maps);
+
+		return { deps: deps, scope: scope, getter: getter, maps: maps };
 	}
 
 	/**
@@ -1993,10 +2006,11 @@
 		// 参数字符串
 		var paramString = info.args;
 
-		// 获取事件函数
-		var deps = this.getDeps(fors, field);
-		var scope = this.getScope(fors, field);
-		var getter = this.getEval(fors, field);
+		var packet = this.get(fors, field);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+
 		var func = getter.call(scope, scope);
 
 		// 绑定事件 & 参数求值
@@ -2046,16 +2060,14 @@
 		// 处理回调参数以及依赖监测
 		var args = [];
 		if (paramString) {
-			// 取值依赖
-			var deps = this.getDeps(fors, paramString);
-			// 别名映射
-			var maps = fors && util.copy(fors.maps);
-			// 取值域
-			var scope = this.getScope(fors, paramString);
+			var packet = this.get(fors, paramString);
+			var deps = packet.deps;
+			var scope = packet.scope;
+			var getter = packet.getter;
+			var maps = packet.maps;
+
 			// 添加别名标记
 			util.defRec(scope, '$event', '$event');
-			// 取值函数
-			var getter = this.getEval(fors, paramString);
 			// 事件参数
 			args = getter.call(scope, scope);
 
@@ -2842,14 +2854,11 @@
 	 * @param   {String}      expression  [指令表达式]
 	 */
 	vclass.parse = function (fors, node, expression) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
+		var packet = this.get(fors, expression);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+		var maps = packet.maps;
 
 		var value = getter.call(scope, scope);
 
@@ -2926,14 +2935,12 @@
 	 * @param   {String}      expression  [指令表达式]
 	 */
 	vstyle.parse = function (fors, node, expression) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
+		var packet = this.get(fors, expression);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+		var maps = packet.maps;
+
 		// 取值对象
 		var styleObject = getter.call(scope, scope);
 
@@ -2948,7 +2955,6 @@
 					old[style] = null;
 				});
 				this.updateStyle(node, util.extend(last, old));
-
 			} else {
 				scope = this.updateScope(scope, maps, deps, arguments);
 				this.updateStyle(node, getter.call(scope, scope));
@@ -3033,16 +3039,14 @@
 	 * @param   {String}      jsonString
 	 */
 	vbind.parseJson = function (fors, node, jsonString) {
-		// 提取依赖
-		var deps = this.getDeps(fors, jsonString);
-		// 取值域
-		var scope = this.getScope(fors, jsonString);
-		// 取值函数
-		var getter = this.getEval(fors, jsonString);
+		var packet = this.get(fors, jsonString);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+		var maps = packet.maps;
+
 		// attr 取值
 		var jsonAttr = util.copy(getter.call(scope, scope));
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
 
 		this.updateJson(node, jsonAttr);
 
@@ -3099,14 +3103,11 @@
 	 * @param   {String}       attr
 	 */
 	vbind.parseAttr = function (fors, node, expression, attr) {
-		// 提取依赖
-		var deps = this.getDeps(fors, expression);
-		// 取值域
-		var scope = this.getScope(fors, expression);
-		// 取值函数
-		var getter = this.getEval(fors, expression);
-		// 别名映射
-		var maps = fors && util.copy(fors.maps);
+		var packet = this.get(fors, expression);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
+		var maps = packet.maps;
 
 		this.update(node, attr, getter.call(scope, scope));
 
@@ -3192,12 +3193,10 @@
 
 		util.def(node, '__vmodel', field);
 
-		// 提取依赖
-		var deps = this.getDeps(fors, field);
-		// 取值域
-		var scope = this.getScope(fors, field);
-		// 取值函数
-		var getter = this.getEval(fors, field);
+		var packet = this.get(fors, field);
+		var deps = packet.deps;
+		var scope = packet.scope;
+		var getter = packet.getter;
 
 		// v-model 只支持静态指令
 		var paths = util.makePaths(deps.acc[0] || deps.dep[0]);
