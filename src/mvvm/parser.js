@@ -153,11 +153,11 @@ pp.bind = function (fors, node, expression) {
  */
 pp.get = function (fors, expression) {
 	// 提取依赖
-	var deps = this.getDeps.apply(this, arguments);
+	var deps = this.getDeps(fors, expression);
 	// 取值域
-	var scope = this.getScope.apply(this, arguments);
+	var scope = this.getScope(fors, expression);
 	// 取值函数
-	var getter = this.getEval.apply(this, arguments);
+	var getter = this.getEval(fors, expression);
 	// 别名映射
 	var maps = fors && util.copy(fors.maps);
 
