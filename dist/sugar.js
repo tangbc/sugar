@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.1.7 (c) 2016 TANG
  * Released under the MIT license
- * Mon Aug 01 2016 22:02:08 GMT+0800 (CST)
+ * Tue Aug 02 2016 17:31:58 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2397,11 +2397,11 @@
 	 */
 	pp.get = function (fors, expression) {
 		// 提取依赖
-		var deps = this.getDeps.apply(this, arguments);
+		var deps = this.getDeps(fors, expression);
 		// 取值域
-		var scope = this.getScope.apply(this, arguments);
+		var scope = this.getScope(fors, expression);
 		// 取值函数
-		var getter = this.getEval.apply(this, arguments);
+		var getter = this.getEval(fors, expression);
 		// 别名映射
 		var maps = fors && util.copy(fors.maps);
 
