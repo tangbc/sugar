@@ -1,7 +1,7 @@
 /*!
- * mvvm.js v1.1.7 (c) 2016 TANG
+ * mvvm.js v1.1.8 (c) 2016 TANG
  * Released under the MIT license
- * Tue Aug 02 2016 17:31:59 GMT+0800 (CST)
+ * Wed Aug 03 2016 20:12:54 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
