@@ -2,8 +2,8 @@ import dom from '../dom';
 import ajax from './ajax';
 import util from '../util';
 import Module from './module';
-import MVVM from '../mvvm/index';
 import eventer from '../eventer';
+import MVVM from '../viewModel/index';
 
 /**
  * 设置/读取配置对象
