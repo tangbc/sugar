@@ -1,27 +1,25 @@
-import util from '../util';
 import Compiler from './compiler';
+import { each, copy, isFunc, isArray, isString, isObject } from '../util';
 
 /**
  * MVVM 构造函数入口
- * @param  {DOMElement}  element  [视图的挂载原生 DOM]
- * @param  {Object}      model    [数据模型对象]
- * @param  {Function}    context  [事件及 watch 的回调上下文]
+ * @param  {Object}  option  [数据参数对象]
  */
-function MVVM (element, model, context) {
-	var ctx = this.context = context || this;
+function MVVM (option) {
+	this.context = option.context || this;
 
 	// 将事件函数 this 指向调用者
-	util.each(model, function (value, key) {
-		if (util.isFunc(value)) {
-			model[key] = value.bind(ctx);
+	each(option.model, function (value, key) {
+		if (isFunc(value)) {
+			option.model[key] = value.bind(this.context);
 		}
-	});
+	}, this);
 
 	// 初始数据备份
-	this.backup = util.copy(model);
+	this.backup = copy(option.model);
 
 	// ViewModel 实例
-	this.vm = new Compiler(element, model);
+	this.vm = new Compiler(option);
 
 	// 数据模型
 	this.$data = this.vm.$data;
@@ -36,7 +34,7 @@ var mvp = MVVM.prototype;
  * @return  {Mix}
  */
 mvp.get = function (key) {
-	return util.isString(key) ? this.$data[key] : this.$data;
+	return isString(key) ? this.$data[key] : this.$data;
 }
 
 /**
@@ -46,7 +44,7 @@ mvp.get = function (key) {
  * @return  {Mix}
  */
 mvp.getItem = function (key) {
-	return util.copy(this.get(key));
+	return copy(this.get(key));
 }
 
 /**
@@ -57,13 +55,13 @@ mvp.getItem = function (key) {
 mvp.set = function (key, value) {
 	var vm = this.$data;
 	// 设置单个
-	if (util.isString(key)) {
+	if (isString(key)) {
 		vm[key] = value;
 	}
 
 	// 批量设置
-	if (util.isObject(key)) {
-		util.each(key, function (v, k) {
+	if (isObject(key)) {
+		each(key, function (v, k) {
 			vm[k] = v;
 		});
 	}
@@ -78,18 +76,18 @@ mvp.reset = function (key) {
 	var backup = this.backup;
 
 	// 重置单个
-	if (util.isString(key)) {
+	if (isString(key)) {
 		vm[key] = backup[key];
 	}
 	// 重置多个
-	else if (util.isArray(key)) {
-		util.each(key, function (v) {
+	else if (isArray(key)) {
+		each(key, function (v) {
 			vm[v] = backup[v];
 		});
 	}
 	// 重置所有
 	else {
-		util.each(vm, function (v, k) {
+		each(vm, function (v, k) {
 			vm[k] = backup[k];
 		});
 	}

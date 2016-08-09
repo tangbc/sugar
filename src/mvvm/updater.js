@@ -1,6 +1,6 @@
-import dom from '../dom';
-import util from '../util';
 import eventer from '../eventer';
+import { empty, hasAttr, getAttr, setAttr, addClass, isElement, removeAttr, removeClass } from '../dom';
+import { warn, each, hasOwn, isBool, isArray, isNumber, removeSpace, getKeyValue, stringToFragment } from '../util';
 
 const renderContent = '__render';
 const visibleDisplay = '__visible';
@@ -17,7 +17,7 @@ function removeDOMRegister (vm, element) {
 	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
-		if (!dom.isElement(node)) {
+		if (!isElement(node)) {
 			continue;
 		}
 
@@ -25,7 +25,7 @@ function removeDOMRegister (vm, element) {
 
 		for (let ii = 0; ii < nodeAttrs.length; ii++) {
 			let attr = nodeAttrs[ii];
-			if (attr.name === 'v-el' && util.hasOwn(registers, attr.value)) {
+			if (attr.name === 'v-el' && hasOwn(registers, attr.value)) {
 				registers[attr.value] = null;
 			}
 		}
@@ -43,11 +43,11 @@ function removeDOMRegister (vm, element) {
  * @param  {Boolean}     remove
  */
 function handleClass (node, classname, remove) {
-	util.each(classname.split(' '), function (cls) {
+	each(classname.split(' '), function (cls) {
 		if (remove) {
-			dom.removeClass(node, cls);
+			removeClass(node, cls);
 		} else {
-			dom.addClass(node, cls);
+			addClass(node, cls);
 		}
 	});
 }
@@ -58,14 +58,14 @@ function handleClass (node, classname, remove) {
 function getNextSiblingElement (node) {
 	var el = node.nextSibling;
 
-	if (el && dom.isElement(el)) {
+	if (el && isElement(el)) {
 		return el;
 	}
 
 	while (el) {
 		el = el.nextSibling;
 
-		if (el && dom.isElement(el)) {
+		if (el && isElement(el)) {
 			return el;
 		}
 	}
@@ -82,14 +82,14 @@ function getNextSiblingElement (node) {
 function setVisibleDisplay (node) {
 	if (!node[visibleDisplay]) {
 		let display;
-		let inlineStyle = util.removeSpace(dom.getAttr(node, 'style'));
+		let inlineStyle = removeSpace(getAttr(node, 'style'));
 
 		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
 			let styles = inlineStyle.split(';');
 
-			util.each(styles, function (style) {
+			each(styles, function (style) {
 				if (style.indexOf('display') > -1) {
-					display = util.getKeyValue(style);
+					display = getKeyValue(style);
 				}
 			});
 		}
@@ -107,7 +107,7 @@ function setRenderContent (node) {
 	if (!node[renderContent]) {
 		node[renderContent] = node.innerHTML;
 	}
-	dom.empty(node);
+	empty(node);
 }
 
 
@@ -136,7 +136,7 @@ up.updateTextContent = function (node, text) {
  * @param   {String}      html
  */
 up.updateHtmlContent = function (node, html) {
-	dom.empty(node).appendChild(util.stringToFragment(String(html)));
+	empty(node).appendChild(stringToFragment(String(html)));
 }
 
 /**
@@ -151,7 +151,7 @@ up.updateDisplay = function (node, show) {
 	this.updateStyle(node, 'display', show ? node[visibleDisplay] : 'none');
 
 	// v-else
-	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
+	if (siblingNode && (hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 		setVisibleDisplay(siblingNode);
 		this.updateStyle(siblingNode, 'display', show ? 'none' : siblingNode[visibleDisplay]);
 	}
@@ -169,7 +169,7 @@ up.updateRenderContent = function (node, isRender) {
 	this.toggleRender.apply(this, arguments);
 
 	// v-else
-	if (siblingNode && (dom.hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
+	if (siblingNode && (hasAttr(siblingNode, 'v-else') || siblingNode.__directive === 'v-else')) {
 		setRenderContent(siblingNode);
 		this.toggleRender(siblingNode, !isRender);
 	}
@@ -180,7 +180,7 @@ up.updateRenderContent = function (node, isRender) {
  */
 up.toggleRender = function (node, isRender) {
 	var vm = this.vm;
-	var fragment = util.stringToFragment(node[renderContent]);
+	var fragment = stringToFragment(node[renderContent]);
 
 	// 渲染
 	if (isRender) {
@@ -202,7 +202,7 @@ up.toggleRender = function (node, isRender) {
 up.updateAttribute = function (node, attribute, value) {
 	// null 则移除该属性
 	if (value === null) {
-		dom.removeAttr.apply(this, arguments);
+		removeAttr.apply(this, arguments);
 	}
 	// setAttribute 不适合用于 value
 	// https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
@@ -210,7 +210,7 @@ up.updateAttribute = function (node, attribute, value) {
 		node.value = value;
 	}
 	else {
-		dom.setAttr(node, attribute, value);
+		setAttr(node, attribute, value);
 	}
 }
 
@@ -288,7 +288,7 @@ up.updateTextValue = function (text, value) {
  * @param   {String} value
  */
 up.updateRadioChecked = function (radio, value) {
-	radio.checked = radio.value === (util.isNumber(value) ? String(value) : value);
+	radio.checked = radio.value === (isNumber(value) ? String(value) : value);
 }
 
 /**
@@ -299,15 +299,15 @@ up.updateRadioChecked = function (radio, value) {
 up.updateCheckboxChecked = function (checkbox, values) {
 	var value = checkbox.value;
 
-	if (!util.isArray(values) && !util.isBool(values)) {
-		return util.warn('Checkbox v-model value must be a type of Boolean or Array');
+	if (!isArray(values) && !isBool(values)) {
+		return warn('Checkbox v-model value must be a type of Boolean or Array');
 	}
 
-	if (dom.hasAttr(checkbox, 'number')) {
+	if (hasAttr(checkbox, 'number')) {
 		value = +value;
 	}
 
-	checkbox.checked = util.isBool(values) ? values : (values.indexOf(value) > -1);
+	checkbox.checked = isBool(values) ? values : (values.indexOf(value) > -1);
 }
 
 /**
@@ -317,14 +317,14 @@ up.updateCheckboxChecked = function (checkbox, values) {
  * @param   {Boolean}        multi
  */
 up.updateSelectChecked = function (select, selected, multi) {
-	var getNumber = dom.hasAttr(select, 'number');
+	var getNumber = hasAttr(select, 'number');
 	var options = select.options, leng = options.length;
-	var multiple = multi || dom.hasAttr(select, 'multiple');
+	var multiple = multi || hasAttr(select, 'multiple');
 
 	for (var i = 0; i < leng; i++) {
 		let option = options[i];
 		let value = option.value;
-		value = getNumber ? +value : (dom.hasAttr(option, 'number') ? +value : value);
+		value = getNumber ? +value : (hasAttr(option, 'number') ? +value : value);
 		option.selected = multiple ? selected.indexOf(value) > -1 : selected === value;
 	}
 }
