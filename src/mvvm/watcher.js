@@ -60,7 +60,14 @@ wp.afterGet = function () {
  * 将依赖订阅到该 watcher
  */
 wp.addDepend = function (depend) {
-	depend.addWatcher(this);
+	if (!this.depends) {
+		this.depends = [];
+	}
+
+	if (this.depends.indexOf(depend) < 0) {
+		depend.addWatcher(this);
+		this.depends.push(depend);
+	}
 }
 
 /**
