@@ -3,7 +3,7 @@ import Parser from '../parser';
 /**
  * v-if 指令解析模块
  */
-function Vif (vm) {
+export function Vif (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -28,5 +28,3 @@ vif.update = function () {
 	var updater = this.vm.updater;
 	updater.updateRenderContent.apply(updater, arguments);
 }
-
-export default Vif;

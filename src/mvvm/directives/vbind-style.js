@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-bind for style 指令解析模块
  */
-function VStyle (vm) {
+export function VStyle (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -67,5 +67,3 @@ vstyle.update = function () {
 	var updater = this.vm.updater;
 	updater.updateStyle.apply(updater, arguments);
 }
-
-export default VStyle;

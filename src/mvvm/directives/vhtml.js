@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-html 指令解析模块
  */
-function Vhtml (vm) {
+export function Vhtml (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -29,5 +29,3 @@ vhtml.update = function () {
 	var updater = this.vm.updater;
 	updater.updateHtmlContent.apply(updater, arguments);
 }
-
-export default Vhtml;

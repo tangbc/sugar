@@ -44,7 +44,7 @@ function getSelecteds (select) {
 /**
  * v-model 指令解析模块
  */
-function Vmodel (vm) {
+export function Vmodel (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -291,5 +291,3 @@ vmodel.bindSelectEvent = function (node, duplex, field, multi) {
 		duplex[field] =  multi ? selects : selects[0];
 	});
 }
-
-export default Vmodel;

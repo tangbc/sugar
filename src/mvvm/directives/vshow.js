@@ -3,7 +3,7 @@ import Parser from '../parser';
 /**
  * v-show 指令解析模块
  */
-function Vshow (vm) {
+export function Vshow (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -28,5 +28,3 @@ vshow.update = function () {
 	var updater = this.vm.updater;
 	updater.updateDisplay.apply(updater, arguments);
 }
-
-export default Vshow;

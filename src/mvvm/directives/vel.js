@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-el 指令解析模块
  */
-function Vel (vm) {
+export function Vel (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -35,5 +35,3 @@ vel.parse = function (fors, node, value) {
 		this.vm.$data.$els[value] = node;
 	}
 }
-
-export default Vel;

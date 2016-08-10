@@ -4,7 +4,7 @@ import Parser from '../parser';
 /**
  * v-bind for class 指令解析模块
  */
-function VClass (vm) {
+export function VClass (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -78,5 +78,3 @@ vclass.update = function () {
 	var updater = this.vm.updater;
 	updater.updateClassName.apply(updater, arguments);
 }
-
-export default VClass;

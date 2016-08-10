@@ -3,7 +3,7 @@ import Parser, { linkParser } from '../parser';
 /**
  * v-text 指令解析模块
  */
-export default function VText () {
+export function VText () {
 	Parser.apply(this, arguments);
 }
 
@@ -16,7 +16,7 @@ var vtext = linkParser(VText);
  * @param   {Object}   scope  [vfor 取值域]
  */
 vtext.parse = function () {
-	this.bind.apply(this, arguments);
+	this.bind();
 }
 
 /**

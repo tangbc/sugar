@@ -1,4 +1,3 @@
-import { extend } from '../util';
 import Directive from './directive';
 
 /**
@@ -28,9 +27,6 @@ export default function Parser (vm, node, desc, scope) {
 
 /**
  * 绑定一个基础指令实例
- * @param   {Element}  node    [指令应用元素]
- * @param   {Object}   desc    [指令信息]
- * @param   {Object}   scope   [vfor 作用域]
  */
 Parser.prototype.bind = function () {
 	var dir = new Directive(this, this.el, this.desc, this.$scope);

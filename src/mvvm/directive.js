@@ -1,3 +1,4 @@
+import { each } from '../util';
 import Watcher from './watcher';
 
 /**
@@ -15,13 +16,14 @@ export default function Directive (host, node, desc, scope) {
 	this.$scope = scope;
 }
 
+var dp = Directive.prototype;
+
 /**
  * 安装/解析指令
  */
-Directive.prototype.install = function () {
+dp.install = function () {
 	// 生成数据订阅实例
 	this.watcher = new Watcher(this);
-
 	// 更新初始视图
 	this.update(this.watcher.value);
 }
@@ -32,7 +34,7 @@ Directive.prototype.install = function () {
  * @param   {Mix}     oldVlaue  [旧值]
  * @param   {Object}  arg       [数组操作参数信息]
  */
-Directive.prototype.update = function (newValue, oldVlaue, arg) {
+dp.update = function (newValue, oldVlaue, arg) {
 	var host = this.$host;
 	host.update.call(host, newValue, oldVlaue, arg);
 }

@@ -1,12 +1,13 @@
 import util from '../../util';
 import Parser from '../parser';
-import VClass from './vbind-class';
-import VStyle from './vbind-style';
+import { VClass } from './vbind-class';
+import { VStyle } from './vbind-style';
 
 /**
  * v-bind 指令解析模块
  */
-function Vbind (vm) {
+
+export function Vbind (vm) {
 	this.vm = vm;
 	this.vclass = new VClass(vm);
 	this.vstyle = new VStyle(vm);
@@ -136,5 +137,3 @@ vbind.update = function () {
 	var updater = this.vm.updater;
 	updater.updateAttribute.apply(updater, arguments);
 }
-
-export default Vbind;

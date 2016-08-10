@@ -59,7 +59,7 @@ function convertJson (jsonString) {
 /**
  * v-on 指令解析模块
  */
-function Von (vm) {
+export function Von (vm) {
 	this.vm = vm;
 	Parser.call(this);
 }
@@ -214,5 +214,3 @@ von.update = function () {
 	var updater = this.vm.updater;
 	updater.updateEvent.apply(updater, arguments);
 }
-
-export default Von;
