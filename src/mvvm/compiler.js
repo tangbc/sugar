@@ -1,12 +1,12 @@
-import VOn from './directives/von';
-import VEl from './directives/vel';
-import VIf from './directives/vif';
-import VFor from './directives/vfor';
-import VText from './directives/vtext';
-import VHtml from './directives/vhtml';
-import VShow from './directives/vshow';
-import VBind from './directives/vbind';
-import VModel from './directives/vmodel';
+import { VOn as von } from './directives/von';
+import { VEl as vel } from './directives/vel';
+import { VIf as vif } from './directives/vif';
+import { VFor as vfor } from './directives/vfor';
+import { VText as vtext } from './directives/vtext';
+import { VHtml as vhtml } from './directives/vhtml';
+import { VShow as vshow } from './directives/vshow';
+import { VBind as vbind } from './directives/vbind';
+import { VModel as vmodel } from './directives/vmodel';
 
 import { createObserver } from './observer';
 import { hasAttr, isElement, isTextNode, removeAttr, empty} from '../dom';
@@ -108,23 +108,15 @@ function Compiler (option) {
 	this.directives = [];
 
 	// 指令解析模块
-	let von = VOn;
-	let vel = VEl;
-	let vif = VIf;
-	let vfor = VFor;
-	let vtext = VText;
-	let vhtml = VHtml;
-	let vshow = VShow;
-	let vbind = VBind;
-	let vmodel = VModel;
-
 	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel }
 
 	this.init();
 }
 
-Compiler.prototype.init = function () {
-	createObserver(this.$data, this);
+var cp = Compiler.prototype;
+
+cp.init = function () {
+	createObserver(this.$data, '__MODEL__');
 	this.complieElement(this.$fragment, true);
 }
 
@@ -134,7 +126,7 @@ Compiler.prototype.init = function () {
  * @param   {Boolean}  root     [是否是编译根节点]
  * @param   {Object}   scope    [vfor 取值域]
  */
-Compiler.prototype.complieElement = function (element, root, scope) {
+cp.complieElement = function (element, root, scope) {
 	var childNodes = element.childNodes;
 
 	if (root && hasDirective(element)) {
@@ -161,7 +153,7 @@ Compiler.prototype.complieElement = function (element, root, scope) {
 /**
  * 编译节点缓存队列
  */
-Compiler.prototype.compileAll = function () {
+cp.compileAll = function () {
 	each(this.$unCompiles, function (info) {
 		this.complieDirectives(info);
 		return null;
@@ -174,7 +166,7 @@ Compiler.prototype.compileAll = function () {
  * 收集并编译节点指令
  * @param   {Array}  info   [node, scope]
  */
-Compiler.prototype.complieDirectives = function (info) {
+cp.complieDirectives = function (info) {
 	var node = info[0], scope = info[1];
 
 	if (isElement(node)) {
@@ -216,7 +208,7 @@ Compiler.prototype.complieDirectives = function (info) {
  * @param   {Object}      attr
  * @param   {Object}      scope
  */
-Compiler.prototype.compile = function (node, attr, scope) {
+cp.compile = function (node, attr, scope) {
 	var desc = getDirectiveDesc(attr);
 	var directive = desc.directive;
 
@@ -238,8 +230,8 @@ Compiler.prototype.compile = function (node, attr, scope) {
  * @param   {DOMElement}   node
  * @param   {Object}       scope
  */
-Compiler.prototype.compileText = function (node, scope) {
-	var exp, match, matches, pieces, tokens = [];
+cp.compileText = function (node, scope) {
+	var exp, match, matches, pieces, tokens = [], desc = {};
 	var text = node.textContent.trim().replace(regNewline, '');
 
 	// html match
@@ -252,7 +244,8 @@ Compiler.prototype.compileText = function (node, scope) {
 			return warn('[' + text + '] compile for HTML can not have a prefix or suffix');
 		}
 
-		this.vhtml.parse.call(this.vhtml, scope, node, exp);
+		desc.expression = exp;
+		this.directives.push(new this.parsers.vhtml(this, node, desc, scope));
 
 	} else {
 		pieces = text.split(regText);
@@ -269,7 +262,8 @@ Compiler.prototype.compileText = function (node, scope) {
 			}
 		});
 
-		this.vtext.parse.call(this.vtext, scope, node, tokens.join('+'));
+		desc.expression = tokens.join('+');
+		this.directives.push(new this.parsers.vtext(this, node, desc, scope));
 	}
 }
 
@@ -277,7 +271,7 @@ Compiler.prototype.compileText = function (node, scope) {
  * 停止编译节点的剩余指令，如 vfor 的根节点
  * @param   {DOMElement}  node
  */
-Compiler.prototype.block = function (node) {
+cp.block = function (node) {
 	each(this.$unCompiles, function (info) {
 		if (node === info[0]) {
 			return null;
@@ -288,7 +282,7 @@ Compiler.prototype.block = function (node) {
 /**
  * 检查根节点是否编译完成
  */
-Compiler.prototype.checkRoot = function () {
+cp.checkRoot = function () {
 	if (this.$unCompiles.length === 0 && !this.$rootComplied) {
 		this.$rootComplied = true;
 		this.$element.appendChild(this.$fragment);
@@ -298,9 +292,9 @@ Compiler.prototype.checkRoot = function () {
 /**
  * 销毁函数
  */
-Compiler.prototype.destroy = function () {
+cp.destroy = function () {
 	empty(this.$element);
-	util.clearObject(this.parsers);
+	clearObject(this.parsers);
 	this.$fragment = this.$data = this.$unCompiles = null;
 }
 
