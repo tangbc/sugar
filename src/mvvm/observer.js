@@ -194,7 +194,7 @@ export function observe (object, key, value) {
 				value = newValue;
 			}
 
-			childOb = createObserver(newValue);
+			childOb = createObserver(newValue, key);
 			dep.notify();
 		}
 	});
