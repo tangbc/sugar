@@ -84,11 +84,11 @@ function changeArrayProto (array) {
 /**
  * 数据监测模块
  */
-function Observer (data) {
-	this.dep = new Depend();
+function Observer (data, key) {
+	this.dep = new Depend(key);
 
 	if (isArray(data)) {
-		this.observeArray(data);
+		this.observeArray(data, key);
 	} else {
 		this.observeObject(data);
 	}
@@ -110,12 +110,13 @@ op.observeObject = function (object) {
 
 /**
  * 监测数组
- * @param   {Array}  array
+ * @param   {Array}   array
+ * @param   {String}  key
  */
-op.observeArray = function (array) {
+op.observeArray = function (array, key) {
 	changeArrayProto(array);
 	each(array, function (item) {
-		createObserver(item);
+		createObserver(item, key);
 	});
 }
 
@@ -133,11 +134,12 @@ function getDescriptor (object, key) {
 /**
  * 创建一个对象监测
  * @param   {Object|Array}  target
+ * @param   {String}        key
  * @return  {Object}
  */
-export function createObserver (target) {
+export function createObserver (target, key) {
 	if (isObject(target) || isArray(target)) {
-		return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target);
+		return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, key);
 	}
 }
 
@@ -148,12 +150,12 @@ export function createObserver (target) {
  * @param   {Mix}     value
  */
 export function observe (object, key, value) {
-	var dep = new Depend();
+	var dep = new Depend(key);
 	var desc = getDescriptor(object, key);
 	var getter = desc && desc.get;
 	var setter = desc && desc.set;
 
-	var childOb = createObserver(value);
+	var childOb = createObserver(value, key);
 
 	Object.defineProperty(object, key, {
 		get: function Getter () {

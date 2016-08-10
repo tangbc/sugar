@@ -2,7 +2,8 @@ import { each } from '../util';
 
 var guid = 0;
 
-export default function Depend () {
+export default function Depend (key) {
+	this.key = key;
 	this.watchers= [];
 	this.guid = guid++;
 }
