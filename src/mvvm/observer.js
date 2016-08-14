@@ -76,6 +76,11 @@ defRec(arrayMethods, '$remove', function (item) {
 	}
 });
 
+/**
+ * 修改 array 的原型
+ * @param   {[type]}  array  [description]
+ * @return  {[type]}         [description]
+ */
 function changeArrayProto (array) {
 	array.__proto__ = arrayMethods;
 }
@@ -94,30 +99,6 @@ function Observer (data, key) {
 	}
 
 	defRec(data, '__ob__', this);
-}
-
-var op = Observer.prototype;
-
-/**
- * 监测对象
- * @param   {Object}  object
- */
-op.observeObject = function (object) {
-	each(object, function (value, key) {
-		observe(object, key, value);
-	}, this);
-}
-
-/**
- * 监测数组
- * @param   {Array}   array
- * @param   {String}  key
- */
-op.observeArray = function (array, key) {
-	changeArrayProto(array);
-	each(array, function (item) {
-		createObserver(item, key);
-	});
 }
 
 
@@ -168,7 +149,7 @@ export function observe (object, key, value) {
 				}
 			}
 
-			if (isArray(val)) {
+			if (isArray(val) || isObject(val)) {
 				each(val, function (item) {
 					var ob = item && item.__ob__;
 					if (ob) {
@@ -197,5 +178,30 @@ export function observe (object, key, value) {
 			childOb = createObserver(newValue, key);
 			dep.notify();
 		}
+	});
+}
+
+
+var op = Observer.prototype;
+
+/**
+ * 监测对象
+ * @param   {Object}  object
+ */
+op.observeObject = function (object) {
+	each(object, function (value, key) {
+		observe(object, key, value);
+	}, this);
+}
+
+/**
+ * 监测数组
+ * @param   {Array}   array
+ * @param   {String}  key
+ */
+op.observeArray = function (array, key) {
+	changeArrayProto(array);
+	each(array, function (item) {
+		createObserver(item, key);
 	});
 }

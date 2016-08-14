@@ -1,18 +1,17 @@
-import { each } from '../util';
 import Watcher from './watcher';
+import { extend } from '../util';
 
 /**
  * 指令通用构造函数
+ * 提供生成数据订阅和变化更新功能
  * @param  {Object}   host   [指令实例]
- * @param  {Element}  node   [应用节点]
  * @param  {Object}   desc   [指令信息]
  * @param  {Object}   scope  [vfor 取值域]
  */
-export default function Directive (host, node, desc, scope) {
-	this.el = node;
+export default function Directive (host, desc, scope) {
 	this.$host = host;
-	this.desc = desc;
 	this.vm = host.vm;
+	extend(this, desc);
 	this.$scope = scope;
 }
 
@@ -23,7 +22,7 @@ var dp = Directive.prototype;
  */
 dp.install = function () {
 	// 生成数据订阅实例
-	this.watcher = new Watcher(this);
+	this.watcher = new Watcher(this.vm, this.expression, this.update, this);
 	// 更新初始视图
 	this.update(this.watcher.value);
 }
@@ -37,4 +36,20 @@ dp.install = function () {
 dp.update = function (newValue, oldVlaue, arg) {
 	var host = this.$host;
 	host.update.call(host, newValue, oldVlaue, arg);
+}
+
+/**
+ * 获取依赖数据值
+ * @return  {Mix}
+ */
+dp.get = function () {
+	return this.watcher.value;
+}
+
+/**
+ * 设置依赖数据的值(用于双向数据绑定)
+ * @param  {Mix}  value
+ */
+dp.set = function (value) {
+	this.watcher.set(value);
 }

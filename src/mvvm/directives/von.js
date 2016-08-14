@@ -1,5 +1,7 @@
-import util from '../../util';
-import Parser from '../parser';
+import Watcher from '../watcher';
+import Parser, { linkParser } from '../parser';
+import { addEvent, removeEvent } from '../../dom';
+import { removeSpace, each, getKeyValue, defRec, isFunc } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
@@ -13,7 +15,7 @@ const regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g;
  */
 function stringToParams (funcString) {
 	var args, func;
-	var exp = util.removeSpace(funcString);
+	var exp = removeSpace(funcString);
 	var matches = exp.match(regSmallBrackets);
 	var result = matches && matches[0];
 
@@ -42,8 +44,8 @@ function convertJson (jsonString) {
 		string = string.substr(1, leng - 2).replace(/\s/g, '');
 		let props = string.match(regJsonFormat);
 
-		util.each(props, function (prop) {
-			var vals = util.getKeyValue(prop, true);
+		each(props, function (prop) {
+			var vals = getKeyValue(prop, true);
 			var name = vals[0], value = vals[1];
 			if (name && value) {
 				name = name.replace(regQuotes, '');
@@ -55,117 +57,133 @@ function convertJson (jsonString) {
 	return json;
 }
 
+/**
+ * 格式化事件信息
+ * @param   {String}  arg
+ * @param   {String}  expression
+ * @return  {Array}
+ */
+function formatEvent (arg, expression) {
+	var pos = arg.indexOf('.');
+
+	var type, dress = '';
+	if (pos > -1) {
+		type = arg.substr(0, pos);
+		dress = arg.substr(pos + 1,  arg.length);
+	} else {
+		type = arg;
+	}
+
+	var info = stringToParams(expression);
+	var func = info.func, args = info.args;
+
+	return { type, dress, func, args };
+}
+
+/**
+ * 收集绑定的事件
+ * @param   {Object}  desc
+ * @return  {Array}
+ */
+function collectEvents (desc) {
+	var binds = [];
+	var args = desc.args;
+	var expression = desc.expression;
+
+	if (args) {
+		binds.push(formatEvent(args, expression));
+	} else {
+		let json = convertJson(expression);
+		each(json, function (value, key) {
+			binds.push(formatEvent(key, value));
+		});
+	}
+
+	return binds;
+}
+
+/**
+ * 获取事件描述符对象
+ * @param   {String}  type
+ * @param   {String}  dress
+ */
+function getDress (type, dress) {
+	// 支持 4 种事件修饰符 .self .stop .prevent .capture
+	var self = dress.indexOf('self') > -1;
+	var stop = dress.indexOf('stop') > -1;
+	var prevent = dress.indexOf('prevent') > -1;
+	var capture = dress.indexOf('capture') > -1;
+	var keyCode = type.indexOf('key') === 0 ? +dress : null;
+	return { self, stop, prevent, capture, keyCode }
+}
+
 
 /**
  * v-on 指令解析模块
  */
-export function Von (vm) {
-	this.vm = vm;
-	Parser.call(this);
+export function VOn () {
+	this.guid = 1000;
+	this.proxys = {};
+	this.actuals = {};
+	Parser.apply(this, arguments);
 }
-var von = Von.prototype = Object.create(Parser.prototype);
+
+var von = linkParser(VOn);
 
 /**
  * 解析 v-on 指令
- * @param   {Object}      fors        [vfor 数据]
- * @param   {DOMElement}  node        [指令节点]
- * @param   {String}      expression  [指令表达式]
- * @param   {String}      directive   [指令名称]
  */
-von.parse = function (fors, node, expression, directive) {
-	// 单个事件
-	if (directive.indexOf(':') > -1) {
-		this.parseSingle.apply(this, arguments);
-	}
-	// 多个事件
-	else {
-		this.parseJson.apply(this, arguments);
-	}
-}
-
-/**
- * 解析单个 v-on:type
- */
-von.parseSingle = function (fors, node, expression, directive) {
-	// 事件信息
-	var info = stringToParams(expression);
-	// 事件类型
-	var type = util.getKeyValue(directive);
-	// 事件取值字段名称
-	var field = info.func;
-	// 参数字符串
-	var paramString = info.args;
-
-	var packet = this.get(fors, field);
-	var { deps, scope, getter } = packet;
-
-	var func = getter.call(scope, scope);
-
-	// 绑定事件 & 参数求值
-	this.bindEvent(fors, node, field, type, func, paramString);
-
-	// 监测依赖变化，绑定新回调，旧回调将被移除
-	this.vm.watcher.watch(deps, function (path, lastCallback, oldCallback) {
-		// 解除绑定
-		this.update(node, type, oldCallback, false, true);
-		// 绑定新回调
-		this.bindEvent(fors, node, path, type, lastCallback, paramString);
+von.parse = function () {
+	each(collectEvents(this.desc), function (bind) {
+		this.parseEvent(bind);
 	}, this);
 }
 
 /**
- * 解析多个 v-on=eventJson
+ * 解析事件处理函数
+ * @param   {Object}  bind
  */
-von.parseJson = function (fors, node, expression) {
-	util.each(convertJson(expression), function (exp, type) {
-		this.parseSingle(fors, node, exp, type);
+von.parseEvent = function (bind) {
+	var args = bind.args;
+	var type = bind.type;
+	var dress = bind.dress;
+	var capture = dress.indexOf('capture') > -1;
+
+	var funcWatcher = new Watcher(this.vm, bind.func, function (newFunc, oldFunc) {
+		this.off(type, oldFunc, capture);
+		this.bindEvent(type, dress, newFunc, args);
 	}, this);
+
+	this.bindEvent(type, dress, funcWatcher.value, args);
 }
 
 /**
- * 绑定一个事件
- * @param   {Object}      fors
- * @param   {DOMElement}  node
- * @param   {String}      field
- * @param   {String}      evt
- * @param   {Function}    func
- * @param   {String}      paramString
+ * 添加一个事件绑定，同时处理参数的变更
+ * @param   {String}    type       [事件类型]
+ * @param   {String}    dress      [事件修饰符]
+ * @param   {Function}  func       [回调函数]
+ * @param   {String}    argString  [参数字符串]
  */
-von.bindEvent = function (fors, node, field, evt, func, paramString) {
-	var self, stop, prevent, keyCode, capture = false;
+von.bindEvent = function (type, dress, func, argString) {
+	var { self, stop, prevent, capture, keyCode } = getDress(type, dress);
 
-	// 支持 4 种事件修饰符 .self .stop .prevent .capture
-	if (evt.indexOf('.') > -1) {
-		let modals = evt.split('.');
-		evt = modals.shift();
-		self = modals.indexOf('self') > -1;
-		stop = modals.indexOf('stop') > -1;
-		prevent = modals.indexOf('prevent') > -1;
-		capture = modals.indexOf('capture') > -1;
-		keyCode = evt.indexOf('key') === 0 ? +modals[0] : null;
-	}
+	// 挂载 $event
+	defRec((this.$scope || this.vm.$data), '$event', '__e__');
 
 	// 处理回调参数以及依赖监测
 	var args = [];
-	if (paramString) {
-		let packet = this.get(fors, paramString);
-		let { deps, scope, getter, maps } = packet;
-
-		// 添加别名标记
-		util.defRec(scope, '$event', '$event');
-		// 事件参数
-		args = getter.call(scope, scope);
-
-		this.vm.watcher.watch(deps, function () {
-			scope = this.updateScope(scope, maps, deps, arguments);
-			args = getter.call(scope, scope);
+	if (argString) {
+		let argsWatcher = new Watcher(this.vm, argString, function (newArgs) {
+			args = newArgs;
 		}, this);
+		args = argsWatcher.value;
 	}
 
 	// 事件代理函数
+	var el = this.el;
 	var eventProxy = function _eventProxy (e) {
 		// 是否限定只能在当前节点触发事件
-		if (self && e.target !== node) {
+		if (self && e.target !== el) {
 			return;
 		}
 
@@ -179,16 +197,11 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 			args.push(e);
 		} else {
 			// 更新/替换事件对象
-			util.each(args, function (param, index) {
-				if (param === '$event' || param instanceof Event) {
+			each(args, function (param, index) {
+				if (param === '__e__') {
 					args[index] = e;
 				}
 			});
-		}
-
-		// 是否阻止冒泡
-		if (stop) {
-			e.stopPropagation();
 		}
 
 		// 是否阻止默认事件
@@ -196,21 +209,63 @@ von.bindEvent = function (fors, node, field, evt, func, paramString) {
 			e.preventDefault();
 		}
 
+		// 是否阻止冒泡
+		if (stop) {
+			e.stopPropagation();
+		}
+
 		func.apply(this, args);
 	}
 
+
 	// 添加绑定
-	this.update(node, evt, eventProxy, capture);
+	this.on(el, type, eventProxy, capture);
+
+	// 缓存事件
+	this.stash(eventProxy, func);
 }
 
 /**
- * 更新绑定事件
- * @param   {DOMElement}   node
- * @param   {String}       evt
- * @param   {Function}     callback
- * @param   {Boolean}      capture
+ * 缓存 vm 事件与代理事件的关系
+ * @param   {Function}  proxy
+ * @param   {Function}  actual
  */
-von.update = function () {
-	var updater = this.vm.updater;
-	updater.updateEvent.apply(updater, arguments);
+von.stash = function (proxy, actual) {
+	var guid = this.guid++;
+	this.proxys[guid] = proxy;
+	this.actuals[guid] = actual;
+}
+
+/**
+ * 绑定一个事件
+ */
+von.on = function (el, type, callback, capture) {
+	if (isFunc(callback)) {
+		addEvent(el, type, callback, capture);
+	}
+}
+
+/**
+ * 解绑一个事件
+ * @param   {String}    type
+ * @param   {Function}  callback
+ * @param   {Boolean}   capture
+ */
+von.off = function (type, callback, capture) {
+	var guid;
+	var proxys = this.proxys;
+	var actuals = this.actuals;
+
+	each(actuals, function (actual, id) {
+		if (actual === callback) {
+			guid = id;
+			return false;
+		}
+	});
+
+	if (guid) {
+		removeEvent(this.el, type, proxys[guid], capture);
+		delete proxys[guid];
+		delete actuals[guid];
+	}
 }

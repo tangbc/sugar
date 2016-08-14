@@ -1,139 +1,168 @@
-import util from '../../util';
-import Parser from '../parser';
-import { VClass } from './vbind-class';
-import { VStyle } from './vbind-style';
+import Parser, { linkParser } from '../parser';
+import { setAttr, addClass, removeClass } from '../../dom';
+import { each, isString, isArray, isObject, diff } from '../../util';
+
+/**
+ * 处理 styleObject, 批量更新元素 style
+ * @param   {Element}  element
+ * @param   {String}   styleObject
+ */
+function updateStyle (element, styleObject) {
+	var style = element.style;
+
+	each(styleObject, function (value, property) {
+		if (style[property] !== value) {
+			style[property] = value;
+		}
+	});
+}
+
+/**
+ * 更新元素的 className
+ * @param   {Element}  element
+ * @param   {Mix}      classValue
+ * @param   {Boolean}  remove
+ */
+function updateClass (element, classValue, remove) {
+	var handler = remove ? removeClass : addClass;
+
+	if (isString(classValue)) {
+		handler(element, classValue);
+	} else if (isArray(classValue)) {
+		each(classValue, function (cls) {
+			handler(element, cls);
+		});
+	} else if (isObject(classValue)) {
+		each(classValue, function (add, cls) {
+			if (remove || !add) {
+				removeClass(element, cls);
+			} else {
+				addClass(element, cls);
+			}
+		});
+	}
+}
+
 
 /**
  * v-bind 指令解析模块
  */
-
-export function Vbind (vm) {
-	this.vm = vm;
-	this.vclass = new VClass(vm);
-	this.vstyle = new VStyle(vm);
-	Parser.call(this);
+export function VBind () {
+	Parser.apply(this, arguments);
 }
-var vbind = Vbind.prototype = Object.create(Parser.prototype);
+
+var vbind = linkParser(VBind);
 
 /**
  * 解析 v-bind 指令
- * @param   {Object}      fors        [vfor 数据]
- * @param   {DOMElement}  node        [指令节点]
- * @param   {String}      expression  [指令表达式]
- * @param   {String}      directive   [指令名称]
  */
-vbind.parse = function (fors, node, expression, directive) {
-	// 单个 attribute
-	if (directive.indexOf(':') > -1) {
-		let vclass = this.vclass;
-		let vstyle = this.vstyle;
-		// 属性类型
-		let parseType = util.getKeyValue(directive);
+vbind.parse = function () {
+	this.bind();
+}
 
-		switch (parseType) {
-			case 'class':
-				vclass.parse.apply(vclass, arguments);
-				break;
-			case 'style':
-				vstyle.parse.apply(vstyle, arguments);
-				break;
-			default:
-				this.parseAttr(fors, node, expression, parseType);
-		}
-	}
-	// 多个 attributes 的 Json 表达式
-	else {
-		this.parseJson.apply(this, arguments);
+/**
+ * 视图更新
+ * @param   {Mix}  newValue
+ * @param   {Mix}  oldValue
+ */
+vbind.update = function (newValue, oldValue) {
+	var type = this.desc.args;
+	if (type) {
+		this.single(type, newValue, oldValue);
+	} else {
+		this.multi(newValue, oldValue);
 	}
 }
 
 /**
- * 解析 v-bind="{aa: bb, cc: dd}"
- * @param   {Object}      fors
- * @param   {DOMElement}  node
- * @param   {String}      jsonString
+ * 解析单个 attribute
+ * @param   {String}  type
+ * @param   {Mix}     newValue
+ * @param   {Mix}     oldValue
  */
-vbind.parseJson = function (fors, node, jsonString) {
-	var packet = this.get(fors, jsonString);
-	var { deps, scope, getter, maps } = packet;
+vbind.single = function (type, newValue, oldValue) {
+	switch (type) {
+		case 'class':
+			this.handleClass(newValue, oldValue);
+			break;
+		case 'style':
+			this.handleStyle(newValue, oldValue);
+			break;
+		default:
+			this.handleAttr(type, newValue, oldValue);
+	}
+}
 
-	// attr 取值
-	var jsonAttr = util.copy(getter.call(scope, scope));
+/**
+ * 解析 attribute, class, style 组合
+ * @param   {Object}  newJson
+ * @param   {Object}  oldJson
+ */
+vbind.multi = function (newJson, oldJson) {
+	if (oldJson) {
+		let { after, before } = diff(newJson, oldJson);
+		this.batch(after, before);
+	}
 
-	this.updateJson(node, jsonAttr);
+	this.batch(newJson);
+}
 
-	// 监测依赖变化
-	this.vm.watcher.watch(deps, function (path, last, old) {
-		var different, newJsonAttr;
-
-		// 更新取值
-		scope = this.updateScope(scope, maps, deps, arguments);
-
-		// 新值
-		newJsonAttr = getter.call(scope, scope);
-		// 获取新旧 json 的差异
-		different = util.diff(newJsonAttr, jsonAttr);
-
-		// 移除旧 attributes
-		this.updateJson(node, different.o, true);
-		// 添加新 attributes
-		this.updateJson(node, different.n);
-
-		jsonAttr = util.copy(newJsonAttr);
+/**
+ * 绑定属性批处理
+ * @param   {Object}  newObj
+ * @param   {Object}  oldObj
+ */
+vbind.batch = function (newObj, oldObj) {
+	each(newObj, function (value, key) {
+		this.single(key, value, oldObj && oldObj[key]);
 	}, this);
 }
 
 /**
- * 绑定 Json 定义的 attribute
- * @param   {DOMElement}  node
- * @param   {Json}        json
- * @param   {Boolean}     remove
+ * 更新处理 className
+ * @param   {Mix}  newClass
+ * @param   {Mix}  oldClass
  */
-vbind.updateJson = function (node, jsonAttrs, remove) {
-	var vclass = this.vclass;
-	var vstyle = this.vstyle;
+vbind.handleClass = function (newClass, oldClass) {
+	var el = this.el;
 
-	util.each(jsonAttrs, function (value, type) {
-		switch (type) {
-			case 'class':
-				vclass.updateClass(node, value, remove);
-				break;
-			case 'style':
-				vstyle.updateStyle(node, value, remove);
-				break;
-			default:
-				this.update(node, type, value);
-		}
-	}, this);
+	// 数据更新
+	if (oldClass) {
+		let { type, after, before } = diff(newClass, oldClass);
+		updateClass(el, before, true);
+		updateClass(el, after);
+	} else {
+		updateClass(el, newClass);
+	}
 }
 
 /**
- * 解析节点单个 attribute
- * @param   {Object}       fors
- * @param   {DOMElement}   node
- * @param   {String}       expression
- * @param   {String}       attr
+ * 更新处理 style
+ * @param   {Mix}  newStyle
+ * @param   {Mix}  oldStyle
  */
-vbind.parseAttr = function (fors, node, expression, attr) {
-	var packet = this.get(fors, expression);
-	var { deps, scope, getter, maps } = packet;
+vbind.handleStyle = function (newStyle, oldStyle) {
+	var el = this.el;
 
-	this.update(node, attr, getter.call(scope, scope));
+	// 数据更新
+	if (oldStyle) {
+		// 移除旧样式(设为 null)
+		each(oldStyle, function (v, key) {
+			oldStyle[key] = null;
+		});
 
-	// 监测依赖变化
-	this.vm.watcher.watch(deps, function () {
-		scope = this.updateScope(scope, maps, deps, arguments);
-		this.update(node, attr, getter.call(scope, scope));
-	}, this);
+		updateStyle(el, oldStyle);
+	}
+
+	updateStyle(el, newStyle);
 }
 
 /**
- * 更新节点 attribute
- * @param   {DOMElement}   node
- * @param   {String}       name
- * @param   {String}       value
+ * 更新处理 attribute
+ * @param   {String}   attr
+ * @param   {String}   newValue
+ * @param   {String}   oldValue
  */
-vbind.update = function () {
-	var updater = this.vm.updater;
-	updater.updateAttribute.apply(updater, arguments);
+vbind.handleAttr = function (attr, newValue, oldValue) {
+	setAttr(this.el, attr, newValue);
 }

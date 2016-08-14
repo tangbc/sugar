@@ -1,33 +1,43 @@
 import Depend from './depend';
-import { createGetter } from './expression';
-import { isFunc, extend, each, copy } from '../util';
+import { copy } from '../util';
+import { createGetter, createSetter } from './expression';
 
 /**
  * watcher 数据订阅模块
  */
-export default function Watcher (directive) {
-	this.$host = directive;
-	this.vm = directive.vm;
-	this.$scope = directive.$scope;
-	this.callback = directive.update;
+export default function Watcher (vm, expression, callback, context) {
+	this.vm = vm;
+	this.callback = callback;
+	this.context = context || this;
 
-	// 复制指令信息
-	extend(this, directive.desc);
+	var hasSet = context && context.$host.desc.duplex;
+
 	// 缓存取值函数
-	this.getter = createGetter(this.expression);
+	this.getter = createGetter(expression);
+	// 缓存设值函数
+	this.setter = hasSet ? createSetter(expression) : null;
+
 	// 缓存表达式初始值以及提取依赖
 	this.value = this.get();
-	// 旧值
+	// 旧值缓存
 	this.oldValue = null;
 }
 
 var wp = Watcher.prototype;
 
 /**
+ * 获取取值域
+ * @return  {Object}
+ */
+wp.getScope = function () {
+	return this.context.$scope || this.vm.$data;
+}
+
+/**
  * 获取表达式的取值
  */
 wp.getValue = function () {
-	var scope = this.$scope || this.vm.$data;
+	var scope = this.getScope();
 	return this.getter.call(scope, scope);
 }
 
@@ -57,6 +67,17 @@ wp.afterGet = function () {
 }
 
 /**
+ * 设置取值域的值
+ * @param  {Mix}  value
+ */
+wp.set = function (value) {
+	var scope = this.getScope();
+	if (this.setter) {
+		this.setter.call(scope, scope, value);
+	}
+}
+
+/**
  * 将依赖订阅到该 watcher
  */
 wp.addDepend = function (depend) {
@@ -83,8 +104,9 @@ wp.beforeUpdate = function () {
  */
 wp.update = function (arg) {
 	var oldValue = this.oldValue;
-	var newValue = this.getValue();
+	var newValue = this.value = this.get();
 
-	this.value = newValue;
-	this.callback.call(this.$host, newValue, oldValue, arg);
+	if (oldValue !== newValue) {
+		this.callback.call(this.context, newValue, oldValue, arg);
+	}
 }

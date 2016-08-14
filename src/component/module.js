@@ -1,7 +1,7 @@
 import Root from './root';
-import util from '../util';
 import cache from './cache';
 import messager from './messager';
+import { each, isFunc, isBool, isString, warn, hasOwn, clearObject } from '../util';
 
 const childMap = 'map';
 const childArray = 'array';
@@ -24,17 +24,17 @@ var Module = Root.extend({
 	 * @return {Object}          [返回创建的子模块实例]
 	 */
 	create: function (name, Class, config) {
-		if (!util.isString(name)) {
-			return util.warn('Module name ['+ name +'] must be a type of String');
+		if (!isString(name)) {
+			return warn('Module name ['+ name +'] must be a type of String');
 		}
-		if (!util.isFunc(Class)) {
-			return util.warn('Module Class ['+ Class +'] must be a type of Component');
+		if (!isFunc(Class)) {
+			return warn('Module Class ['+ Class +'] must be a type of Component');
 		}
 
 		var cls = this._;
 
 		// 建立模块关系信息
-		if (!util.hasOwn(cls, childArray)) {
+		if (!hasOwn(cls, childArray)) {
 			// 子模块实例缓存数组
 			cls[childArray] = [];
 			// 子模块命名索引
@@ -43,7 +43,7 @@ var Module = Root.extend({
 
 		// 判断是否已经创建过
 		if (cls[childMap][name]) {
-			return util.warn('Module ['+ name +'] is already exists!');
+			return warn('Module ['+ name +'] is already exists!');
 		}
 
 		// 生成子模块实例
@@ -69,7 +69,7 @@ var Module = Root.extend({
 		cls[childMap][name] = instance;
 
 		// 调用模块实例的 init 方法，传入配置参数和父模块
-		if (util.isFunc(instance.init)) {
+		if (isFunc(instance.init)) {
 			instance.init(config, this);
 		}
 
@@ -102,7 +102,7 @@ var Module = Root.extend({
 	 */
 	getChilds: function (returnArray) {
 		var cls = this._;
-		returnArray = util.isBool(returnArray) && returnArray;
+		returnArray = isBool(returnArray) && returnArray;
 		return returnArray ? (cls[childArray] || []) : (cls[childMap] || {});
 	},
 
@@ -135,14 +135,14 @@ var Module = Root.extend({
 		var name = cls.name;
 
 		// 调用销毁前函数，可进行必要的数据保存
-		if (util.isFunc(this.beforeDestroy)) {
+		if (isFunc(this.beforeDestroy)) {
 			this.beforeDestroy();
 		}
 
 		// 递归调用子模块的销毁函数
 		var childs = this.getChilds(true);
-		util.each(childs, function (child) {
-			if (util.isFunc(child.destroy)) {
+		each(childs, function (child) {
+			if (isFunc(child.destroy)) {
 				child.destroy(1);
 			}
 		});
@@ -155,13 +155,13 @@ var Module = Root.extend({
 
 		// 从系统缓存队列中销毁相关记录
 		var id = cls.id;
-		if (util.hasOwn(cache, id)) {
+		if (hasOwn(cache, id)) {
 			delete cache[id];
 			cache.length--;
 		}
 
 		// 调用销毁后函数，可进行销毁界面和事件
-		if (util.isFunc(this.afterDestroy)) {
+		if (isFunc(this.afterDestroy)) {
 			this.afterDestroy();
 		}
 
@@ -171,7 +171,7 @@ var Module = Root.extend({
 		}
 
 		// 移除所有属性
-		util.clear(this);
+		clearObject(this);
 	},
 
 	/**
@@ -182,13 +182,13 @@ var Module = Root.extend({
 	 */
 	fire: function (name, param, callback) {
 		// 不传 param
-		if (util.isFunc(param)) {
+		if (isFunc(param)) {
 			callback = param;
 			param = null;
 		}
 
 		// callback 为属性值
-		if (util.isString(callback)) {
+		if (isString(callback)) {
 			callback = this[callback];
 		}
 
@@ -200,13 +200,13 @@ var Module = Root.extend({
 	 */
 	broadcast: function (name, param, callback) {
 		// 不传 param
-		if (util.isFunc(param)) {
+		if (isFunc(param)) {
 			callback = param;
 			param = null;
 		}
 
 		// callback 为属性值
-		if (util.isString(callback)) {
+		if (isString(callback)) {
 			callback = this[callback];
 		}
 
@@ -222,13 +222,13 @@ var Module = Root.extend({
 	 */
 	notify: function (receiver, name, param, callback) {
 		// 不传 param
-		if (util.isFunc(param)) {
+		if (isFunc(param)) {
 			callback = param;
 			param = null;
 		}
 
 		// callback 为属性值
-		if (util.isString(callback)) {
+		if (isString(callback)) {
 			callback = this[callback];
 		}
 

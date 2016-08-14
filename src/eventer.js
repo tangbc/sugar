@@ -1,5 +1,5 @@
-import dom from './dom';
-import util from './util';
+import { each } from './util';
+import { addEvent, removeEvent } from './dom';
 
 /**
  * 事件处理模块
@@ -39,7 +39,7 @@ ep.add = function (node, evt, callback, capture, context) {
 		callback.call(context || this, e);
 	}
 
-	dom.addEvent(node, evt, listeners[guid], capture);
+	addEvent(node, evt, listeners[guid], capture);
 }
 
 /**
@@ -54,7 +54,7 @@ ep.remove = function (node, evt, callback, capture) {
 	var listeners = this.$listeners;
 
 	// 找到对应的 callback id
-	util.each(map, function (cb, id) {
+	each(map, function (cb, id) {
 		if (cb === callback) {
 			guid = id;
 			return false;
@@ -62,19 +62,10 @@ ep.remove = function (node, evt, callback, capture) {
 	});
 
 	if (guid) {
-		dom.removeEvent(node, evt, listeners[guid], capture);
+		removeEvent(node, evt, listeners[guid], capture);
 		delete map[guid];
 		delete listeners[guid];
 	}
-}
-
-/**
- * 清除所有事件记录
- */
-ep.clear = function () {
-	this.$guid = 1000;
-	util.clear(this.$map);
-	util.clear(this.$listeners);
 }
 
 export default new Eventer();

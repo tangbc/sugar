@@ -1,5 +1,5 @@
-import util from '../util';
 import cache from './cache';
+import { each, isFunc, isObject, isString, warn } from '../util';
 
 /**
  * 字符串首字母大写
@@ -16,7 +16,7 @@ function ucFirst (string) {
 function getComponentByName (name) {
 	var component = null;
 
-	util.each(cache, function (instance) {
+	each(cache, function (instance) {
 		if ((instance._ && instance._.name) === name) {
 			component = instance;
 			return false;
@@ -66,7 +66,7 @@ function triggerReceiver (receiver, msg) {
 	var func = receiver[msg.method];
 
 	// 触发接收者的消息处理方法
-	if (util.isFunc(func)) {
+	if (isFunc(func)) {
 		// 标识消息的发送目标
 		msg.to = receiver;
 		// 发送次数
@@ -82,7 +82,7 @@ function triggerReceiver (receiver, msg) {
  * @param  {Object}    context   [执行环境]
  */
 function feedbackSender (msg, callback, context) {
-	if (util.isFunc(callback)) {
+	if (isFunc(callback)) {
 		callback.call(context, msg);
 	}
 }
@@ -158,14 +158,14 @@ function broadcast (sender, name, param, callback, context) {
  */
 function notify (sender, receiver, name, param, callback, context) {
 	// 找到 receiver，名称可能为 superName.fatherName.childName 的情况
-	if (util.isString(receiver)) {
+	if (isString(receiver)) {
 		let target;
 		let paths = receiver.split('.');
 		let parent = getComponentByName(paths.shift());
 
 		// 有层级
 		if (paths.length) {
-			util.each(paths, function (comp) {
+			each(paths, function (comp) {
 				target = parent.getChild(comp);
 				parent = target;
 				return null;
@@ -176,16 +176,16 @@ function notify (sender, receiver, name, param, callback, context) {
 
 		parent = null;
 
-		if (util.isObject(target)) {
+		if (isObject(target)) {
 			receiver = target;
 		}
 	}
 
 	var msg = createMessage('notify', sender, name, param);
 
-	if (!util.isObject(receiver)) {
+	if (!isObject(receiver)) {
 		feedbackSender(msg, callback, context);
-		return util.warn('Component: [' + receiver + '] is not exist!');
+		return warn('Component: [' + receiver + '] is not exist!');
 	}
 
 	triggerReceiver(receiver, msg);
@@ -203,8 +203,8 @@ function notify (sender, receiver, name, param, callback, context) {
 function globalCast (name, param, callback, context) {
 	var msg = createMessage('globalCast', '__core__', name, param);
 
-	util.each(cache, function (receiver, index) {
-		if (util.isObject(receiver) && index !== '0') {
+	each(cache, function (receiver, index) {
+		if (isObject(receiver) && index !== '0') {
 			triggerReceiver(receiver, msg);
 		}
 	});

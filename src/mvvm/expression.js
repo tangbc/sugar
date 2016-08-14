@@ -1,4 +1,5 @@
-import { error } from '../util';
+import { warn, error } from '../util';
+import { createPath, setValueByPath} from './path';
 
 // 匹配常量缓存序号 "1"
 const regSaveConst = /"(\d+)"/g;
@@ -19,15 +20,6 @@ const regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') +
 const avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
-
-/**
- * 是否是常规指令表达式
- * @param   {String}   expression
- * @return  {Boolean}
- */
-function isNormal (expression) {
-	return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
-}
 
 // 保存常量，返回序号 "i"
 var consts = [];
@@ -65,6 +57,15 @@ function replaceScope (string) {
 }
 
 /**
+ * 是否是常规指令表达式
+ * @param   {String}   expression
+ * @return  {Boolean}
+ */
+export function isNormal (expression) {
+	return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
+}
+
+/**
  * 为表达式中的变量添加 scope 关键字
  * @return  {String}
  */
@@ -91,10 +92,31 @@ function noop () {}
  * @return  {Function}
  */
 export function createGetter (expression) {
+	if (regAviodKeyword.test(expression)) {
+		warn('Avoid using unallow keyword in expression ['+ expression +']');
+		return noop;
+	}
+
 	try {
 		return new Function('scope', 'return ' + addScope(expression) + ';');
 	} catch (e) {
 		error('Invalid generated expression: ' + expression);
+		return noop;
+	}
+}
+
+/**
+ * 生成设值函数
+ * @param   {String}  expression
+ */
+export function createSetter (expression) {
+	var paths = createPath(expression);
+	if (paths.length) {
+		return function setter (scope, value) {
+			setValueByPath(scope, value, paths);
+		}
+	} else {
+		error('Invalid setter expression ['+ expression +']');
 		return noop;
 	}
 }

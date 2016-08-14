@@ -1,4 +1,4 @@
-import util from '../util';
+import { isFunc, each } from '../util';
 
 /**
  * 执行一个 http 请求
@@ -67,7 +67,7 @@ function execute (dataType, url, method, param, callback, context) {
 function get (url, param, callback, context, dataType) {
 	var params = [];
 
-	if (util.isFunc(param)) {
+	if (isFunc(param)) {
 		dataType = context;
 		context = callback;
 		callback = param;
@@ -75,7 +75,7 @@ function get (url, param, callback, context, dataType) {
 	}
 
 	// 格式化参数对象
-	util.each(param, function (val, key) {
+	each(param, function (val, key) {
 		params.push(key + '=' + encodeURIComponent(val));
 	});
 

@@ -1,3 +1,5 @@
+import { isElement } from './dom';
+
 var OP = Object.prototype;
 var has = OP.hasOwnProperty;
 
@@ -69,6 +71,30 @@ export function isEmptyObject (object) {
 	return Object.keys(object).length === 0;
 }
 
+/**
+ * 将 value 转成 Number 类型
+ * @param   {String|Mix}  value
+ * @return  {Number|Mix}
+ */
+export function toNumber (value) {
+	if (isString(value)) {
+		let val = Number(value);
+		return isNumber(val) ? val : value;
+	} else {
+		return value;
+	}
+}
+
+/**
+ * 数据格式化
+ * @param   {String}   value
+ * @param   {Boolean}  convertToNumber
+ * @return  {String|Number}
+ */
+export function formatValue (value, convertToNumber) {
+	return convertToNumber ? toNumber(value) : value;
+}
+
 var cons = window.console;
 
 /**
@@ -124,16 +150,6 @@ export function defRec (object, property, value) {
 }
 
 /**
- * 删除 object 所有属性
- * @param   {Object}   object
- */
-export function clearObject (object) {
-	each(object, function () {
-		return null;
-	});
-}
-
-/**
  * 遍历数组或对象，提供删除选项和退出遍历的功能
  * @param  {Array|Object}  iterator  [数组或对象]
  * @param  {Fuction}       callback  [回调函数]
@@ -181,6 +197,16 @@ export function each (iterator, callback, context) {
 			}
 		}
 	}
+}
+
+/**
+ * 删除 object 所有属性
+ * @param   {Object}   object
+ */
+export function clearObject (object) {
+	each(object, function () {
+		return null;
+	});
 }
 
 /**
@@ -337,4 +363,126 @@ export function stringToFragment (html) {
 	}
 
 	return fragment;
+}
+
+/**
+ * 去掉字符串中所有空格
+ * @param   {String}  string
+ * @return  {String}
+ */
+const regSpaceAll = /\s/g;
+export function removeSpace (string) {
+	return string.replace(regSpaceAll, '');
+}
+
+/**
+ * 获取节点的下一个兄弟元素节点
+ * @param  {Element}  node
+ */
+export function getNextSiblingElement (node) {
+	var el = node.nextSibling;
+
+	if (el && isElement(el)) {
+		return el;
+	}
+
+	while (el) {
+		el = el.nextSibling;
+
+		if (el && isElement(el)) {
+			return el;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * 返回 contrastObject 相对于 referObject 的差异对象
+ * @param   {Object}  contrastObject  [对比对象]
+ * @param   {Object}  referObject     [参照对象]
+ * @return  {Object}
+ */
+function getUniqueObject (contrastObject, referObject) {
+	var unique = {};
+
+	each(contrastObject, function (value, key) {
+		var _diff, oldItem = referObject[key];
+
+		if (isObject(value)) {
+			_diff = getUniqueObject(value, oldItem);
+			if (!isEmptyObject(_diff)) {
+				unique[key] = _diff;
+			}
+		} else if (isArray(value)) {
+			var newArray = [];
+
+			each(value, function (nItem, index) {
+				var _diff;
+
+				if (isObject(nItem)) {
+					_diff = getUniqueObject(nItem, oldItem[index]);
+					newArray.push(_diff);
+				}
+				else {
+					// 新数组元素
+					if (oldItem.indexOf(nItem) === -1) {
+						newArray.push(nItem);
+					}
+				}
+			});
+
+			unique[key] = newArray;
+		} else {
+			if (value !== oldItem) {
+				unique[key] = value;
+			}
+		}
+	});
+
+	return unique;
+}
+
+/**
+ * 返回 contrastArray 相对于 referArray 的差异数组
+ * @param   {Array}  contrastArray  [对比数组]
+ * @param   {Array}  referArray     [参照数组]
+ * @return  {Array}
+ */
+function getUniqueArray (contrastArray, referArray) {
+	var uniques = [];
+
+	if (
+		!isArray(contrastArray) ||
+		!isArray(referArray)
+	) {
+		return contrastArray;
+	}
+
+	each(contrastArray, function (item) {
+		if (referArray.indexOf(item) < 0) {
+			uniques.push(item);
+		}
+	});
+
+	return uniques;
+}
+
+/**
+ * 返回两个比较值的差异
+ * 用于获取 v-bind 绑定 object 的更新差异
+ * @param   {Object|Array}  newTarget
+ * @param   {Object|Array}  oldTarget
+ * @return  {Object}
+ */
+export function diff (newTarget, oldTarget) {
+	var isA = isArray(newTarget) && isArray(oldTarget);
+	var isO = isObject(newTarget) && isObject(oldTarget);
+	var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
+
+	var type = handler ? (isO ? 'object' : 'array') : null;
+	var after = handler && handler(newTarget, oldTarget) || newTarget;
+	var before = handler && handler(oldTarget, newTarget) || oldTarget;
+
+	return { type, after, before };
 }

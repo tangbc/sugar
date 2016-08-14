@@ -1,7 +1,7 @@
 // webpack config file for develop sugar.js
 
 module.exports = {
-	'entry': './src/main/index',
+	'entry': './src/component/index',
 	'output': {
 		'path': './bundle',
 		'library': 'Sugar',

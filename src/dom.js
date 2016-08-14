@@ -28,6 +28,25 @@ export function empty (element) {
 }
 
 /**
+ * 获取节点属性值
+ * @param   {DOMElement}  node
+ * @param   {String}      name
+ * @return  {String}
+ */
+export function getAttr (node, name) {
+	return node.getAttribute(name) || '';
+}
+
+/**
+ * 移除节点属性
+ * @param   {DOMElement}  node
+ * @param   {String}      name
+ */
+export function removeAttr (node, name) {
+	node.removeAttribute(name);
+}
+
+/**
  * 设置节点属性
  * @param   {DOMElement}  node
  * @param   {String}      name
@@ -36,19 +55,11 @@ export function empty (element) {
 export function setAttr (node, name, value) {
 	if (typeof value === 'boolean') {
 		node[name] = value;
+	} else if (value === null) {
+		removeAttr(node, name);
 	} else if (value !== getAttr(node, name)) {
 		node.setAttribute(name, value);
 	}
-}
-
-/**
- * 获取节点属性值
- * @param   {DOMElement}  node
- * @param   {String}      name
- * @return  {String}
- */
-export function getAttr (node, name) {
-	return node.getAttribute(name) || '';
 }
 
 /**
@@ -62,12 +73,21 @@ export function hasAttr (node, name) {
 }
 
 /**
- * 移除节点属性
- * @param   {DOMElement}  node
- * @param   {String}      name
+ * 节点是否存在 classname
+ * @param  {DOMElement}  node
+ * @param  {String}      classname
+ * @return {Boolean}
  */
-export function removeAttr (node, name) {
-	node.removeAttribute(name);
+export function hasClass (node, classname) {
+	var current, list = node.classList;
+
+	/* istanbul ignore else */
+	if (list) {
+		return list.contains(classname);
+	} else {
+		current = ' ' + getAttr(node, 'class') + ' ';
+		return current.indexOf(' ' + classname + ' ') > -1;
+	}
 }
 
 /**
@@ -122,24 +142,6 @@ export function removeClass (node, classname) {
 
 	if (!node.className) {
 		removeAttr(node, 'class');
-	}
-}
-
-/**
- * 节点是否存在 classname
- * @param  {DOMElement}  node
- * @param  {String}      classname
- * @return {Boolean}
- */
-export function hasClass (node, classname) {
-	var current, list = node.classList;
-
-	/* istanbul ignore else */
-	if (list) {
-		return list.contains(classname);
-	} else {
-		current = ' ' + getAttr(node, 'class') + ' ';
-		return current.indexOf(' ' + classname + ' ') > -1;
 	}
 }
 

@@ -1,9 +1,20 @@
-import dom from '../dom';
 import ajax from './ajax';
-import util from '../util';
 import Module from './module';
 import eventer from '../eventer';
-import MVVM from '../viewModel/index';
+import MVVM from '../mvvm/index';
+import { addClass, setAttr } from '../dom';
+import {
+	each,
+	warn,
+	isFunc,
+	extend,
+	hasOwn,
+	isArray,
+	isObject,
+	isString,
+	createElement,
+	stringToFragment
+} from '../util';
 
 /**
  * 设置/读取配置对象
@@ -16,7 +27,7 @@ function config (data, name, value) {
 	if (name) {
 		let ns = name.split('/');
 
-		while (ns.length > 1 && util.hasOwn(data, ns[0])) {
+		while (ns.length > 1 && hasOwn(data, ns[0])) {
 			data = data[ns.shift()];
 		}
 
@@ -79,7 +90,7 @@ var Component = Module.extend({
 		this._ready = false;
 
 		// 调用渲染前函数
-		if (util.isFunc(this.beforeRender)) {
+		if (isFunc(this.beforeRender)) {
 			this.beforeRender();
 		}
 
@@ -103,7 +114,7 @@ var Component = Module.extend({
 
 			if (err) {
 				view = err.status + ': ' + uri;
-				util.warn(err);
+				warn(err);
 			} else {
 				view = data.result;
 			}
@@ -130,46 +141,50 @@ var Component = Module.extend({
 		var isAppend = target instanceof HTMLElement;
 
 		if (isAppend) {
-			this.el = util.createElement(c.tag);
+			this.el = createElement(c.tag);
 		} else {
 			this.el = document.querySelector(target);
 		}
 
 		// 添加 class
 		var cls = c.class;
-		if (cls && util.isString(cls)) {
-			util.each(cls.split(' '), function (classname) {
-				dom.addClass(this.el, classname);
+		if (cls && isString(cls)) {
+			each(cls.split(' '), function (classname) {
+				addClass(this.el, classname);
 			}, this);
 		}
 
 		// 添加 css
-		if (util.isObject(c.css)) {
-			util.each(c.css, function (value, property) {
+		if (isObject(c.css)) {
+			each(c.css, function (value, property) {
 				this.el.style[property] = value;
 			}, this);
 		}
 
 		// 添加attr
-		if (util.isObject(c.attr)) {
-			util.each(c.attr, function (value, name) {
-				dom.setAttr(this.el, name, value);
+		if (isObject(c.attr)) {
+			each(c.attr, function (value, name) {
+				setAttr(this.el, name, value);
 			}, this);
 		}
 
 		// 添加页面视图布局
 		if (c.view) {
-			this.el.appendChild(util.stringToFragment(c.view));
+			this.el.appendChild(stringToFragment(c.view));
 		}
 
 		// 初始化 mvvm 对象
 		var model = c.model;
-		if (util.isObject(model)) {
-			this.vm = new MVVM(this.el, model, this);
+		if (isObject(model)) {
+			this.vm = new MVVM({
+				'view': this.el,
+				'model': model,
+				'context': this
+			});
 		}
 
 		// 创建子组件
-		util.each(c.childs, this._buildBatch, this);
+		each(c.childs, this._buildBatch, this);
 
 		// 追加到目标容器
 		if (isAppend) {
@@ -182,7 +197,7 @@ var Component = Module.extend({
 
 		// 组件视图渲染完成回调方法
 		var cb = this[c.cbRender];
-		if (util.isFunc(cb)) {
+		if (isFunc(cb)) {
 			cb.call(this);
 		}
 	},
@@ -201,7 +216,7 @@ var Component = Module.extend({
 
 		switch (target.length) {
 			case 0:
-				util.warn('Cannot find target element for sub component ['+ symbol +']');
+				warn('Cannot find target element for sub component ['+ symbol +']');
 				break;
 			case 1:
 				this._createChild(target[0], symbol, ChildComp);
@@ -225,12 +240,12 @@ var Component = Module.extend({
 		var childConfig = { target, 'replace': true };
 
 		// 直接传入子组件
-		if (util.isFunc(ChildComp)) {
+		if (isFunc(ChildComp)) {
 			this.create(childName, ChildComp, childConfig);
 		}
 		// 传子组件和其配置参数 [component, config]
-		else if (util.isArray(ChildComp)) {
-			this.create(childName, ChildComp[0], util.extend(ChildComp[1], childConfig));
+		else if (isArray(ChildComp)) {
+			this.create(childName, ChildComp[0], extend(ChildComp[1], childConfig));
 		}
 	},
 
@@ -242,9 +257,9 @@ var Component = Module.extend({
 	 */
 	cover: function (child, parent) {
 		if (!parent) {
-			util.warn('Failed to cover config, 2 arguments required');
+			warn('Failed to cover config, 2 arguments required');
 		}
-		return util.extend(true, {}, parent, child);
+		return extend(true, {}, parent, child);
 	},
 
 	/**
@@ -286,7 +301,7 @@ var Component = Module.extend({
 	 * 元素添加绑定事件
 	 */
 	bind: function (node, evt, callback, capture) {
-		if (util.isString(callback)) {
+		if (isString(callback)) {
 			callback = this[callback];
 		}
 		return eventer.add(node, evt, callback, capture, this);
@@ -296,7 +311,7 @@ var Component = Module.extend({
 	 * 元素解除绑定事件
 	 */
 	unbind: function (node, evt, callback, capture) {
-		if (util.isString(callback)) {
+		if (isString(callback)) {
 			callback = this[callback];
 		}
 		return eventer.remove(node, evt, callback, capture);

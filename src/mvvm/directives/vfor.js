@@ -31,7 +31,9 @@ var vfor = linkParser(VFor);
  * 解析 v-for 指令
  */
 vfor.parse = function () {
+	var el = this.el;
 	var desc = this.desc;
+	var parent = el.parentNode;
 	var expression = desc.expression;
 	var match = expression.match(regForExp);
 	var alias = match[1], iterator = match[2];
@@ -40,17 +42,32 @@ vfor.parse = function () {
 		return warn('The format of v-for must be like "item in items"!');
 	}
 
+
 	this.scopes = [];
 	this.init = true;
 	this.alias = alias;
 	this.partly = false;
 	this.partlyArgs = [];
-	this.$parent = this.el.parentNode;
-	this.$prev = this.el.previousSibling;
-	this.$next = this.el.nextSibling;
+	this.$parent = parent;
+	this.$prev = el.previousSibling;
+	this.$next = el.nextSibling;
+	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 	desc.expression = iterator;
 	this.bind();
+	this.updateModel();
+}
+
+/**
+ * 更新 select 绑定
+ */
+vfor.updateModel = function () {
+	if (this.isOption) {
+		let model = this.$parent.__vmodel__;
+		if (model) {
+			model.updateOption();
+		}
+	}
 }
 
 /**
@@ -182,7 +199,7 @@ vfor.buildList = function (list, startIndex) {
 
 		// 阻止重复编译除 vfor 以外的指令
 		if (bodyDirs > 1) {
-			vm.block(node);
+			vm.block(el);
 		}
 
 		// 标记别名

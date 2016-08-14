@@ -1,4 +1,4 @@
-import util from '../util';
+import { isFunc, each } from '../util';
 
 const regSuper = /\b\.Super\b/;
 const toString = Function.prototype.toString;
@@ -10,7 +10,7 @@ const toString = Function.prototype.toString;
  * @return  {Mix}
  */
 function bindSuper (Super, method) {
-	if (util.isFunc(method) && regSuper.test(toString.call(method))) {
+	if (isFunc(method) && regSuper.test(toString.call(method))) {
 		return function () {
 			this.Super = Super;
 			method.apply(this, arguments);
@@ -36,7 +36,7 @@ Root.extend = function (proto) {
 	 */
 	function Super (method, args) {
 		var func = parent[method];
-		if (util.isFunc(func)) {
+		if (isFunc(func)) {
 			func.apply(this, args);
 		}
 	}
@@ -47,7 +47,7 @@ Root.extend = function (proto) {
 	function Class () {}
 	var classProto = Class.prototype = Object.create(parent);
 
-	util.each(proto, function (value, property) {
+	each(proto, function (value, property) {
 		classProto[property] = bindSuper(Super, value);
 	});
 

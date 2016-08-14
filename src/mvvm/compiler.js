@@ -10,7 +10,7 @@ import { VModel as vmodel } from './directives/vmodel';
 
 import { createObserver } from './observer';
 import { hasAttr, isElement, isTextNode, removeAttr, empty} from '../dom';
-import { def, each, warn, isObject, nodeToFragment, clearObject } from '../util';
+import { def, defRec, each, warn, isObject, nodeToFragment, clearObject } from '../util';
 
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
@@ -99,6 +99,8 @@ function Compiler (option) {
 
 	// 数据模型对象
 	this.$data = model;
+	// DOM 注册索引
+	defRec(this.$data, '$els', {});
 
 	// 未编译节点缓存队列
 	this.$unCompiles = [];
@@ -218,6 +220,14 @@ cp.compile = function (node, attr, scope) {
 	var dir = 'v' + directive.substr(2);
 	var Parser = this.parsers[dir];
 
+	// 不需要解析的指令
+	if (dir === 'velse') {
+		def(node, '__directive', directive);
+		return;
+	} else if (dir === 'vpre') {
+		return;
+	}
+
 	if (Parser) {
 		this.directives.push(new Parser(this, node, desc, scope));
 	} else {
@@ -245,7 +255,7 @@ cp.compileText = function (node, scope) {
 		}
 
 		desc.expression = exp;
-		this.directives.push(new this.parsers.vhtml(this, node, desc, scope));
+		this.directives.push(new this.parsers.vhtml(this, node.parentNode, desc, scope));
 
 	} else {
 		pieces = text.split(regText);

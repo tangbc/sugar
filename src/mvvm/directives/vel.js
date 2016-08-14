@@ -1,37 +1,21 @@
-import util from '../../util';
-import Parser from '../parser';
+import Parser, { linkParser } from '../parser';
 
 /**
  * v-el 指令解析模块
  */
-export function Vel (vm) {
-	this.vm = vm;
-	Parser.call(this);
+export function VEl () {
+	Parser.apply(this, arguments);
 }
-var vel = Vel.prototype = Object.create(Parser.prototype);
+var vel = linkParser(VEl);
 
 /**
- * 解析 v-el 指令 (不需要在 model 中声明)
- * @param   {Object}      fors    [vfor 数据]
- * @param   {DOMElement}  node    [注册节点]
- * @param   {String}      value   [注册字段]
+ * 解析 v-el 指令
+ * 不需要在 model 中声明，且不需要实例化的 Directive
  */
-vel.parse = function (fors, node, value) {
-	if (fors) {
-		let alias = util.getExpValue(value);
-
-		// vel 在 vfor 循环中只能在当前循环体中赋值
-		if (alias !== fors.alias) {
-			return util.warn('If v-el use in v-for, it must be defined on loop body');
-		}
-
-		let scope = fors.scopes[alias];
-
-		if (util.isObject(scope)) {
-			let key = util.getExpKey(value);
-			scope[key] = node;
-		}
-	} else {
-		this.vm.$data.$els[value] = node;
+vel.parse = function () {
+	// 不能在 vfor 中使用
+	if (!this.$scope) {
+		let register = this.desc.expression;
+		this.vm.$data.$els[register] = this.el;
 	}
 }

@@ -1,6 +1,6 @@
-import util from '../util';
 import cache from './cache';
 import Module from './module';
+import { isFunc } from '../util';
 import messager from './messager';
 
 /**
@@ -26,7 +26,7 @@ var Core = Module.extend({
 	 */
 	globalCast: function (name, param, callback, context) {
 		// 不传 param
-		if (util.isFunc(param)) {
+		if (isFunc(param)) {
 			context = callback;
 			callback = param;
 			param = null;
