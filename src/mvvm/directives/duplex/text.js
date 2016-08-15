@@ -1,6 +1,9 @@
 import { formatValue } from '../../../util';
 
 export default {
+	/**
+	 * 绑定 text 变化事件
+	 */
 	bind: function () {
 		var self = this;
 		var number = this.number;
@@ -29,6 +32,10 @@ export default {
 		});
 	},
 
+	/**
+	 * 更新 text 值
+	 * @param   {String}  value
+	 */
 	update: function (value) {
 		var el = this.el;
 		if (el.value !== value) {

@@ -1,7 +1,7 @@
 import Depend from './depend';
 import { defRec, isArray, each, isObject, hasOwn } from '../util';
 
-// 重写的数组操作方法
+// 重写数组操作方法
 const rewriteArrayMethods = [
 	'pop',
 	'push',
@@ -16,14 +16,14 @@ var arrayProto = Array.prototype;
 var arrayMethods = Object.create(arrayProto);
 
 /**
- * 重写 array 数组操作方法
+ * 重写 array 操作方法
  */
 each(rewriteArrayMethods, function (method) {
 	var original = arrayProto[method];
 
 	defRec(arrayMethods, method, function () {
+		var args = [];
 		var ob = this.__ob__;
-		var result, inserts, args = [];
 
 		for (let i = 0; i < arguments.length; i++) {
 			args.push(arguments[i]);
@@ -31,8 +31,9 @@ each(rewriteArrayMethods, function (method) {
 
 		ob.dep.beforeNotify();
 
-		result = original.apply(this, args);
+		var result = original.apply(this, args);
 
+		var inserts;
 		switch (method) {
 			case 'push':
 			case 'unshift':
@@ -54,14 +55,14 @@ each(rewriteArrayMethods, function (method) {
 });
 
 /**
- * 添加 $set 方法，提供需要修改的数组项下标 index 和新值 value
+ * 添加 $set 方法
+ * 提供需要修改的数组项下标 index 和新值 value
  */
 defRec(arrayMethods, '$set', function (index, value) {
-	// 超出数组长度默认在最后添加（相当于 push）
+	// 超出数组长度默认追加到最后
 	if (index >= this.length) {
 		index = this.length;
 	}
-
 	return this.splice(index, 1, value)[0];
 });
 
@@ -86,6 +87,8 @@ function changeArrayProto (array) {
 
 /**
  * 数据监测模块
+ * @param  {Object}  data  [监测对象/数组]
+ * @param  {String}  key   [监测字段名称]
  */
 function Observer (data, key) {
 	this.dep = new Depend(key);
@@ -101,16 +104,6 @@ function Observer (data, key) {
 
 
 /**
- * 获取对象属性描述符
- * @param   {Object}  object
- * @param   {String}  key
- * @return  {Object}
- */
-function getDescriptor (object, key) {
-	return Object.getOwnPropertyDescriptor(object, key);
-}
-
-/**
  * 创建一个对象监测
  * @param   {Object|Array}  target
  * @param   {String}        key
@@ -123,34 +116,31 @@ export function createObserver (target, key) {
 }
 
 /**
- * 监测 object[key] 的变化
+ * 监测 object[key] 的变化 & 收集依赖
  * @param   {Object}  object
  * @param   {String}  key
  * @param   {Mix}     value
  */
 export function observe (object, key, value) {
 	var dep = new Depend(key);
-	var desc = getDescriptor(object, key);
-	var getter = desc && desc.get;
-	var setter = desc && desc.set;
+	var descriptor = Object.getOwnPropertyDescriptor(object, key);
+	var getter = descriptor && descriptor.get;
+	var setter = descriptor && descriptor.set;
 
 	var childOb = createObserver(value, key);
 
 	Object.defineProperty(object, key, {
 		get: function Getter () {
-			var watcher = Depend.watcher;
-			var deep = watcher && watcher.deep;
 			var val = getter ? getter.call(object) : value;
 
-			if (watcher) {
+			if (Depend.watcher) {
 				dep.depend();
 				if (childOb) {
 					childOb.dep.depend();
 				}
 			}
 
-			// 数组或者对象的子项依赖
-			if (isArray(val) || (deep && isObject(val))) {
+			if (isArray(val)) {
 				each(val, function (item) {
 					var ob = item && item.__ob__;
 					if (ob) {

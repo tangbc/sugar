@@ -1,3 +1,4 @@
+import { warn } from '../../util';
 import Parser, { linkParser } from '../parser';
 
 /**
@@ -10,12 +11,15 @@ var vel = linkParser(VEl);
 
 /**
  * 解析 v-el 指令
- * 不需要在 model 中声明，且不需要实例化的 Directive
+ * 不需要在 model 中声明
+ * 且不需要实例化 Directive
  */
 vel.parse = function () {
 	// 不能在 vfor 中使用
 	if (!this.$scope) {
 		let register = this.desc.expression;
 		this.vm.$data.$els[register] = this.el;
+	} else {
+		warn('v-el can not be inside v-for');
 	}
 }

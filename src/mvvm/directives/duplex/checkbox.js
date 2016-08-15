@@ -1,6 +1,9 @@
 import { formatValue, isBool, isArray, warn } from '../../../util';
 
 export default {
+	/**
+	 * 绑定 checkbox 变化事件
+	 */
 	bind: function () {
 		var number = this.number;
 		var directive = this.directive;
@@ -29,6 +32,10 @@ export default {
 		});
 	},
 
+	/**
+	 * 更新 checkbox 值
+	 * @param   {Boolean|Array}  values
+	 */
 	update: function (values) {
 		var el = this.el;
 		var value = formatValue(el.value, this.number);

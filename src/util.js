@@ -1,8 +1,12 @@
-import { isElement } from './dom';
-
 var OP = Object.prototype;
 var has = OP.hasOwnProperty;
 
+/**
+ * typeof 类型检测
+ * @param   {Mix}      test
+ * @param   {String}   type
+ * @return  {Boolean}
+ */
 function typeOf (test, type) {
 	return typeof test === type;
 }
@@ -56,9 +60,11 @@ export function isPlainObject (object) {
 	if (!object || !isObject(object) || object.nodeType || object === object.window) {
 		return false;
 	}
+
 	if (object.constructor && !has.call(object.constructor.prototype, 'isPrototypeOf')) {
 		return false;
 	}
+
 	return true;
 }
 
@@ -72,7 +78,7 @@ export function isEmptyObject (object) {
 }
 
 /**
- * 将 value 转成 Number 类型
+ * value 转成 Number 类型
  * @param   {String|Mix}  value
  * @return  {Number|Mix}
  */
@@ -86,10 +92,10 @@ export function toNumber (value) {
 }
 
 /**
- * 数据格式化
+ * 可选的数据格式化
  * @param   {String}   value
  * @param   {Boolean}  convertToNumber
- * @return  {String|Number}
+ * @return  {Number}
  */
 export function formatValue (value, convertToNumber) {
 	return convertToNumber ? toNumber(value) : value;
@@ -125,13 +131,13 @@ export function hasOwn (obj, key) {
 }
 
 /**
- * object 定义或修改 property
- * @param   {Object|Array}  object        [数组或对象]
- * @param   {String}        property      [属性或数组下标]
- * @param   {Mix}           value         [属性的修改值/新值]
- * @param   {Boolean}       writable      [该属性是否能被赋值运算符改变]
- * @param   {Boolean}       enumerable    [该属性是否出现在枚举中]
- * @param   {Boolean}       configurable  [该属性是否能够被改变或删除]
+ * object 定义或修改 property 属性
+ * @param   {Object}   object        [对象]
+ * @param   {String}   property      [属性字段]
+ * @param   {Mix}      value         [属性的修改值/新值]
+ * @param   {Boolean}  writable      [属性是否能被赋值运算符改变]
+ * @param   {Boolean}  enumerable    [属性是否出现在枚举中]
+ * @param   {Boolean}  configurable  [属性是否能够被改变或删除]
  */
 export function def (object, property, value, writable, enumerable, configurable) {
 	return Object.defineProperty(object, property, {
@@ -178,6 +184,7 @@ export function each (iterator, callback, context) {
 				i--;
 			}
 		}
+
 	} else if (isObject(iterator)) {
 		let keys = Object.keys(iterator);
 
@@ -290,18 +297,9 @@ export function copy (target) {
 }
 
 /**
- * 去掉字符串中所有空格
- * @param   {String}  string
- * @return  {String}
- */
-export function removeAllSpace (string) {
-	return string.replace(/\s/g, '');
-}
-
-/**
- * 拆解字符键值对，返回键和值
+ * 拆解字符键值对，返回键值数组
  * @param   {String}        expression
- * @param   {Boolean}       both         [是否返回键和值]
+ * @param   {Boolean}       both
  * @return  {String|Array}
  */
 export function getKeyValue (expression, both) {
@@ -312,8 +310,8 @@ export function getKeyValue (expression, both) {
 
 /**
  * 创建一个空的 dom 元素
- * @param   {String}     tag  [元素标签名称]
- * @return  {DOMElemnt}
+ * @param   {String}  tag  [元素标签名称]
+ * @return  {Elemnt}
  */
 export function createElement (tag) {
 	return document.createElement(tag);
@@ -329,7 +327,7 @@ export function createFragment () {
 
 /**
  * element 的子节点转换成文档片段（element 将会被清空）
- * @param   {DOMElement}  element
+ * @param  {Element}  element
  */
 export function nodeToFragment (element) {
 	var child;
@@ -348,11 +346,11 @@ export function nodeToFragment (element) {
  * @return  {Fragment}
  */
 export function stringToFragment (html) {
-	var div, fragment;
+	var fragment;
 
 	// 存在标签
 	if (/<[^>]+>/g.test(html)) {
-		div = createElement('div');
+		let div = createElement('div');
 		div.innerHTML = html;
 		fragment = nodeToFragment(div);
 	}
@@ -373,28 +371,6 @@ export function stringToFragment (html) {
 const regSpaceAll = /\s/g;
 export function removeSpace (string) {
 	return string.replace(regSpaceAll, '');
-}
-
-/**
- * 获取节点的下一个兄弟元素节点
- * @param  {Element}  node
- */
-export function getNextSiblingElement (node) {
-	var el = node.nextSibling;
-
-	if (el && isElement(el)) {
-		return el;
-	}
-
-	while (el) {
-		el = el.nextSibling;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-	}
-
-	return null;
 }
 
 /**
@@ -426,7 +402,7 @@ function getUniqueObject (contrastObject, referObject) {
 				}
 				else {
 					// 新数组元素
-					if (oldItem.indexOf(nItem) === -1) {
+					if (oldItem.indexOf(nItem) < 0) {
 						newArray.push(nItem);
 					}
 				}
@@ -452,10 +428,7 @@ function getUniqueObject (contrastObject, referObject) {
 function getUniqueArray (contrastArray, referArray) {
 	var uniques = [];
 
-	if (
-		!isArray(contrastArray) ||
-		!isArray(referArray)
-	) {
+	if (!isArray(contrastArray) || !isArray(referArray)) {
 		return contrastArray;
 	}
 
@@ -480,9 +453,8 @@ export function diff (newTarget, oldTarget) {
 	var isO = isObject(newTarget) && isObject(oldTarget);
 	var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
 
-	var type = handler ? (isO ? 'object' : 'array') : null;
 	var after = handler && handler(newTarget, oldTarget) || newTarget;
 	var before = handler && handler(oldTarget, newTarget) || oldTarget;
 
-	return { type, after, before };
+	return { after, before };
 }

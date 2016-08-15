@@ -10,7 +10,7 @@ export function VText () {
 var vtext = linkParser(VText);
 
 /**
- * 解析 v-text, {{text}} 指令
+ * 解析 v-text, {{ text }} 指令
  * @param   {Element}  node   [指令节点]
  * @param   {Object}   desc   [指令信息]
  * @param   {Object}   scope  [vfor 取值域]

@@ -2,6 +2,10 @@ import Directive from './directive';
 
 /**
  * Parser 基础解析器模块，指令解析模块都继承于 Parser
+ * @param  {Object}   vm
+ * @param  {Element}  node
+ * @param  {Object}   desc
+ * @param  {Object}   scope
  */
 export default function Parser (vm, node, desc, scope) {
 	// 数据缓存
@@ -13,12 +17,31 @@ export default function Parser (vm, node, desc, scope) {
 	this.parse();
 }
 
+var pp = Parser.prototype;
+
 /**
  * 绑定一个指令实例
  */
-Parser.prototype.bind = function () {
+pp.bind = function () {
 	var dir = this.directive = new Directive(this);
 	dir.install();
+}
+
+/**
+ * 指令销毁函数
+ */
+pp.destroy = function () {
+	var directive = this.directive;
+
+	// 有些指令没有实例化 Directive
+	// 所以需要调用额外定义的销毁函数
+	if (directive) {
+		directive.uninstall();
+	} else {
+		this._destroy();
+	}
+
+	this.vm = this.desc = this.$scope = null;
 }
 
 

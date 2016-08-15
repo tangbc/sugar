@@ -1,14 +1,14 @@
-import { getAttr, isElement, hasAttr } from '../../dom';
 import Parser, { linkParser } from '../parser';
-import { removeSpace, getKeyValue, getNextSiblingElement } from '../../util';
+import { removeSpace, getKeyValue } from '../../util';
+import { getAttr, isElement, hasAttr, getNextElement } from '../../dom';
 
-const visibleDisplay = '__visible';
+const visibleDisplay = '__visible__';
 
 /**
- * 缓存节点行内样式值
- * 行内样式 display='' 不会影响由 classname 中的定义
+ * 缓存节点行内样式显示值
+ * 行内样式 display = '' 不会影响由 classname 中的定义
  * visibleDisplay 用于缓存节点行内样式的 display 显示值
- * @param  {DOMElement}  node
+ * @param  {Element}  node
  */
 function setVisibleDisplay (node) {
 	if (!node[visibleDisplay]) {
@@ -47,6 +47,7 @@ function setStyleDisplay (node, display) {
 export function VShow () {
 	Parser.apply(this, arguments);
 }
+
 var vshow = linkParser(VShow);
 
 /**
@@ -54,9 +55,11 @@ var vshow = linkParser(VShow);
  */
 vshow.parse = function () {
 	var el = this.el;
+
 	setVisibleDisplay(el);
 
-	var elseEl = getNextSiblingElement(el);
+	// else 片段
+	var elseEl = getNextElement(el);
 	if (
 		elseEl &&
 		(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')

@@ -38,20 +38,19 @@ vmodel.parse = function () {
 		return warn('v-model only for using in ' + validForms.join(', '));
 	}
 
-	// v-model 暂支持静态指令表达式
+	// v-model 仅支持静态指令表达式
 	if (!isNormal(desc.expression)) {
 		return warn('v-model directive value can be use by static expression');
 	}
 
-
 	desc.duplex = true;
 	this.number = hasAttr(el, 'number');
 
-	// select 需要挂载指令实例到元素上
+	// select 需要指令实例挂载到元素上
 	if (tagName === 'select') {
 		def(el, '__vmodel__', this);
 		this.multi = hasAttr(el, 'multiple');
-		this.updateOption = select.updateOption.bind(this);
+		this.forceUpdate = select.forceUpdate.bind(this);
 	}
 
 	this.bindDuplex(type);
@@ -87,7 +86,7 @@ vmodel.bindDuplex = function (type) {
 }
 
 /**
- * 事件绑定
+ * 表单元素事件绑定
  * @param   {String}    type
  * @param   {Function}  callback
  */

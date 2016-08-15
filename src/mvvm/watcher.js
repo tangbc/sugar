@@ -3,7 +3,34 @@ import { copy, each, extend } from '../util';
 import { createGetter, createSetter } from './expression';
 
 /**
- * watcher 数据订阅模块
+ * 遍历对象/数组每一个可枚举属性
+ * @param   {Object|Array}  target  [遍历值]
+ * @param   {Boolean}       root    [是否是根对象/数组]
+ */
+var walkeds = [];
+function walkThrough (target, root) {
+	var ob = target.__ob__;
+	var guid = ob && ob.dep.guid;
+
+	if (guid) {
+		if (walkeds.indexOf(guid) > -1) {
+			return;
+		} else {
+			walkeds.push(guid);
+		}
+	}
+
+	each(target, function (value) {
+		walkThrough(value, false);
+	});
+
+	if (root) {
+		walkeds.length = 0;
+	}
+}
+
+/**
+ * 数据订阅模块
  * @param  {Object}    vm
  * @param  {Object}    desc
  * @param  {Function}  callback
@@ -16,8 +43,8 @@ export default function Watcher (vm, desc, callback, context) {
 	this.context = context || this;
 
 	// 依赖 id 缓存
-	this.ids = [];
-	this.newIds = [];
+	this.depIds = [];
+	this.newDepIds = [];
 	// 依赖实例缓存
 	this.depends = [];
 	this.newDepends = [];
@@ -28,10 +55,10 @@ export default function Watcher (vm, desc, callback, context) {
 	// 缓存设值函数
 	this.setter = desc.duplex ? createSetter(expression) : null;
 
-	// 缓存表达式初始值以及提取依赖
-	this.value = this.get();
-	// 旧值缓存
+	// 缓存表达式旧值
 	this.oldValue = null;
+	// 表达式初始值 & 提取依赖
+	this.value = this.get();
 }
 
 var wp = Watcher.prototype;
@@ -53,12 +80,30 @@ wp.getValue = function () {
 }
 
 /**
+ * 设置订阅数据的值
+ * @param  {Mix}  value
+ */
+wp.setValue = function (value) {
+	var scope = this.getScope();
+	if (this.setter) {
+		this.setter.call(scope, scope, value);
+	}
+}
+
+/**
  * 获取表达式的取值 & 提取依赖
  */
 wp.get = function () {
 	var value;
 	this.beforeGet();
+
 	value = this.getValue();
+
+	// 深层依赖获取
+	if (this.deep) {
+		walkThrough(value, true);
+	}
+
 	this.afterGet();
 	return value;
 }
@@ -75,12 +120,12 @@ wp.beforeGet = function () {
  */
 wp.addDepend = function (depend) {
 	var guid = depend.guid;
-	var newIds = this.newIds;
+	var newIds = this.newDepIds;
 
 	if (newIds.indexOf(guid) < 0) {
 		newIds.push(guid);
 		this.newDepends.push(depend);
-		if (this.ids.indexOf(guid) < 0) {
+		if (this.depIds.indexOf(guid) < 0) {
 			depend.addWatcher(this);
 		}
 	}
@@ -94,28 +139,17 @@ wp.afterGet = function () {
 
 	// 清除无用的依赖
 	each(this.depends, function (depend) {
-		if (this.newIds.indexOf(depend.guid) < 0) {
+		if (this.newDepIds.indexOf(depend.guid) < 0) {
 			depend.removeWatcher(this);
 		}
 	}, this);
 
 	// 重设依赖缓存
-	this.ids = copy(this.newIds);
-	this.newIds.length = 0;
+	this.depIds = copy(this.newDepIds);
+	this.newDepIds.length = 0;
 
 	this.depends = copy(this.newDepends);
 	this.newDepends.length = 0;
-}
-
-/**
- * 设置订阅数据的值
- * @param  {Mix}  value
- */
-wp.set = function (value) {
-	var scope = this.getScope();
-	if (this.setter) {
-		this.setter.call(scope, scope, value);
-	}
 }
 
 /**
@@ -136,4 +170,13 @@ wp.update = function (arg) {
 	if (oldValue !== newValue) {
 		this.callback.call(this.context, newValue, oldValue, arg);
 	}
+}
+
+/**
+ * 销毁函数
+ */
+wp.destory = function () {
+	this.value = null;
+	this.getter = this.setter = null;
+	this.vm = this.callback = this.context = null;
 }

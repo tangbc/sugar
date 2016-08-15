@@ -9,7 +9,7 @@ import { VBind as vbind } from './directives/vbind';
 import { VModel as vmodel } from './directives/vmodel';
 
 import { createObserver } from './observer';
-import { hasAttr, isElement, isTextNode, removeAttr, empty} from '../dom';
+import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
 import { def, defRec, each, warn, isObject, nodeToFragment, clearObject } from '../util';
 
 const regNewline = /\n/g;
@@ -30,7 +30,7 @@ function isDirective (directive) {
 /**
  * 节点的子节点是否延迟编译
  * 单独处理 vif, vfor 和 vpre 子节点的编译
- * @param   {DOMElement}   node
+ * @param   {Element}  node
  * @return  {Boolean}
  */
 function isLateCompileChilds (node) {
@@ -39,12 +39,13 @@ function isLateCompileChilds (node) {
 
 /**
  * 节点是否含有合法指令
- * @param   {DOMElement}  node
+ * @param   {Element}  node
  * @return  {Number}
  */
 function hasDirective (node) {
 	if (isElement(node) && node.hasAttributes()) {
 		let nodeAttrs = node.attributes;
+
 		for (let i = 0; i < nodeAttrs.length; i++) {
 			if (isDirective(nodeAttrs[i].name)) {
 				return true;
@@ -78,7 +79,7 @@ function getDirectiveDesc (attribute) {
 
 /**
  * 元素编译模块
- * @param  {Object}  option  [数据参数对象]
+ * @param  {Object}  option  [参数对象]
  */
 function Compiler (option) {
 	var element = option.view;
@@ -95,22 +96,22 @@ function Compiler (option) {
 	// 缓存根节点
 	this.$element = element;
 	// 根节点转文档碎片（element 将被清空）
-	this.$fragment = nodeToFragment(this.$element);
+	this.$fragment = nodeToFragment(element);
 
 	// 数据模型对象
 	this.$data = model;
 	// DOM 注册索引
 	defRec(this.$data, '$els', {});
 
-	// 未编译节点缓存队列
+	// 编译节点缓存队列
 	this.$unCompiles = [];
 	// 根节点是否已完成编译
 	this.$rootComplied = false;
-	// 指令缓存
+	// 指令实例缓存
 	this.directives = [];
 
 	// 指令解析模块
-	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel }
+	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel };
 
 	this.init();
 }
@@ -125,7 +126,7 @@ cp.init = function () {
 /**
  * 编译文档碎片/节点
  * @param   {Element}  element  [文档碎片/节点]
- * @param   {Boolean}  root     [是否是编译根节点]
+ * @param   {Boolean}  root     [是否编译根节点]
  * @param   {Object}   scope    [vfor 取值域]
  */
 cp.complieElement = function (element, root, scope) {
@@ -166,7 +167,7 @@ cp.compileAll = function () {
 
 /**
  * 收集并编译节点指令
- * @param   {Array}  info   [node, scope]
+ * @param   {Array}  info  [node, scope]
  */
 cp.complieDirectives = function (info) {
 	var node = info[0], scope = info[1];
@@ -176,9 +177,10 @@ cp.complieDirectives = function (info) {
 		// node 节点集合转为数组
 		let nodeAttrs = node.attributes;
 
-		for (var i = 0; i < nodeAttrs.length; i++) {
+		for (let i = 0; i < nodeAttrs.length; i++) {
 			let atr = nodeAttrs[i];
 			let name = atr.name;
+
 			if (isDirective(name)) {
 				if (name === 'v-for') {
 					vfor = atr;
@@ -206,9 +208,9 @@ cp.complieDirectives = function (info) {
 
 /**
  * 编译元素节点指令
- * @param   {DOMElement}  node
- * @param   {Object}      attr
- * @param   {Object}      scope
+ * @param   {Element}  node
+ * @param   {Object}   attr
+ * @param   {Object}   scope
  */
 cp.compile = function (node, attr, scope) {
 	var desc = getDirectiveDesc(attr);
@@ -236,9 +238,9 @@ cp.compile = function (node, attr, scope) {
 }
 
 /**
- * 编译文本节点 {{text}} or {{{html}}}
- * @param   {DOMElement}   node
- * @param   {Object}       scope
+ * 编译文本节点 {{ text }} 和 {{{ html }}}
+ * @param   {Element}  node
+ * @param   {Object}   scope
  */
 cp.compileText = function (node, scope) {
 	var exp, match, matches, pieces, tokens = [], desc = {};
@@ -278,8 +280,9 @@ cp.compileText = function (node, scope) {
 }
 
 /**
- * 停止编译节点的剩余指令，如 vfor 的根节点
- * @param   {DOMElement}  node
+ * 停止编译节点的剩余指令
+ * 如遇到含有其他指令的 vfor 节点
+ * @param   {Element}  node
  */
 cp.block = function (node) {
 	each(this.$unCompiles, function (info) {
@@ -303,9 +306,12 @@ cp.checkRoot = function () {
  * 销毁函数
  */
 cp.destroy = function () {
+	this.$data = null;
 	empty(this.$element);
 	clearObject(this.parsers);
-	this.$fragment = this.$data = this.$unCompiles = null;
+	each(this.directives, function (directive) {
+		directive.destroy();
+	});
 }
 
 export default Compiler;

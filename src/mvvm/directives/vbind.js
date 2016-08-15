@@ -9,7 +9,6 @@ import { each, isString, isArray, isObject, diff } from '../../util';
  */
 function updateStyle (element, styleObject) {
 	var style = element.style;
-
 	each(styleObject, function (value, property) {
 		if (style[property] !== value) {
 			style[property] = value;
@@ -129,7 +128,7 @@ vbind.handleClass = function (newClass, oldClass) {
 
 	// 数据更新
 	if (oldClass) {
-		let { type, after, before } = diff(newClass, oldClass);
+		let { after, before } = diff(newClass, oldClass);
 		updateClass(el, before, true);
 		updateClass(el, after);
 	} else {

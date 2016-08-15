@@ -1,6 +1,6 @@
 import Parser, { linkParser } from '../parser';
-import { isElement, hasAttr, empty } from '../../dom';
-import { hasOwn, getNextSiblingElement, stringToFragment } from '../../util';
+import { hasOwn, stringToFragment } from '../../util';
+import { isElement, hasAttr, empty, getNextElement } from '../../dom';
 
 /**
  * 移除 DOM 注册的引用
@@ -22,7 +22,11 @@ function removeDOMRegister (vm, element) {
 
 		for (let ii = 0; ii < nodeAttrs.length; ii++) {
 			let attr = nodeAttrs[ii];
-			if (attr.name === 'v-el' && hasOwn(registers, attr.value)) {
+
+			if (
+				attr.name === 'v-el' &&
+				hasOwn(registers, attr.value)
+			) {
 				registers[attr.value] = null;
 			}
 		}
@@ -40,6 +44,7 @@ function removeDOMRegister (vm, element) {
 export function VIf () {
 	Parser.apply(this, arguments);
 }
+
 var vif = linkParser(VIf);
 
 /**
@@ -47,10 +52,13 @@ var vif = linkParser(VIf);
  */
 vif.parse = function () {
 	var el = this.el;
+
+	// 缓存渲染内容
 	this.elContent = el.innerHTML;
 	empty(el);
 
-	var elseEl = getNextSiblingElement(el);
+	// else 节点
+	var elseEl = getNextElement(el);
 	if (
 		elseEl &&
 		(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')

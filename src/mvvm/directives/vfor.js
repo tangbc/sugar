@@ -49,8 +49,8 @@ vfor.parse = function () {
 	this.partly = false;
 	this.partlyArgs = [];
 	this.$parent = parent;
-	this.$prev = el.previousSibling;
 	this.$next = el.nextSibling;
+	this.$prev = el.previousSibling;
 	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 	desc.expression = iterator;
@@ -65,7 +65,7 @@ vfor.updateModel = function () {
 	if (this.isOption) {
 		let model = this.$parent.__vmodel__;
 		if (model) {
-			model.updateOption();
+			model.forceUpdate();
 		}
 	}
 }
@@ -147,8 +147,8 @@ vfor.updatePartly = function (list, arg) {
  * @param   {Array}  list
  */
 vfor.recompileList = function (list) {
-	var prev = this.$prev;
 	var next = this.$next;
+	var prev = this.$prev;
 	var parent = this.$parent;
 
 	// 清空循环列表
@@ -181,8 +181,9 @@ vfor.buildList = function (list, startIndex) {
 	var listFragment = createFragment();
 
 	each(list, function (item, i) {
+		var index = start + i;
+		var alias = this.alias;
 		var plate = el.cloneNode(true);
-		var index = start + i, alias = this.alias;
 		var scope = Object.create(this.$scope || vm.$data);
 
 		// 绑定别名
@@ -204,7 +205,7 @@ vfor.buildList = function (list, startIndex) {
 		// 标记别名
 		markVforFeature(plate, vforAlias, alias);
 
-		// 传入 vfor 数据编译板块
+		// 编译板块
 		vm.complieElement(plate, true, scope);
 		listFragment.appendChild(plate);
 	}, this);

@@ -1,7 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, defRec, isFunc, extend } from '../../util';
+import { removeSpace, each, getKeyValue, defRec, isFunc, extend, clearObject } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
@@ -31,15 +31,14 @@ function stringToParams (funcString) {
 }
 
 /**
- * 字符 json 转为键值对象
+ * 字符串 json 转为键值对象
  * @param   {String}  jsonString
  * @return  {Object}
  */
 function convertJson (jsonString) {
-	var json, string = jsonString.trim();
+	var json = {}, string = jsonString.trim();
 
 	if (regBigBrackets.test(string)) {
-		json = {};
 		let leng = string.length;
 		string = string.substr(1, leng - 2).replace(/\s/g, '');
 		let props = string.match(regJsonFormat);
@@ -61,7 +60,7 @@ function convertJson (jsonString) {
  * 格式化事件信息
  * @param   {String}  arg
  * @param   {String}  expression
- * @return  {Array}
+ * @return  {Object}
  */
 function formatEvent (arg, expression) {
 	var pos = arg.indexOf('.');
@@ -120,11 +119,14 @@ function getDress (type, dress) {
 
 /**
  * v-on 指令解析模块
+ * 不需要实例化 Directive
  */
 export function VOn () {
 	this.guid = 1000;
 	this.proxys = {};
 	this.actuals = {};
+	this.funcWatchers = [];
+	this.argsWatchers = [];
 	Parser.apply(this, arguments);
 }
 
@@ -167,6 +169,9 @@ von.parseEvent = function (bind) {
 	}, this);
 
 	this.bindEvent(type, dress, funcWatcher.value, args);
+
+	// 缓存数据订阅对象
+	this.funcWatchers.push(funcWatcher);
 }
 
 /**
@@ -190,6 +195,7 @@ von.bindEvent = function (type, dress, func, argString) {
 			args = newArgs;
 		}, this);
 		args = argsWatcher.value;
+		this.argsWatchers.push(argsWatcher);
 	}
 
 	// 事件代理函数
@@ -234,7 +240,7 @@ von.bindEvent = function (type, dress, func, argString) {
 	// 添加绑定
 	this.on(type, eventProxy, capture);
 
-	// 缓存事件
+	// 缓存事件关系
 	this.stash(eventProxy, func);
 }
 
@@ -269,6 +275,7 @@ von.off = function (type, callback, capture) {
 	var proxys = this.proxys;
 	var actuals = this.actuals;
 
+	// 找到事件 id
 	each(actuals, function (actual, id) {
 		if (actual === callback) {
 			guid = id;
@@ -281,4 +288,19 @@ von.off = function (type, callback, capture) {
 		delete proxys[guid];
 		delete actuals[guid];
 	}
+}
+
+/**
+ * von 指令特定的销毁函数
+ */
+von._destroy = function () {
+	clearObject(this.proxys);
+	clearObject(this.actuals);
+
+	each(this.funcWatchers, function (watcher) {
+		watcher.destory();
+	});
+	each(this.argsWatchers, function (watcher) {
+		watcher.destory();
+	});
 }

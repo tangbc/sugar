@@ -2,17 +2,27 @@ import { each } from '../util';
 
 var guid = 0;
 
+/**
+ * 依赖收集模块
+ * @param  {String}  key  [依赖数据字段]
+ */
 export default function Depend (key) {
 	this.key = key;
-	this.watchers= [];
+	this.watchers = [];
 	this.guid = guid++;
 }
 
+/**
+ * 当前收集依赖的订阅模块 watcher
+ * @type  {Object}
+ */
 Depend.watcher = null;
+
 var dp = Depend.prototype;
 
 /**
  * 添加依赖订阅
+ * @param  {Object}  watcher
  */
 dp.addWatcher = function (watcher) {
 	this.watchers.push(watcher);
@@ -20,6 +30,7 @@ dp.addWatcher = function (watcher) {
 
 /**
  * 移除依赖订阅
+ * @param  {Object}  watcher
  */
 dp.removeWatcher = function (watcher) {
 	var index = this.watchers.indexOf(watcher);
@@ -29,7 +40,7 @@ dp.removeWatcher = function (watcher) {
 }
 
 /**
- * 当前 watcher 收集依赖
+ * 为 watcher 收集当前的依赖
  */
 dp.depend = function () {
 	if (Depend.watcher) {
@@ -38,7 +49,7 @@ dp.depend = function () {
 }
 
 /**
- * watcher 更新前调用方法
+ * 依赖变更前调用方法，用于旧数据的缓存处理
  */
 dp.beforeNotify = function () {
 	each(this.watchers, function (watcher) {
@@ -47,7 +58,7 @@ dp.beforeNotify = function () {
 }
 
 /**
- * 通知每一个订阅了该依赖的 watcher
+ * 依赖变更，通知每一个订阅了该依赖的 watcher
  * @param   {Object}  arg  [数组操作参数信息]
  */
 dp.notify = function (arg) {

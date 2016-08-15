@@ -22,6 +22,9 @@ function getSelecteds (select, number) {
 }
 
 export default {
+	/**
+	 * 绑定 select 变化事件
+	 */
 	bind: function () {
 		var multi = this.multi;
 		var number = this.number;
@@ -33,6 +36,10 @@ export default {
 		});
 	},
 
+	/**
+	 * 更新 select 值
+	 * @param   {Array|String}  sels
+	 */
 	update: function (sels) {
 		var el = this.el;
 		var options = el.options;
@@ -44,8 +51,10 @@ export default {
 		}
 	},
 
-	updateOption: function () {
-		var value = this.directive.get();
-		this.update(value);
+	/**
+	 * 强制更新 select 的值，用于动态的 option
+	 */
+	forceUpdate: function () {
+		this.update(this.directive.get());
 	}
 }

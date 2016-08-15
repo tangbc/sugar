@@ -45,6 +45,10 @@ function getState (cha) {
 	}
 }
 
+/**
+ * 取词状态机
+ * @type  {Object}
+ */
 var StateMachine = {
 	/**
 	 * 初始状态设定
@@ -79,15 +83,15 @@ var StateMachine = {
 
 	/**
 	 * 获取状态变更类型
-	 * @param   {Number}  willbe  [将要转换的状态]
-	 * @return  {Object}          [状态操作类型]
+	 * @param   {Number}  toBecome  [将要转换的状态]
+	 * @return  {Object}            [状态类型对象]
 	 */
-	get: function (willbe) {
+	get: function (toBecome) {
 		var current = this.state;
-		var keepIdent = current === IDENT && willbe === IDENT;
-		var tobeQuote = (current === IDENT || current === INIT) && willbe === QUOTE;
-		var keepQuote = current === QUOTE && willbe === QUOTE;
-		var tobeIdent = (current === QUOTE || current === INIT) && willbe === IDENT;
+		var keepIdent = current === IDENT && toBecome === IDENT;
+		var tobeQuote = (current === IDENT || current === INIT) && toBecome === QUOTE;
+		var keepQuote = current === QUOTE && toBecome === QUOTE;
+		var tobeIdent = (current === QUOTE || current === INIT) && toBecome === IDENT;
 		return { keepIdent, tobeQuote, keepQuote, tobeIdent };
 	},
 
@@ -123,6 +127,7 @@ var StateMachine = {
 function parseToPath (expression) {
 	var paths = [];
 	var letters = expression.split('');
+	var lastIndex = letters.length - 1;
 	var firstState = getState(letters[0]);
 
 	StateMachine.init(firstState);
@@ -134,7 +139,7 @@ function parseToPath (expression) {
 		}
 
 		// 解析结束
-		if (index + 1 === letters.length && StateMachine.saves) {
+		if (index === lastIndex && StateMachine.saves) {
 			paths.push(StateMachine.saves);
 			StateMachine.reset();
 		}
@@ -147,9 +152,9 @@ function parseToPath (expression) {
  * 通过访问层级取值
  * @param   {Object}  target
  * @param   {Array}   paths
- * @return  {Mix}
+ * @return  {Object}
  */
-function getDeep (target, paths) {
+function getDeepValue (target, paths) {
 	while (paths.length) {
 		target = target[paths.shift()];
 	}
@@ -167,15 +172,16 @@ export function createPath (expression) {
 }
 
 /**
- * 根据访问路径设置对象指定字段的值
+ * 根据访问路径设置对象指定字段值
  * @param  {Object}  scope
  * @param  {Mix}     value
  * @param  {Array}   paths
  */
 export function setValueByPath (scope, value, paths) {
-	var _paths = copy(paths);
-	var set = _paths.pop();
-	var data = getDeep(scope, _paths);
+	var copyPaths = copy(paths);
+	var set = copyPaths.pop();
+	var data = getDeepValue(scope, copyPaths);
+
 	if (data) {
 		data[set] = value;
 	}

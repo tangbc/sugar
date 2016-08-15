@@ -66,7 +66,7 @@ export function isNormal (expression) {
 }
 
 /**
- * 为表达式中的变量添加 scope 关键字
+ * 表达式变量添加 scope
  * @return  {String}
  */
 function addScope (expression) {
@@ -87,7 +87,7 @@ function addScope (expression) {
 function noop () {}
 
 /**
- * 生成表达式的取值函数
+ * 生成表达式取值函数
  * @param   {String}    expression
  * @return  {Function}
  */
@@ -106,7 +106,7 @@ export function createGetter (expression) {
 }
 
 /**
- * 生成设值函数
+ * 生成表达式设值函数
  * @param   {String}  expression
  */
 export function createSetter (expression) {
