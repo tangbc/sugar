@@ -2,11 +2,11 @@ import { formatValue, isNumber } from '../../../util';
 
 export default {
 	bind: function () {
-		var dir = this.$dir;
 		var number = this.number;
+		var directive = this.directive;
 
 		this.on('change', function () {
-			dir.set(formatValue(this.value, number));
+			directive.set(formatValue(this.value, number));
 		});
 	},
 

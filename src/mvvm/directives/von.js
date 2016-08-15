@@ -1,7 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, defRec, isFunc } from '../../util';
+import { removeSpace, each, getKeyValue, defRec, isFunc, extend } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
@@ -103,12 +103,12 @@ function collectEvents (desc) {
 }
 
 /**
- * 获取事件描述符对象
+ * 获取事件修饰符对象
+ * 支持 4 种事件修饰符 .self .stop .prevent .capture
  * @param   {String}  type
  * @param   {String}  dress
  */
 function getDress (type, dress) {
-	// 支持 4 种事件修饰符 .self .stop .prevent .capture
 	var self = dress.indexOf('self') > -1;
 	var stop = dress.indexOf('stop') > -1;
 	var prevent = dress.indexOf('prevent') > -1;
@@ -140,6 +140,17 @@ von.parse = function () {
 }
 
 /**
+ * 获取事件/参数的监测信息
+ * @param   {String}  expression
+ * @return  {Object}
+ */
+von.getExpDesc = function (expression) {
+	return extend({}, this.desc, {
+		'expression': expression
+	});
+}
+
+/**
  * 解析事件处理函数
  * @param   {Object}  bind
  */
@@ -148,8 +159,9 @@ von.parseEvent = function (bind) {
 	var type = bind.type;
 	var dress = bind.dress;
 	var capture = dress.indexOf('capture') > -1;
+	var desc = this.getExpDesc(bind.func);
 
-	var funcWatcher = new Watcher(this.vm, bind.func, function (newFunc, oldFunc) {
+	var funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
 		this.off(type, oldFunc, capture);
 		this.bindEvent(type, dress, newFunc, args);
 	}, this);
@@ -173,7 +185,8 @@ von.bindEvent = function (type, dress, func, argString) {
 	// 处理回调参数以及依赖监测
 	var args = [];
 	if (argString) {
-		let argsWatcher = new Watcher(this.vm, argString, function (newArgs) {
+		let desc = this.getExpDesc(argString);
+		let argsWatcher = new Watcher(this.vm, desc, function (newArgs) {
 			args = newArgs;
 		}, this);
 		args = argsWatcher.value;
@@ -219,7 +232,7 @@ von.bindEvent = function (type, dress, func, argString) {
 
 
 	// 添加绑定
-	this.on(el, type, eventProxy, capture);
+	this.on(type, eventProxy, capture);
 
 	// 缓存事件
 	this.stash(eventProxy, func);
@@ -239,9 +252,9 @@ von.stash = function (proxy, actual) {
 /**
  * 绑定一个事件
  */
-von.on = function (el, type, callback, capture) {
+von.on = function (type, callback, capture) {
 	if (isFunc(callback)) {
-		addEvent(el, type, callback, capture);
+		addEvent(this.el, type, callback, capture);
 	}
 }
 

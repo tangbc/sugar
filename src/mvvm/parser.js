@@ -14,19 +14,19 @@ export default function Parser (vm, node, desc, scope) {
 }
 
 /**
- * 绑定一个基础指令实例
+ * 绑定一个指令实例
  */
 Parser.prototype.bind = function () {
-	this.$dir = new Directive(this, this.desc, this.$scope);
-	this.$dir.install();
+	var dir = this.directive = new Directive(this);
+	dir.install();
 }
 
 
 /**
  * 解析模块的类式继承
- * @param   {Function}   SubParser
+ * @param   {Function}   PreParser
  * @return  {Prototype}
  */
-export function linkParser (SubParser) {
-	return SubParser.prototype = Object.create(Parser.prototype);
+export function linkParser (PreParser) {
+	return PreParser.prototype = Object.create(Parser.prototype);
 }

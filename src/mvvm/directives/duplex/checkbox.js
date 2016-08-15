@@ -2,15 +2,15 @@ import { formatValue, isBool, isArray, warn } from '../../../util';
 
 export default {
 	bind: function () {
-		var dir = this.$dir;
 		var number = this.number;
+		var directive = this.directive;
 
 		this.on('change', function () {
-			var value = dir.get();
+			var value = directive.get();
 			var checked = this.checked;
 
 			if (isBool(value)) {
-				dir.set(checked);
+				directive.set(checked);
 			} else if (isArray(value)) {
 				let val = formatValue(this.value, number);
 				let index = value.indexOf(val);

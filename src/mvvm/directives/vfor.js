@@ -118,16 +118,15 @@ vfor.updatePartly = function (list, arg) {
 
 	switch (method) {
 		case 'pop':
+		case 'shift':
+			break;
 		case 'push':
-			return;
+		case 'unshift':
+			partlyArgs = this.partlyArgs;
+			break;
 		case 'splice':
 			partlyArgs = args.slice(0, 2);
 			Array.prototype.push.apply(partlyArgs, this.partlyArgs);
-			break;
-		case 'shift':
-			break;
-		case 'unshift':
-			partlyArgs = this.partlyArgs;
 			break;
 	}
 

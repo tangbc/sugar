@@ -57,6 +57,7 @@ var vbind = linkParser(VBind);
  * 解析 v-bind 指令
  */
 vbind.parse = function () {
+	this.desc.deep = true;
 	this.bind();
 }
 

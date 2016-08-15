@@ -23,13 +23,13 @@ function getSelecteds (select, number) {
 
 export default {
 	bind: function () {
-		var dir = this.$dir;
 		var multi = this.multi;
 		var number = this.number;
+		var directive = this.directive;
 
 		this.on('change', function () {
 			var sels = getSelecteds(this, number);
-			dir.set(multi ? sels : sels[0]);
+			directive.set(multi ? sels : sels[0]);
 		});
 	},
 
@@ -45,7 +45,7 @@ export default {
 	},
 
 	updateOption: function () {
-		var value = this.$dir.get();
+		var value = this.directive.get();
 		this.update(value);
 	}
 }

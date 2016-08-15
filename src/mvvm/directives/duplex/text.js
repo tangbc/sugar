@@ -3,8 +3,8 @@ import { formatValue } from '../../../util';
 export default {
 	bind: function () {
 		var self = this;
-		var dir = this.$dir;
 		var number = this.number;
+		var directive = this.directive;
 
 		// 解决中文输入时 input 事件在未选择词组时的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
@@ -19,13 +19,13 @@ export default {
 		// input 事件(实时触发)
 		this.on('input', function () {
 			if (!composeLock) {
-				dir.set(formatValue(this.value, number));
+				directive.set(formatValue(this.value, number));
 			}
 		});
 
 		// change 事件(失去焦点触发)
 		this.on('change', function () {
-			dir.set(formatValue(this.value, number));
+			directive.set(formatValue(this.value, number));
 		});
 	},
 

@@ -1,21 +1,32 @@
 import Depend from './depend';
-import { copy } from '../util';
+import { copy, each, extend } from '../util';
 import { createGetter, createSetter } from './expression';
 
 /**
  * watcher 数据订阅模块
+ * @param  {Object}    vm
+ * @param  {Object}    desc
+ * @param  {Function}  callback
+ * @param  {Object}    context
  */
-export default function Watcher (vm, expression, callback, context) {
+export default function Watcher (vm, desc, callback, context) {
 	this.vm = vm;
+	extend(this, desc);
 	this.callback = callback;
 	this.context = context || this;
 
-	var hasSet = context && context.$host.desc.duplex;
+	// 依赖 id 缓存
+	this.ids = [];
+	this.newIds = [];
+	// 依赖实例缓存
+	this.depends = [];
+	this.newDepends = [];
 
+	var expression = desc.expression;
 	// 缓存取值函数
 	this.getter = createGetter(expression);
 	// 缓存设值函数
-	this.setter = hasSet ? createSetter(expression) : null;
+	this.setter = desc.duplex ? createSetter(expression) : null;
 
 	// 缓存表达式初始值以及提取依赖
 	this.value = this.get();
@@ -53,41 +64,57 @@ wp.get = function () {
 }
 
 /**
- * 依赖提取之前将当前 watcher 挂载到依赖对象
+ * 设置当前依赖对象
  */
 wp.beforeGet = function () {
 	Depend.watcher = this;
 }
 
 /**
- * 解除依赖挂载
+ * 将依赖订阅到该 watcher
  */
-wp.afterGet = function () {
-	Depend.watcher = null;
+wp.addDepend = function (depend) {
+	var guid = depend.guid;
+	var newIds = this.newIds;
+
+	if (newIds.indexOf(guid) < 0) {
+		newIds.push(guid);
+		this.newDepends.push(depend);
+		if (this.ids.indexOf(guid) < 0) {
+			depend.addWatcher(this);
+		}
+	}
 }
 
 /**
- * 设置取值域的值
+ * 更新/解除依赖挂载
+ */
+wp.afterGet = function () {
+	Depend.watcher = null;
+
+	// 清除无用的依赖
+	each(this.depends, function (depend) {
+		if (this.newIds.indexOf(depend.guid) < 0) {
+			depend.removeWatcher(this);
+		}
+	}, this);
+
+	// 重设依赖缓存
+	this.ids = copy(this.newIds);
+	this.newIds.length = 0;
+
+	this.depends = copy(this.newDepends);
+	this.newDepends.length = 0;
+}
+
+/**
+ * 设置订阅数据的值
  * @param  {Mix}  value
  */
 wp.set = function (value) {
 	var scope = this.getScope();
 	if (this.setter) {
 		this.setter.call(scope, scope, value);
-	}
-}
-
-/**
- * 将依赖订阅到该 watcher
- */
-wp.addDepend = function (depend) {
-	if (!this.depends) {
-		this.depends = [];
-	}
-
-	if (this.depends.indexOf(depend) < 0) {
-		depend.addWatcher(this);
-		this.depends.push(depend);
 	}
 }
 

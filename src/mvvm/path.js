@@ -3,7 +3,7 @@ import { removeSpace, each, copy } from '../util';
 const INIT = 0;
 const IDENT = 1;
 const QUOTE = 2;
-const OTHER = 3;
+const OTHER = 1;
 
 function ident (value) {
 	return value;
@@ -79,8 +79,8 @@ var StateMachine = {
 
 	/**
 	 * 获取状态变更类型
-	 * @param   {Number}  willbe   [将要转换的状态]
-	 * @return  {String}           [状态操作类型]
+	 * @param   {Number}  willbe  [将要转换的状态]
+	 * @return  {Object}          [状态操作类型]
 	 */
 	get: function (willbe) {
 		var current = this.state;

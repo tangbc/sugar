@@ -43,7 +43,7 @@ each(rewriteArrayMethods, function (method) {
 				break;
 		}
 
-		if (inserts) {
+		if (inserts && inserts.length) {
 			ob.observeArray(inserts);
 		}
 
@@ -70,7 +70,6 @@ defRec(arrayMethods, '$set', function (index, value) {
  */
 defRec(arrayMethods, '$remove', function (item) {
 	var index = this.indexOf(item);
-
 	if (index > -1) {
 		return this.splice(index, 1);
 	}
@@ -78,8 +77,7 @@ defRec(arrayMethods, '$remove', function (item) {
 
 /**
  * 修改 array 的原型
- * @param   {[type]}  array  [description]
- * @return  {[type]}         [description]
+ * @param   {Array}  array
  */
 function changeArrayProto (array) {
 	array.__proto__ = arrayMethods;
@@ -140,16 +138,19 @@ export function observe (object, key, value) {
 
 	Object.defineProperty(object, key, {
 		get: function Getter () {
+			var watcher = Depend.watcher;
+			var deep = watcher && watcher.deep;
 			var val = getter ? getter.call(object) : value;
 
-			if (Depend.watcher) {
+			if (watcher) {
 				dep.depend();
 				if (childOb) {
 					childOb.dep.depend();
 				}
 			}
 
-			if (isArray(val) || isObject(val)) {
+			// 数组或者对象的子项依赖
+			if (isArray(val) || (deep && isObject(val))) {
 				each(val, function (item) {
 					var ob = item && item.__ob__;
 					if (ob) {
@@ -191,7 +192,7 @@ var op = Observer.prototype;
 op.observeObject = function (object) {
 	each(object, function (value, key) {
 		observe(object, key, value);
-	}, this);
+	});
 }
 
 /**
