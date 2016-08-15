@@ -38,13 +38,6 @@ require([
 		</li>
 	</ul>
 	<hr/>
-
-	<label>
-		<input type="radio" value="1" v-model="testDefault" number> 1
-	</label>
-	<label>
-		<input type="radio" checked value="2" v-model="testDefault" number> 2
-	</label>
 	`;
 
 	model =  {
@@ -66,16 +59,18 @@ require([
 				'checkd': 'ee',
 				'subs': ['dd', 'ee', 'ff']
 			}
-		],
+		]
 
-		'testDefault': ''
 	}
 
 
 
 	// start compile
 	body.innerHTML = layout;
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	// for global debug
 	window.vm = vm.get();
 });

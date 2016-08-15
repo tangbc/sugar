@@ -55,18 +55,6 @@ require([
 	<label>
 		<input type="checkbox" checked v-model="testDefault"> NBA
 	</label>
-	<hr/>
-
-	<h2>Selected players: {{ tests }}</h2>
-	<label>
-		<input type="checkbox" value="1" v-model="tests" number> 1
-	</label>
-	<label>
-		<input type="checkbox" checked value="a" v-model="tests"> a
-	</label>
-	<label>
-		<input type="checkbox" checked value="2" v-model="tests" number> 2b
-	</label>
 	<hr>
 	`;
 
@@ -84,7 +72,7 @@ require([
 
 		'items': [
 			{
-				'res': ['a3'],
+				'res': ['a1'],
 				'options': [
 					{'title': 'a1', 'value': 'a1'},
 					{'title': 'a2', 'value': 'a2'},
@@ -103,14 +91,16 @@ require([
 
 		'testDefault': false,
 
-		'tests': []
 	}
 
 
 
 	// start compile
 	body.innerHTML = layout;
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	// for global debug
 	window.vm = vm.get();
 });

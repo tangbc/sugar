@@ -7,14 +7,14 @@ require([
 
 	layout =
 	`
-	<input type="text" v-on:keyup.13="vmKeyEvent(1,2,3)">
+	<input type="text" v-on:keyup="vmKeyEvent(1,2,3)">
 	<h2 v-on:click="vmClick1">v-on test without param ~</h2>
 	<h2 v-on:click="vmClick2(123, title, $event)">v-on test with params ~</h2>
 	<hr/>
-	<input type="text" v-on:keyup="keyup">
-	<ul v-on:click="remove">
+	<input type="text" v-on:keyup.13="keyup(val)" v-model="val">
+	<ul>
 		<li v-for="item in items">
-			<b>×</b>
+			<b v-on:click="remove(item)">×</b>
 			<span>{{ $index + '.' + item.text }}</span>
 		</li>
 	</ul>
@@ -38,10 +38,14 @@ require([
 			{'text': 'ccc'},
 		],
 		'remove': function (item) {
-			console.log(item);
+			this.vm.$data.items.$remove(item);
 		},
-		'keyup': function (e) {
-			console.log(e instanceof Event);
+		'val': '',
+		'keyup': function (val) {
+			if (val) {
+				this.vm.$data.items.push({'text': val});
+			}
+			this.vm.$data.val = '';
 		}
 	}
 
@@ -49,7 +53,10 @@ require([
 
 	// start compile
 	body.innerHTML = layout;
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	// for global debug
 	window.vm = vm.get();
 });

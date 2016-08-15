@@ -54,23 +54,16 @@ require([
 	<hr/>
 
 	<h2>nest vfor selection</h2>
-	<select v-for="sel in selects" v-model="sel.res">
-		<option v-for="op in sel.opts">
-			{{ op.text }}
-		</option>
-	</select>
-	<h2 v-for="sel in selects">
-		{{ sel.type }} Selected: {{ sel.res }}
-	</h2>
-	<hr/>
-
-	<h2>Selected: {{ sel_default }}</h2>
-	<div>(single selection with default value)</div>
-	<select v-model="sel_default" number multiple>
-		<option value="1">Curry</option>
-		<option value="2" selected>Thompson</option>
-		<option value="3" selected>Green</option>
-	</select>
+	<div>
+		<select v-for="sel in selects" v-model="sel.res">
+			<option v-for="op in sel.opts">
+				{{ op.text }}
+			</option>
+		</select>
+		<h2 v-for="sel in selects">
+			{{ sel.type }} Selected: {{ sel.res }}
+		</h2>
+	</div>
 	<hr/>
 	`;
 
@@ -129,9 +122,7 @@ require([
 					{'text': 'Kobe'}
 				]
 			}
-		],
-
-		'sel_default': []
+		]
 	}
 
 
@@ -139,7 +130,10 @@ require([
 	// start compile
 	body.innerHTML = layout;
 	console.time('compile');
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	console.timeEnd('compile');
 	// for global debug
 	window.vm = vm.get();

@@ -46,7 +46,10 @@ require([
 
 	// start compile
 	body.innerHTML = layout;
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 
 	vm.watch('pass', function () {
 		console.log(arguments);

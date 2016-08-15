@@ -12,6 +12,7 @@ require([
 	<h3 v-else>List is empty!</h3>
 	<ul>
 		<li v-for="item in items">
+			<span v-show="item.showIndex">{{ $index }}</span>
 			<b>{{ item.text }}</b>
 		</li>
 	</ul>
@@ -32,7 +33,10 @@ require([
 
 	// start compile
 	body.innerHTML = layout;
-	var vm = new MVVM(body, model);
+	var vm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	// for global debug
 	window.vm = vm.get();
 });

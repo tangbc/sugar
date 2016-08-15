@@ -62,10 +62,13 @@ require([
 	// start compile
 	body.innerHTML = layout;
 	before = Date.now();
-	var vm = new MVVM(body, {
-		'time': 0,
-		'library': 'Sugar',
-		'items': items
+	var vm = new MVVM({
+		'view': body,
+		'model': {
+			'time': 0,
+			'library': 'Sugar',
+			'items': items
+		}
 	});
 	after = Date.now();
 	vm.set('time', after - before);

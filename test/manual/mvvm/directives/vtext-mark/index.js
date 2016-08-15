@@ -36,7 +36,10 @@ require([
 
 	// start compile
 	body.innerHTML = layout;
-	var mvvm = new MVVM(body, model);
+	var mvvm = new MVVM({
+		'view': body,
+		'model': model
+	});
 	var vm = mvvm.get();
 	// for global debug
 	window.vm = vm
