@@ -217,7 +217,7 @@ von.bindEvent = function (type, dress, func, argString) {
 		} else {
 			// 更新/替换事件对象
 			each(args, function (param, index) {
-				if (param === '__e__') {
+				if (param === '__e__' || param instanceof Event) {
 					args[index] = e;
 				}
 			});
