@@ -458,3 +458,19 @@ export function diff (newTarget, oldTarget) {
 
 	return { after, before };
 }
+
+export default {
+	each,
+	copy,
+	extend,
+	hasOwn,
+	defRec,
+
+	isFunc,
+	isBool,
+	isArray,
+	isObject,
+	isNumber,
+	isString,
+	isEmptyObject
+}
