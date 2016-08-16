@@ -161,7 +161,7 @@ var Component = Module.extend({
 			}, this);
 		}
 
-		// 添加attr
+		// 添加 attr
 		if (isObject(c.attr)) {
 			each(c.attr, function (value, name) {
 				setAttr(this.el, name, value);
@@ -177,14 +177,14 @@ var Component = Module.extend({
 		var model = c.model;
 		if (isObject(model)) {
 			this.vm = new MVVM({
-				'view': this.el,
-				'model': model,
+				'view'   : this.el,
+				'model'  : model,
 				'context': this
 			});
 		}
 
 		// 创建子组件
-		each(c.childs, this._buildBatch, this);
+		each(c.childs, this._buildBatchChilds, this);
 
 		// 追加到目标容器
 		if (isAppend) {
@@ -207,7 +207,7 @@ var Component = Module.extend({
 	 * @param   {Function}  ChildComp  [子组件类]
 	 * @param   {String}    symbol     [子组件名称]
 	 */
-	_buildBatch: function (ChildComp, symbol) {
+	_buildBatchChilds: function (ChildComp, symbol) {
 		var target = this.queryAll(symbol.toLowerCase());
 
 		if (!target.length) {

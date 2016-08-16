@@ -41,6 +41,4 @@ var Core = Module.extend({
 	destroy: function () {}
 });
 
-var core = cache['0'] = new Core();
-
-export default core;
+export default cache['0'] = new Core();
