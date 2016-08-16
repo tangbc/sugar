@@ -1,5 +1,5 @@
 import Parser, { linkParser } from '../parser';
-import { removeSpace, getKeyValue } from '../../util';
+import { removeSpace, getKeyValue, each } from '../../util';
 import { getAttr, isElement, hasAttr, getNextElement } from '../../dom';
 
 const visibleDisplay = '__visible__';
@@ -79,9 +79,9 @@ vshow.update = function (isShow) {
 	var el = this.el;
 	var elseEl = this.elseEl;
 
-	setStyleDisplay(el, isShow ? this.el[visibleDisplay] : 'none');
+	setStyleDisplay(el, isShow ? el[visibleDisplay] : 'none');
 
 	if (elseEl) {
-		setStyleDisplay(elseEl, !isShow ? this.el[visibleDisplay] : 'none');
+		setStyleDisplay(elseEl, !isShow ? elseEl[visibleDisplay] : 'none');
 	}
 }

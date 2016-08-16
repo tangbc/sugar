@@ -1,4 +1,4 @@
-import { formatValue } from '../../../util';
+import { formatValue, isArray, warn } from '../../../util';
 
 /**
  * 获取 select 的选中值
@@ -43,11 +43,21 @@ export default {
 	update: function (sels) {
 		var el = this.el;
 		var options = el.options;
+		var multi = this.multi;
+		var exp = this.desc.expression;
+
+		if (multi && !isArray(sels)) {
+			return warn('<select> cannot be multiple when the model set ['+ exp +'] as not Array');
+		}
+
+		if (!multi && isArray(sels)) {
+			return warn('The model ['+ exp +'] cannot set as Array when <select> has no multiple propperty');
+		}
 
 		for (let i = 0; i < options.length; i++) {
 			let option = options[i];
 			let val = formatValue(option.value, this.number);
-			option.selected = this.multi ? sels.indexOf(val) > -1 : sels === val;
+			option.selected = multi ? sels.indexOf(val) > -1 : sels === val;
 		}
 	},
 

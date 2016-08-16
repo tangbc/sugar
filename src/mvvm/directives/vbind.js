@@ -1,6 +1,6 @@
 import Parser, { linkParser } from '../parser';
 import { setAttr, addClass, removeClass } from '../../dom';
-import { each, isString, isArray, isObject, diff } from '../../util';
+import { each, isString, isArray, isObject, diff, warn } from '../../util';
 
 /**
  * 处理 styleObject, 批量更新元素 style
@@ -9,6 +9,11 @@ import { each, isString, isArray, isObject, diff } from '../../util';
  */
 function updateStyle (element, styleObject) {
 	var style = element.style;
+
+	if (!isObject(styleObject)) {
+		return warn('v-bind for style must be a type of Object', styleObject);
+	}
+
 	each(styleObject, function (value, property) {
 		if (style[property] !== value) {
 			style[property] = value;

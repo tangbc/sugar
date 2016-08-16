@@ -100,7 +100,7 @@ export function createGetter (expression) {
 	try {
 		return new Function('scope', 'return ' + addScope(expression) + ';');
 	} catch (e) {
-		error('Invalid generated expression: ' + expression);
+		error('Invalid generated expression: [' + expression + ']');
 		return noop;
 	}
 }

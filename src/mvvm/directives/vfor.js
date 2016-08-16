@@ -153,7 +153,7 @@ vfor.recompileList = function (list) {
 
 	// 清空循环列表
 	var child;
-	while (child = prev.nextSibling || parent.firstChild) {
+	while (child = (prev && prev.nextSibling || parent.firstChild)) {
 		if (next && child === next) {
 			break;
 		}

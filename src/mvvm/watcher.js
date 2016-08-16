@@ -9,7 +9,7 @@ import { createGetter, createSetter } from './expression';
  */
 var walkeds = [];
 function walkThrough (target, root) {
-	var ob = target.__ob__;
+	var ob = target && target.__ob__;
 	var guid = ob && ob.dep.guid;
 
 	if (guid) {
