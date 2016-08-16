@@ -34,13 +34,24 @@ var mvp = MVVM.prototype;
 /**
  * 获取指定数据模型值
  * 如果获取的模型为对象或数组
- * 返回数据与原数据将不会保持引用关系
+ * 返回数据与原数据保持引用关系
  * @param   {String}  key  [<可选>数据模型字段]
  * @return  {Mix}
  */
 mvp.get = function (key) {
-	var data = copy(this.$data);
+	var data = this.$data;
 	return isString(key) ? data[key] : data;
+}
+
+/**
+ * 获取指定数据模型值
+ * 如果获取的模型为对象或数组
+ * 返回数据与原数据将不会保持引用关系
+ * @param   {String}  key  [<可选>数据模型字段]
+ * @return  {Mix}
+ */
+mvp.getCopy = function (key) {
+	return copy(this.get(key));
 }
 
 /**
@@ -93,23 +104,13 @@ mvp.reset = function (key) {
  * 监测表达式值的变化
  * @param   {String}    expression  [监测的表达式]
  * @param   {Function}  callback    [监测变化回调]
- * @param   {Boolean}   context     [<可选>回调上下文]
  * @param   {Boolean}   deep        [<可选>深层依赖监测]
  */
-mvp.watch = function (expression, callback, context, deep) {
-	var _context;
-
-	if (isBool(context)) {
-		deep = context;
-		_context = this;
-	} else {
-		_context = context || this;
-	}
-
+mvp.watch = function (expression, callback, deep) {
 	return new Watcher(this, {
 		'deep': deep,
 		'expression': expression
-	}, callback, _context);
+	}, callback.bind(this.context));
 }
 
 /**
