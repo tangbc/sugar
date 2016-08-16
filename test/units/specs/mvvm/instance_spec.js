@@ -1,5 +1,5 @@
 var MVVM = require('mvvm').default;
-var util = require('src/util').default;
+var util = require('src/util');
 
 describe("mvvm instance >", function () {
 	var element, vm, data;
@@ -18,7 +18,10 @@ describe("mvvm instance >", function () {
 			}
 		}
 
-		vm = new MVVM(element, data);
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
 	});
 
 	afterEach(function () {
@@ -30,11 +33,17 @@ describe("mvvm instance >", function () {
 	it('invalid build', function () {
 		var text = document.createTextNode('plain text');
 		var model = {'a': 1};
-		new MVVM(text, model);
+		new MVVM({
+			'view': text,
+			'model': model
+		});
 		expect(util.warn).toHaveBeenCalledWith('element must be a type of DOMElement: ', text);
 
 		var el = document.createElement('div');
-		new MVVM(el, 'not-an-object');
+		new MVVM({
+			'view': el,
+			'model': 'not-an-object'
+		});
 		expect(util.warn).toHaveBeenCalledWith('model must be a type of Object: ', 'not-an-object');
 	});
 
@@ -46,7 +55,10 @@ describe("mvvm instance >", function () {
 			'<h2 v-beta="title"></h2>'
 		var model = {'title': 'xxdk'};
 
-		new MVVM(el, model);
+		new MVVM({
+			'view': el,
+			'model': model
+		});
 		expect(el.childNodes[0].textContent).toBe('xxdk');
 		expect(el.childNodes[1].hasAttribute('v-beta')).toBe(false);
 		expect(util.warn).toHaveBeenCalledWith('[v-beta] is an unknown directive!');
@@ -54,8 +66,8 @@ describe("mvvm instance >", function () {
 
 
 	it('get', function () {
+		// model is a copy from model
 		var model = vm.get();
-		var objDescriptor = Object.getOwnPropertyDescriptor(model, 'obj');
 
 		// get one
 		expect(vm.get('vid')).toBe('aaa');
@@ -69,25 +81,6 @@ describe("mvvm instance >", function () {
 				'b': 2
 			}
 		});
-
-		expect(typeof objDescriptor.get).toBe('function');
-		expect(typeof objDescriptor.set).toBe('function');
-	});
-
-
-	it('getItem', function () {
-		// getItem returns model's copy
-		var modelCopy = vm.getItem();
-		var obj = modelCopy.obj;
-		var objDescriptor = Object.getOwnPropertyDescriptor(modelCopy, 'obj');
-		var obj_aDescriptor = Object.getOwnPropertyDescriptor(obj, 'a');
-
-		expect(typeof obj).toBe('object');
-		expect(objDescriptor.get).toBeUndefined();
-		expect(objDescriptor.set).toBeUndefined();
-
-		expect(obj_aDescriptor.get).toBeUndefined();
-		expect(obj_aDescriptor.set).toBeUndefined();
 	});
 
 
@@ -146,8 +139,8 @@ describe("mvvm instance >", function () {
 	it('watch', function () {
 		var tempVid;
 
-		vm.watch('vid', function (path, lastValue) {
-			tempVid = lastValue;
+		vm.watch('vid', function (newValue) {
+			tempVid = newValue;
 		});
 
 		data.vid = 233333;
@@ -176,10 +169,13 @@ describe("mvvm instance >", function () {
 			]
 		}
 
-		vm = new MVVM(element, data);
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
 
 		var length, count = 0;
-		vm.watch('items', function (path, newArray) {
+		vm.watch('items', function (newArray) {
 			count++;
 			length = newArray.length;
 		});
@@ -190,8 +186,11 @@ describe("mvvm instance >", function () {
 		expect(length).toBe(data.items.length);
 
 		// change for array inside (deep)
+		// and will not trigger callback because use shallow watch
 		data.items[0].text = 'aaa';
 		expect(count).toBe(1);
+		// but the interface still be updated
+		expect(element.querySelector('ul').childNodes[0].textContent).toBe('aaa');
 	});
 
 
@@ -216,49 +215,37 @@ describe("mvvm instance >", function () {
 			]
 		}
 
-		vm = new MVVM(element, data);
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
 
-		var path, val, old, count = 0;
-		vm.watch('items', function (access, newVal, oldVal) {
+		var val, count = 0;
+		vm.watch('items', function (newVal) {
 			count++;
-			path = access;
 			val = newVal;
-			old = oldVal;
 		}, true);
 
 		// change for array inside (deep)
 		data.items[0].text = 'aaa';
-		expect(path).toBe('items*0*text');
-		expect(val).toBe('aaa');
-		expect(old).toBe(111);
+		expect(val[0].text).toBe('aaa');
 		expect(count).toBe(1);
 
 		// and also can be watch outside
 		data.items.pop();
-		expect(path).toBe('items');
 		expect(val).toBe(data.items);
-		expect(old).toBe('pop');
+		expect(val.length).toBe(2);
 		expect(count).toBe(2);
 	});
 
 
 	it('destroy', function () {
-		var compiler = vm.vm;
-
 		expect(element.innerHTML).toBe('<div id="aaa">bbb</div>');
 
 		// destroy instance
 		vm.destroy();
-
 		// model should be null
 		expect(vm.get()).toBeNull();
-
-		// watcher should be empty
-		expect(Object.keys(compiler.watcher.$modelSubs).length).toBe(0);
-		expect(Object.keys(compiler.watcher.$accessSubs).length).toBe(0);
-		expect(Object.keys(compiler.watcher.$indexSubs).length).toBe(0);
-		expect(Object.keys(compiler.watcher.$deepSubs).length).toBe(0);
-
 		// interface should be blank
 		expect(element.innerHTML).toBe('');
 	});

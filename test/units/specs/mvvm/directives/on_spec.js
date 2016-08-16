@@ -33,8 +33,11 @@ describe("v-on >", function () {
 
 		element.innerHTML = '<span id="el" v-on:click="test"></span>';
 
-		var vm = new MVVM(element, {
-			'test': cb
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': cb
+			}
 		});
 		var el = element.querySelector('#el');
 
@@ -55,12 +58,15 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM(element, {
-			'outer': function () {
-				outerCount++;
-			},
-			'inner': function () {
-				innerCount++;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'outer': function () {
+					outerCount++;
+				},
+				'inner': function () {
+					innerCount++;
+				}
 			}
 		});
 		var outer = element.querySelector('#outer');
@@ -92,12 +98,15 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM(element, {
-			'outer': function () {
-				outerCount++;
-			},
-			'inner': function () {
-				innerCount++;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'outer': function () {
+					outerCount++;
+				},
+				'inner': function () {
+					innerCount++;
+				}
 			}
 		});
 		var outer = element.querySelector('#outer');
@@ -133,12 +142,15 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM(element, {
-			'outer': function () {
-				outerCount++;
-			},
-			'inner': function () {
-				innerCount++;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'outer': function () {
+					outerCount++;
+				},
+				'inner': function () {
+					innerCount++;
+				}
 			}
 		});
 		var outer = element.querySelector('#outer');
@@ -158,10 +170,13 @@ describe("v-on >", function () {
 		element.innerHTML = '<a id="el" href="#abc" v-on:click="test"></a>';
 
 		var hasPrevent;
-		var vm = new MVVM(element, {
-			'test': function (e) {
-				// this feature is base on greater than or equal to ie9
-				hasPrevent = e.defaultPrevented;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': function (e) {
+					// this feature is base on greater than or equal to ie9
+					hasPrevent = e.defaultPrevented;
+				}
 			}
 		});
 		var el = element.querySelector('#el');
@@ -179,9 +194,12 @@ describe("v-on >", function () {
 		element.innerHTML = '<a id="el" href="#abc" v-on:click.prevent="test"></a>';
 
 		var hasPrevent;
-		var vm = new MVVM(element, {
-			'test': function (e) {
-				hasPrevent = e.defaultPrevented;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': function (e) {
+					hasPrevent = e.defaultPrevented;
+				}
 			}
 		});
 		var hash = window.location.hash;
@@ -197,9 +215,12 @@ describe("v-on >", function () {
 		element.innerHTML = '<input id="el" type="text" v-on:keyup.13="test">';
 
 		var isEnter13 = false;
-		var vm = new MVVM(element, {
-			'test': function (e) {
-				isEnter13 = e.keyCode === 13;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': function (e) {
+					isEnter13 = e.keyCode === 13;
+				}
 			}
 		});
 		var el = element.querySelector('#el');
@@ -225,9 +246,12 @@ describe("v-on >", function () {
 		element.innerHTML = '<div id="el" v-on:mouseenter="test(123, \'sugar\', $event)"></div>';
 
 		var args;
-		var vm = new MVVM(element, {
-			'test': function () {
-				args = Array.prototype.slice.call(arguments);
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': function () {
+					args = Array.prototype.slice.call(arguments);
+				}
 			}
 		});
 		var el = element.querySelector('#el');
@@ -244,9 +268,12 @@ describe("v-on >", function () {
 		element.innerHTML = '<div id="el" v-on:click="test"></div>';
 
 		var flag;
-		var vm = new MVVM(element, {
-			'test': function () {
-				flag = 'first callback';
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': function () {
+					flag = 'first callback';
+				}
 			}
 		});
 		var el = element.querySelector('#el');
@@ -269,9 +296,12 @@ describe("v-on >", function () {
 		var args, storeArgs = function () {
 			args = Array.prototype.slice.call(arguments);
 		}
-		var vm = new MVVM(element, {
-			'clickTest': storeArgs,
-			'mouseoutTest': storeArgs
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'clickTest': storeArgs,
+				'mouseoutTest': storeArgs
+			}
 		});
 		var el = element.querySelector('#el');
 
@@ -290,10 +320,13 @@ describe("v-on >", function () {
 		element.innerHTML = '<input id="el" v-on:focus="test(text, \'xxdk\')"/>';
 
 		var args;
-		var vm = new MVVM(element, {
-			'text': 'aaa',
-			'test': function (txt, num) {
-				args = Array.prototype.slice.call(arguments);
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'text': 'aaa',
+				'test': function (txt, num) {
+					args = Array.prototype.slice.call(arguments);
+				}
 			}
 		});
 		var el = element.querySelector('#el');
@@ -321,18 +354,21 @@ describe("v-on >", function () {
 			'</ul>'
 
 		var index, evt;
-		var vm = new MVVM(element, {
-			'items': [
-				'aaa',
-				'bbb',
-				'ccc'
-			],
-			'test': function (i, e) {
-				index = i;
-				evt = e;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					'aaa',
+					'bbb',
+					'ccc'
+				],
+				'test': function (i, e) {
+					index = i;
+					evt = e;
+				}
 			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var els = element.querySelectorAll('.el');
 
 		triggerEvent(els[0], 'click');
@@ -345,7 +381,9 @@ describe("v-on >", function () {
 
 		// change array data
 		expect(els[1].textContent).toBe('bbb');
-		data.items[1] = 'BBB';
+		data.items.$set(1, 'BBB');
+		// $set will recover original DOM
+		els = element.querySelectorAll('.el');
 		triggerEvent(els[1], 'click');
 		expect(index).toBe(1);
 		expect(evt.target.textContent).toBe('BBB');

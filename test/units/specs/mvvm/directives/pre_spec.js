@@ -20,7 +20,10 @@ describe("v-pre >", function () {
 				'<i>{{ text }}</i>' +
 			'</div>'
 
-		var vm = new MVVM(element, {});
+		var vm = new MVVM({
+			'view': element,
+			'model': {}
+		});
 		var div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('<b v-show="show"></b><i>{{ text }}</i>');
@@ -35,8 +38,11 @@ describe("v-pre >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [{}, {}, {}]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [{}, {}, {}]
+			}
 		});
 		var ul = element.querySelector('#test2');
 

@@ -1,6 +1,6 @@
-var sugar = require('src/main/index').default;
+var sugar = require('src/component/index').default;
 var Component = sugar.Component;
-var util = require('src/util').default;
+var util = require('src/util');
 
 describe('sugar message >', function () {
 	var body = document.body;

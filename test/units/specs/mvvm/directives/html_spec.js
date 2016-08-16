@@ -1,5 +1,5 @@
 var MVVM = require('mvvm').default;
-var util = require('src/util').default;
+var util = require('src/util');
 
 describe("v-html >", function () {
 	var element;
@@ -17,10 +17,13 @@ describe("v-html >", function () {
 	it('normal', function () {
 		element.innerHTML = '<div id="test1" v-html="layout"></div>';
 
-		var vm = new MVVM(element, {
-			'layout': ''
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'layout': ''
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('');
@@ -36,10 +39,13 @@ describe("v-html >", function () {
 	it('mustache', function () {
 		element.innerHTML = '<div id="test2">{{{ layout }}}</div>';
 
-		var vm = new MVVM(element, {
-			'layout': ''
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'layout': ''
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test2');
 
 		expect(div.innerHTML).toBe('');
@@ -55,8 +61,11 @@ describe("v-html >", function () {
 	it('invalid mustache', function () {
 		element.innerHTML = '<div>xxx{{{ layout }}}</div>';
 
-		new MVVM(element, {
-			'layout': '<b>123</b>'
+		new MVVM({
+			'view': element,
+			'model': {
+				'layout': '<b>123</b>'
+			}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('[xxx{{{ layout }}}] compile for HTML can not have a prefix or suffix');
@@ -71,14 +80,18 @@ describe("v-html >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'layout': '<i>aaa</i>'},
-				{'layout': '<b>bbb</b>'},
-				{'layout': '<span>ccc</span>'},
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'layout': '<i>aaa</i>'},
+					{'layout': '<b>bbb</b>'},
+					{'layout': '<span>ccc</span>'},
+				]
+			}
+
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ps = element.querySelectorAll('.pp');
 
 		expect(ps[0].innerHTML).toBe('<i>aaa</i>');
@@ -110,14 +123,17 @@ describe("v-html >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'layout': '<i>aaa</i>'},
-				{'layout': '<b>bbb</b>'},
-				{'layout': '<span>ccc</span>'},
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'layout': '<i>aaa</i>'},
+					{'layout': '<b>bbb</b>'},
+					{'layout': '<span>ccc</span>'},
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ps = element.querySelectorAll('.pp');
 
 		expect(ps[0].innerHTML).toBe('<i>aaa</i>');

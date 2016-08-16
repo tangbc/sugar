@@ -1,4 +1,4 @@
-var sugar = require('src/main/index').default;
+var sugar = require('src/component/index').default;
 var ajax = sugar.ajax;
 
 // via the jasmine.Ajax global

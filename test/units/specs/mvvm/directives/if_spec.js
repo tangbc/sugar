@@ -16,10 +16,13 @@ describe("v-if >", function () {
 	it('normal render first', function () {
 		element.innerHTML = '<div id="test1" v-if="render"><b>123</b></div>';
 
-		var vm = new MVVM(element, {
-			'render': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'render': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('<b>123</b>');
@@ -35,10 +38,13 @@ describe("v-if >", function () {
 	it('normal no-render first', function () {
 		element.innerHTML = '<div id="test2" v-if="render"><b>123</b></div>';
 
-		var vm = new MVVM(element, {
-			'render': false
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'render': false
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test2');
 
 		expect(div.innerHTML).toBe('');
@@ -57,11 +63,14 @@ describe("v-if >", function () {
 				'<p>--{{ text }}--</p>' +
 			'</div>'
 
-		var vm = new MVVM(element, {
-			'render': true,
-			'text'  : 'aaa'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'render': true,
+				'text'  : 'aaa'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test3');
 
 		expect(div.innerHTML).toBe('<p>--aaa--</p>');
@@ -87,11 +96,14 @@ describe("v-if >", function () {
 				'<p>--{{ text }}--</p>' +
 			'</div>'
 
-		var vm = new MVVM(element, {
-			'render': false,
-			'text'  : 'aaa'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'render': false,
+				'text'  : 'aaa'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test4');
 
 		expect(div.innerHTML).toBe('');
@@ -123,10 +135,13 @@ describe("v-if >", function () {
 				'<b>Not OK</b>' +
 			'</div>'
 
-		var vm = new MVVM(element, {
-			'ok': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'ok': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var ok = element.querySelector('#ok');
 		var notok = element.querySelector('#notok');
 

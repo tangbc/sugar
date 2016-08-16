@@ -16,10 +16,13 @@ describe("v-show >", function () {
 	it('normal hidden first', function () {
 		element.innerHTML = '<div id="test1" v-show="isShow">title</div>';
 
-		var vm = new MVVM(element, {
-			'isShow': false
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isShow': false
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test1');
 
 		expect(div.style.display).toBe('none');
@@ -32,10 +35,13 @@ describe("v-show >", function () {
 	it('normal show first', function () {
 		element.innerHTML = '<div id="test2" v-show="isShow">title</div>';
 
-		var vm = new MVVM(element, {
-			'isShow': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isShow': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test2');
 
 		expect(div.style.display).toBe('');
@@ -48,10 +54,13 @@ describe("v-show >", function () {
 	it('has inline style init and show first', function () {
 		element.innerHTML = '<div id="test3" v-show="isShow" style="display: inline">title</div>';
 
-		var vm = new MVVM(element, {
-			'isShow': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isShow': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test3');
 
 		expect(div.style.display).toBe('inline');
@@ -67,10 +76,13 @@ describe("v-show >", function () {
 	it('has inline style init and hidden first', function () {
 		element.innerHTML = '<div id="test4" v-show="isShow" style="display: inline-block">title</div>';
 
-		var vm = new MVVM(element, {
-			'isShow': false
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isShow': false
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.querySelector('#test4');
 
 		expect(div.style.display).toBe('none');
@@ -86,10 +98,13 @@ describe("v-show >", function () {
 			'~~~ v-show just find next sibling elementNode for v-else ~~~' +
 			'<div id="notok" v-else>Not OK</div>'
 
-		var vm = new MVVM(element, {
-			'ok': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'ok': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var ok = element.querySelector('#ok');
 		var notok = element.querySelector('#notok');
 
@@ -107,10 +122,13 @@ describe("v-show >", function () {
 			'<div id="ok" v-show="ok" style="display: inline">OK</div>' +
 			'<div id="notok" v-else style="display: inline-block">Not OK</div>'
 
-		var vm = new MVVM(element, {
-			'ok': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'ok': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var ok = element.querySelector('#ok');
 		var notok = element.querySelector('#notok');
 
@@ -135,14 +153,17 @@ describe("v-show >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'show': true},
-				{'show': true},
-				{'show': false}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'show': true},
+					{'show': true},
+					{'show': false}
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var sps = element.querySelectorAll('.sp');
 
 		expect(sps[0].style.display).toBe('block');

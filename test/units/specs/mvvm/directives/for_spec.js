@@ -21,10 +21,13 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': null
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': null
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test8');
 
@@ -40,10 +43,13 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': []
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': []
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test8');
 
@@ -62,10 +68,13 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': ['a', 'b']
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': ['a', 'b']
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test1');
 
@@ -116,6 +125,7 @@ describe("v-for >", function () {
 
 		// cover
 		data.items = ['A', 'B', 'C'];
+		items = data.items;
 		expect(ul.textContent).toBe('ABC');
 
 		// try again for new observe
@@ -159,13 +169,16 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test2');
 
@@ -212,6 +225,7 @@ describe("v-for >", function () {
 
 		// cover
 		data.items = [{'text': 'A'}, {'text': 'B'}, {'text': 'C'}];
+		items = data.items;
 		expect(ul.textContent).toBe('ABC');
 
 		// try again for new observe
@@ -247,10 +261,13 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': ['a', 'b']
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': ['a', 'b']
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test3');
 
@@ -294,13 +311,16 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test4');
 
@@ -344,13 +364,16 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test5');
 
@@ -385,13 +408,16 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test6');
 
@@ -439,13 +465,16 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'A', 'subs': [{'text': 'a'}]},
-				{'text': 'B', 'subs': [{'text': 'b'}]}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'A', 'subs': [{'text': 'a'}]},
+					{'text': 'B', 'subs': [{'text': 'b'}]}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test7');
 
@@ -500,14 +529,17 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'},
-				{'text': 'c'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'},
+					{'text': 'c'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test');
 
@@ -547,14 +579,17 @@ describe("v-for >", function () {
 				'<b>OO</b>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a'},
-				{'text': 'b'},
-				{'text': 'c'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a'},
+					{'text': 'b'},
+					{'text': 'c'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var items = data.items;
 		var ul = element.querySelector('#test');
 

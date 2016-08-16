@@ -16,10 +16,13 @@ describe("v-text >", function () {
 	it('normal', function () {
 		element.innerHTML = '<div id="test1" v-text="text"></div>';
 
-		var vm = new MVVM(element, {
-			'text': '123'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'text': '123'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.querySelector('#test1').textContent).toBe('123');
 
@@ -31,10 +34,13 @@ describe("v-text >", function () {
 	it('mustache', function () {
 		element.innerHTML = '<div id="test2">{{ text }}</div>';
 
-		var vm = new MVVM(element, {
-			'text': '123'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'text': '123'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.querySelector('#test2').textContent).toBe('123');
 
@@ -46,10 +52,13 @@ describe("v-text >", function () {
 	it('multi expression with normal', function () {
 		element.innerHTML = '<div id="test3" v-text="\'hello! \' + name"></div>';
 
-		var vm = new MVVM(element, {
-			'name': 'Stephen'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'name': 'Stephen'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.querySelector('#test3').textContent).toBe('hello! Stephen');
 
@@ -61,10 +70,13 @@ describe("v-text >", function () {
 	it('multi expression with mustache', function () {
 		element.innerHTML = '<div id="test4">hello! {{ name }}</div>';
 
-		var vm = new MVVM(element, {
-			'name': 'Stephen'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'name': 'Stephen'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.querySelector('#test4').textContent).toBe('hello! Stephen');
 
@@ -81,14 +93,17 @@ describe("v-text >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a111'},
-				{'text': 'b222'},
-				{'text': 'c333'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a111'},
+					{'text': 'b222'},
+					{'text': 'c333'}
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ul = element.querySelector('#test5');
 
 		expect(ul.textContent).toBe('a111b222c333');
@@ -112,14 +127,17 @@ describe("v-text >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a111'},
-				{'text': 'b222'},
-				{'text': 'c333'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a111'},
+					{'text': 'b222'},
+					{'text': 'c333'}
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ul = element.querySelector('#test6');
 
 		expect(ul.textContent).toBe('a111b222c333');
@@ -143,14 +161,17 @@ describe("v-text >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a111', 'name': 'A'},
-				{'text': 'b222', 'name': 'B'},
-				{'text': 'c333', 'name': 'C'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a111', 'name': 'A'},
+					{'text': 'b222', 'name': 'B'},
+					{'text': 'c333', 'name': 'C'}
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ul = element.querySelector('#test7');
 
 		expect(ul.textContent).toBe('a111_Ab222_Bc333_C');
@@ -192,14 +213,17 @@ describe("v-text >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'items': [
-				{'text': 'a111', 'name': 'A'},
-				{'text': 'b222', 'name': 'B'},
-				{'text': 'c333', 'name': 'C'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'text': 'a111', 'name': 'A'},
+					{'text': 'b222', 'name': 'B'},
+					{'text': 'c333', 'name': 'C'}
+				]
+			}
 		});
-		var items = vm.get('items');
+		var items = vm.$data.items;
 		var ul = element.querySelector('#test8');
 
 		expect(ul.textContent).toBe('a111_Ab222_Bc333_C');

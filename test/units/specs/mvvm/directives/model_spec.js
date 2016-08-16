@@ -1,5 +1,5 @@
 var MVVM = require('mvvm').default;
-var util = require('src/util').default;
+var util = require('src/util');
 
 function triggerEvent (target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
@@ -39,8 +39,11 @@ describe("v-model >", function () {
 	it('use on invalid element', function () {
 		element.innerHTML = '<div v-model="model"></div>';
 
-		new MVVM(element, {
-			'model': 'xxxxxxxx'
+		new MVVM({
+			'view': element,
+			'model': {
+				'model': 'xxxxxxxx'
+			}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('v-model only for using in input, select, textarea');
@@ -52,10 +55,13 @@ describe("v-model >", function () {
 			'<input id="text" type="text" v-model="test">' +
 			'<textarea id="area" v-model="test"></textarea>'
 
-		var vm = new MVVM(element, {
-			'test': 'abc'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'abc'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var text = element.querySelector('#text');
 		var area = element.querySelector('#area');
 
@@ -89,10 +95,13 @@ describe("v-model >", function () {
 	it('text unLetter input composition event', function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test">';
 
-		var vm = new MVVM(element, {
-			'test': 'abc'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'abc'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var text = element.querySelector('#text');
 
 		// composition lock and should not set data
@@ -113,10 +122,13 @@ describe("v-model >", function () {
 			'<input type="radio" value="a" v-model="test">' +
 			'<input type="radio" value="b" v-model="test">'
 
-		var vm = new MVVM(element, {
-			'test': 'a'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'a'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.childNodes[0].checked).toBe(true);
 		expect(element.childNodes[1].checked).toBe(false);
@@ -133,26 +145,18 @@ describe("v-model >", function () {
 	});
 
 
-	it('radio default checked', function () {
-		element.innerHTML = '<input type="radio" checked value="abc" v-model="test">';
-
-		var vm = new MVVM(element, {
-			'test': 'xxxxxxxx'
-		});
-
-		expect(vm.get('test')).toBe('abc');
-	});
-
-
 	it('radio returns a number value', function () {
 		element.innerHTML =
 			'<input type="radio" value="1" v-model="test" number>' +
 			'<input type="radio" value="2" v-model="test">'
 
-		var vm = new MVVM(element, {
-			'test': 1
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 1
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.childNodes[0].checked).toBe(true);
 		expect(element.childNodes[1].checked).toBe(false);
@@ -177,10 +181,13 @@ describe("v-model >", function () {
 	it('checkbox for single', function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
-		var vm = new MVVM(element, {
-			'isCheck': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isCheck': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 
 		expect(element.childNodes[0].checked).toBe(true);
 
@@ -199,30 +206,14 @@ describe("v-model >", function () {
 	it('checkbox bind for invalid data type', function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
-		new MVVM(element, {
-			'isCheck': 1
+		new MVVM({
+			'view': element,
+			'model': {
+				'isCheck': 1
+			}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('Checkbox v-model value must be a type of Boolean or Array');
-	});
-
-
-	it('checkbox default checked for single', function () {
-		element.innerHTML = '<input type="checkbox" checked v-model="isCheck">';
-
-		var vm = new MVVM(element, {
-			'isCheck': false
-		});
-		var data = vm.get();
-
-		expect(data.isCheck).toBe(true);
-		expect(element.childNodes[0].checked).toBe(true);
-
-		data.isCheck = false;
-		expect(element.childNodes[0].checked).toBe(false);
-
-		element.childNodes[0].click();
-		expect(data.isCheck).toBe(true);
 	});
 
 
@@ -232,10 +223,13 @@ describe("v-model >", function () {
 			'<input type="checkbox" value="b" v-model="sels">' +
 			'<input type="checkbox" value="c" v-model="sels">'
 
-		var vm = new MVVM(element, {
-			'sels': []
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'sels': []
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var childs = element.childNodes;
 
 		expect(childs[0].checked).toBe(false);
@@ -281,10 +275,13 @@ describe("v-model >", function () {
 			'<input type="checkbox" value="1" v-model="sels">' +
 			'<input type="checkbox" value="2" v-model="sels" number>'
 
-		var vm = new MVVM(element, {
-			'sels': []
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'sels': []
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var childs = element.childNodes;
 
 		expect(childs[0].checked).toBe(false);
@@ -324,57 +321,6 @@ describe("v-model >", function () {
 	});
 
 
-	it('checkbox bind for array and default checked', function () {
-		element.innerHTML =
-			'<input type="checkbox" value="a" v-model="sels">' +
-			'<input type="checkbox" value="b" checked v-model="sels">' +
-			'<input type="checkbox" value="c" checked v-model="sels">'
-
-		var vm = new MVVM(element, {
-			'sels': []
-		});
-		var data = vm.get();
-		var childs = element.childNodes;
-
-		expect(data.sels).toEqual(['b', 'c']);
-		expect(childs[0].checked).toBe(false);
-		expect(childs[1].checked).toBe(true);
-		expect(childs[2].checked).toBe(true);
-
-		childs[0].click();
-		expect(childs[0].checked).toBe(true);
-		expect(data.sels).toEqual(['b', 'c', 'a']);
-
-		childs[1].click();
-		expect(childs[1].checked).toBe(false);
-		expect(data.sels).toEqual(['c', 'a']);
-
-		childs[2].click();
-		expect(childs[2].checked).toBe(false);
-		expect(data.sels).toEqual(['a']);
-
-		childs[0].click();
-		expect(childs[0].checked).toBe(false);
-		expect(data.sels).toEqual([]);
-
-		childs[1].click();
-		expect(childs[1].checked).toBe(true);
-		expect(data.sels).toEqual(['b']);
-
-		childs[2].click();
-		expect(childs[2].checked).toBe(true);
-		expect(data.sels).toEqual(['b', 'c']);
-
-		childs[0].click();
-		expect(data.sels).toEqual(['b', 'c', 'a']);
-
-		childs[0].click();
-		childs[1].click();
-		childs[2].click();
-		expect(data.sels).toEqual([]);
-	});
-
-
 	it('select single selection without value', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
@@ -383,10 +329,13 @@ describe("v-model >", function () {
 				'<option>c</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': 'b'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'b'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -421,10 +370,13 @@ describe("v-model >", function () {
 				'<option value="c">CCC</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': 'b'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'b'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -451,81 +403,21 @@ describe("v-model >", function () {
 	});
 
 
-	it('select single selection with default', function () {
-		element.innerHTML =
-			'<select v-model="test">' +
-				'<option value="a">AAA</option>' +
-				'<option value="b">BBB</option>' +
-				'<option value="c" selected>CCC</option>' +
-			'</select>'
-
-		var vm = new MVVM(element, {
-			'test': ''
-		});
-
-		expect(vm.get('test')).toBe('c');
-	});
-
-
-	it('select single selection return specify number', function () {
-		element.innerHTML =
-			'<select v-model="test">' +
-				'<option value="1" number>AAA</option>' +
-				'<option value="b">BBB</option>' +
-				'<option value="2">CCC</option>' +
-			'</select>'
-
-		var vm = new MVVM(element, {
-			'test': 'b'
-		});
-		var data = vm.get();
-		var select = element.querySelector('select');
-		var options = select.childNodes;
-
-		// set value by event
-		setSelect(select, '1');
-		triggerEvent(select, 'change');
-		expect(data.test).toBe(1); // return number
-		expect(select.value).toBe('1'); // in select always be string
-		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(false);
-
-		setSelect(select, 2);
-		triggerEvent(select, 'change');
-		expect(data.test).toBe('2'); // return string
-		expect(select.value).toBe('2');
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(true);
-
-		// set value by data
-		data.test = 1;
-		expect(select.value).toBe('1');
-		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(false);
-
-		data.test = 'b';
-		expect(select.value).toBe('b');
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(true);
-		expect(options[2].selected).toBe(false);
-	});
-
-
 	it('select single selection return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" number>' +
 				'<option value="1">AAA</option>' +
 				'<option value="2">BBB</option>' +
-				'<option value="3" selected>CCC</option>' +
+				'<option value="3">CCC</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': ''
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 3
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -566,10 +458,13 @@ describe("v-model >", function () {
 				'<option>c</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': ['b', 'c']
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ['b', 'c']
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -602,106 +497,21 @@ describe("v-model >", function () {
 	});
 
 
-	it('select multi selection with default', function () {
-		element.innerHTML =
-			'<select v-model="test" multiple>' +
-				'<option value="a" selected>A</option>' +
-				'<option value="b" selected>B</option>' +
-				'<option value="c">C</option>' +
-			'</select>'
-
-		var vm = new MVVM(element, {
-			'test': []
-		});
-		var data = vm.get();
-		var select = element.querySelector('select');
-		var options = select.childNodes;
-
-		expect(data.test).toEqual(['a', 'b']);
-
-		// set value by data
-		data.test.shift();
-		expect(data.test).toEqual(['b']);
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(true);
-		expect(options[2].selected).toBe(false);
-
-		data.test = ['a', 'c'];
-		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(true);
-
-		// set value by event
-		options[0].selected = false;
-		options[2].selected = false;
-		triggerEvent(select, 'change');
-		expect(data.test.length).toBe(0);
-
-		options[1].selected = true;
-		options[2].selected = true;
-		triggerEvent(select, 'change');
-		expect(data.test).toEqual(['b', 'c']);
-	});
-
-
-	it('select multi selection return specify number', function () {
-		element.innerHTML =
-			'<select v-model="test" multiple>' +
-				'<option value="1" number>A</option>' +
-				'<option value="2" number>B</option>' +
-				'<option value="3">C</option>' +
-			'</select>'
-
-		var vm = new MVVM(element, {
-			'test': [1, 2]
-		});
-		var data = vm.get();
-		var select = element.querySelector('select');
-		var options = select.childNodes;
-
-		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(true);
-		expect(options[2].selected).toBe(false);
-
-		// set value by event
-		options[0].selected = false;
-		triggerEvent(select, 'change');
-		expect(data.test).toEqual([2]);
-
-		options[2].selected = true;
-		triggerEvent(select, 'change');
-		expect(data.test).toEqual([2, '3']);
-
-		// set value by data
-		data.test.pop();
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(true);
-		expect(options[2].selected).toBe(false);
-
-		data.test = [];
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(false);
-
-		data.test.push('3'); // does not work if number
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(true);
-	});
-
-
 	it('select multi selection return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple number>' +
 				'<option value="1">A</option>' +
-				'<option value="2" selected>B</option>' +
+				'<option value="2">B</option>' +
 				'<option value="3">C</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': []
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': [2]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -746,15 +556,18 @@ describe("v-model >", function () {
 				'</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': 'b',
-			'options': [
-				{'value': 'a', 'text': 'AAA'},
-				{'value': 'b', 'text': 'BBB'},
-				{'value': 'c', 'text': 'CCC'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'b',
+				'options': [
+					{'value': 'a', 'text': 'AAA'},
+					{'value': 'b', 'text': 'BBB'},
+					{'value': 'c', 'text': 'CCC'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -786,15 +599,18 @@ describe("v-model >", function () {
 				'</option>' +
 			'</select>'
 
-		var vm = new MVVM(element, {
-			'test': ['a', 'b'],
-			'options': [
-				{'value': 'a', 'text': 'AAA'},
-				{'value': 'b', 'text': 'BBB'},
-				{'value': 'c', 'text': 'CCC'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ['a', 'b'],
+				'options': [
+					{'value': 'a', 'text': 'AAA'},
+					{'value': 'b', 'text': 'BBB'},
+					{'value': 'c', 'text': 'CCC'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
@@ -824,22 +640,6 @@ describe("v-model >", function () {
 	});
 
 
-	it('checkbox bind for invalid data type', function () {
-		element.innerHTML =
-			'<select v-model="test">' +
-				'<option>a</option>' +
-				'<option>b</option>' +
-				'<option>c</option>' +
-			'</select>'
-
-		new MVVM(element, {
-			'test': 1
-		});
-
-		expect(util.warn).toHaveBeenCalledWith('The model [test] use in <select> must be a type of String or Array');
-	});
-
-
 	it('select has multiple but not bind for array', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
@@ -848,8 +648,11 @@ describe("v-model >", function () {
 				'<option>c</option>' +
 			'</select>'
 
-		new MVVM(element, {
-			'test': 'b'
+		new MVVM({
+			'view': element,
+			'model': {
+				'test': 'b'
+			}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('<select> cannot be multiple when the model set [test] as not Array');
@@ -864,8 +667,11 @@ describe("v-model >", function () {
 				'<option>c</option>' +
 			'</select>'
 
-		new MVVM(element, {
-			'test': ['b']
+		new MVVM({
+			'view': element,
+			'model': {
+				'test': ['b']
+			}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('The model [test] cannot set as Array when <select> has no multiple propperty');

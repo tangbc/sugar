@@ -1,6 +1,6 @@
-var dom = require('src/dom').default;
 var MVVM = require('mvvm').default;
-var util = require('src/util').default;
+var dom = require('src/dom');
+var util = require('src/util');
 
 describe("v-bind >", function () {
 	var element;
@@ -45,10 +45,13 @@ describe("v-bind >", function () {
 	it('class single', function () {
 		element.innerHTML = '<div v-bind:class="cls"></div>';
 
-		var vm = new MVVM(element, {
-			'cls': ''
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'cls': ''
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.hasAttr(div, 'class')).toBe(false);
@@ -72,10 +75,13 @@ describe("v-bind >", function () {
 	it('class single with static', function () {
 		element.innerHTML = '<div class="static1 static2" v-bind:class="cls"></div>';
 
-		var vm = new MVVM(element, {
-			'cls': 'xxdk'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'cls': 'xxdk'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(equalClass(div.className, 'static1 static2 xxdk')).toBe(true);
@@ -91,11 +97,14 @@ describe("v-bind >", function () {
 	it('class array', function () {
 		element.innerHTML = '<div class="static1" v-bind:class="[cls1, cls2, \'static2\']"></div>';
 
-		var vm = new MVVM(element, {
-			'cls1': 'aaa',
-			'cls2': 'bbb'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'cls1': 'aaa',
+				'cls2': 'bbb'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(equalClass(div.className, 'static1 aaa bbb static2')).toBe(true);
@@ -113,14 +122,17 @@ describe("v-bind >", function () {
 	it('class object', function () {
 		element.innerHTML = '<div v-bind:class="obj"></div>';
 
-		var vm = new MVVM(element, {
-			'obj': {
-				'aaa': true,
-				'bbb': false,
-				'ccc': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'obj': {
+					'aaa': true,
+					'bbb': false,
+					'ccc': true
+				}
 			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(equalClass(div.className, 'aaa ccc')).toBe(true);
@@ -147,11 +159,14 @@ describe("v-bind >", function () {
 	it('class json', function () {
 		element.innerHTML = '<div v-bind:class="{classA: isA, classB: isB}"></div>';
 
-		var vm = new MVVM(element, {
-			'isA': true,
-			'isB': false,
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isA': true,
+				'isB': false,
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(equalClass(div.className, 'classA')).toBe(true);
@@ -174,15 +189,18 @@ describe("v-bind >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'hasG': true,
-			'items': [
-				{'hasA': true},
-				{'hasA': false},
-				{'hasA': true}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'hasG': true,
+				'items': [
+					{'hasA': true},
+					{'hasA': false},
+					{'hasA': true}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var els = element.querySelectorAll('span');
 
 		expect(equalClass(els[0].className, 'classA classG')).toBe(true);
@@ -209,13 +227,16 @@ describe("v-bind >", function () {
 	it('style object', function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
-		var vm = new MVVM(element, {
-			'obj': {
-				'color': 'red',
-				'margin-top': '10px'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'obj': {
+					'color': 'red',
+					'margin-top': '10px'
+				}
 			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(div.style.color).toBe('red');
@@ -247,22 +268,28 @@ describe("v-bind >", function () {
 	it('style with invalid data type', function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
-		new MVVM(element, {
-			'obj': 'color: red'
+		new MVVM({
+			'view': element,
+			'model': {
+				'obj': 'color: red'
+			}
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('Bind for style must be a type of Object', 'color: red');
+		expect(util.warn).toHaveBeenCalledWith('v-bind for style must be a type of Object', 'color: red');
 	});
 
 
 	it('style json', function () {
 		element.innerHTML = '<div v-bind:style="{color: color, \'font-size\': size}"></div>';
 
-		var vm = new MVVM(element, {
-			'color': 'red',
-			'size': '12px'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'color': 'red',
+				'size': '12px'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(div.style.color).toBe('red');
@@ -284,15 +311,18 @@ describe("v-bind >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'margin': '10px',
-			'items': [
-				{'color': 'red'},
-				{'color': 'green'},
-				{'color': 'blue'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'margin': '10px',
+				'items': [
+					{'color': 'red'},
+					{'color': 'green'},
+					{'color': 'blue'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var els = element.querySelectorAll('span');
 
 		expect(els[0].style.color).toBe('red');
@@ -319,10 +349,13 @@ describe("v-bind >", function () {
 	it('attribute normal', function () {
 		element.innerHTML = '<div v-bind:id="vid"></div>';
 
-		var vm = new MVVM(element, {
-			'vid': 'xxdk'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'xxdk'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.getAttr(div, 'id')).toBe('xxdk');
@@ -339,11 +372,14 @@ describe("v-bind >", function () {
 	it('attribute json', function () {
 		element.innerHTML = '<div v-bind="{id: vid, \'data-type\': dtype}"></div>';
 
-		var vm = new MVVM(element, {
-			'vid': 'xxdk',
-			'dtype': 'aaa'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'xxdk',
+				'dtype': 'aaa'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.getAttr(div, 'id')).toBe('xxdk');
@@ -361,18 +397,21 @@ describe("v-bind >", function () {
 		element.innerHTML =
 			'<div v-bind="{id: vid, class: clsObj, style: styObj}"></div>';
 
-		var vm = new MVVM(element, {
-			'vid': 'xxdk',
-			'clsObj': {
-				'classA': true,
-				'classB': true
-			},
-			'styObj': {
-				'color': 'red',
-				'font-size': '13px'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'xxdk',
+				'clsObj': {
+					'classA': true,
+					'classB': true
+				},
+				'styObj': {
+					'color': 'red',
+					'font-size': '13px'
+				}
 			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.getAttr(div, 'id')).toBe('xxdk');
@@ -409,12 +448,15 @@ describe("v-bind >", function () {
 	it('attribute and classArray', function () {
 		element.innerHTML = '<div v-bind="{id: vid, class: [cls1, cls2]}"></div>';
 
-		var vm = new MVVM(element, {
-			'vid': 'xxdk',
-			'cls1': 'aaa',
-			'cls2': 'bbb'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'xxdk',
+				'cls1': 'aaa',
+				'cls2': 'bbb'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.getAttr(div, 'id')).toBe('xxdk');
@@ -431,10 +473,13 @@ describe("v-bind >", function () {
 	it('attribute has no value', function () {
 		element.innerHTML = '<input v-bind:disabled="dis">';
 
-		var vm = new MVVM(element, {
-			'dis': true
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'dis': true
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var div = element.childNodes[0];
 
 		expect(dom.hasAttr(div, 'disabled')).toBe(true);
@@ -453,15 +498,18 @@ describe("v-bind >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM(element, {
-			'type': 'xxdk',
-			'items': [
-				{'id': 'aaa'},
-				{'id': 'bbb'},
-				{'id': 'ccc'}
-			]
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'type': 'xxdk',
+				'items': [
+					{'id': 'aaa'},
+					{'id': 'bbb'},
+					{'id': 'ccc'}
+				]
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var els = element.querySelectorAll('span');
 
 		expect(dom.getAttr(els[0], 'id')).toBe('aaa');

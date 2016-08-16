@@ -1,5 +1,5 @@
 var MVVM = require('mvvm').default;
-var util = require('src/util').default;
+var util = require('src/util');
 
 describe('directive expression >', function () {
 	var element;
@@ -17,8 +17,11 @@ describe('directive expression >', function () {
 	it('valid keyword', function () {
 		element.innerHTML = '<h1 v-text="parseInt(n)"></h1>';
 
-		var vm = new MVVM(element, {
-			'n': 1.23
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'n': 1.23
+			}
 		});
 		var h1 = element.childNodes[0];
 
@@ -32,7 +35,10 @@ describe('directive expression >', function () {
 	it('invalid keyword', function () {
 		element.innerHTML = '<h1 v-text="var a = 1"></h1>';
 
-		var vm = new MVVM(element, {});
+		var vm = new MVVM({
+			'view': element,
+			'model': {}
+		});
 
 		expect(element.innerHTML).toBe('<h1>undefined</h1>');
 		expect(util.warn).toHaveBeenCalledWith('Avoid using unallow keyword in expression [var a = 1]');
@@ -42,22 +48,28 @@ describe('directive expression >', function () {
 	it('invalid expression', function () {
 		element.innerHTML = '<h1 v-text="a + "></h1>';
 
-		var vm = new MVVM(element, {});
+		var vm = new MVVM({
+			'view': element,
+			'model': {}
+		});
 
 		expect(element.innerHTML).toBe('<h1>undefined</h1>');
-		expect(util.error).toHaveBeenCalledWith('Invalid generated expression:  scope.a + ');
+		expect(util.error).toHaveBeenCalledWith('Invalid generated expression: [a + ]');
 	});
 
 
 	it('complex expression', function () {
 		element.innerHTML = '<h1 v-text="isErr ? errMsg : sucMsg"></h1>';
 
-		var vm = new MVVM(element, {
-			'isErr': false,
-			'errMsg': 'error message',
-			'sucMsg': 'successs message'
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'isErr': false,
+				'errMsg': 'error message',
+				'sucMsg': 'successs message'
+			}
 		});
-		var data = vm.get();
+		var data = vm.$data;
 		var h1 = element.childNodes[0];
 
 		expect(h1.textContent).toBe('successs message');

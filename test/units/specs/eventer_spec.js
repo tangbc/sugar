@@ -1,4 +1,5 @@
 var eventer = require('src/eventer').default;
+var clearObject = require('src/util').clearObject;
 
 function triggerEvent (target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
@@ -120,7 +121,8 @@ describe('eventer >', function () {
 		}
 
 		// clear records
-		eventer.clear();
+		clearObject(eventer.$map);
+		clearObject(eventer.$listeners);
 
 		eventer.add(h1, 'click', scope.evClickH1, false, scope);
 		eventer.add(btn, 'click', scope.evClickBtn, false, scope);

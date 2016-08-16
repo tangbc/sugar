@@ -1,6 +1,6 @@
-var sugar = require('src/main/index').default;
-var dom = require('src/dom').default;
-var util = require('src/util').default;
+var sugar = require('src/component/index').default;
+var dom = require('src/dom');
+var util = require('src/util');
 var Component = sugar.Component;
 
 function triggerEvent (target, evt, process) {
