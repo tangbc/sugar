@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.0 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 17 2016 11:56:07 GMT+0800 (CST)
+ * Wed Aug 17 2016 17:18:22 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1136,270 +1136,6 @@
 
 	var core = cache['0'] = new Core();
 
-	/**
-	 * 是否是元素节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isElement (element) {
-		return element.nodeType === 1;
-	}
-
-	/**
-	 * 是否是文本节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isTextNode (element) {
-		return element.nodeType === 3;
-	}
-
-	/**
-	 * 清空 element 的所有子节点
-	 * @param   {DOMElement}  element
-	 */
-	function empty (element) {
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
-		}
-		return element;
-	}
-
-	/**
-	 * 获取节点属性值
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {String}
-	 */
-	function getAttr (node, name) {
-		return node.getAttribute(name) || '';
-	}
-
-	/**
-	 * 移除节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 */
-	function removeAttr (node, name) {
-		node.removeAttribute(name);
-	}
-
-	/**
-	 * 设置节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @param   {String}      value
-	 */
-	function setAttr (node, name, value) {
-		if (typeof value === 'boolean') {
-			node[name] = value;
-		} else if (value === null) {
-			removeAttr(node, name);
-		} else if (value !== getAttr(node, name)) {
-			node.setAttribute(name, value);
-		}
-	}
-
-	/**
-	 * 判断节点是否存在属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {Boolean}
-	 */
-	function hasAttr (node, name) {
-		return node.hasAttribute(name);
-	}
-
-	/**
-	 * 节点是否存在 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 * @return {Boolean}
-	 */
-	function hasClass (node, classname) {
-		var current, list = node.classList;
-
-		/* istanbul ignore else */
-		if (list) {
-			return list.contains(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-			return current.indexOf(' ' + classname + ' ') > -1;
-		}
-	}
-
-	/**
-	 * 节点添加 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function addClass (node, classname) {
-		var current, list = node.classList;
-
-		if (!classname || hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.add(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			if (current.indexOf(' ' + classname + ' ') === -1) {
-				setAttr(node, 'class', (current + classname).trim());
-			}
-		}
-	}
-
-	/**
-	 * 节点删除 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function removeClass (node, classname) {
-		if (!classname) {
-			return;
-		}
-
-		var current, target, list = node.classList;
-
-		if (!classname || !hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.remove(classname);
-		} else {
-			target = ' ' + classname + ' ';
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			while (current.indexOf(target) > -1) {
-				current = current.replace(target, ' ');
-			}
-
-			setAttr(node, 'class', current.trim());
-		}
-
-		if (!node.className) {
-			removeAttr(node, 'class');
-		}
-	}
-
-	/**
-	 * 节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function addEvent (node, evt, callback, capture) {
-		node.addEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 解除节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function removeEvent (node, evt, callback, capture) {
-		node.removeEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 获取节点的下一个兄弟元素节点
-	 * @param  {Element}  node
-	 */
-	function getNextElement (node) {
-		var el = node.nextSibling;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-
-		while (el) {
-			el = el.nextSibling;
-
-			if (el && isElement(el)) {
-				return el;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * 事件处理模块
-	 */
-	function Eventer () {
-		this.$map = {};
-		this.$guid = 1000;
-		this.$listeners = {};
-	}
-
-	var ep = Eventer.prototype;
-
-	/**
-	 * 获取一个唯一的标识
-	 * @return  {Number}
-	 */
-	ep.guid = function () {
-		return this.$guid++;
-	}
-
-	/**
-	 * 添加一个事件绑定回调
-	 * @param  {DOMElement}   node
-	 * @param  {String}       evt
-	 * @param  {Function}     callback
-	 * @param  {Boolean}      capture
-	 * @param  {Mix}          context
-	 */
-	ep.add = function (node, evt, callback, capture, context) {
-		var map = this.$map;
-		var guid = this.guid();
-		var listeners = this.$listeners;
-
-		map[guid] = callback;
-
-		listeners[guid] = function _proxy (e) {
-			callback.call(context || this, e);
-		}
-
-		addEvent(node, evt, listeners[guid], capture);
-	}
-
-	/**
-	 * 移除事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	ep.remove = function (node, evt, callback, capture) {
-		var guid, map = this.$map;
-		var listeners = this.$listeners;
-
-		// 找到对应的 callback id
-		each(map, function (cb, id) {
-			if (cb === callback) {
-				guid = id;
-				return false;
-			}
-		});
-
-		if (guid) {
-			removeEvent(node, evt, listeners[guid], capture);
-			delete map[guid];
-			delete listeners[guid];
-		}
-	}
-
-	var eventer = new Eventer();
-
 	var guid = 0;
 
 	/**
@@ -2014,11 +1750,11 @@
 	 * 更新指令视图
 	 * @param   {Mix}     newValue  [依赖数据新值]
 	 * @param   {Mix}     oldVlaue  [依赖数据旧值]
-	 * @param   {Object}  arg       [数组操作参数信息]
+	 * @param   {Object}  args      [数组操作参数信息]
 	 */
-	dp$1.update = function (newValue, oldVlaue, arg) {
+	dp$1.update = function (newValue, oldVlaue, args) {
 		var parser = this.parser;
-		parser.update.call(parser, newValue, oldVlaue, arg);
+		parser.update.call(parser, newValue, oldVlaue, args);
 	}
 
 	/**
@@ -2089,6 +1825,201 @@
 	 */
 	function linkParser (PreParser) {
 		return PreParser.prototype = Object.create(Parser.prototype);
+	}
+
+	/**
+	 * 是否是元素节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	function isElement (element) {
+		return element.nodeType === 1;
+	}
+
+	/**
+	 * 是否是文本节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	function isTextNode (element) {
+		return element.nodeType === 3;
+	}
+
+	/**
+	 * 清空 element 的所有子节点
+	 * @param   {DOMElement}  element
+	 */
+	function empty (element) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
+		return element;
+	}
+
+	/**
+	 * 获取节点属性值
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @return  {String}
+	 */
+	function getAttr (node, name) {
+		return node.getAttribute(name) || '';
+	}
+
+	/**
+	 * 移除节点属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 */
+	function removeAttr (node, name) {
+		node.removeAttribute(name);
+	}
+
+	/**
+	 * 设置节点属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @param   {String}      value
+	 */
+	function setAttr (node, name, value) {
+		if (typeof value === 'boolean') {
+			node[name] = value;
+		} else if (value === null) {
+			removeAttr(node, name);
+		} else if (value !== getAttr(node, name)) {
+			node.setAttribute(name, value);
+		}
+	}
+
+	/**
+	 * 判断节点是否存在属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @return  {Boolean}
+	 */
+	function hasAttr (node, name) {
+		return node.hasAttribute(name);
+	}
+
+	/**
+	 * 节点是否存在 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 * @return {Boolean}
+	 */
+	function hasClass (node, classname) {
+		var current, list = node.classList;
+
+		/* istanbul ignore else */
+		if (list) {
+			return list.contains(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+			return current.indexOf(' ' + classname + ' ') > -1;
+		}
+	}
+
+	/**
+	 * 节点添加 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 */
+	function addClass (node, classname) {
+		var current, list = node.classList;
+
+		if (!classname || hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.add(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			if (current.indexOf(' ' + classname + ' ') === -1) {
+				setAttr(node, 'class', (current + classname).trim());
+			}
+		}
+	}
+
+	/**
+	 * 节点删除 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 */
+	function removeClass (node, classname) {
+		if (!classname) {
+			return;
+		}
+
+		var current, target, list = node.classList;
+
+		if (!classname || !hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.remove(classname);
+		} else {
+			target = ' ' + classname + ' ';
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			while (current.indexOf(target) > -1) {
+				current = current.replace(target, ' ');
+			}
+
+			setAttr(node, 'class', current.trim());
+		}
+
+		if (!node.className) {
+			removeAttr(node, 'class');
+		}
+	}
+
+	/**
+	 * 节点事件绑定
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	function addEvent (node, evt, callback, capture) {
+		node.addEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 解除节点事件绑定
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	function removeEvent (node, evt, callback, capture) {
+		node.removeEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 获取节点的下一个兄弟元素节点
+	 * @param  {Element}  node
+	 */
+	function getNextElement (node) {
+		var el = node.nextSibling;
+
+		if (el && isElement(el)) {
+			return el;
+		}
+
+		while (el) {
+			el = el.nextSibling;
+
+			if (el && isElement(el)) {
+				return el;
+			}
+		}
+
+		return null;
 	}
 
 	var regBigBrackets = /^\{.*\}$/;
@@ -2211,8 +2142,7 @@
 	 */
 	function VOn () {
 		this.guid = 1000;
-		this.proxys = {};
-		this.actuals = {};
+		this.agents = {};
 		this.funcWatchers = [];
 		this.argsWatchers = [];
 		Parser.apply(this, arguments);
@@ -2293,7 +2223,7 @@
 
 		// 事件代理函数
 		var el = this.el;
-		var eventProxy = function _eventProxy (e) {
+		var eventAgent = function _eventAgent (e) {
 			// 是否限定只能在当前节点触发事件
 			if (self && e.target !== el) {
 				return;
@@ -2329,32 +2259,22 @@
 			func.apply(this, args);
 		}
 
+		var guid = this.guid++;
+		func.guid = guid;
+		this.agents[guid] = eventAgent;
 
 		// 添加绑定
-		this.on(type, eventProxy, capture);
-
-		// 缓存事件关系
-		this.stash(eventProxy, func);
-	}
-
-	/**
-	 * 缓存 vm 事件与代理事件的关系
-	 * @param   {Function}  proxy
-	 * @param   {Function}  actual
-	 */
-	von.stash = function (proxy, actual) {
-		var guid = this.guid++;
-		this.proxys[guid] = proxy;
-		this.actuals[guid] = actual;
+		this.on(type, eventAgent, capture);
 	}
 
 	/**
 	 * 绑定一个事件
+	 * @param   {String}    type
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
 	 */
 	von.on = function (type, callback, capture) {
-		if (isFunc(callback)) {
-			addEvent(this.el, type, callback, capture);
-		}
+		addEvent(this.el, type, callback, capture);
 	}
 
 	/**
@@ -2364,22 +2284,13 @@
 	 * @param   {Boolean}   capture
 	 */
 	von.off = function (type, callback, capture) {
-		var guid;
-		var proxys = this.proxys;
-		var actuals = this.actuals;
+		var agents = this.agents;
+		var guid = callback.guid;
+		var eventAgent = agents[guid];
 
-		// 找到事件 id
-		each(actuals, function (actual, id) {
-			if (actual === callback) {
-				guid = id;
-				return false;
-			}
-		});
-
-		if (guid) {
-			removeEvent(this.el, type, proxys[guid], capture);
-			delete proxys[guid];
-			delete actuals[guid];
+		if (eventAgent) {
+			removeEvent(this.el, type, eventAgent, capture);
+			delete agents[guid];
 		}
 	}
 
@@ -2387,12 +2298,12 @@
 	 * von 指令特定的销毁函数
 	 */
 	von._destroy = function () {
-		clearObject(this.proxys);
-		clearObject(this.actuals);
+		clearObject(this.agents);
 
 		each(this.funcWatchers, function (watcher) {
 			watcher.destory();
 		});
+
 		each(this.argsWatchers, function (watcher) {
 			watcher.destory();
 		});
@@ -4156,7 +4067,11 @@
 			// mvvm 实例
 			this.vm = null;
 			// 组件是否已经创建完成
-			this._ready = false;
+			this.$ready = false;
+			// 事件 guid
+			this.$guid = 1000;
+			// DOM 事件绑定记录
+			this.$listeners = {};
 
 			// 调用渲染前函数
 			if (isFunc(this.beforeRender)) {
@@ -4198,11 +4113,11 @@
 		 */
 		_render: function () {
 			// 判断是否已创建过
-			if (this._ready) {
+			if (this.$ready) {
 				return this;
 			}
 
-			this._ready = true;
+			this.$ready = true;
 
 			var c = this.getConfig();
 
@@ -4351,7 +4266,7 @@
 		},
 
 		/**
-		 * 返回当前 dom 中第一个匹配特定选择器的元素
+		 * 返回当前组件中第一个匹配特定选择器的元素
 		 * @param  {String}     selector  [子元素选择器]
 		 * @return {DOMObject}
 		 */
@@ -4360,7 +4275,7 @@
 		},
 
 		/**
-		 * 返回当前 dom 中匹配一个特定选择器的所有的元素
+		 * 返回当前组件中匹配一个特定选择器的所有的元素
 		 * @param  {String}    selectors  [子元素选择器]
 		 * @return {NodeList}
 		 */
@@ -4371,21 +4286,36 @@
 		/**
 		 * 元素添加绑定事件
 		 */
-		bind: function (node, evt, callback, capture) {
+		on: function (node, type, callback, capture) {
+			var self = this;
+			var guid = this.$guid++;
+
 			if (isString(callback)) {
 				callback = this[callback];
 			}
-			return eventer.add(node, evt, callback, capture, this);
+
+			callback.guid = guid;
+			var eventAgent = function (e) {
+				callback.call(self, e);
+			}
+
+			this.$listeners[guid] = eventAgent;
+			addEvent(node, type, eventAgent, capture);
 		},
 
 		/**
 		 * 元素解除绑定事件
 		 */
-		unbind: function (node, evt, callback, capture) {
+		off: function (node, type, callback, capture) {
 			if (isString(callback)) {
 				callback = this[callback];
 			}
-			return eventer.remove(node, evt, callback, capture);
+
+			var guid = callback.guid;
+			var eventAgent = this.$listeners[guid];
+			if (eventAgent) {
+				removeEvent(node, type, eventAgent, capture);
+			}
 		},
 
 		/**
@@ -4406,7 +4336,8 @@
 				parent.removeChild(el);
 			}
 
-			el = vm = null;
+			this.el = this.vm = null;
+			clearObject(this.$listeners);
 		}
 	});
 

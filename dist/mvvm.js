@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.0 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 17 2016 11:56:08 GMT+0800 (CST)
+ * Wed Aug 17 2016 17:18:23 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1086,11 +1086,11 @@
 	 * 更新指令视图
 	 * @param   {Mix}     newValue  [依赖数据新值]
 	 * @param   {Mix}     oldVlaue  [依赖数据旧值]
-	 * @param   {Object}  arg       [数组操作参数信息]
+	 * @param   {Object}  args      [数组操作参数信息]
 	 */
-	dp$1.update = function (newValue, oldVlaue, arg) {
+	dp$1.update = function (newValue, oldVlaue, args) {
 		var parser = this.parser;
-		parser.update.call(parser, newValue, oldVlaue, arg);
+		parser.update.call(parser, newValue, oldVlaue, args);
 	}
 
 	/**
@@ -1478,8 +1478,7 @@
 	 */
 	function VOn () {
 		this.guid = 1000;
-		this.proxys = {};
-		this.actuals = {};
+		this.agents = {};
 		this.funcWatchers = [];
 		this.argsWatchers = [];
 		Parser.apply(this, arguments);
@@ -1560,7 +1559,7 @@
 
 		// 事件代理函数
 		var el = this.el;
-		var eventProxy = function _eventProxy (e) {
+		var eventAgent = function _eventAgent (e) {
 			// 是否限定只能在当前节点触发事件
 			if (self && e.target !== el) {
 				return;
@@ -1596,32 +1595,22 @@
 			func.apply(this, args);
 		}
 
+		var guid = this.guid++;
+		func.guid = guid;
+		this.agents[guid] = eventAgent;
 
 		// 添加绑定
-		this.on(type, eventProxy, capture);
-
-		// 缓存事件关系
-		this.stash(eventProxy, func);
-	}
-
-	/**
-	 * 缓存 vm 事件与代理事件的关系
-	 * @param   {Function}  proxy
-	 * @param   {Function}  actual
-	 */
-	von.stash = function (proxy, actual) {
-		var guid = this.guid++;
-		this.proxys[guid] = proxy;
-		this.actuals[guid] = actual;
+		this.on(type, eventAgent, capture);
 	}
 
 	/**
 	 * 绑定一个事件
+	 * @param   {String}    type
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
 	 */
 	von.on = function (type, callback, capture) {
-		if (isFunc(callback)) {
-			addEvent(this.el, type, callback, capture);
-		}
+		addEvent(this.el, type, callback, capture);
 	}
 
 	/**
@@ -1631,22 +1620,13 @@
 	 * @param   {Boolean}   capture
 	 */
 	von.off = function (type, callback, capture) {
-		var guid;
-		var proxys = this.proxys;
-		var actuals = this.actuals;
+		var agents = this.agents;
+		var guid = callback.guid;
+		var eventAgent = agents[guid];
 
-		// 找到事件 id
-		each(actuals, function (actual, id) {
-			if (actual === callback) {
-				guid = id;
-				return false;
-			}
-		});
-
-		if (guid) {
-			removeEvent(this.el, type, proxys[guid], capture);
-			delete proxys[guid];
-			delete actuals[guid];
+		if (eventAgent) {
+			removeEvent(this.el, type, eventAgent, capture);
+			delete agents[guid];
 		}
 	}
 
@@ -1654,12 +1634,12 @@
 	 * von 指令特定的销毁函数
 	 */
 	von._destroy = function () {
-		clearObject(this.proxys);
-		clearObject(this.actuals);
+		clearObject(this.agents);
 
 		each(this.funcWatchers, function (watcher) {
 			watcher.destory();
 		});
+
 		each(this.argsWatchers, function (watcher) {
 			watcher.destory();
 		});
