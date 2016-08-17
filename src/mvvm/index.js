@@ -1,6 +1,6 @@
 import Watcher from './watcher';
 import Compiler from './compiler';
-import { each, copy, isFunc, isArray, isString, isObject, isBool } from '../util';
+import { each, copy, isFunc, isArray, isString, isObject } from '../util';
 
 /**
  * MVVM 构造函数入口
