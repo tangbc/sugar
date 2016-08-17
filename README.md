@@ -74,8 +74,7 @@ There are several demos in **`demos/`** directory, check it out and preview them
 
 * [Star rating](http://tangbc.github.io/sugar/demos/star)
 * [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
-* [tangbc.github.io/sugar](http://tangbc.github.io/sugar)
-* [Simple TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
+* [Simple todoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
 
 You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/).
 
@@ -83,8 +82,8 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 ## Usage
 
 * Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>`.
-	* `mvvm (about 30 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
-	* `sugar (about 38 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (about 23 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (about 31 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
 
 * Browser support: does not support IE8 and below, used `Object.defineProperty`, `Object.create` ...
 
