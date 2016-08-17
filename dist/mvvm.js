@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.0 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 17 2016 17:18:23 GMT+0800 (CST)
+ * Wed Aug 17 2016 18:18:45 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1146,7 +1146,7 @@
 		// 所以需要调用额外定义的销毁函数
 		if (directive) {
 			directive.uninstall();
-		} else {
+		} else if (this._destroy) {
 			this._destroy();
 		}
 
@@ -1285,10 +1285,6 @@
 	 * @param  {String}      classname
 	 */
 	function removeClass (node, classname) {
-		if (!classname) {
-			return;
-		}
-
 		var current, target, list = node.classList;
 
 		if (!classname || !hasClass(node, classname)) {
@@ -1647,6 +1643,7 @@
 
 	/**
 	 * v-el 指令解析模块
+	 * 不需要实例化 Directive
 	 */
 	function VEl () {
 		Parser.apply(this, arguments);
@@ -1656,7 +1653,6 @@
 	/**
 	 * 解析 v-el 指令
 	 * 不需要在 model 中声明
-	 * 且不需要实例化 Directive
 	 */
 	vel.parse = function () {
 		// 不能在 vfor 中使用
@@ -2000,12 +1996,13 @@
 		var parent = el.parentNode;
 		var expression = desc.expression;
 		var match = expression.match(regForExp);
-		var alias = match[1], iterator = match[2];
 
 		if (!match) {
 			return warn('The format of v-for must be like "item in items"!');
 		}
 
+		var alias = match[1];
+		var iterator = match[2];
 
 		this.scopes = [];
 		this.init = true;
@@ -3004,9 +3001,9 @@
 		this.$unCompiles = [];
 		// 根节点是否已完成编译
 		this.$rootComplied = false;
+
 		// 指令实例缓存
 		this.directives = [];
-
 		// 指令解析模块
 		this.parsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel };
 
@@ -3210,6 +3207,7 @@
 		clearObject(this.parsers);
 		each(this.directives, function (directive) {
 			directive.destroy();
+			return null;
 		});
 	}
 
