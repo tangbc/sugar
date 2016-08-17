@@ -123,8 +123,7 @@ function getDress (type, dress) {
  */
 export function VOn () {
 	this.guid = 1000;
-	this.proxys = {};
-	this.actuals = {};
+	this.agents = {};
 	this.funcWatchers = [];
 	this.argsWatchers = [];
 	Parser.apply(this, arguments);
@@ -200,7 +199,7 @@ von.bindEvent = function (type, dress, func, argString) {
 
 	// 事件代理函数
 	var el = this.el;
-	var eventProxy = function _eventProxy (e) {
+	var eventAgent = function _eventAgent (e) {
 		// 是否限定只能在当前节点触发事件
 		if (self && e.target !== el) {
 			return;
@@ -236,32 +235,22 @@ von.bindEvent = function (type, dress, func, argString) {
 		func.apply(this, args);
 	}
 
+	var guid = this.guid++;
+	func.guid = guid;
+	this.agents[guid] = eventAgent;
 
 	// 添加绑定
-	this.on(type, eventProxy, capture);
-
-	// 缓存事件关系
-	this.stash(eventProxy, func);
-}
-
-/**
- * 缓存 vm 事件与代理事件的关系
- * @param   {Function}  proxy
- * @param   {Function}  actual
- */
-von.stash = function (proxy, actual) {
-	var guid = this.guid++;
-	this.proxys[guid] = proxy;
-	this.actuals[guid] = actual;
+	this.on(type, eventAgent, capture);
 }
 
 /**
  * 绑定一个事件
+ * @param   {String}    type
+ * @param   {Function}  callback
+ * @param   {Boolean}   capture
  */
 von.on = function (type, callback, capture) {
-	if (isFunc(callback)) {
-		addEvent(this.el, type, callback, capture);
-	}
+	addEvent(this.el, type, callback, capture);
 }
 
 /**
@@ -271,22 +260,13 @@ von.on = function (type, callback, capture) {
  * @param   {Boolean}   capture
  */
 von.off = function (type, callback, capture) {
-	var guid;
-	var proxys = this.proxys;
-	var actuals = this.actuals;
+	var agents = this.agents;
+	var guid = callback.guid;
+	var eventAgent = agents[guid];
 
-	// 找到事件 id
-	each(actuals, function (actual, id) {
-		if (actual === callback) {
-			guid = id;
-			return false;
-		}
-	});
-
-	if (guid) {
-		removeEvent(this.el, type, proxys[guid], capture);
-		delete proxys[guid];
-		delete actuals[guid];
+	if (eventAgent) {
+		removeEvent(this.el, type, eventAgent, capture);
+		delete agents[guid];
 	}
 }
 
@@ -294,12 +274,12 @@ von.off = function (type, callback, capture) {
  * von 指令特定的销毁函数
  */
 von._destroy = function () {
-	clearObject(this.proxys);
-	clearObject(this.actuals);
+	clearObject(this.agents);
 
 	each(this.funcWatchers, function (watcher) {
 		watcher.destory();
 	});
+
 	each(this.argsWatchers, function (watcher) {
 		watcher.destory();
 	});

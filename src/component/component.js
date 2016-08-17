@@ -1,8 +1,7 @@
 import ajax from './ajax';
 import Module from './module';
-import eventer from '../eventer';
 import MVVM from '../mvvm/index';
-import { addClass, setAttr } from '../dom';
+import { addClass, setAttr, addEvent, removeEvent } from '../dom';
 import {
 	each,
 	warn,
@@ -12,6 +11,7 @@ import {
 	isArray,
 	isObject,
 	isString,
+	clearObject,
 	createElement,
 	stringToFragment
 } from '../util';
@@ -87,7 +87,11 @@ var Component = Module.extend({
 		// mvvm 实例
 		this.vm = null;
 		// 组件是否已经创建完成
-		this._ready = false;
+		this.$ready = false;
+		// 事件 guid
+		this.$guid = 1000;
+		// DOM 事件绑定记录
+		this.$listeners = {};
 
 		// 调用渲染前函数
 		if (isFunc(this.beforeRender)) {
@@ -129,11 +133,11 @@ var Component = Module.extend({
 	 */
 	_render: function () {
 		// 判断是否已创建过
-		if (this._ready) {
+		if (this.$ready) {
 			return this;
 		}
 
-		this._ready = true;
+		this.$ready = true;
 
 		var c = this.getConfig();
 
@@ -280,7 +284,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 返回当前 dom 中第一个匹配特定选择器的元素
+	 * 返回当前组件中第一个匹配特定选择器的元素
 	 * @param  {String}     selector  [子元素选择器]
 	 * @return {DOMObject}
 	 */
@@ -289,7 +293,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 返回当前 dom 中匹配一个特定选择器的所有的元素
+	 * 返回当前组件中匹配一个特定选择器的所有的元素
 	 * @param  {String}    selectors  [子元素选择器]
 	 * @return {NodeList}
 	 */
@@ -300,21 +304,36 @@ var Component = Module.extend({
 	/**
 	 * 元素添加绑定事件
 	 */
-	bind: function (node, evt, callback, capture) {
+	on: function (node, type, callback, capture) {
+		var self = this;
+		var guid = this.$guid++;
+
 		if (isString(callback)) {
 			callback = this[callback];
 		}
-		return eventer.add(node, evt, callback, capture, this);
+
+		callback.guid = guid;
+		var eventAgent = function (e) {
+			callback.call(self, e);
+		}
+
+		this.$listeners[guid] = eventAgent;
+		addEvent(node, type, eventAgent, capture);
 	},
 
 	/**
 	 * 元素解除绑定事件
 	 */
-	unbind: function (node, evt, callback, capture) {
+	off: function (node, type, callback, capture) {
 		if (isString(callback)) {
 			callback = this[callback];
 		}
-		return eventer.remove(node, evt, callback, capture);
+
+		var guid = callback.guid;
+		var eventAgent = this.$listeners[guid];
+		if (eventAgent) {
+			removeEvent(node, type, eventAgent, capture);
+		}
 	},
 
 	/**
@@ -335,7 +354,8 @@ var Component = Module.extend({
 			parent.removeChild(el);
 		}
 
-		el = vm = null;
+		this.el = this.vm = null;
+		clearObject(this.$listeners);
 	}
 });
 

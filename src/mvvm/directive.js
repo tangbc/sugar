@@ -35,11 +35,11 @@ dp.uninstall = function () {
  * 更新指令视图
  * @param   {Mix}     newValue  [依赖数据新值]
  * @param   {Mix}     oldVlaue  [依赖数据旧值]
- * @param   {Object}  arg       [数组操作参数信息]
+ * @param   {Object}  args      [数组操作参数信息]
  */
-dp.update = function (newValue, oldVlaue, arg) {
+dp.update = function (newValue, oldVlaue, args) {
 	var parser = this.parser;
-	parser.update.call(parser, newValue, oldVlaue, arg);
+	parser.update.call(parser, newValue, oldVlaue, args);
 }
 
 /**
