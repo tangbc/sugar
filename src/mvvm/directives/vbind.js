@@ -22,27 +22,37 @@ function updateStyle (element, styleObject) {
 }
 
 /**
+ * 支持空格分割的 addClass
+ * @param   {Element}  element
+ * @param   {String}   className
+ * @param   {Boolean}  remove
+ */
+function handleClass (element, className, remove) {
+	each(className.split(' '), function (cls) {
+		if (remove) {
+			removeClass(element, cls);
+		} else {
+			addClass(element, cls);
+		}
+	});
+}
+
+/**
  * 更新元素的 className
  * @param   {Element}  element
  * @param   {Mix}      classValue
  * @param   {Boolean}  remove
  */
 function updateClass (element, classValue, remove) {
-	var handler = remove ? removeClass : addClass;
-
 	if (isString(classValue)) {
-		handler(element, classValue);
+		handleClass(element, classValue, remove);
 	} else if (isArray(classValue)) {
 		each(classValue, function (cls) {
-			handler(element, cls);
+			handleClass(element, cls, remove);
 		});
 	} else if (isObject(classValue)) {
 		each(classValue, function (add, cls) {
-			if (remove || !add) {
-				removeClass(element, cls);
-			} else {
-				addClass(element, cls);
-			}
+			handleClass(element, cls, remove || !add);
 		});
 	}
 }
