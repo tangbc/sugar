@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.0 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 17 2016 11:29:12 GMT+0800 (CST)
+ * Wed Aug 17 2016 11:56:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3226,27 +3226,37 @@
 	}
 
 	/**
+	 * 支持空格分割的 addClass
+	 * @param   {Element}  element
+	 * @param   {String}   className
+	 * @param   {Boolean}  remove
+	 */
+	function handleClass (element, className, remove) {
+		each(className.split(' '), function (cls) {
+			if (remove) {
+				removeClass(element, cls);
+			} else {
+				addClass(element, cls);
+			}
+		});
+	}
+
+	/**
 	 * 更新元素的 className
 	 * @param   {Element}  element
 	 * @param   {Mix}      classValue
 	 * @param   {Boolean}  remove
 	 */
 	function updateClass (element, classValue, remove) {
-		var handler = remove ? removeClass : addClass;
-
 		if (isString(classValue)) {
-			handler(element, classValue);
+			handleClass(element, classValue, remove);
 		} else if (isArray(classValue)) {
 			each(classValue, function (cls) {
-				handler(element, cls);
+				handleClass(element, cls, remove);
 			});
 		} else if (isObject(classValue)) {
 			each(classValue, function (add, cls) {
-				if (remove || !add) {
-					removeClass(element, cls);
-				} else {
-					addClass(element, cls);
-				}
+				handleClass(element, cls, remove || !add);
 			});
 		}
 	}
