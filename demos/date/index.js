@@ -61,7 +61,7 @@ require(['../../dist/sugar.min'], function (Sugar) {
 		afterRender: function () {
 			var self = this;
 			// 点击空白隐藏 pannel
-			this.bind(document.querySelector('body'), 'click', function (e) {
+			this.on(document.querySelector('body'), 'click', function (e) {
 				if (self.$timeStamp !== e.timeStamp) {
 					self.vm.set('showPannel', false);
 				}
