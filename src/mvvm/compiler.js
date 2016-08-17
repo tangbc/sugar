@@ -107,9 +107,9 @@ function Compiler (option) {
 	this.$unCompiles = [];
 	// 根节点是否已完成编译
 	this.$rootComplied = false;
+
 	// 指令实例缓存
 	this.directives = [];
-
 	// 指令解析模块
 	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel };
 
@@ -311,6 +311,7 @@ cp.destroy = function () {
 	clearObject(this.parsers);
 	each(this.directives, function (directive) {
 		directive.destroy();
+		return null;
 	});
 }
 

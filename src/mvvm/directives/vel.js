@@ -3,6 +3,7 @@ import Parser, { linkParser } from '../parser';
 
 /**
  * v-el 指令解析模块
+ * 不需要实例化 Directive
  */
 export function VEl () {
 	Parser.apply(this, arguments);
@@ -12,7 +13,6 @@ var vel = linkParser(VEl);
 /**
  * 解析 v-el 指令
  * 不需要在 model 中声明
- * 且不需要实例化 Directive
  */
 vel.parse = function () {
 	// 不能在 vfor 中使用

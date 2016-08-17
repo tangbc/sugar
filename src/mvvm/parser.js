@@ -37,7 +37,7 @@ pp.destroy = function () {
 	// 所以需要调用额外定义的销毁函数
 	if (directive) {
 		directive.uninstall();
-	} else {
+	} else if (this._destroy) {
 		this._destroy();
 	}
 

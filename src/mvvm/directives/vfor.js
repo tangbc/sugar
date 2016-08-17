@@ -36,12 +36,13 @@ vfor.parse = function () {
 	var parent = el.parentNode;
 	var expression = desc.expression;
 	var match = expression.match(regForExp);
-	var alias = match[1], iterator = match[2];
 
 	if (!match) {
 		return warn('The format of v-for must be like "item in items"!');
 	}
 
+	var alias = match[1];
+	var iterator = match[2];
 
 	this.scopes = [];
 	this.init = true;
