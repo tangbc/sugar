@@ -45,6 +45,7 @@ export default function Watcher (vm, desc, callback, context) {
 	// 依赖 id 缓存
 	this.depIds = [];
 	this.newDepIds = [];
+	this.shallowIds = [];
 	// 依赖实例缓存
 	this.depends = [];
 	this.newDepends = [];
@@ -52,7 +53,7 @@ export default function Watcher (vm, desc, callback, context) {
 	var expression = desc.expression;
 	// 缓存取值函数
 	this.getter = createGetter(expression);
-	// 缓存设值函数
+	// 缓存设值函数（双向数据绑定）
 	this.setter = desc.duplex ? createSetter(expression) : null;
 
 	// 缓存表达式旧值
@@ -101,6 +102,8 @@ wp.get = function () {
 
 	// 深层依赖获取
 	if (this.deep) {
+		// 先缓存浅依赖的 ids
+		this.shallowIds = copy(this.newDepIds);
 		walkThrough(value, true);
 	}
 
@@ -132,17 +135,31 @@ wp.addDepend = function (depend) {
 }
 
 /**
+ * 移除订阅的依赖监测
+ * @param   {Function}  filter
+ */
+wp.removeDepends = function (filter) {
+	each(this.depends, function (depend) {
+		if (filter) {
+			if (filter.call(this, depend)) {
+				depend.removeWatcher(this);
+			}
+		} else {
+			depend.removeWatcher(this);
+		}
+	}, this);
+}
+
+/**
  * 更新/解除依赖挂载
  */
 wp.afterGet = function () {
 	Depend.watcher = null;
 
 	// 清除无用的依赖
-	each(this.depends, function (depend) {
-		if (this.newDepIds.indexOf(depend.guid) < 0) {
-			depend.removeWatcher(this);
-		}
-	}, this);
+	this.removeDepends(function (depend) {
+		return this.newDepIds.indexOf(depend.guid) < 0;
+	});
 
 	// 重设依赖缓存
 	this.depIds = copy(this.newDepIds);
@@ -154,6 +171,7 @@ wp.afterGet = function () {
 
 /**
  * 更新前调用方法
+ * 用于旧值的缓存处理，对象或数组只存副本
  */
 wp.beforeUpdate = function () {
 	this.oldValue = copy(this.value);
@@ -161,14 +179,16 @@ wp.beforeUpdate = function () {
 
 /**
  * 依赖变化，更新取值
- * @param   {Object}  arg  [数组操作参数信息]
+ * @param   {Object}  args  [数组操作参数信息]
+ * @param   {Number}  guid  [变更的依赖对象 id]
  */
-wp.update = function (arg) {
+wp.update = function (args, guid) {
 	var oldValue = this.oldValue;
 	var newValue = this.value = this.get();
 
 	if (oldValue !== newValue) {
-		this.callback.call(this.context, newValue, oldValue, arg);
+		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
+		this.callback.call(this.context, newValue, oldValue, args, fromDeep);
 	}
 }
 
@@ -177,6 +197,7 @@ wp.update = function (arg) {
  */
 wp.destory = function () {
 	this.value = null;
+	this.removeDepends();
 	this.getter = this.setter = null;
 	this.vm = this.callback = this.context = null;
 }

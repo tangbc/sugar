@@ -59,10 +59,11 @@ dp.beforeNotify = function () {
 
 /**
  * 依赖变更，通知每一个订阅了该依赖的 watcher
- * @param   {Object}  arg  [数组操作参数信息]
+ * @param   {Object}  args  [数组操作参数信息]
  */
-dp.notify = function (arg) {
+dp.notify = function (args) {
+	var guid = this.guid;
 	each(this.watchers, function (watcher) {
-		watcher.update(arg);
+		watcher.update(args, guid);
 	});
 }
