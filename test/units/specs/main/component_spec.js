@@ -56,8 +56,8 @@ describe('sugar Component api >', function () {
 					.test_getConfig() // test api getConfig
 					.test_setConfig() // test api setConfig
 					.test_query()     // test api query
-					.test_bind()      // test api bind
-					.test_unbind()    // test api unbind
+					.test_on()      // test api on
+					.test_off()    // test api off
 			},
 			test_interface: function () {
 				var el = this.el;
@@ -112,11 +112,11 @@ describe('sugar Component api >', function () {
 
 				return this;
 			},
-			test_bind: function () {
+			test_on: function () {
 				this.$count = 0;
 				var h1 = this.query('h1');
 
-				this.bind(h1, 'click', 'click_h1');
+				this.on(h1, 'click', 'click_h1');
 				triggerEvent(h1, 'click');
 				expect(this.$count).toBe(1);
 
@@ -131,14 +131,14 @@ describe('sugar Component api >', function () {
 			click_h1: function () {
 				this.$count++;
 			},
-			test_unbind: function () {
+			test_off: function () {
 				var h1 = this.query('h1');
 				// trigger again
 				triggerEvent(h1, 'click');
 				expect(this.$count).toBe(6);
 
 				// unbind click_h1
-				this.unbind(h1, 'click', 'click_h1');
+				this.off(h1, 'click', 'click_h1');
 				triggerEvent(h1, 'click');
 				triggerEvent(h1, 'click');
 				triggerEvent(h1, 'click');

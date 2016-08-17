@@ -88,7 +88,7 @@ describe('sugar module api >', function () {
 				this.Super('init', arguments);
 			},
 			afterRender: function () {
-				this.bind(this.el, 'click', function () {
+				this.on(this.el, 'click', function () {
 					// pass true means fire a message to parent after this component is destroyed
 					this.destroy(true);
 				});
