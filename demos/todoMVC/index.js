@@ -63,7 +63,7 @@ window.onload = function buildTodoMVC () {
 		},
 
 		// 点击全选 or 全不选
-		onCheckAll: function (paths, last) {
+		onCheckAll: function (last) {
 			var todos = this.vm.get('todos');
 
 			if (this.$autoCheck) {
@@ -78,8 +78,8 @@ window.onload = function buildTodoMVC () {
 		},
 
 		// todos 变化
-		onChangeTodos: function (path, last) {
-			if (!Array.isArray(last)) {
+		onChangeTodos: function (n, o, a, fromDeep) {
+			if (fromDeep) {
 				this.update();
 			}
 		},

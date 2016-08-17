@@ -95,14 +95,14 @@
 			var index = this.$scores.indexOf(stars[i]);
 			var next = ++index % 3;
 
-			stars[i] = this.$scores[next];
+			stars.$set(i, this.$scores[next]);
 			this.vm.set('score', i + (next === 2 ? 0.5 : next));
 
 			for (var j = 0; j < i; j++) {
-				stars[j] = this.$scores[1];
+				stars.$set(j, this.$scores[1]);
 			}
 			for (var k = i + 1; k < stars.length; k++) {
-				stars[k] = this.$scores[0];
+				stars.$set(k, this.$scores[0]);
 			}
 		}
 	});
