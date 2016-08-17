@@ -120,10 +120,6 @@ export function addClass (node, classname) {
  * @param  {String}      classname
  */
 export function removeClass (node, classname) {
-	if (!classname) {
-		return;
-	}
-
 	var current, target, list = node.classList;
 
 	if (!classname || !hasClass(node, classname)) {
