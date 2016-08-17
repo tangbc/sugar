@@ -50,6 +50,18 @@ describe("v-model >", function () {
 	});
 
 
+	it('use dynamic expression', function () {
+		element.innerHTML = '<input type="text" v-model="isA ? aaa : bbb">';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('v-model directive value can be use by static expression');
+	});
+
+
 	it('text and textarea', function () {
 		element.innerHTML =
 			'<input id="text" type="text" v-model="test">' +

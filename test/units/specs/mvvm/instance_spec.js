@@ -66,8 +66,15 @@ describe("mvvm instance >", function () {
 
 
 	it('get', function () {
-		// model is a copy from model
 		var model = vm.get();
+		var descriptor = Object.getOwnPropertyDescriptor(model, 'obj');
+
+		// with description getter/setter
+		expect(typeof descriptor.get).toBe('function');
+		expect(typeof descriptor.set).toBe('function');
+
+		// with Observer instance
+		expect(typeof model.obj.__ob__).toBe('object');
 
 		// get one
 		expect(vm.get('vid')).toBe('aaa');
@@ -81,6 +88,20 @@ describe("mvvm instance >", function () {
 				'b': 2
 			}
 		});
+	});
+
+
+	it('getCopy', function () {
+		// getCopy returns a copy of model
+		var model = vm.getCopy();
+		var descriptor = Object.getOwnPropertyDescriptor(model, 'obj');
+
+		// without description getter/setter
+		expect(typeof descriptor.get).toBe('undefined');
+		expect(typeof descriptor.set).toBe('undefined');
+
+		// without Observer instance
+		expect(typeof model.obj.__ob__).toBe('undefined');
 	});
 
 
@@ -240,7 +261,78 @@ describe("mvvm instance >", function () {
 
 
 	it('destroy', function () {
-		expect(element.innerHTML).toBe('<div id="aaa">bbb</div>');
+		// clear first
+		element = data = vm = null;
+		element = document.createElement('div');
+		document.body.appendChild(element);
+
+		// use all directives
+		element.innerHTML =
+			'<div>{{ title }}</div>' +
+			'<div v-text="title"></div>' +
+
+			'<div>{{ html }}</div>' +
+			'<div v-html="html"></div>' +
+
+			'<div v-show="show"></div>' +
+			'<div v-else></div>' +
+
+			'<div v-if="render"></div>' +
+			'<div v-else></div>' +
+
+			'<div v-el="test"></div>' +
+
+			'<div v-on:click="click(title)"></div>' +
+
+			'<input type="text" v-model="title">' +
+			'<input type="radio" value="boy" v-model="sex">' +
+			'<input type="radio" value="girl" v-model="sex">' +
+			'<input type="checkbox" v-model="isCheck">' +
+			'<input type="checkbox" value="a" v-model="sports">' +
+			'<input type="checkbox" value="b" v-model="sports">' +
+			'<input type="checkbox" value="c" v-model="sports">' +
+			'<select v-model="sel">' +
+				'<option>aaa</option>' +
+				'<option>bbb</option>' +
+				'<option>ccc</option>' +
+			'</select>' +
+
+			'<div v-bind:class="cls"></div>' +
+			'<div v-bind:style="styObj"></div>' +
+			'<div v-bind:id="id"></div>' +
+
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'{{ item.text }}' +
+				'</li>' +
+			'</ul>'
+
+		data = {
+			'title': 'xxdk',
+			'html': '<b>123</b>',
+			'show': true,
+			'render': false,
+			'click': function () {},
+			'sex': 'girl',
+			'isCheck': false,
+			'sports': ['a', 'c'],
+			'sel': 'bbb',
+			'cls': 'xxx',
+			'styObj': {
+				'color': 'red'
+			},
+			'id': 'txgc',
+			'items': [
+				{'text': 111},
+				{'text': 222},
+				{'text': 333}
+			]
+		}
+
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
 
 		// destroy instance
 		vm.destroy();

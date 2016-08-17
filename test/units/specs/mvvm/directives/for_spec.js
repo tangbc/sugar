@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util');
 
 describe("v-for >", function () {
 	var element;
@@ -10,6 +11,23 @@ describe("v-for >", function () {
 
 	afterEach(function () {
 		document.body.removeChild(element);
+	});
+
+
+	it('invalid expression', function () {
+		element.innerHTML =
+			'<ul id="test8">' +
+				'<li v-for="item for items"></li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': null
+			}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('The format of v-for must be like "item in items"!');
 	});
 
 
