@@ -46,5 +46,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 
 	# back to develop
 	git checkout develop
-	echo -e '\033[42;37m All done! origin/master and origin/gh-pages is updated. \033[0m'
+	echo -e '\033[42;37m All done! origin/master is updated. \033[0m'
 fi
