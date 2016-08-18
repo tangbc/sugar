@@ -1,5 +1,11 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util');
+var exp = require('src/mvvm/expression');
+var isNormal = exp.isNormal;
+var createGetter = exp.createGetter;
+var createSetter = exp.createSetter;
+var createPath = require('src/mvvm/path').createPath;
+
 
 describe('directive expression >', function () {
 	var element;
@@ -14,77 +20,140 @@ describe('directive expression >', function () {
 	});
 
 
-	it('valid keyword', function () {
-		element.innerHTML = '<h1 v-text="parseInt(n)"></h1>';
+	it('isNormal expression', function () {
+		// valid normal expression
+		expect(isNormal('title')).toBe(true);
+		expect(isNormal('title_aa')).toBe(true);
+		expect(isNormal('item.title')).toBe(true);
+		expect(isNormal('item["title"]')).toBe(true);
+		expect(isNormal('item["title"]["sub"].text')).toBe(true);
 
-		var vm = new MVVM({
-			'view': element,
-			'model': {
-				'n': 1.23
-			}
-		});
-		var h1 = element.childNodes[0];
-
-		expect(h1.textContent).toBe('1');
-
-		vm.set('n', 2.2222);
-		expect(h1.textContent).toBe('2');
+		// not normal expression, with operator
+		expect(isNormal('a > b')).toBe(false);
+		expect(isNormal('a + 1')).toBe(false);
+		expect(isNormal('a = b ? c : d')).toBe(false);
 	});
 
 
-	it('invalid keyword', function () {
-		element.innerHTML = '<h1 v-text="var a = 1"></h1>';
+	it('createGetter', function () {
+		var scope, getter;
 
-		var vm = new MVVM({
-			'view': element,
-			'model': {}
+		// shallow value
+		scope = {
+			'a': 123
+		}
+		getter = createGetter('a');
+		expect(getter.call(scope, scope)).toBe(123);
+
+		// deep value
+		scope = {
+			'a': {
+				'b': {
+					'c': 321
+				}
+			}
+		}
+		getter = createGetter('a');
+		expect(getter.call(scope, scope)).toEqual({
+			'b': {
+				'c': 321
+			}
 		});
 
-		expect(element.innerHTML).toBe('<h1>undefined</h1>');
+		getter = createGetter('a.b');
+		expect(getter.call(scope, scope)).toEqual({
+			'c': 321
+		});
+
+		getter = createGetter('a.b.c');
+		expect(getter.call(scope, scope)).toBe(321);
+
+		getter = createGetter('(a.b.c + a.b.c)*2 + 1.5');
+		expect(getter.call(scope, scope)).toBe(321*4 + 1.5);
+
+		// complex expression
+		scope = {
+			'a': true,
+			'b': 11.11,
+			'c': 8.18
+		}
+		getter = createGetter('a ? b : c');
+		expect(getter.call(scope, scope)).toBe(11.11);
+
+		// with const string and number
+		scope = {
+			'a': 456
+		}
+		getter = createGetter('a + "_" + 789');
+		expect(getter.call(scope, scope)).toBe('456_789');
+
+		// javascript keyword
+		scope = {
+			'n': 1.23
+		}
+		getter = createGetter('parseInt(n)');
+		expect(getter.call(scope, scope)).toBe(1);
+
+		// invalid keyword
+		getter = createGetter('var a = 1');
 		expect(util.warn).toHaveBeenCalledWith('Avoid using unallow keyword in expression [var a = 1]');
+
+		// invalid expression
+		getter = createGetter('a ++ 1');
+		expect(util.error).toHaveBeenCalledWith('Invalid generated expression: [a ++ 1]');
 	});
 
 
-	it('invalid expression', function () {
-		element.innerHTML = '<h1 v-text="a + "></h1>';
+	it('createPath', function () {
+		expect(createPath('title')).toEqual(['title']);
+		expect(createPath('item.title')).toEqual(['item', 'title']);
+		expect(createPath('item["title"]')).toEqual(['item', 'title']);
+		expect(createPath("item['title']")).toEqual(['item', 'title']);
+		expect(createPath('item.title.some')).toEqual(['item', 'title', 'some']);
+		expect(createPath('item.title.some.text')).toEqual(['item', 'title', 'some', 'text']);
+		expect(createPath('item["title"].some["text"]')).toEqual(['item', 'title', 'some', 'text']);
+		expect(createPath("item['title'].some['text']")).toEqual(['item', 'title', 'some', 'text']);
+		expect(createPath('item["title"]["some"]["text"]')).toEqual(['item', 'title', 'some', 'text']);
+		expect(createPath("item['title']['some']['text']")).toEqual(['item', 'title', 'some', 'text']);
 
-		var vm = new MVVM({
-			'view': element,
-			'model': {}
-		});
+		expect(createPath('items[0]')).toEqual(['items', '0']);
+		expect(createPath('items[0].title')).toEqual(['items', '0', 'title']);
+		expect(createPath('items[0]["title"]')).toEqual(['items', '0', 'title']);
+		expect(createPath('items[0]["title"]["text"]')).toEqual(['items', '0', 'title', 'text']);
+		expect(createPath('items[0]["title"][1].text')).toEqual(['items', '0', 'title', '1', 'text']);
+		expect(createPath('items[0]["title"][1]["text"]')).toEqual(['items', '0', 'title', '1', 'text']);
 
-		expect(element.innerHTML).toBe('<h1>undefined</h1>');
-		expect(util.error).toHaveBeenCalledWith('Invalid generated expression: [a + ]');
+		expect(createPath('_title_')).toEqual(['_title_']);
+		expect(createPath('item._title_')).toEqual(['item', '_title_']);
+		expect(createPath('item["_title_"]')).toEqual(['item', '_title_']);
+		expect(createPath("item['_title_']")).toEqual(['item', '_title_']);
 	});
 
 
-	it('complex expression', function () {
-		element.innerHTML = '<h1 v-text="isErr ? errMsg : sucMsg"></h1>';
+	it('createSetter', function () {
+		var setter, scope;
 
-		var vm = new MVVM({
-			'view': element,
-			'model': {
-				'isErr': false,
-				'errMsg': 'error message',
-				'sucMsg': 'successs message'
+		// normal set
+		setter = createSetter('a');
+		scope = {'a': 123}
+		setter.call(scope, scope, 321);
+		expect(scope.a).toBe(321);
+
+		// deep set
+		setter = createSetter('a.b.c');
+		scope = {
+			'a': {
+				'b': {
+					'c': 456
+				}
 			}
-		});
-		var data = vm.$data;
-		var h1 = element.childNodes[0];
+		}
+		setter.call(scope, scope, 654);
+		expect(scope.a.b.c).toBe(654);
 
-		expect(h1.textContent).toBe('successs message');
-
-		data.isErr = true;
-		expect(h1.textContent).toBe('error message');
-
-		data.sucMsg = 'that is ok';
-		expect(h1.textContent).toBe('error message');
-
-		data.isErr = false;
-		expect(h1.textContent).toBe('that is ok');
-
-		data.errMsg = 'i am sorry';
-		data.isErr = true;
-		expect(h1.textContent).toBe('i am sorry');
+		// invaild expression
+		setter = createSetter('""');
+		setter.call(scope, setter, "");
+		expect(util.error).toHaveBeenCalledWith('Invalid setter expression [""]');
 	});
 });
