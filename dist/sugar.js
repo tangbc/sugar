@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.0 (c) 2016 TANG
  * Released under the MIT license
- * Thu Aug 18 2016 10:01:45 GMT+0800 (CST)
+ * Thu Aug 18 2016 10:02:38 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
