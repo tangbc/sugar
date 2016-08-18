@@ -32,7 +32,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 
 
 	# add commit
-	git commit -m 'Bundle code ['`date '+%Y%m%d-%H:%M:%S'`']'
+	git commit -m 'Bundle ['`date '+%Y%m%d-%H:%M:%S'`']'
 
 
 	# update master
@@ -41,16 +41,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 	git merge develop
 	git push origin master
 	echo -e '\033[32m Origin master is updated! \033[0m'
-	echo -e '\n--------------------------------------------------\n'
-
-
-	# update gh-pages
-	echo -e '\033[33m Updating gh-pages ... \033[0m'
-	git checkout gh-pages
-	git merge master
-	git commit -m 'Update gh-pages ['`date '+%Y%m%d-%H:%M:%S'`']'
-	git push origin gh-pages
-	echo -e '\033[32m Origin gh-pages is updated! \033[0m'
 	echo -e '\n--------------------------------------------------\n'
 
 
