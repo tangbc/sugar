@@ -1,4 +1,4 @@
-var sugar = require('src/component/index').default;
+var sugar = require('src/main/index').default;
 var dom = require('src/dom');
 var util = require('src/util');
 var Component = sugar.Component;

@@ -76,7 +76,7 @@ There are several demos in **`demos/`** directory, check it out and preview them
 * [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
 * [Simple todoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
 
-You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/6/).
+You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
 
 
 ## Usage
@@ -95,9 +95,9 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Contribution
 
-1. Clone it: **`git clone https://github.com/tangbc/sugar.git`**
+1. Fork or clone repository
 
-2. Install nodejs packages: **`npm install`**
+2. Install nodejs package devtools: **`npm install`**
 
 3. Develop and debug: **`npm run dev`** *(generate sourcemap files in `bundle/`)*
 

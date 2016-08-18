@@ -1,6 +1,6 @@
-var sugar = require('src/component/index').default;
+var sugar = require('src/main/index').default;
 var Component = sugar.Component;
-var Cache = require('src/component/cache').default;
+var Cache = require('src/main/cache').default;
 
 function triggerEvent (target, evt, process) {
 	var e = document.createEvent('HTMLEvents');
