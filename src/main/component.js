@@ -76,6 +76,8 @@ var Component = Module.extend({
 			'tplParam': null,
 			// mvvm 数据模型对象
 			'model'   : null,
+			// mvvm 计算属性对象
+			'computed': null,
 			// 子组件注册对象
 			'childs'  : null,
 			// 视图渲染完成后的回调函数
@@ -181,9 +183,10 @@ var Component = Module.extend({
 		var model = c.model;
 		if (isObject(model)) {
 			this.vm = new MVVM({
-				'view'   : this.el,
-				'model'  : model,
-				'context': this
+				'view'    : this.el,
+				'model'   : model,
+				'computed': c.computed,
+				'context' : this
 			});
 		}
 
