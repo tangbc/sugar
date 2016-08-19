@@ -1,10 +1,10 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util');
-var exp = require('src/mvvm/expression');
+var exp = require('src/mvvm/expression/index');
 var isNormal = exp.isNormal;
 var createGetter = exp.createGetter;
 var createSetter = exp.createSetter;
-var createPath = require('src/mvvm/path').createPath;
+var createPath = require('src/mvvm/expression/path').createPath;
 
 
 describe('directive expression >', function () {

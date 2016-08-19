@@ -341,4 +341,85 @@ describe("mvvm instance >", function () {
 		// interface should be blank
 		expect(element.innerHTML).toBe('');
 	});
+
+
+	it('computed property', function () {
+		// clear first
+		element = data = vm = null;
+		element = document.createElement('div');
+		document.body.appendChild(element);
+
+		element.innerHTML =
+			'<div>{{ a }}</div>' +
+			'<div>{{ b }}</div>' +
+			'<div>{{ c }}</div>' +
+			'<div>{{ d }}</div>' +
+			'<div>{{ e }}</div>'
+
+		vm = new MVVM({
+			'view': element,
+			'model': {
+				'a': 520,
+				'c': 1314
+			},
+			'computed': {
+				'b': function () {
+					return this.a + 1;
+				},
+				'd': function () {
+					return this.c - 1;
+				},
+				'e': function () {
+					// also can use other computed properties
+					// but must use the computed properties before
+					return this.b + this.d;
+				}
+			}
+		});
+
+		var divs = element.childNodes;
+		var a = 0, b = 1, c = 2, d = 3, e = 4;
+
+		expect(divs[a].textContent).toBe('520');
+		expect(divs[b].textContent).toBe('521');
+		expect(divs[c].textContent).toBe('1314');
+		expect(divs[d].textContent).toBe('1313');
+		expect(divs[e].textContent).toBe((521 + 1313) + '');
+
+		// change a, b will alse changed
+		vm.set('a', 250);
+		expect(divs[a].textContent).toBe('250');
+		expect(divs[b].textContent).toBe('251');
+		expect(divs[e].textContent).toBe((251 + 1313) + '');
+
+		// change c, d will alse changed
+		vm.set('c', 886);
+		expect(divs[c].textContent).toBe('886');
+		expect(divs[d].textContent).toBe('885');
+		expect(divs[e].textContent).toBe((251 + 885) + '');
+	});
+
+
+	it('computed property with non-function', function () {
+		// clear first
+		element = data = vm = null;
+		element = document.createElement('div');
+		document.body.appendChild(element);
+
+		element.innerHTML =
+			'<div>{{ a }}</div>' +
+			'<div>{{ b }}</div>'
+
+		vm = new MVVM({
+			'view': element,
+			'model': {
+				'a': 123
+			},
+			'computed': {
+				'b': 'this.a + 1'
+			}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('computed property [b] must be a getter function!');
+	});
 });
