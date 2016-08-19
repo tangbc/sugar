@@ -6,7 +6,8 @@ var jsFiles = [
 	'src/*.js',
 	'src/main/*.js',
 	'src/mvvm/*.js',
-	'src/mvvm/parsers/*.js'
+	'src/mvvm/*/*.js',
+	'src/mvvm/*/*/*.js'
 ];
 
 // js 语法检测配置
@@ -30,8 +31,7 @@ var jshintConfig = {
 	// Avoid warning The '__proto__' property is deprecated.
 	'proto'    : true,
 	// Available in es6
-	'esversion': 6,
-	'predef'   : ['module', 'require', 'define']
+	'esversion': 6
 }
 
 gulp.task('jshint', function () {
