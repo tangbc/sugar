@@ -1,4 +1,4 @@
-import { removeSpace, each, copy } from '../util';
+import { removeSpace, each, copy } from '../../util';
 
 const INIT = 0;
 const IDENT = 1;

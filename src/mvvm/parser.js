@@ -47,9 +47,9 @@ pp.destroy = function () {
 
 /**
  * 解析模块的类式继承
- * @param   {Function}   PreParser
+ * @param   {Function}   PostParser
  * @return  {Prototype}
  */
-export function linkParser (PreParser) {
-	return PreParser.prototype = Object.create(Parser.prototype);
+export function linkParser (PostParser) {
+	return PostParser.prototype = Object.create(Parser.prototype);
 }

@@ -1,4 +1,4 @@
-import { warn, error } from '../util';
+import { warn, error, noop } from '../../util';
 import { createPath, setValueByPath} from './path';
 
 // 匹配常量缓存序号 "1"
@@ -80,11 +80,6 @@ function addScope (expression) {
 
 	return expression;
 }
-
-/**
- * 空操作取值函数
- */
-function noop () {}
 
 /**
  * 生成表达式取值函数

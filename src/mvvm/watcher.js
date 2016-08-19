@@ -1,6 +1,6 @@
 import Depend from './depend';
-import { copy, each, extend } from '../util';
-import { createGetter, createSetter } from './expression';
+import { copy, each, extend, isFunc } from '../util';
+import { createGetter, createSetter } from './expression/index';
 
 /**
  * 遍历对象/数组每一个可枚举属性
@@ -51,8 +51,10 @@ export default function Watcher (vm, desc, callback, context) {
 	this.newDepends = [];
 
 	var expression = desc.expression;
+	var preSetFunc = isFunc(expression);
+
 	// 缓存取值函数
-	this.getter = createGetter(expression);
+	this.getter = preSetFunc ? expression : createGetter(expression);
 	// 缓存设值函数（双向数据绑定）
 	this.setter = desc.duplex ? createSetter(expression) : null;
 
@@ -183,12 +185,13 @@ wp.beforeUpdate = function () {
  * @param   {Number}  guid  [变更的依赖对象 id]
  */
 wp.update = function (args, guid) {
+	var callback = this.callback;
 	var oldValue = this.oldValue;
 	var newValue = this.value = this.get();
 
-	if (oldValue !== newValue) {
+	if (oldValue !== newValue && callback) {
 		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
-		this.callback.call(this.context, newValue, oldValue, args, fromDeep);
+		callback.call(this.context, newValue, oldValue, args, fromDeep);
 	}
 }
 

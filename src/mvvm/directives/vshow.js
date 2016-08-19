@@ -1,6 +1,6 @@
 import Parser, { linkParser } from '../parser';
 import { removeSpace, getKeyValue, each } from '../../util';
-import { getAttr, isElement, hasAttr, getNextElement } from '../../dom';
+import { getAttr, hasAttr, getNextElement } from '../../dom';
 
 const visibleDisplay = '__visible__';
 

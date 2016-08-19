@@ -1,16 +1,7 @@
-import { VOn as von } from './directives/von';
-import { VEl as vel } from './directives/vel';
-import { VIf as vif } from './directives/vif';
-import { VFor as vfor } from './directives/vfor';
-import { VText as vtext } from './directives/vtext';
-import { VHtml as vhtml } from './directives/vhtml';
-import { VShow as vshow } from './directives/vshow';
-import { VBind as vbind } from './directives/vbind';
-import { VModel as vmodel } from './directives/vmodel';
-
-import { createObserver } from './observer';
+import { createObserver, setComputedProperty } from './observe/index';
 import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
-import { def, defRec, each, warn, isObject, nodeToFragment, clearObject } from '../util';
+import { defRec, each, warn, isObject, nodeToFragment, clearObject } from '../util';
+import { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel } from './directives/index';
 
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
@@ -82,8 +73,9 @@ function getDirectiveDesc (attribute) {
  * @param  {Object}  option  [参数对象]
  */
 function Compiler (option) {
-	var element = option.view;
 	var model = option.model;
+	var element = option.view;
+	var computed = option.computed;
 
 	if (!isElement(element)) {
 		return warn('element must be a type of DOMElement: ', element);
@@ -113,13 +105,20 @@ function Compiler (option) {
 	// 指令解析模块
 	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel };
 
+	// 监测数据模型
+	this.ob = createObserver(this.$data, '__MODEL__');
+
+	// 设置计算属性
+	if (computed) {
+		setComputedProperty(this.$data, computed);
+	}
+
 	this.init();
 }
 
 var cp = Compiler.prototype;
 
 cp.init = function () {
-	createObserver(this.$data, '__MODEL__');
 	this.complieElement(this.$fragment, true);
 }
 
@@ -191,7 +190,7 @@ cp.complieDirectives = function (info) {
 
 		// vfor 编译时标记节点的指令数
 		if (vfor) {
-			def(node, '__directives', attrs.length);
+			defRec(node, '__directives', attrs.length);
 			attrs = [vfor];
 			vfor = null;
 		}
@@ -224,7 +223,7 @@ cp.compile = function (node, attr, scope) {
 
 	// 不需要解析的指令
 	if (dir === 'velse') {
-		def(node, '__directive', directive);
+		defRec(node, '__directive', directive);
 		return;
 	} else if (dir === 'vpre') {
 		return;
@@ -306,9 +305,9 @@ cp.checkRoot = function () {
  * 销毁函数
  */
 cp.destroy = function () {
-	this.$data = null;
 	empty(this.$element);
 	clearObject(this.parsers);
+	this.$data = this.ob = null;
 	each(this.directives, function (directive) {
 		directive.destroy();
 		return null;

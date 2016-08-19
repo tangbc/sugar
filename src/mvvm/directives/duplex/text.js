@@ -5,7 +5,6 @@ export default {
 	 * 绑定 text 变化事件
 	 */
 	bind: function () {
-		var self = this;
 		var number = this.number;
 		var directive = this.directive;
 

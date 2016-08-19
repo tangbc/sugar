@@ -101,6 +101,11 @@ export function formatValue (value, convertToNumber) {
 	return convertToNumber ? toNumber(value) : value;
 }
 
+/**
+ * 空操作函数
+ */
+export function noop () {}
+
 var cons = window.console;
 
 /**
@@ -139,7 +144,7 @@ export function hasOwn (obj, key) {
  * @param   {Boolean}  enumerable    [属性是否出现在枚举中]
  * @param   {Boolean}  configurable  [属性是否能够被改变或删除]
  */
-export function def (object, property, value, writable, enumerable, configurable) {
+function def (object, property, value, writable, enumerable, configurable) {
 	return Object.defineProperty(object, property, {
 		'value'       : value,
 		'writable'    : !!writable,

@@ -1,7 +1,6 @@
-import { empty } from '../../dom';
-import { observe } from '../observer';
+import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
-import { warn, createFragment, each, def, copy } from '../../util';
+import { warn, createFragment, each, defRec, copy } from '../../util';
 
 const vforAlias = '__vfor__';
 const regForExp = /(.*) in (.*)/;
@@ -14,7 +13,7 @@ const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
  * @param   {String}   value    [特征值]
  */
 function markVforFeature (node, feature, value) {
-	def(node, feature, value);
+	defRec(node, feature, value);
 }
 
 

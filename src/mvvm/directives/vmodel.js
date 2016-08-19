@@ -1,12 +1,8 @@
-import text from './duplex/text';
-import radio from './duplex/radio';
-import select from './duplex/select';
-import checkbox from './duplex/checkbox';
-
-import { warn, def } from '../../util';
-import { isNormal } from '../expression';
+import { warn, defRec } from '../../util';
 import Parser, { linkParser } from '../parser';
+import { isNormal } from '../expression/index';
 import { hasAttr, getAttr, addEvent } from '../../dom';
+import { text, radio, select, checkbox } from './duplex/index';
 
 // 双向数据绑定限制的表单元素
 const validForms = [
@@ -48,7 +44,7 @@ vmodel.parse = function () {
 
 	// select 需要指令实例挂载到元素上
 	if (tagName === 'select') {
-		def(el, '__vmodel__', this);
+		defRec(el, '__vmodel__', this);
 		this.multi = hasAttr(el, 'multiple');
 		this.forceUpdate = select.forceUpdate.bind(this);
 	}

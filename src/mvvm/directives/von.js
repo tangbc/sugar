@@ -1,7 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, defRec, isFunc, extend, clearObject } from '../../util';
+import { removeSpace, each, getKeyValue, defRec, extend, clearObject } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
