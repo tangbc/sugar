@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.1 (c) 2016 TANG
  * Released under the MIT license
- * Fri Aug 19 2016 16:34:34 GMT+0800 (CST)
+ * Fri Aug 19 2016 17:18:02 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4100,6 +4100,8 @@
 				'tplParam': null,
 				// mvvm 数据模型对象
 				'model'   : null,
+				// mvvm 计算属性对象
+				'computed': null,
 				// 子组件注册对象
 				'childs'  : null,
 				// 视图渲染完成后的回调函数
@@ -4205,9 +4207,10 @@
 			var model = c.model;
 			if (isObject(model)) {
 				this.vm = new MVVM({
-					'view'   : this.el,
-					'model'  : model,
-					'context': this
+					'view'    : this.el,
+					'model'   : model,
+					'computed': c.computed,
+					'context' : this
 				});
 			}
 
