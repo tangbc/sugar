@@ -1,6 +1,6 @@
 echo -e '\033[45;37m Prepare for packing source code in branch develop. \033[0m'
-echo -e '\033[45;37m Please make sure current branch is develop and current working directory is clean. \033[0m'
-echo -e '\033[45;37m Notice: this shell is only use for packing source, updating master and gh-pages branches. \033[0m'
+echo -e '\033[45;37m Please make sure current branch is develop and working directory is clean. \033[0m'
+echo -e '\033[45;37m Notice: this shell is only use for packing source, updating branch master. \033[0m'
 read -p 'Are you sure and ready to pack ? (y or n) '
 
 if [[ $REPLY =~ ^[Yy]$ ]]
