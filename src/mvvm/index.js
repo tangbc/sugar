@@ -10,7 +10,7 @@ import { each, copy, isFunc, isArray, isString, isObject } from '../util';
  * @param  {Object}    - context [<可选>回调上下文]
  */
 export default function MVVM (option) {
-	this.context = option.context || this;
+	this.context = option.context || option.model;
 
 	// 将事件函数 this 指向调用者
 	each(option.model, function (value, key) {
