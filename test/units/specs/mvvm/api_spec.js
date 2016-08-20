@@ -1,7 +1,7 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util');
 
-describe("mvvm instance >", function () {
+describe("mvvm instance api >", function () {
 	var element, vm, data;
 
 	beforeEach(function () {
@@ -169,7 +169,7 @@ describe("mvvm instance >", function () {
 	});
 
 
-	it('shallow watch', function () {
+	it('shallow watch for array', function () {
 		// clear first
 		element = data = vm = null;
 		element = document.createElement('div');
@@ -215,7 +215,7 @@ describe("mvvm instance >", function () {
 	});
 
 
-	it('deep watch', function () {
+	it('deep watch for array', function () {
 		// clear first
 		element = data = vm = null;
 		element = document.createElement('div');
@@ -260,13 +260,97 @@ describe("mvvm instance >", function () {
 	});
 
 
+	it('shallow watch for object', function () {
+		// clear first
+		element = data = vm = null;
+		element = document.createElement('div');
+		document.body.appendChild(element);
+
+		element.innerHTML = '<h1>{{ info.title }}</h1>';
+
+		data = {
+			'info': {
+				'title': 'xxdk'
+			}
+		}
+
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
+
+		var h1 = element.firstChild;
+		expect(h1.textContent).toBe('xxdk');
+
+		var count = 0;
+		vm.watch('info', function (newVal) {
+			count++;
+		});
+
+		vm.$data.info.title = 'txgc';
+		// interface will change but watch function cannot be triggered
+		expect(h1.textContent).toBe('txgc');
+		expect(count).toBe(0);
+
+		// change for watched model(shallow)
+		vm.$data.info = {
+			'title': 'lindan'
+		}
+		// interface will change and watch function can be triggered
+		expect(h1.textContent).toBe('lindan');
+		expect(count).toBe(1);
+	});
+
+
+	it('deep watch for object', function () {
+		// clear first
+		element = data = vm = null;
+		element = document.createElement('div');
+		document.body.appendChild(element);
+
+		element.innerHTML = '<h1>{{ info.title }}</h1>';
+
+		data = {
+			'info': {
+				'title': 'xxdk'
+			}
+		}
+
+		vm = new MVVM({
+			'view': element,
+			'model': data
+		});
+
+		var h1 = element.firstChild;
+		expect(h1.textContent).toBe('xxdk');
+
+		var count = 0;
+		vm.watch('info', function (newVal) {
+			count++;
+		}, true);
+
+		vm.$data.info.title = 'txgc';
+		// interface will change and use `deep` option
+		// watch function will be triggered
+		expect(h1.textContent).toBe('txgc');
+		expect(count).toBe(1);
+
+		// the same to shallow
+		vm.$data.info = {
+			'title': 'lindan'
+		}
+		expect(h1.textContent).toBe('lindan');
+		expect(count).toBe(2);
+	});
+
+
 	it('destroy', function () {
 		// clear first
 		element = data = vm = null;
 		element = document.createElement('div');
 		document.body.appendChild(element);
 
-		// use all directives
+		// try to use all directives
 		element.innerHTML =
 			'<div>{{ title }}</div>' +
 			'<div v-text="title"></div>' +
@@ -305,7 +389,9 @@ describe("mvvm instance >", function () {
 				'<li v-for="item in items">' +
 					'{{ item.text }}' +
 				'</li>' +
-			'</ul>'
+			'</ul>' +
+
+			'<div v-pre>{{ title }}</div>'
 
 		data = {
 			'title': 'xxdk',
