@@ -37,7 +37,7 @@ describe("mvvm instance api >", function () {
 			'view': text,
 			'model': model
 		});
-		expect(util.warn).toHaveBeenCalledWith('element must be a type of DOMElement: ', text);
+		expect(util.warn).toHaveBeenCalledWith('view must be a type of DOMElement: ', text);
 
 		var el = document.createElement('div');
 		new MVVM({
