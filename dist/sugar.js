@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.1 (c) 2016 TANG
  * Released under the MIT license
- * Fri Aug 19 2016 17:18:02 GMT+0800 (CST)
+ * Tue Aug 23 2016 19:51:01 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1412,11 +1412,13 @@
 	var regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 
 	// 表达式中允许的关键字
-	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
+	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
+						'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
 	var regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 	// 表达式中禁止的关键字
-	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
+	var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.' +
+						'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 
@@ -1517,19 +1519,19 @@
 
 	/**
 	 * 遍历对象/数组每一个可枚举属性
-	 * @param   {Object|Array}  target  [遍历值]
+	 * @param   {Object|Array}  target  [遍历值/对象或数组]
 	 * @param   {Boolean}       root    [是否是根对象/数组]
 	 */
-	var walkeds = [];
+	var walkedObs = [];
 	function walkThrough (target, root) {
 		var ob = target && target.__ob__;
 		var guid = ob && ob.dep.guid;
 
 		if (guid) {
-			if (walkeds.indexOf(guid) > -1) {
+			if (walkedObs.indexOf(guid) > -1) {
 				return;
 			} else {
-				walkeds.push(guid);
+				walkedObs.push(guid);
 			}
 		}
 
@@ -1538,7 +1540,7 @@
 		});
 
 		if (root) {
-			walkeds.length = 0;
+			walkedObs.length = 0;
 		}
 	}
 
@@ -1572,7 +1574,7 @@
 		this.setter = desc.duplex ? createSetter(expression) : null;
 
 		// 缓存表达式旧值
-		this.oldValue = null;
+		this.oldVal = null;
 		// 表达式初始值 & 提取依赖
 		this.value = this.get();
 	}
@@ -1689,7 +1691,7 @@
 	 * 用于旧值的缓存处理，对象或数组只存副本
 	 */
 	wp.beforeUpdate = function () {
-		this.oldValue = copy(this.value);
+		this.oldVal = copy(this.value);
 	}
 
 	/**
@@ -1698,13 +1700,13 @@
 	 * @param   {Number}  guid  [变更的依赖对象 id]
 	 */
 	wp.update = function (args, guid) {
-		var callback = this.callback;
-		var oldValue = this.oldValue;
-		var newValue = this.value = this.get();
+		var oldVal = this.oldVal;
+		var newVal = this.value = this.get();
 
-		if (oldValue !== newValue && callback) {
+		var callback = this.callback;
+		if (callback && oldVal !== newVal) {
 			var fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
-			callback.call(this.context, newValue, oldValue, args, fromDeep);
+			callback.call(this.context, newVal, oldVal, args, fromDeep);
 		}
 	}
 
@@ -2144,9 +2146,9 @@
 	}
 
 	/**
-	 * 指令通用构造函数
+	 * 指令通用模块
 	 * 提供生成数据订阅和变化更新功能
-	 * @param  {Object}   parser  [解析模块实例]
+	 * @param  {Object}   parser  [指令解析模块实例]
 	 */
 	function Directive (parser) {
 		this.parser = parser;
@@ -2160,8 +2162,10 @@
 	 */
 	dp$1.install = function () {
 		var parser = this.parser;
+
 		// 生成数据订阅实例
 		var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
+
 		// 更新初始视图
 		this.update(watcher.value);
 	}
@@ -2176,13 +2180,13 @@
 
 	/**
 	 * 更新指令视图
-	 * @param   {Mix}     newValue  [依赖数据新值]
-	 * @param   {Mix}     oldVlaue  [依赖数据旧值]
-	 * @param   {Object}  args      [数组操作参数信息]
+	 * @param   {Mix}     newVal  [依赖数据新值]
+	 * @param   {Mix}     oldVal  [依赖数据旧值]
+	 * @param   {Object}  args    [数组操作参数信息]
 	 */
-	dp$1.update = function (newValue, oldVlaue, args) {
+	dp$1.update = function (newVal, oldVal, args) {
 		var parser = this.parser;
-		parser.update.call(parser, newValue, oldVlaue, args);
+		parser.update.call(parser, newVal, oldVal, args);
 	}
 
 	/**
@@ -2202,7 +2206,7 @@
 	}
 
 	/**
-	 * Parser 基础解析器模块，指令解析模块都继承于 Parser
+	 * Parser 基础指令解析器模块
 	 * @param  {Object}   vm
 	 * @param  {Element}  node
 	 * @param  {Object}   desc
@@ -2215,13 +2219,14 @@
 		this.desc = desc;
 		this.$scope = scope;
 
+		// 解析指令
 		this.parse();
 	}
 
 	var pp = Parser.prototype;
 
 	/**
-	 * 绑定一个指令实例
+	 * 安装一个指令实例
 	 */
 	pp.bind = function () {
 		var dir = this.directive = new Directive(this);
@@ -2247,7 +2252,7 @@
 
 
 	/**
-	 * 解析模块的类式继承
+	 * 解析器模块的类式继承
 	 * @param   {Function}   PostParser
 	 * @return  {Prototype}
 	 */
@@ -2549,6 +2554,7 @@
 	function VEl () {
 		Parser.apply(this, arguments);
 	}
+
 	var vel = linkParser(VEl);
 
 	/**
@@ -2747,7 +2753,9 @@
 		} else {
 			// 数组操作部分更新
 			if (arg && partlyMethods.indexOf(arg.method) > -1) {
+				this.partly = true;
 				this.updatePartly(newArray, arg);
+				this.partly = false;
 			} else {
 				this.recompileList(newArray);
 			}
@@ -2770,8 +2778,6 @@
 	 * @param   {Object}  arg
 	 */
 	vfor.updatePartly = function (list, arg) {
-		this.partly = true;
-
 		var partlyArgs = [];
 		var method = arg.method;
 		var scopes = this.scopes;
@@ -2780,6 +2786,7 @@
 		// 更新处理 DOM 片段
 		this[method].call(this, list, arg.args);
 
+		// 更新 scopes
 		switch (method) {
 			case 'pop':
 			case 'shift':
@@ -2794,7 +2801,6 @@
 				break;
 		}
 
-		// 更新 scopes
 		scopes[method].apply(scopes, partlyArgs);
 		this.partlyArgs.length = 0;
 
@@ -2802,8 +2808,6 @@
 		each(scopes, function (scope, index) {
 			scope.$index = index;
 		});
-
-		this.partly = false;
 	}
 
 	/**
@@ -3093,7 +3097,7 @@
 			}
 
 			if (display !== 'none') {
-				node[visibleDisplay] = display || '';
+				defRec(node, visibleDisplay, display || '');
 			}
 		}
 	}
@@ -3173,7 +3177,7 @@
 	}
 
 	/**
-	 * 支持空格分割的 addClass
+	 * 支持空格分割的 add/remove class
 	 * @param   {Element}  element
 	 * @param   {String}   className
 	 * @param   {Boolean}  remove
@@ -3189,7 +3193,7 @@
 	}
 
 	/**
-	 * 更新元素的 className
+	 * 根据绑定值更新元素的 className
 	 * @param   {Element}  element
 	 * @param   {Mix}      classValue
 	 * @param   {Boolean}  remove
@@ -3575,28 +3579,33 @@
 	 * @param   {String}  type
 	 */
 	vmodel.bindDuplex = function (type) {
-		var model;
+		var form;
 
 		switch (type) {
 			case 'text':
 			case 'password':
 			case 'textarea':
-				model = text;
+				form = text;
 				break;
 			case 'radio':
-				model = radio;
+				form = radio;
 				break;
 			case 'checkbox':
-				model = checkbox;
+				form = checkbox;
 				break;
 			case 'select':
-				model = select;
+				form = select;
 				break;
 		}
 
-		this.update = model.update.bind(this);
+		// 表单刷新函数
+		this.update = form.update.bind(this);
+
+		// 订阅数据 & 更新初始值
 		this.bind();
-		model.bind.apply(this);
+
+		// 绑定表单变化事件
+		form.bind.call(this);
 	}
 
 	/**
@@ -3683,7 +3692,7 @@
 		var computed = option.computed;
 
 		if (!isElement(element)) {
-			return warn('element must be a type of DOMElement: ', element);
+			return warn('view must be a type of DOMElement: ', element);
 		}
 
 		if (!isObject(model)) {
@@ -3863,7 +3872,7 @@
 			}
 
 			desc.expression = exp;
-			this.directives.push(new this.parsers.vhtml(this, node.parentNode, desc, scope));
+			this.directives.push(new VHtml(this, node.parentNode, desc, scope));
 
 		} else {
 			pieces = text.split(regText);
@@ -3881,13 +3890,14 @@
 			});
 
 			desc.expression = tokens.join('+');
-			this.directives.push(new this.parsers.vtext(this, node, desc, scope));
+			this.directives.push(new VText(this, node, desc, scope));
 		}
 	}
 
 	/**
 	 * 停止编译节点的剩余指令
-	 * 如遇到含有其他指令的 vfor 节点
+	 * 如含有其他指令的 vfor 节点
+	 * 应保留指令信息并放到循环列表中编译
 	 * @param   {Element}  node
 	 */
 	cp.block = function (node) {
@@ -3924,9 +3934,10 @@
 	/**
 	 * MVVM 构造函数入口
 	 * @param  {Object}  option    [数据参数对象]
-	 * @param  {Element}   - view    [视图对象]
-	 * @param  {Object}    - model   [数据对象]
-	 * @param  {Object}    - context [<可选>回调上下文]
+	 * @param  {Element}   - view      [视图对象]
+	 * @param  {Object}    - model     [数据对象]
+	 * @param  {Object}    - computed  [<可选>计算属性对象]
+	 * @param  {Object}    - context   [<可选>回调上下文]
 	 */
 	function MVVM (option) {
 		this.context = option.context || option.model;
