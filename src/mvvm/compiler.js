@@ -78,7 +78,7 @@ function Compiler (option) {
 	var computed = option.computed;
 
 	if (!isElement(element)) {
-		return warn('element must be a type of DOMElement: ', element);
+		return warn('view must be a type of DOMElement: ', element);
 	}
 
 	if (!isObject(model)) {
@@ -256,7 +256,7 @@ cp.compileText = function (node, scope) {
 		}
 
 		desc.expression = exp;
-		this.directives.push(new this.parsers.vhtml(this, node.parentNode, desc, scope));
+		this.directives.push(new vhtml(this, node.parentNode, desc, scope));
 
 	} else {
 		pieces = text.split(regText);
@@ -274,13 +274,14 @@ cp.compileText = function (node, scope) {
 		});
 
 		desc.expression = tokens.join('+');
-		this.directives.push(new this.parsers.vtext(this, node, desc, scope));
+		this.directives.push(new vtext(this, node, desc, scope));
 	}
 }
 
 /**
  * 停止编译节点的剩余指令
- * 如遇到含有其他指令的 vfor 节点
+ * 如含有其他指令的 vfor 节点
+ * 应保留指令信息并放到循环列表中编译
  * @param   {Element}  node
  */
 cp.block = function (node) {

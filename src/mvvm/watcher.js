@@ -4,19 +4,19 @@ import { createGetter, createSetter } from './expression/index';
 
 /**
  * 遍历对象/数组每一个可枚举属性
- * @param   {Object|Array}  target  [遍历值]
+ * @param   {Object|Array}  target  [遍历值/对象或数组]
  * @param   {Boolean}       root    [是否是根对象/数组]
  */
-var walkeds = [];
+var walkedObs = [];
 function walkThrough (target, root) {
 	var ob = target && target.__ob__;
 	var guid = ob && ob.dep.guid;
 
 	if (guid) {
-		if (walkeds.indexOf(guid) > -1) {
+		if (walkedObs.indexOf(guid) > -1) {
 			return;
 		} else {
-			walkeds.push(guid);
+			walkedObs.push(guid);
 		}
 	}
 
@@ -25,7 +25,7 @@ function walkThrough (target, root) {
 	});
 
 	if (root) {
-		walkeds.length = 0;
+		walkedObs.length = 0;
 	}
 }
 
@@ -59,7 +59,7 @@ export default function Watcher (vm, desc, callback, context) {
 	this.setter = desc.duplex ? createSetter(expression) : null;
 
 	// 缓存表达式旧值
-	this.oldValue = null;
+	this.oldVal = null;
 	// 表达式初始值 & 提取依赖
 	this.value = this.get();
 }
@@ -176,7 +176,7 @@ wp.afterGet = function () {
  * 用于旧值的缓存处理，对象或数组只存副本
  */
 wp.beforeUpdate = function () {
-	this.oldValue = copy(this.value);
+	this.oldVal = copy(this.value);
 }
 
 /**
@@ -185,13 +185,13 @@ wp.beforeUpdate = function () {
  * @param   {Number}  guid  [变更的依赖对象 id]
  */
 wp.update = function (args, guid) {
-	var callback = this.callback;
-	var oldValue = this.oldValue;
-	var newValue = this.value = this.get();
+	var oldVal = this.oldVal;
+	var newVal = this.value = this.get();
 
-	if (oldValue !== newValue && callback) {
+	var callback = this.callback;
+	if (callback && oldVal !== newVal) {
 		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
-		callback.call(this.context, newValue, oldValue, args, fromDeep);
+		callback.call(this.context, newVal, oldVal, args, fromDeep);
 	}
 }
 

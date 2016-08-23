@@ -1,7 +1,7 @@
 import Directive from './directive';
 
 /**
- * Parser 基础解析器模块，指令解析模块都继承于 Parser
+ * Parser 基础指令解析器模块
  * @param  {Object}   vm
  * @param  {Element}  node
  * @param  {Object}   desc
@@ -14,13 +14,14 @@ export default function Parser (vm, node, desc, scope) {
 	this.desc = desc;
 	this.$scope = scope;
 
+	// 解析指令
 	this.parse();
 }
 
 var pp = Parser.prototype;
 
 /**
- * 绑定一个指令实例
+ * 安装一个指令实例
  */
 pp.bind = function () {
 	var dir = this.directive = new Directive(this);
@@ -46,7 +47,7 @@ pp.destroy = function () {
 
 
 /**
- * 解析模块的类式继承
+ * 解析器模块的类式继承
  * @param   {Function}   PostParser
  * @return  {Prototype}
  */

@@ -83,7 +83,9 @@ vfor.update = function (newArray, oldArray, arg) {
 	} else {
 		// 数组操作部分更新
 		if (arg && partlyMethods.indexOf(arg.method) > -1) {
+			this.partly = true;
 			this.updatePartly(newArray, arg);
+			this.partly = false;
 		} else {
 			this.recompileList(newArray);
 		}
@@ -106,8 +108,6 @@ vfor.initList = function (list) {
  * @param   {Object}  arg
  */
 vfor.updatePartly = function (list, arg) {
-	this.partly = true;
-
 	var partlyArgs = [];
 	var method = arg.method;
 	var scopes = this.scopes;
@@ -116,6 +116,7 @@ vfor.updatePartly = function (list, arg) {
 	// 更新处理 DOM 片段
 	this[method].call(this, list, arg.args);
 
+	// 更新 scopes
 	switch (method) {
 		case 'pop':
 		case 'shift':
@@ -130,7 +131,6 @@ vfor.updatePartly = function (list, arg) {
 			break;
 	}
 
-	// 更新 scopes
 	scopes[method].apply(scopes, partlyArgs);
 	this.partlyArgs.length = 0;
 
@@ -138,8 +138,6 @@ vfor.updatePartly = function (list, arg) {
 	each(scopes, function (scope, index) {
 		scope.$index = index;
 	});
-
-	this.partly = false;
 }
 
 /**

@@ -1,6 +1,6 @@
 import Parser, { linkParser } from '../parser';
-import { removeSpace, getKeyValue, each } from '../../util';
 import { getAttr, hasAttr, getNextElement } from '../../dom';
+import { removeSpace, getKeyValue, each, defRec } from '../../util';
 
 const visibleDisplay = '__visible__';
 
@@ -26,7 +26,7 @@ function setVisibleDisplay (node) {
 		}
 
 		if (display !== 'none') {
-			node[visibleDisplay] = display || '';
+			defRec(node, visibleDisplay, display || '');
 		}
 	}
 }

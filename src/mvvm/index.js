@@ -5,9 +5,10 @@ import { each, copy, isFunc, isArray, isString, isObject } from '../util';
 /**
  * MVVM 构造函数入口
  * @param  {Object}  option    [数据参数对象]
- * @param  {Element}   - view    [视图对象]
- * @param  {Object}    - model   [数据对象]
- * @param  {Object}    - context [<可选>回调上下文]
+ * @param  {Element}   - view      [视图对象]
+ * @param  {Object}    - model     [数据对象]
+ * @param  {Object}    - computed  [<可选>计算属性对象]
+ * @param  {Object}    - context   [<可选>回调上下文]
  */
 export default function MVVM (option) {
 	this.context = option.context || option.model;

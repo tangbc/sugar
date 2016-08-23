@@ -57,28 +57,33 @@ vmodel.parse = function () {
  * @param   {String}  type
  */
 vmodel.bindDuplex = function (type) {
-	var model;
+	var form;
 
 	switch (type) {
 		case 'text':
 		case 'password':
 		case 'textarea':
-			model = text;
+			form = text;
 			break;
 		case 'radio':
-			model = radio;
+			form = radio;
 			break;
 		case 'checkbox':
-			model = checkbox;
+			form = checkbox;
 			break;
 		case 'select':
-			model = select;
+			form = select;
 			break;
 	}
 
-	this.update = model.update.bind(this);
+	// 表单刷新函数
+	this.update = form.update.bind(this);
+
+	// 订阅数据 & 更新初始值
 	this.bind();
-	model.bind.apply(this);
+
+	// 绑定表单变化事件
+	form.bind.call(this);
 }
 
 /**

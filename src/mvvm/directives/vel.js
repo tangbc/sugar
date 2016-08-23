@@ -8,6 +8,7 @@ import Parser, { linkParser } from '../parser';
 export function VEl () {
 	Parser.apply(this, arguments);
 }
+
 var vel = linkParser(VEl);
 
 /**

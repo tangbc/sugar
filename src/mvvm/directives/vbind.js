@@ -22,7 +22,7 @@ function updateStyle (element, styleObject) {
 }
 
 /**
- * 支持空格分割的 addClass
+ * 支持空格分割的 add/remove class
  * @param   {Element}  element
  * @param   {String}   className
  * @param   {Boolean}  remove
@@ -38,7 +38,7 @@ function handleClass (element, className, remove) {
 }
 
 /**
- * 更新元素的 className
+ * 根据绑定值更新元素的 className
  * @param   {Element}  element
  * @param   {Mix}      classValue
  * @param   {Boolean}  remove

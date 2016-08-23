@@ -1,9 +1,9 @@
 import Watcher from './watcher';
 
 /**
- * 指令通用构造函数
+ * 指令通用模块
  * 提供生成数据订阅和变化更新功能
- * @param  {Object}   parser  [解析模块实例]
+ * @param  {Object}   parser  [指令解析模块实例]
  */
 export default function Directive (parser) {
 	this.parser = parser;
@@ -17,8 +17,10 @@ var dp = Directive.prototype;
  */
 dp.install = function () {
 	var parser = this.parser;
+
 	// 生成数据订阅实例
 	var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
+
 	// 更新初始视图
 	this.update(watcher.value);
 }
@@ -33,13 +35,13 @@ dp.uninstall = function () {
 
 /**
  * 更新指令视图
- * @param   {Mix}     newValue  [依赖数据新值]
- * @param   {Mix}     oldVlaue  [依赖数据旧值]
- * @param   {Object}  args      [数组操作参数信息]
+ * @param   {Mix}     newVal  [依赖数据新值]
+ * @param   {Mix}     oldVal  [依赖数据旧值]
+ * @param   {Object}  args    [数组操作参数信息]
  */
-dp.update = function (newValue, oldVlaue, args) {
+dp.update = function (newVal, oldVal, args) {
 	var parser = this.parser;
-	parser.update.call(parser, newValue, oldVlaue, args);
+	parser.update.call(parser, newVal, oldVal, args);
 }
 
 /**
