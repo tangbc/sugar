@@ -25,9 +25,13 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 
 * `src/` Source code files:
 
-	* `src/main/` Component system modules, all the module files in this directory are serving for component.js. Components can be included each other, nested and have message communication. [See more API here](https://github.com/tangbc/sugar/wiki/API)
+	* `src/main/` Component system modules, all the module files in this directory are serving for component.js.
+	Components can be included each other, nested and have message communication.
+	[API & Doc](https://github.com/tangbc/sugar/wiki/API)
 
-	* **`src/mvvm/`** A simple MVVM library, directive support bind text, two-way data binding, bind attribute, bind event, repeat list and more. **mvvm doesn't rely on sugar, it can be used independently**. [See more API here](https://github.com/tangbc/sugar/wiki/MVVM)
+	* **`src/mvvm/`** A simple MVVM library, directive support bind text, two-way data binding,
+	bind attribute, bind event, repeat list and more. **mvvm doesn't rely on sugar, it can be used independently**.
+	[API & Doc](https://github.com/tangbc/sugar/wiki/MVVM)
 
 
 ## HelloWorld
@@ -35,7 +39,7 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 // define HelloWorld component:
 var HelloWorld = sugar.Component.extend({
 	init: function (config) {
-		this.cover(config, {
+		config = this.cover(config, {
 			'class': 'demo',
 			'view': '<h1>{{ title }}</h1>',
 			'model': {
