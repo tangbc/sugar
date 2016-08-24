@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.1 (c) 2016 TANG
  * Released under the MIT license
- * Tue Aug 23 2016 19:51:01 GMT+0800 (CST)
+ * Wed Aug 24 2016 14:14:29 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1235,19 +1235,19 @@
 
 		// a-z A-Z 0-9
 		if (
-			(code >= 0x41 && code <= 0x5A) ||
-			(code >= 0x61 && code <= 0x7A) ||
-			(code >= 0x30 && code <= 0x39)
+			(code >= 65 && code <= 90) ||
+			(code >= 97 && code <= 122) ||
+			(code >= 48 && code <= 57)
 		) {
 			return IDENT;
 		}
 
 		switch (code) {
-			case 0x5B: // [
-			case 0x5D: // ]
-			case 0x2E: // .
-			case 0x22: // "
-			case 0x27: // '
+			case 91: // [
+			case 93: // ]
+			case 46: // .
+			case 34: // "
+			case 39: // '
 				return QUOTE;
 			default:
 				return OTHER; // @todo
