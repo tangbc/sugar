@@ -39,16 +39,8 @@ vmodel.parse = function () {
 		return warn('v-model directive value can be use by static expression');
 	}
 
+	// 双向数据绑定
 	desc.duplex = true;
-	this.number = hasAttr(el, 'number');
-
-	// select 需要指令实例挂载到元素上
-	if (tagName === 'select') {
-		defRec(el, '__vmodel__', this);
-		this.multi = hasAttr(el, 'multiple');
-		this.forceUpdate = select.forceUpdate.bind(this);
-	}
-
 	this.bindDuplex(type);
 }
 
@@ -58,12 +50,17 @@ vmodel.parse = function () {
  */
 vmodel.bindDuplex = function (type) {
 	var form;
+	var el = this.el;
 
 	switch (type) {
 		case 'text':
 		case 'password':
 		case 'textarea':
 			form = text;
+			// 可以使用 lazy 属性来控制 input 事件是否同步数据
+			this.lazy = hasAttr(el, 'lazy');
+			// 可以使用 debounce 来设置更新数据的延迟时间
+			this.debounce = getAttr(el, 'debounce');
 			break;
 		case 'radio':
 			form = radio;
@@ -73,8 +70,15 @@ vmodel.bindDuplex = function (type) {
 			break;
 		case 'select':
 			form = select;
+			// select 需要将指令实例挂载到元素上
+			defRec(el, '__vmodel__', this);
+			this.multi = hasAttr(el, 'multiple');
+			this.forceUpdate = select.forceUpdate.bind(this);
 			break;
 	}
+
+	// 是否将绑定值转化成数字
+	this.number = hasAttr(el, 'number');
 
 	// 表单刷新函数
 	this.update = form.update.bind(this);

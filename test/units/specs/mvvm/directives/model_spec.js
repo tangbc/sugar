@@ -89,18 +89,21 @@ describe("v-model >", function () {
 		triggerEvent(text, 'input');
 		expect(text.value).toBe('d');
 		expect(area.value).toBe('d');
+		expect(data.test).toBe('d');
 
 		// mock textarea for input
 		area.value = 'e';
 		triggerEvent(area, 'input');
 		expect(text.value).toBe('e');
 		expect(area.value).toBe('e');
+		expect(data.test).toBe('e');
 
 		// mock text for change (blur)
 		text.value = 'fff';
 		triggerEvent(text, 'change');
 		expect(text.value).toBe('fff');
 		expect(text.value).toBe('fff');
+		expect(data.test).toBe('fff');
 	});
 
 
@@ -126,6 +129,132 @@ describe("v-model >", function () {
 		triggerEvent(text, 'compositionend');
 		triggerEvent(text, 'input');
 		expect(data.test).toBe('cba');
+	});
+
+
+	it('text use lazy param', function () {
+		element.innerHTML = '<input id="text" type="text" v-model="test" lazy>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ''
+			}
+		});
+		var data = vm.$data;
+		var text = element.querySelector('#text');
+
+		// mock for text input(lazy update data)
+		text.value = 'a';
+		triggerEvent(text, 'input');
+		expect(text.value).toBe('a');
+		// the `change` event has not been called, so data will not change that time
+		expect(data.test).toBe('');
+
+		// call `change` to update data
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('a');
+
+		text.value = 'ab';
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('ab');
+
+		// try input again
+		text.value = 'abc';
+		triggerEvent(text, 'input');
+		expect(text.value).toBe('abc');
+		expect(data.test).toBe('ab');
+
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('abc');
+	});
+
+
+	it('text use debounce param', function (done) {
+		element.innerHTML = '<input id="text" type="text" v-model="test" debounce="300">';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ''
+			}
+		});
+		var data = vm.$data;
+		var text = element.querySelector('#text');
+
+		text.value = 'a';
+		triggerEvent(text, 'input');
+		expect(data.test).toBe('');
+		setTimeout(function () {
+			expect(data.test).toBe('');
+		}, 290);
+		setTimeout(function () {
+			expect(data.test).toBe('a');
+			done();
+		}, 310);
+	});
+
+
+	it('textarea use lazy param', function () {
+		element.innerHTML = '<textarea id="text" v-model="test" lazy></textarea>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ''
+			}
+		});
+		var data = vm.$data;
+		var text = element.querySelector('#text');
+
+		// mock for text input(lazy update data)
+		text.value = 'a';
+		triggerEvent(text, 'input');
+		expect(text.value).toBe('a');
+		// the `change` event has not been called, so data will not change that time
+		expect(data.test).toBe('');
+
+		// call `change` to update data
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('a');
+
+		text.value = 'ab';
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('ab');
+
+		// try input again
+		text.value = 'abc';
+		triggerEvent(text, 'input');
+		expect(text.value).toBe('abc');
+		expect(data.test).toBe('ab');
+
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('abc');
+	});
+
+
+	it('textarea use debounce param', function (done) {
+		element.innerHTML = '<textarea id="text" v-model="test" debounce="500"></textarea>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ''
+			}
+		});
+		var data = vm.$data;
+		var text = element.querySelector('#text');
+
+		text.value = 'a';
+		triggerEvent(text, 'input');
+		expect(data.test).toBe('');
+		setTimeout(function () {
+			expect(data.test).toBe('');
+		}, 490);
+		setTimeout(function () {
+			expect(data.test).toBe('a');
+			done();
+		}, 510);
 	});
 
 

@@ -1,11 +1,25 @@
-import { formatValue } from '../../../util';
+import { formatValue, toNumber } from '../../../util';
+
+/**
+ * 异步延迟函数
+ * @param   {Function}  func
+ * @param   {Number}    delay
+ * @return  {TimeoutId}
+ */
+function debounceDelay (func, delay) {
+	return setTimeout(function () {
+		func.call(func);
+	}, toNumber(delay));
+}
 
 export default {
 	/**
 	 * 绑定 text 变化事件
 	 */
 	bind: function () {
+		var lazy = this.lazy;
 		var number = this.number;
+		var debounce = this.debounce;
 		var directive = this.directive;
 
 		// 解决中文输入时 input 事件在未选择词组时的触发问题
@@ -18,10 +32,20 @@ export default {
 			composeLock = false;
 		});
 
+		var self = this;
 		// input 事件(实时触发)
 		this.on('input', function () {
-			if (!composeLock) {
-				directive.set(formatValue(this.value, number));
+			if (!composeLock && !lazy) {
+				let value = this.value;
+
+				if (debounce) {
+					debounceDelay(function () {
+						self.onDebounce = true;
+						directive.set(formatValue(value, number));
+					}, debounce);
+				} else {
+					directive.set(formatValue(value, number));
+				}
 			}
 		});
 
@@ -37,7 +61,7 @@ export default {
 	 */
 	update: function (value) {
 		var el = this.el;
-		if (el.value !== value) {
+		if (el.value !== value && !this.onDebounce) {
 			el.value = value;
 		}
 	}
