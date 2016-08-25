@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.1 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 24 2016 19:07:48 GMT+0800 (CST)
+ * Thu Aug 25 2016 12:33:53 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2009,7 +2009,7 @@
 	}
 
 	var vforAlias = '__vfor__';
-	var regForExp = /(.*) in (.*)/;
+	var regForExp = /(.*) (?:in|of) (.*)/;
 	var partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
 	/**
@@ -2043,7 +2043,7 @@
 		var match = expression.match(regForExp);
 
 		if (!match) {
-			return warn('The format of v-for must be like "item in items"!');
+			return warn('The format of v-for must be like "item in/of items"!');
 		}
 
 		var alias = match[1];
@@ -2181,7 +2181,7 @@
 		var vm = this.vm;
 		var el = this.el;
 		var start = startIndex || 0;
-		var bodyDirs = el.__directives;
+		var bodyDirs = el.__dirs__;
 		var listFragment = createFragment();
 
 		each(list, function (item, i) {
@@ -3142,7 +3142,7 @@
 
 			// vfor 编译时标记节点的指令数
 			if (vfor) {
-				defRec(node, '__directives', attrs.length);
+				defRec(node, '__dirs__', attrs.length);
 				attrs = [vfor];
 				vfor = null;
 			}
