@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.1 (c) 2016 TANG
  * Released under the MIT license
- * Thu Aug 25 2016 12:33:53 GMT+0800 (CST)
+ * Thu Aug 25 2016 21:27:56 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2677,12 +2677,26 @@
 		setAttr(this.el, attr, newValue);
 	}
 
+	/**
+	 * 异步延迟函数
+	 * @param   {Function}  func
+	 * @param   {Number}    delay
+	 * @return  {TimeoutId}
+	 */
+	function debounceDelay (func, delay) {
+		return setTimeout(function () {
+			func.call(func);
+		}, toNumber(delay));
+	}
+
 	var text = {
 		/**
 		 * 绑定 text 变化事件
 		 */
 		bind: function () {
+			var lazy = this.lazy;
 			var number = this.number;
+			var debounce = this.debounce;
 			var directive = this.directive;
 
 			// 解决中文输入时 input 事件在未选择词组时的触发问题
@@ -2695,10 +2709,20 @@
 				composeLock = false;
 			});
 
+			var self = this;
 			// input 事件(实时触发)
 			this.on('input', function () {
-				if (!composeLock) {
-					directive.set(formatValue(this.value, number));
+				if (!composeLock && !lazy) {
+					var value = this.value;
+
+					if (debounce) {
+						debounceDelay(function () {
+							self.onDebounce = true;
+							directive.set(formatValue(value, number));
+						}, debounce);
+					} else {
+						directive.set(formatValue(value, number));
+					}
 				}
 			});
 
@@ -2714,7 +2738,7 @@
 		 */
 		update: function (value) {
 			var el = this.el;
-			if (el.value !== value) {
+			if (el.value !== value && !this.onDebounce) {
 				el.value = value;
 			}
 		}
@@ -2897,16 +2921,8 @@
 			return warn('v-model directive value can be use by static expression');
 		}
 
+		// 双向数据绑定
 		desc.duplex = true;
-		this.number = hasAttr(el, 'number');
-
-		// select 需要指令实例挂载到元素上
-		if (tagName === 'select') {
-			defRec(el, '__vmodel__', this);
-			this.multi = hasAttr(el, 'multiple');
-			this.forceUpdate = select.forceUpdate.bind(this);
-		}
-
 		this.bindDuplex(type);
 	}
 
@@ -2916,12 +2932,17 @@
 	 */
 	vmodel.bindDuplex = function (type) {
 		var form;
+		var el = this.el;
 
 		switch (type) {
 			case 'text':
 			case 'password':
 			case 'textarea':
 				form = text;
+				// 可以使用 lazy 属性来控制 input 事件是否同步数据
+				this.lazy = hasAttr(el, 'lazy');
+				// 可以使用 debounce 来设置更新数据的延迟时间
+				this.debounce = getAttr(el, 'debounce');
 				break;
 			case 'radio':
 				form = radio;
@@ -2931,8 +2952,15 @@
 				break;
 			case 'select':
 				form = select;
+				// select 需要将指令实例挂载到元素上
+				defRec(el, '__vmodel__', this);
+				this.multi = hasAttr(el, 'multiple');
+				this.forceUpdate = select.forceUpdate.bind(this);
 				break;
 		}
+
+		// 是否将绑定值转化成数字
+		this.number = hasAttr(el, 'number');
 
 		// 表单刷新函数
 		this.update = form.update.bind(this);
