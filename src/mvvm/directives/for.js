@@ -3,7 +3,7 @@ import Parser, { linkParser } from '../parser';
 import { warn, createFragment, each, defRec, copy } from '../../util';
 
 const vforAlias = '__vfor__';
-const regForExp = /(.*) in (.*)/;
+const regForExp = /(.*) (?:in|of) (.*)/;
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
 /**
@@ -37,7 +37,7 @@ vfor.parse = function () {
 	var match = expression.match(regForExp);
 
 	if (!match) {
-		return warn('The format of v-for must be like "item in items"!');
+		return warn('The format of v-for must be like "item in/of items"!');
 	}
 
 	var alias = match[1];
@@ -175,7 +175,7 @@ vfor.buildList = function (list, startIndex) {
 	var vm = this.vm;
 	var el = this.el;
 	var start = startIndex || 0;
-	var bodyDirs = el.__directives;
+	var bodyDirs = el.__dirs__;
 	var listFragment = createFragment();
 
 	each(list, function (item, i) {

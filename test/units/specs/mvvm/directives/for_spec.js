@@ -27,7 +27,7 @@ describe("v-for >", function () {
 			}
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('The format of v-for must be like "item in items"!');
+		expect(util.warn).toHaveBeenCalledWith('The format of v-for must be like "item in/of items"!');
 	});
 
 

@@ -190,7 +190,7 @@ cp.complieDirectives = function (info) {
 
 		// vfor 编译时标记节点的指令数
 		if (vfor) {
-			defRec(node, '__directives', attrs.length);
+			defRec(node, '__dirs__', attrs.length);
 			attrs = [vfor];
 			vfor = null;
 		}
