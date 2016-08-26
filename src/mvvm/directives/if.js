@@ -59,10 +59,7 @@ vif.parse = function () {
 
 	// else 节点
 	var elseEl = getNextElement(el);
-	if (
-		elseEl &&
-		(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')
-	) {
+	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
 		this.elseElContent = elseEl.innerHTML;
 		empty(elseEl);

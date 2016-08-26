@@ -222,10 +222,7 @@ cp.compile = function (node, attr, scope) {
 	var Parser = this.parsers[dir];
 
 	// 不需要解析的指令
-	if (dir === 'velse') {
-		defRec(node, '__directive', directive);
-		return;
-	} else if (dir === 'vpre') {
+	if (dir === 'velse' || dir === 'vpre') {
 		return;
 	}
 

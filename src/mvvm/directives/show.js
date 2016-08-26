@@ -60,10 +60,7 @@ vshow.parse = function () {
 
 	// else 片段
 	var elseEl = getNextElement(el);
-	if (
-		elseEl &&
-		(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')
-	) {
+	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
 		setVisibleDisplay(elseEl);
 	}
