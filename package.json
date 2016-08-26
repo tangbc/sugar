@@ -1,6 +1,6 @@
 {
   "name": "sugar",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A lightweight JavaScript MVVM library for building web UI component.",
   "keywords": [
     "framework",
@@ -18,10 +18,11 @@
   "bugs": "https://github.com/tangbc/sugar/issues",
   "scripts": {
     "release": "bash build/release.sh",
-    "build": "npm run pack & npm run cover",
     "test": "karma start build/karma.unit.js",
     "cover": "karma start build/karma.cover.js",
     "dev": "npm run dev-sugar & npm run dev-mvvm",
+    "jshint": "node node_modules/.bin/jshint src",
+    "build": "npm run jshint && npm run pack & npm run cover",
     "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
     "dev-mvvm": "webpack --watch --config build/dev.mvvm.js",
     "dev-sugar": "webpack --watch --config build/dev.sugar.js",
@@ -36,11 +37,10 @@
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.9.0",
-    "gulp": "^3.9.0",
-    "gulp-jshint": "^1.11.2",
     "istanbul-instrumenter-loader": "^0.2.0",
     "jasmine-ajax": "^3.2.0",
     "jasmine-core": "^2.4.1",
+    "jshint": "^2.9.3",
     "karma": "^0.13.22",
     "karma-chrome-launcher": "^1.0.1",
     "karma-coverage": "^1.0.0",
