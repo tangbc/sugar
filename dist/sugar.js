@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.2.1 (c) 2016 TANG
+ * sugar.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Thu Aug 25 2016 21:27:55 GMT+0800 (CST)
+ * Fri Aug 26 2016 22:35:20 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2628,10 +2628,7 @@
 
 		// else 节点
 		var elseEl = getNextElement(el);
-		if (
-			elseEl &&
-			(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')
-		) {
+		if (elseEl && hasAttr(elseEl, 'v-else')) {
 			this.elseEl = elseEl;
 			this.elseElContent = elseEl.innerHTML;
 			empty(elseEl);
@@ -3131,10 +3128,7 @@
 
 		// else 片段
 		var elseEl = getNextElement(el);
-		if (
-			elseEl &&
-			(hasAttr(elseEl, 'v-else') || elseEl.__directive === 'v-else')
-		) {
+		if (elseEl && hasAttr(elseEl, 'v-else')) {
 			this.elseEl = elseEl;
 			setVisibleDisplay(elseEl);
 		}
@@ -3866,10 +3860,7 @@
 		var Parser = this.parsers[dir];
 
 		// 不需要解析的指令
-		if (dir === 'velse') {
-			defRec(node, '__directive', directive);
-			return;
-		} else if (dir === 'vpre') {
+		if (dir === 'velse' || dir === 'vpre') {
 			return;
 		}
 
