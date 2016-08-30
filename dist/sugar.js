@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Fri Aug 26 2016 22:35:20 GMT+0800 (CST)
+ * Tue Aug 30 2016 17:08:52 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -303,15 +303,15 @@
 	 * @return  {Mix}
 	 */
 	function copy (target) {
-		var ret;
+		var isA = isArray(target);
+		var isO = isObject(target);
+		var tmp = isA ? [] : (isO ? {} : null);
 
-		if (isArray(target)) {
-			ret = target.slice(0);
-		} else if (isObject(target)) {
-			ret = extend(true, {}, target);
+		if (tmp) {
+			return extend(true, tmp, target);
+		} else {
+			return target;
 		}
-
-		return ret || target;
 	}
 
 	/**
@@ -2124,28 +2124,6 @@
 	}
 
 	/**
-	 * 获取节点的下一个兄弟元素节点
-	 * @param  {Element}  node
-	 */
-	function getNextElement (node) {
-		var el = node.nextSibling;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-
-		while (el) {
-			el = el.nextSibling;
-
-			if (el && isElement(el)) {
-				return el;
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * 指令通用模块
 	 * 提供生成数据订阅和变化更新功能
 	 * @param  {Object}   parser  [指令解析模块实例]
@@ -2627,7 +2605,7 @@
 		empty(el);
 
 		// else 节点
-		var elseEl = getNextElement(el);
+		var elseEl = el.nextElementSibling;
 		if (elseEl && hasAttr(elseEl, 'v-else')) {
 			this.elseEl = elseEl;
 			this.elseElContent = elseEl.innerHTML;
@@ -3127,7 +3105,7 @@
 		setVisibleDisplay(el);
 
 		// else 片段
-		var elseEl = getNextElement(el);
+		var elseEl = el.nextElementSibling;
 		if (elseEl && hasAttr(elseEl, 'v-else')) {
 			this.elseEl = elseEl;
 			setVisibleDisplay(elseEl);
