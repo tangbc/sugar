@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Tue Aug 30 2016 17:08:53 GMT+0800 (CST)
+ * Tue Aug 30 2016 17:51:31 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -303,15 +303,15 @@
 	 * @return  {Mix}
 	 */
 	function copy (target) {
-		var isA = isArray(target);
-		var isO = isObject(target);
-		var tmp = isA ? [] : (isO ? {} : null);
+		var ret;
 
-		if (tmp) {
-			return extend(true, tmp, target);
-		} else {
-			return target;
+		if (isArray(target)) {
+			ret = target.slice(0);
+		} else if (isObject(target)) {
+			ret = extend(true, {}, target);
 		}
+
+		return ret || target;
 	}
 
 	/**
