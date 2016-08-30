@@ -76,8 +76,8 @@ And then the HTML structure will be:
 
 There are several demos in **`demos/`** directory, check it out and preview them in the following links:
 
-* [Star rating](http://tangbc.github.io/sugar/demos/star)
-* [Simple datePicker](http://tangbc.github.io/sugar/demos/date)
+* [Star rating](http://tangbc.github.io/sugar/demos/starRating)
+* [Simple datePicker](http://tangbc.github.io/sugar/demos/datePicker)
 * [Simple todoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
 
 You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
