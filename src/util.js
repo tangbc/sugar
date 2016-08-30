@@ -290,15 +290,15 @@ export function extend () {
  * @return  {Mix}
  */
 export function copy (target) {
-	var ret;
+	var isA = isArray(target);
+	var isO = isObject(target);
+	var tmp = isA ? [] : (isO ? {} : null);
 
-	if (isArray(target)) {
-		ret = target.slice(0);
-	} else if (isObject(target)) {
-		ret = extend(true, {}, target);
+	if (tmp) {
+		return extend(true, tmp, target);
+	} else {
+		return target;
 	}
-
-	return ret || target;
 }
 
 /**
