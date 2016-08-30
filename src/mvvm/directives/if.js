@@ -1,6 +1,6 @@
 import Parser, { linkParser } from '../parser';
 import { hasOwn, stringToFragment } from '../../util';
-import { isElement, hasAttr, empty, getNextElement } from '../../dom';
+import { isElement, hasAttr, empty } from '../../dom';
 
 /**
  * 移除 DOM 注册的引用
@@ -58,7 +58,7 @@ vif.parse = function () {
 	empty(el);
 
 	// else 节点
-	var elseEl = getNextElement(el);
+	var elseEl = el.nextElementSibling;
 	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
 		this.elseElContent = elseEl.innerHTML;

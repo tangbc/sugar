@@ -166,25 +166,3 @@ export function addEvent (node, evt, callback, capture) {
 export function removeEvent (node, evt, callback, capture) {
 	node.removeEventListener(evt, callback, capture);
 }
-
-/**
- * 获取节点的下一个兄弟元素节点
- * @param  {Element}  node
- */
-export function getNextElement (node) {
-	var el = node.nextSibling;
-
-	if (el && isElement(el)) {
-		return el;
-	}
-
-	while (el) {
-		el = el.nextSibling;
-
-		if (el && isElement(el)) {
-			return el;
-		}
-	}
-
-	return null;
-}

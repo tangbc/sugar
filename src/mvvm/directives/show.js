@@ -1,5 +1,5 @@
+import { getAttr, hasAttr } from '../../dom';
 import Parser, { linkParser } from '../parser';
-import { getAttr, hasAttr, getNextElement } from '../../dom';
 import { removeSpace, getKeyValue, each, defRec } from '../../util';
 
 const visibleDisplay = '__visible__';
@@ -59,7 +59,7 @@ vshow.parse = function () {
 	setVisibleDisplay(el);
 
 	// else 片段
-	var elseEl = getNextElement(el);
+	var elseEl = el.nextElementSibling;
 	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
 		setVisibleDisplay(elseEl);
