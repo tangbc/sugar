@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Tue Aug 30 2016 17:51:31 GMT+0800 (CST)
+ * Wed Aug 31 2016 14:53:57 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1056,238 +1056,119 @@
 		this.vm = this.callback = this.context = null;
 	}
 
-	// 重写数组操作方法
-	var rewriteArrayMethods = [
-		'pop',
-		'push',
-		'sort',
-		'shift',
-		'splice',
-		'unshift',
-		'reverse'
-	];
+	/**
+	 * 指令通用模块
+	 * 提供生成数据订阅和变化更新功能
+	 * @param  {Object}   parser  [指令解析模块实例]
+	 */
+	function Directive (parser) {
+		this.parser = parser;
+		this.$scope = parser.$scope;
+	}
 
-	var arrayProto = Array.prototype;
-	var arrayMethods = Object.create(arrayProto);
+	var dp$1 = Directive.prototype;
 
 	/**
-	 * 重写 array 操作方法
+	 * 安装/解析指令，订阅数据、更新视图
 	 */
-	each(rewriteArrayMethods, function (method) {
-		var original = arrayProto[method];
+	dp$1.install = function () {
+		var parser = this.parser;
 
-		defRec(arrayMethods, method, function () {
-			var arguments$1 = arguments;
+		// 生成数据订阅实例
+		var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
 
-			var args = [];
-			var ob = this.__ob__;
-
-			for (var i = 0; i < arguments.length; i++) {
-				args.push(arguments$1[i]);
-			}
-
-			ob.dep.beforeNotify();
-
-			var result = original.apply(this, args);
-
-			var inserts;
-			switch (method) {
-				case 'push':
-				case 'unshift':
-					inserts = args;
-					break;
-				case 'splice':
-					inserts = args.slice(2);
-					break;
-			}
-
-			if (inserts && inserts.length) {
-				observeArray(inserts);
-			}
-
-			ob.dep.notify({method: method, args: args});
-
-			return result;
-		});
-	});
-
-	/**
-	 * 添加 $set 方法
-	 * 提供需要修改的数组项下标 index 和新值 value
-	 */
-	defRec(arrayMethods, '$set', function (index, value) {
-		// 超出数组长度默认追加到最后
-		if (index >= this.length) {
-			index = this.length;
-		}
-		return this.splice(index, 1, value)[0];
-	});
-
-	/**
-	 * 添加 $remove 方法
-	 */
-	defRec(arrayMethods, '$remove', function (item) {
-		var index = this.indexOf(item);
-		if (index > -1) {
-			return this.splice(index, 1);
-		}
-	});
-
-	/**
-	 * 修改 array 的原型
-	 * @param   {Array}  array
-	 */
-	function changeArrayProto (array) {
-		array.__proto__ = arrayMethods;
+		// 更新初始视图
+		this.update(watcher.value);
 	}
 
 	/**
-	 * 监测对象
-	 * @param   {Object}  object
+	 * 销毁/卸载指令
 	 */
-	function observeObject (object) {
-		each(object, function (value, key) {
-			observe(object, key, value);
-		});
+	dp$1.uninstall = function () {
+		this.watcher.destory();
+		this.parser = this.$scope = null;
 	}
 
 	/**
-	 * 监测数组
-	 * @param   {Array}   array
-	 * @param   {String}  key
+	 * 更新指令视图
+	 * @param   {Mix}     newVal  [依赖数据新值]
+	 * @param   {Mix}     oldVal  [依赖数据旧值]
+	 * @param   {Object}  args    [数组操作参数信息]
 	 */
-	function observeArray (array, key) {
-		changeArrayProto(array);
-		each(array, function (item) {
-			createObserver(item, key);
-		});
+	dp$1.update = function (newVal, oldVal, args) {
+		var parser = this.parser;
+		parser.update.call(parser, newVal, oldVal, args);
 	}
 
 	/**
-	 * 数据监测模块
-	 * @param  {Object}  data  [监测对象/数组]
-	 * @param  {String}  key   [监测字段名称]
+	 * 获取依赖数据当前值
+	 * @return  {Mix}
 	 */
-	function Observer (data, key) {
-		this.dep = new Depend(key);
+	dp$1.get = function () {
+		return this.watcher.value;
+	}
 
-		if (isArray(data)) {
-			observeArray(data, key);
-		} else {
-			observeObject(data);
+	/**
+	 * 设置依赖数据的值（用于双向数据绑定）
+	 * @param  {Mix}  value
+	 */
+	dp$1.set = function (value) {
+		this.watcher.setValue(value);
+	}
+
+	/**
+	 * Parser 基础指令解析器模块
+	 * @param  {Object}   vm
+	 * @param  {Element}  node
+	 * @param  {Object}   desc
+	 * @param  {Object}   scope
+	 */
+	function Parser (vm, node, desc, scope) {
+		// 数据缓存
+		this.vm = vm;
+		this.el = node;
+		this.desc = desc;
+		this.$scope = scope;
+
+		// 解析指令
+		this.parse();
+	}
+
+	var pp = Parser.prototype;
+
+	/**
+	 * 安装一个指令实例
+	 */
+	pp.bind = function () {
+		var dir = this.directive = new Directive(this);
+		dir.install();
+	}
+
+	/**
+	 * 指令销毁函数
+	 */
+	pp.destroy = function () {
+		var directive = this.directive;
+
+		// 有些指令没有实例化 Directive
+		// 所以需要调用额外定义的销毁函数
+		if (directive) {
+			directive.uninstall();
+		} else if (this._destroy) {
+			this._destroy();
 		}
 
-		defRec(data, '__ob__', this);
+		this.vm = this.desc = this.$scope = null;
 	}
 
 
 	/**
-	 * 创建一个对象监测
-	 * @param   {Object|Array}  target
-	 * @param   {String}        key
-	 * @return  {Object}
+	 * 解析器模块的类式继承
+	 * @param   {Function}   PostParser
+	 * @return  {Prototype}
 	 */
-	function createObserver (target, key) {
-		if (isObject(target) || isArray(target)) {
-			return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, key);
-		}
-	}
-
-	/**
-	 * 监测 object[key] 的变化 & 依赖收集
-	 * @param   {Object}  object
-	 * @param   {String}  key
-	 * @param   {Mix}     value
-	 */
-	function observe (object, key, value) {
-		var dep = new Depend(key);
-		var descriptor = Object.getOwnPropertyDescriptor(object, key);
-		var getter = descriptor && descriptor.get;
-		var setter = descriptor && descriptor.set;
-
-		var childOb = createObserver(value, key);
-
-		Object.defineProperty(object, key, {
-			get: function Getter () {
-				var val = getter ? getter.call(object) : value;
-
-				if (Depend.watcher) {
-					dep.depend();
-					if (childOb) {
-						childOb.dep.depend();
-					}
-				}
-
-				if (isArray(val)) {
-					each(val, function (item) {
-						var ob = item && item.__ob__;
-						if (ob) {
-							ob.dep.depend();
-						}
-					});
-				}
-
-				return val;
-			},
-			set: function Setter (newValue) {
-				var oldValue = getter ? getter.call(object) : value;
-
-				if (newValue === oldValue) {
-					return;
-				}
-
-				dep.beforeNotify();
-
-				if (setter) {
-					setter.call(object, newValue);
-				} else {
-					value = newValue;
-				}
-
-				childOb = createObserver(newValue, key);
-				dep.notify();
-			}
-		});
-	}
-
-
-	/**
-	 * 生成计算属性取值函数
-	 * @param   {Object}    vm
-	 * @param   {Function}  getter
-	 * @return  {Function}
-	 */
-	function createComputedGetter (vm, getter) {
-		var watcher = new Watcher(vm, {
-			'expression': getter.bind(vm)
-		});
-
-		return function computedGetter () {
-			if (Depend.watcher) {
-				each(watcher.depends, function (dep) {
-					dep.depend();
-				});
-			}
-			return watcher.value;
-		}
-	}
-
-	/**
-	 * 设置 vm 的计算属性
-	 * @param  {Object}  vm
-	 * @param  {Object}  computed
-	 */
-	function setComputedProperty (vm, computed) {
-		each(computed, function (getter, property) {
-			if (!isFunc(getter)) {
-				return warn('computed property ['+ property +'] must be a getter function!');
-			}
-
-			Object.defineProperty(vm, property, {
-				set: noop,
-				get: createComputedGetter(vm, getter)
-			});
-		});
+	function linkParser (PostParser) {
+		return PostParser.prototype = Object.create(Parser.prototype);
 	}
 
 	/**
@@ -1457,121 +1338,6 @@
 	 */
 	function removeEvent (node, evt, callback, capture) {
 		node.removeEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 指令通用模块
-	 * 提供生成数据订阅和变化更新功能
-	 * @param  {Object}   parser  [指令解析模块实例]
-	 */
-	function Directive (parser) {
-		this.parser = parser;
-		this.$scope = parser.$scope;
-	}
-
-	var dp$1 = Directive.prototype;
-
-	/**
-	 * 安装/解析指令，订阅数据、更新视图
-	 */
-	dp$1.install = function () {
-		var parser = this.parser;
-
-		// 生成数据订阅实例
-		var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
-
-		// 更新初始视图
-		this.update(watcher.value);
-	}
-
-	/**
-	 * 销毁/卸载指令
-	 */
-	dp$1.uninstall = function () {
-		this.watcher.destory();
-		this.parser = this.$scope = null;
-	}
-
-	/**
-	 * 更新指令视图
-	 * @param   {Mix}     newVal  [依赖数据新值]
-	 * @param   {Mix}     oldVal  [依赖数据旧值]
-	 * @param   {Object}  args    [数组操作参数信息]
-	 */
-	dp$1.update = function (newVal, oldVal, args) {
-		var parser = this.parser;
-		parser.update.call(parser, newVal, oldVal, args);
-	}
-
-	/**
-	 * 获取依赖数据当前值
-	 * @return  {Mix}
-	 */
-	dp$1.get = function () {
-		return this.watcher.value;
-	}
-
-	/**
-	 * 设置依赖数据的值（用于双向数据绑定）
-	 * @param  {Mix}  value
-	 */
-	dp$1.set = function (value) {
-		this.watcher.setValue(value);
-	}
-
-	/**
-	 * Parser 基础指令解析器模块
-	 * @param  {Object}   vm
-	 * @param  {Element}  node
-	 * @param  {Object}   desc
-	 * @param  {Object}   scope
-	 */
-	function Parser (vm, node, desc, scope) {
-		// 数据缓存
-		this.vm = vm;
-		this.el = node;
-		this.desc = desc;
-		this.$scope = scope;
-
-		// 解析指令
-		this.parse();
-	}
-
-	var pp = Parser.prototype;
-
-	/**
-	 * 安装一个指令实例
-	 */
-	pp.bind = function () {
-		var dir = this.directive = new Directive(this);
-		dir.install();
-	}
-
-	/**
-	 * 指令销毁函数
-	 */
-	pp.destroy = function () {
-		var directive = this.directive;
-
-		// 有些指令没有实例化 Directive
-		// 所以需要调用额外定义的销毁函数
-		if (directive) {
-			directive.uninstall();
-		} else if (this._destroy) {
-			this._destroy();
-		}
-
-		this.vm = this.desc = this.$scope = null;
-	}
-
-
-	/**
-	 * 解析器模块的类式继承
-	 * @param   {Function}   PostParser
-	 * @return  {Prototype}
-	 */
-	function linkParser (PostParser) {
-		return PostParser.prototype = Object.create(Parser.prototype);
 	}
 
 	var regBigBrackets = /^\{.*\}$/;
@@ -1973,7 +1739,7 @@
 
 		// 渲染
 		if (isRender) {
-			vm.complieElement(frag, true, this.$scope);
+			vm.collect(frag, true, this.$scope);
 			node.appendChild(frag);
 		}
 		// 不渲染的情况需要移除 DOM 注册的引用
@@ -1981,6 +1747,240 @@
 			empty(node);
 			removeDOMRegister(vm, frag);
 		}
+	}
+
+	// 重写数组操作方法
+	var rewriteArrayMethods = [
+		'pop',
+		'push',
+		'sort',
+		'shift',
+		'splice',
+		'unshift',
+		'reverse'
+	];
+
+	var arrayProto = Array.prototype;
+	var arrayMethods = Object.create(arrayProto);
+
+	/**
+	 * 重写 array 操作方法
+	 */
+	each(rewriteArrayMethods, function (method) {
+		var original = arrayProto[method];
+
+		defRec(arrayMethods, method, function () {
+			var arguments$1 = arguments;
+
+			var args = [];
+			var ob = this.__ob__;
+
+			for (var i = 0; i < arguments.length; i++) {
+				args.push(arguments$1[i]);
+			}
+
+			ob.dep.beforeNotify();
+
+			var result = original.apply(this, args);
+
+			var inserts;
+			switch (method) {
+				case 'push':
+				case 'unshift':
+					inserts = args;
+					break;
+				case 'splice':
+					inserts = args.slice(2);
+					break;
+			}
+
+			if (inserts && inserts.length) {
+				observeArray(inserts);
+			}
+
+			ob.dep.notify({method: method, args: args});
+
+			return result;
+		});
+	});
+
+	/**
+	 * 添加 $set 方法
+	 * 提供需要修改的数组项下标 index 和新值 value
+	 */
+	defRec(arrayMethods, '$set', function (index, value) {
+		// 超出数组长度默认追加到最后
+		if (index >= this.length) {
+			index = this.length;
+		}
+		return this.splice(index, 1, value)[0];
+	});
+
+	/**
+	 * 添加 $remove 方法
+	 */
+	defRec(arrayMethods, '$remove', function (item) {
+		var index = this.indexOf(item);
+		if (index > -1) {
+			return this.splice(index, 1);
+		}
+	});
+
+	/**
+	 * 修改 array 的原型
+	 * @param   {Array}  array
+	 */
+	function changeArrayProto (array) {
+		array.__proto__ = arrayMethods;
+	}
+
+	/**
+	 * 监测对象
+	 * @param   {Object}  object
+	 */
+	function observeObject (object) {
+		each(object, function (value, key) {
+			observe(object, key, value);
+		});
+	}
+
+	/**
+	 * 监测数组
+	 * @param   {Array}   array
+	 * @param   {String}  key
+	 */
+	function observeArray (array, key) {
+		changeArrayProto(array);
+		each(array, function (item) {
+			createObserver(item, key);
+		});
+	}
+
+	/**
+	 * 数据监测模块
+	 * @param  {Object}  data  [监测对象/数组]
+	 * @param  {String}  key   [监测字段名称]
+	 */
+	function Observer (data, key) {
+		this.dep = new Depend(key);
+
+		if (isArray(data)) {
+			observeArray(data, key);
+		} else {
+			observeObject(data);
+		}
+
+		defRec(data, '__ob__', this);
+	}
+
+
+	/**
+	 * 创建一个对象监测
+	 * @param   {Object|Array}  target
+	 * @param   {String}        key
+	 * @return  {Object}
+	 */
+	function createObserver (target, key) {
+		if (isObject(target) || isArray(target)) {
+			return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, key);
+		}
+	}
+
+	/**
+	 * 监测 object[key] 的变化 & 依赖收集
+	 * @param   {Object}  object
+	 * @param   {String}  key
+	 * @param   {Mix}     value
+	 */
+	function observe (object, key, value) {
+		var dep = new Depend(key);
+		var descriptor = Object.getOwnPropertyDescriptor(object, key);
+		var getter = descriptor && descriptor.get;
+		var setter = descriptor && descriptor.set;
+
+		var childOb = createObserver(value, key);
+
+		Object.defineProperty(object, key, {
+			get: function Getter () {
+				var val = getter ? getter.call(object) : value;
+
+				if (Depend.watcher) {
+					dep.depend();
+					if (childOb) {
+						childOb.dep.depend();
+					}
+				}
+
+				if (isArray(val)) {
+					each(val, function (item) {
+						var ob = item && item.__ob__;
+						if (ob) {
+							ob.dep.depend();
+						}
+					});
+				}
+
+				return val;
+			},
+			set: function Setter (newValue) {
+				var oldValue = getter ? getter.call(object) : value;
+
+				if (newValue === oldValue) {
+					return;
+				}
+
+				dep.beforeNotify();
+
+				if (setter) {
+					setter.call(object, newValue);
+				} else {
+					value = newValue;
+				}
+
+				childOb = createObserver(newValue, key);
+				dep.notify();
+			}
+		});
+	}
+
+
+	/**
+	 * 生成计算属性取值函数
+	 * @param   {Object}    vm
+	 * @param   {Function}  getter
+	 * @return  {Function}
+	 */
+	function createComputedGetter (vm, getter) {
+		var watcher = new Watcher(vm, {
+			'expression': getter.bind(vm)
+		});
+
+		return function computedGetter () {
+			if (Depend.watcher) {
+				each(watcher.depends, function (dep) {
+					dep.depend();
+				});
+			}
+			return watcher.value;
+		}
+	}
+
+	/**
+	 * 设置 vm 的计算属性
+	 * @param  {Object}  vm
+	 * @param  {Object}  computed
+	 */
+	function setComputedProperty (vm, computed) {
+		each(computed, function (getter, property) {
+			if (!isFunc(getter)) {
+				return warn('computed property ['+ property +'] must be a getter function!');
+			}
+
+			Object.defineProperty(vm, property, {
+				set: noop,
+				get: createComputedGetter(vm, getter)
+			});
+		});
 	}
 
 	var vforAlias = '__vfor__';
@@ -2184,8 +2184,8 @@
 			// 标记别名
 			markVforFeature(plate, vforAlias, alias);
 
-			// 编译板块
-			vm.complieElement(plate, true, scope);
+			// 收集指令并编译板块
+			vm.collect(plate, true, scope);
 			listFragment.appendChild(plate);
 		}, this);
 
@@ -2953,10 +2953,13 @@
 		addEvent(this.el, type, callback, false);
 	}
 
+	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel };
+
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
 	var regHtml = /\{\{\{(.+?)\}\}\}/g;
 	var regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
+	var noNeedParsers = ['velse', 'vpre', 'vcloak'];
 	var regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 	/**
@@ -3046,17 +3049,17 @@
 		defRec(this.$data, '$els', {});
 
 		// 编译节点缓存队列
-		this.$unCompiles = [];
+		this.$compiles = [];
 		// 根节点是否已完成编译
-		this.$rootComplied = false;
+		this.$complied = false;
 
 		// 指令实例缓存
-		this.directives = [];
+		this.$directives = [];
 		// 指令解析模块
-		this.parsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel };
+		this.$parsers = directiveParsers;
 
 		// 监测数据模型
-		this.ob = createObserver(this.$data, '__MODEL__');
+		this.$ob = createObserver(this.$data, '__MODEL__');
 
 		// 设置计算属性
 		if (computed) {
@@ -3069,33 +3072,34 @@
 	var cp = Compiler.prototype;
 
 	cp.init = function () {
-		this.complieElement(this.$fragment, true);
+		this.collect(this.$fragment, true);
 	}
 
 	/**
-	 * 编译文档碎片/节点
+	 * 收集节点所有需要编译的指令
+	 * 并在收集完成后编译指令队列
 	 * @param   {Element}  element  [文档碎片/节点]
 	 * @param   {Boolean}  root     [是否编译根节点]
 	 * @param   {Object}   scope    [vfor 取值域]
 	 */
-	cp.complieElement = function (element, root, scope) {
+	cp.collect = function (element, root, scope) {
 		var this$1 = this;
 
 		var childNodes = element.childNodes;
 
 		if (root && hasDirective(element)) {
-			this.$unCompiles.push([element, scope]);
+			this.$compiles.push([element, scope]);
 		}
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var node = childNodes[i];
 
 			if (hasDirective(node)) {
-				this$1.$unCompiles.push([node, scope]);
+				this$1.$compiles.push([node, scope]);
 			}
 
 			if (node.hasChildNodes() && !isLateCompileChilds(node)) {
-				this$1.complieElement(node, false, scope);
+				this$1.collect(node, false, scope);
 			}
 		}
 
@@ -3108,8 +3112,8 @@
 	 * 编译节点缓存队列
 	 */
 	cp.compileAll = function () {
-		each(this.$unCompiles, function (info) {
-			this.complieDirectives(info);
+		each(this.$compiles, function (info) {
+			this.complieNode(info);
 			return null;
 		}, this);
 
@@ -3120,7 +3124,7 @@
 	 * 收集并编译节点指令
 	 * @param   {Array}  info  [node, scope]
 	 */
-	cp.complieDirectives = function (info) {
+	cp.complieNode = function (info) {
 		var node = info[0], scope = info[1];
 
 		if (isElement(node)) {
@@ -3140,7 +3144,7 @@
 				}
 			}
 
-			// vfor 编译时标记节点的指令数
+			// vfor 指令与其他指令共存时优先编译 vfor 指令
 			if (vfor) {
 				defRec(node, '__dirs__', attrs.length);
 				attrs = [vfor];
@@ -3167,19 +3171,19 @@
 		var desc = getDirectiveDesc(attr);
 		var directive = desc.directive;
 
+		var dir = 'v' + directive.substr(2);
+		var Parser = this.$parsers[dir];
+
 		// 移除指令标记
 		removeAttr(node, desc.attr);
 
-		var dir = 'v' + directive.substr(2);
-		var Parser = this.parsers[dir];
-
-		// 不需要解析的指令
-		if (dir === 'velse' || dir === 'vpre') {
+		// 不需要实例化解析的指令
+		if (noNeedParsers.indexOf(dir) > -1) {
 			return;
 		}
 
 		if (Parser) {
-			this.directives.push(new Parser(this, node, desc, scope));
+			this.$directives.push(new Parser(this, node, desc, scope));
 		} else {
 			warn('[' + directive + '] is an unknown directive!');
 		}
@@ -3205,7 +3209,7 @@
 			}
 
 			desc.expression = exp;
-			this.directives.push(new VHtml(this, node.parentNode, desc, scope));
+			this.$directives.push(new directiveParsers.vhtml(this, node.parentNode, desc, scope));
 
 		} else {
 			pieces = text.split(regText);
@@ -3223,7 +3227,7 @@
 			});
 
 			desc.expression = tokens.join('+');
-			this.directives.push(new VText(this, node, desc, scope));
+			this.$directives.push(new directiveParsers.vtext(this, node, desc, scope));
 		}
 	}
 
@@ -3234,7 +3238,7 @@
 	 * @param   {Element}  node
 	 */
 	cp.block = function (node) {
-		each(this.$unCompiles, function (info) {
+		each(this.$compiles, function (info) {
 			if (node === info[0]) {
 				return null;
 			}
@@ -3245,8 +3249,8 @@
 	 * 检查根节点是否编译完成
 	 */
 	cp.checkRoot = function () {
-		if (this.$unCompiles.length === 0 && !this.$rootComplied) {
-			this.$rootComplied = true;
+		if (this.$compiles.length === 0 && !this.$complied) {
+			this.$complied = true;
 			this.$element.appendChild(this.$fragment);
 		}
 	}
@@ -3255,10 +3259,9 @@
 	 * 销毁函数
 	 */
 	cp.destroy = function () {
+		this.$data = null;
 		empty(this.$element);
-		clearObject(this.parsers);
-		this.$data = this.ob = null;
-		each(this.directives, function (directive) {
+		each(this.$directives, function (directive) {
 			directive.destroy();
 			return null;
 		});
