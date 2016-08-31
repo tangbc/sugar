@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 31 2016 14:53:57 GMT+0800 (CST)
+ * Wed Aug 31 2016 18:30:38 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2953,7 +2953,32 @@
 		addEvent(this.el, type, callback, false);
 	}
 
-	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel };
+	/**
+	 * v-custom 指令解析模块
+	 */
+	function VCustom () {
+		Parser.apply(this, arguments);
+	}
+
+	var vcustom = linkParser(VCustom);
+
+	/**
+	 * 解析 v-custom 指令
+	 */
+	vcustom.parse = function () {
+		var desc = this.desc;
+		var customs = this.vm.$customs;
+		var update = customs[desc.args];
+
+		if (!isFunc(update)) {
+			return warn('Custom directive ['+ desc.attr +'] must define with a refresh function!');
+		}
+
+		this.update = update;
+		this.bind();
+	}
+
+	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel, vcustom: VCustom };
 
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
@@ -3065,6 +3090,9 @@
 		if (computed) {
 			setComputedProperty(this.$data, computed);
 		}
+
+		// 自定义指令刷新函数
+		this.$customs = option.customs || {};
 
 		this.init();
 	}
@@ -3272,7 +3300,9 @@
 	 * @param  {Object}  option    [数据参数对象]
 	 * @param  {Element}   - view      [视图对象]
 	 * @param  {Object}    - model     [数据对象]
+	 * @param  {Object}    - methods   [<可选>事件声明函数对象]
 	 * @param  {Object}    - computed  [<可选>计算属性对象]
+	 * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
 	 * @param  {Object}    - context   [<可选>回调上下文]
 	 */
 	function MVVM (option) {
@@ -3283,6 +3313,11 @@
 			if (isFunc(value)) {
 				option.model[key] = value.bind(this.context);
 			}
+		}, this);
+
+		// 整合事件函数声明对象
+		each(option.methods, function (callback, func) {
+			option.model[func] = callback.bind(this.context);
 		}, this);
 
 		// 初始数据备份，用于 reset

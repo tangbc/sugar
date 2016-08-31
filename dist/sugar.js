@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.2 (c) 2016 TANG
  * Released under the MIT license
- * Wed Aug 31 2016 14:53:56 GMT+0800 (CST)
+ * Wed Aug 31 2016 18:30:36 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1026,8 +1026,8 @@
 			}
 
 			// 调用销毁后函数，可进行销毁界面和事件
-			if (isFunc(this.afterDestroy)) {
-				this.afterDestroy();
+			if (isFunc(this._afterDestroy)) {
+				this._afterDestroy();
 			}
 
 			// 向父模块通知销毁消息
@@ -3617,7 +3617,32 @@
 		addEvent(this.el, type, callback, false);
 	}
 
-	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel };
+	/**
+	 * v-custom 指令解析模块
+	 */
+	function VCustom () {
+		Parser.apply(this, arguments);
+	}
+
+	var vcustom = linkParser(VCustom);
+
+	/**
+	 * 解析 v-custom 指令
+	 */
+	vcustom.parse = function () {
+		var desc = this.desc;
+		var customs = this.vm.$customs;
+		var update = customs[desc.args];
+
+		if (!isFunc(update)) {
+			return warn('Custom directive ['+ desc.attr +'] must define with a refresh function!');
+		}
+
+		this.update = update;
+		this.bind();
+	}
+
+	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel, vcustom: VCustom };
 
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
@@ -3729,6 +3754,9 @@
 		if (computed) {
 			setComputedProperty(this.$data, computed);
 		}
+
+		// 自定义指令刷新函数
+		this.$customs = option.customs || {};
 
 		this.init();
 	}
@@ -3936,7 +3964,9 @@
 	 * @param  {Object}  option    [数据参数对象]
 	 * @param  {Element}   - view      [视图对象]
 	 * @param  {Object}    - model     [数据对象]
+	 * @param  {Object}    - methods   [<可选>事件声明函数对象]
 	 * @param  {Object}    - computed  [<可选>计算属性对象]
+	 * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
 	 * @param  {Object}    - context   [<可选>回调上下文]
 	 */
 	function MVVM (option) {
@@ -3947,6 +3977,11 @@
 			if (isFunc(value)) {
 				option.model[key] = value.bind(this.context);
 			}
+		}, this);
+
+		// 整合事件函数声明对象
+		each(option.methods, function (callback, func) {
+			option.model[func] = callback.bind(this.context);
 		}, this);
 
 		// 初始数据备份，用于 reset
@@ -4091,30 +4126,30 @@
 		 */
 		init: function (config, parent) {
 			this._config = this.cover(config, {
-				// 组件目标容器
-				'target'  : null,
-				// 组件是否替换目标容器
-				'replace' : false,
-				// dom 元素的标签
-				'tag'     : 'div',
-				// 元素的 class
-				'class'   : '',
-				// 元素的 css
-				'css'     : null,
-				// 元素的 attr
-				'attr'    : null,
-				// 视图布局内容
-				'view'    : '',
-				// 静态模板 uri
-				'template': '',
-				// 模板拉取请求参数
-				'tplParam': null,
-				// mvvm 数据模型对象
-				'model'   : null,
-				// mvvm 计算属性对象
-				'computed': null,
-				// 子组件注册对象
-				'childs'  : null,
+				/********* 组件位置定义 *********/
+				'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
+				'replace': false, // 组件是否替换目标容器 <Boolean>
+
+				/********* 组件属性定义 *********/
+				'tag'  : 'div', // dom 元素的标签
+				'css'  : null,  // 元素的 css <Object>
+				'attr' : null,  // 元素的 attr <Object>
+				'class': '',    // 元素的 class <String>
+
+				/********* 组件布局定义 *********/
+				'view'    : '',   // 视图布局内容 <HTMLString>
+				'template': '',   // 静态模板 uri <UrlString>
+				'tplParam': null, // 模板拉取请求参数 <Object>
+
+				/********* 组件 MVVM 定义 *********/
+				'model'   : null, // mvvm 数据模型对象 <Object>
+				'methods' : null, // 事件声明函数对象  <Object>
+				'computed': null, // mvvm 计算属性对象 <Object>
+				'customs' : null, // 自定义指令刷新函数对象 <Object>
+
+				/********* 声明式嵌套子组件定义 *********/
+				'childs': null, // <Object>
+
 				// 视图渲染完成后的回调函数
 				'cbRender': 'afterRender'
 			});
@@ -4220,7 +4255,9 @@
 				this.vm = new MVVM({
 					'view'    : this.el,
 					'model'   : model,
+					'methods' : c.methods,
 					'computed': c.computed,
+					'customs' : c.customs,
 					'context' : this
 				});
 			}
@@ -4291,6 +4328,28 @@
 			else if (isArray(ChildComp)) {
 				this.create(childName, ChildComp[0], extend(ChildComp[1], childConfig));
 			}
+		},
+
+		/**
+		 * 组件销毁后的回调函数
+		 */
+		_afterDestroy: function () {
+			var vm = this.vm;
+			var el = this.el;
+			var parent = el.parentNode;
+
+			// 销毁 mvvm 实例
+			if (vm) {
+				vm.destroy();
+			}
+
+			// 销毁 dom 对象
+			if (parent) {
+				parent.removeChild(el);
+			}
+
+			this.el = this.vm = null;
+			clearObject(this.$listeners);
 		},
 
 		/**
@@ -4374,28 +4433,6 @@
 			if (eventAgent) {
 				removeEvent(node, type, eventAgent, capture);
 			}
-		},
-
-		/**
-		 * 组件销毁后的回调函数
-		 */
-		afterDestroy: function () {
-			var vm = this.vm;
-			var el = this.el;
-			var parent = el.parentNode;
-
-			// 销毁 mvvm 实例
-			if (vm) {
-				vm.destroy();
-			}
-
-			// 销毁 dom 对象
-			if (parent) {
-				parent.removeChild(el);
-			}
-
-			this.el = this.vm = null;
-			clearObject(this.$listeners);
 		}
 	});
 
