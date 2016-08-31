@@ -90,7 +90,7 @@ vif.toggle = function (node, content, isRender) {
 
 	// 渲染
 	if (isRender) {
-		vm.complieElement(frag, true, this.$scope);
+		vm.collect(frag, true, this.$scope);
 		node.appendChild(frag);
 	}
 	// 不渲染的情况需要移除 DOM 注册的引用

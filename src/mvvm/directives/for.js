@@ -203,8 +203,8 @@ vfor.buildList = function (list, startIndex) {
 		// 标记别名
 		markVforFeature(plate, vforAlias, alias);
 
-		// 编译板块
-		vm.complieElement(plate, true, scope);
+		// 收集指令并编译板块
+		vm.collect(plate, true, scope);
 		listFragment.appendChild(plate);
 	}, this);
 

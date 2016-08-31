@@ -1,12 +1,13 @@
+import { directiveParsers } from './directives/index';
 import { createObserver, setComputedProperty } from './observe/index';
+import { defRec, each, warn, isObject, nodeToFragment } from '../util';
 import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
-import { defRec, each, warn, isObject, nodeToFragment, clearObject } from '../util';
-import { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel } from './directives/index';
 
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
 const regHtml = /\{\{\{(.+?)\}\}\}/g;
 const regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
+const noNeedParsers = ['velse', 'vpre', 'vcloak'];
 const regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 /**
@@ -96,17 +97,17 @@ function Compiler (option) {
 	defRec(this.$data, '$els', {});
 
 	// 编译节点缓存队列
-	this.$unCompiles = [];
+	this.$compiles = [];
 	// 根节点是否已完成编译
-	this.$rootComplied = false;
+	this.$complied = false;
 
 	// 指令实例缓存
-	this.directives = [];
+	this.$directives = [];
 	// 指令解析模块
-	this.parsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel };
+	this.$parsers = directiveParsers;
 
 	// 监测数据模型
-	this.ob = createObserver(this.$data, '__MODEL__');
+	this.$ob = createObserver(this.$data, '__MODEL__');
 
 	// 设置计算属性
 	if (computed) {
@@ -119,31 +120,32 @@ function Compiler (option) {
 var cp = Compiler.prototype;
 
 cp.init = function () {
-	this.complieElement(this.$fragment, true);
+	this.collect(this.$fragment, true);
 }
 
 /**
- * 编译文档碎片/节点
+ * 收集节点所有需要编译的指令
+ * 并在收集完成后编译指令队列
  * @param   {Element}  element  [文档碎片/节点]
  * @param   {Boolean}  root     [是否编译根节点]
  * @param   {Object}   scope    [vfor 取值域]
  */
-cp.complieElement = function (element, root, scope) {
+cp.collect = function (element, root, scope) {
 	var childNodes = element.childNodes;
 
 	if (root && hasDirective(element)) {
-		this.$unCompiles.push([element, scope]);
+		this.$compiles.push([element, scope]);
 	}
 
 	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
 		if (hasDirective(node)) {
-			this.$unCompiles.push([node, scope]);
+			this.$compiles.push([node, scope]);
 		}
 
 		if (node.hasChildNodes() && !isLateCompileChilds(node)) {
-			this.complieElement(node, false, scope);
+			this.collect(node, false, scope);
 		}
 	}
 
@@ -156,8 +158,8 @@ cp.complieElement = function (element, root, scope) {
  * 编译节点缓存队列
  */
 cp.compileAll = function () {
-	each(this.$unCompiles, function (info) {
-		this.complieDirectives(info);
+	each(this.$compiles, function (info) {
+		this.complieNode(info);
 		return null;
 	}, this);
 
@@ -168,7 +170,7 @@ cp.compileAll = function () {
  * 收集并编译节点指令
  * @param   {Array}  info  [node, scope]
  */
-cp.complieDirectives = function (info) {
+cp.complieNode = function (info) {
 	var node = info[0], scope = info[1];
 
 	if (isElement(node)) {
@@ -188,7 +190,7 @@ cp.complieDirectives = function (info) {
 			}
 		}
 
-		// vfor 编译时标记节点的指令数
+		// vfor 指令与其他指令共存时优先编译 vfor 指令
 		if (vfor) {
 			defRec(node, '__dirs__', attrs.length);
 			attrs = [vfor];
@@ -215,19 +217,19 @@ cp.compile = function (node, attr, scope) {
 	var desc = getDirectiveDesc(attr);
 	var directive = desc.directive;
 
+	var dir = 'v' + directive.substr(2);
+	var Parser = this.$parsers[dir];
+
 	// 移除指令标记
 	removeAttr(node, desc.attr);
 
-	var dir = 'v' + directive.substr(2);
-	var Parser = this.parsers[dir];
-
-	// 不需要解析的指令
-	if (dir === 'velse' || dir === 'vpre') {
+	// 不需要实例化解析的指令
+	if (noNeedParsers.indexOf(dir) > -1) {
 		return;
 	}
 
 	if (Parser) {
-		this.directives.push(new Parser(this, node, desc, scope));
+		this.$directives.push(new Parser(this, node, desc, scope));
 	} else {
 		warn('[' + directive + '] is an unknown directive!');
 	}
@@ -253,7 +255,7 @@ cp.compileText = function (node, scope) {
 		}
 
 		desc.expression = exp;
-		this.directives.push(new vhtml(this, node.parentNode, desc, scope));
+		this.$directives.push(new directiveParsers.vhtml(this, node.parentNode, desc, scope));
 
 	} else {
 		pieces = text.split(regText);
@@ -271,7 +273,7 @@ cp.compileText = function (node, scope) {
 		});
 
 		desc.expression = tokens.join('+');
-		this.directives.push(new vtext(this, node, desc, scope));
+		this.$directives.push(new directiveParsers.vtext(this, node, desc, scope));
 	}
 }
 
@@ -282,7 +284,7 @@ cp.compileText = function (node, scope) {
  * @param   {Element}  node
  */
 cp.block = function (node) {
-	each(this.$unCompiles, function (info) {
+	each(this.$compiles, function (info) {
 		if (node === info[0]) {
 			return null;
 		}
@@ -293,8 +295,8 @@ cp.block = function (node) {
  * 检查根节点是否编译完成
  */
 cp.checkRoot = function () {
-	if (this.$unCompiles.length === 0 && !this.$rootComplied) {
-		this.$rootComplied = true;
+	if (this.$compiles.length === 0 && !this.$complied) {
+		this.$complied = true;
 		this.$element.appendChild(this.$fragment);
 	}
 }
@@ -303,10 +305,9 @@ cp.checkRoot = function () {
  * 销毁函数
  */
 cp.destroy = function () {
+	this.$data = null;
 	empty(this.$element);
-	clearObject(this.parsers);
-	this.$data = this.ob = null;
-	each(this.directives, function (directive) {
+	each(this.$directives, function (directive) {
 		directive.destroy();
 		return null;
 	});
