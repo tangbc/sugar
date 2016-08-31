@@ -114,6 +114,9 @@ function Compiler (option) {
 		setComputedProperty(this.$data, computed);
 	}
 
+	// 自定义指令刷新函数
+	this.$customs = option.customs || {};
+
 	this.init();
 }
 

@@ -56,30 +56,30 @@ var Component = Module.extend({
 	 */
 	init: function (config, parent) {
 		this._config = this.cover(config, {
-			// 组件目标容器
-			'target'  : null,
-			// 组件是否替换目标容器
-			'replace' : false,
-			// dom 元素的标签
-			'tag'     : 'div',
-			// 元素的 class
-			'class'   : '',
-			// 元素的 css
-			'css'     : null,
-			// 元素的 attr
-			'attr'    : null,
-			// 视图布局内容
-			'view'    : '',
-			// 静态模板 uri
-			'template': '',
-			// 模板拉取请求参数
-			'tplParam': null,
-			// mvvm 数据模型对象
-			'model'   : null,
-			// mvvm 计算属性对象
-			'computed': null,
-			// 子组件注册对象
-			'childs'  : null,
+			/********* 组件位置定义 *********/
+			'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
+			'replace': false, // 组件是否替换目标容器 <Boolean>
+
+			/********* 组件属性定义 *********/
+			'tag'  : 'div', // dom 元素的标签
+			'css'  : null,  // 元素的 css <Object>
+			'attr' : null,  // 元素的 attr <Object>
+			'class': '',    // 元素的 class <String>
+
+			/********* 组件布局定义 *********/
+			'view'    : '',   // 视图布局内容 <HTMLString>
+			'template': '',   // 静态模板 uri <UrlString>
+			'tplParam': null, // 模板拉取请求参数 <Object>
+
+			/********* 组件 MVVM 定义 *********/
+			'model'   : null, // mvvm 数据模型对象 <Object>
+			'methods' : null, // 事件声明函数对象  <Object>
+			'computed': null, // mvvm 计算属性对象 <Object>
+			'customs' : null, // 自定义指令刷新函数对象 <Object>
+
+			/********* 声明式嵌套子组件定义 *********/
+			'childs': null, // <Object>
+
 			// 视图渲染完成后的回调函数
 			'cbRender': 'afterRender'
 		});
@@ -185,7 +185,9 @@ var Component = Module.extend({
 			this.vm = new MVVM({
 				'view'    : this.el,
 				'model'   : model,
+				'methods' : c.methods,
 				'computed': c.computed,
+				'customs' : c.customs,
 				'context' : this
 			});
 		}
@@ -254,6 +256,28 @@ var Component = Module.extend({
 		else if (isArray(ChildComp)) {
 			this.create(childName, ChildComp[0], extend(ChildComp[1], childConfig));
 		}
+	},
+
+	/**
+	 * 组件销毁后的回调函数
+	 */
+	_afterDestroy: function () {
+		var vm = this.vm;
+		var el = this.el;
+		var parent = el.parentNode;
+
+		// 销毁 mvvm 实例
+		if (vm) {
+			vm.destroy();
+		}
+
+		// 销毁 dom 对象
+		if (parent) {
+			parent.removeChild(el);
+		}
+
+		this.el = this.vm = null;
+		clearObject(this.$listeners);
 	},
 
 	/**
@@ -337,28 +361,6 @@ var Component = Module.extend({
 		if (eventAgent) {
 			removeEvent(node, type, eventAgent, capture);
 		}
-	},
-
-	/**
-	 * 组件销毁后的回调函数
-	 */
-	afterDestroy: function () {
-		var vm = this.vm;
-		var el = this.el;
-		var parent = el.parentNode;
-
-		// 销毁 mvvm 实例
-		if (vm) {
-			vm.destroy();
-		}
-
-		// 销毁 dom 对象
-		if (parent) {
-			parent.removeChild(el);
-		}
-
-		this.el = this.vm = null;
-		clearObject(this.$listeners);
 	}
 });
 

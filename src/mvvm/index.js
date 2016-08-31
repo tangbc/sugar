@@ -7,7 +7,9 @@ import { each, copy, isFunc, isArray, isString, isObject } from '../util';
  * @param  {Object}  option    [数据参数对象]
  * @param  {Element}   - view      [视图对象]
  * @param  {Object}    - model     [数据对象]
+ * @param  {Object}    - methods   [<可选>事件声明函数对象]
  * @param  {Object}    - computed  [<可选>计算属性对象]
+ * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
  * @param  {Object}    - context   [<可选>回调上下文]
  */
 export default function MVVM (option) {
@@ -18,6 +20,11 @@ export default function MVVM (option) {
 		if (isFunc(value)) {
 			option.model[key] = value.bind(this.context);
 		}
+	}, this);
+
+	// 整合事件函数声明对象
+	each(option.methods, function (callback, func) {
+		option.model[func] = callback.bind(this.context);
 	}, this);
 
 	// 初始数据备份，用于 reset

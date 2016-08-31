@@ -7,4 +7,5 @@ import { VHtml as vhtml } from './html';
 import { VShow as vshow } from './show';
 import { VBind as vbind } from './bind';
 import { VModel as vmodel } from './model';
-export const directiveParsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel };
+import { VCustom as vcustom } from './custom';
+export const directiveParsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel, vcustom };
