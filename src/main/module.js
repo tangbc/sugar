@@ -161,8 +161,8 @@ var Module = Root.extend({
 		}
 
 		// 调用销毁后函数，可进行销毁界面和事件
-		if (isFunc(this.afterDestroy)) {
-			this.afterDestroy();
+		if (isFunc(this._afterDestroy)) {
+			this._afterDestroy();
 		}
 
 		// 向父模块通知销毁消息
