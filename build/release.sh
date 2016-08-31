@@ -44,6 +44,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 	echo -e '\n--------------------------------------------------\n'
 
 
+	# publish to npmjs.com
+	npm publish
+	echo -e '\033[32m npm package is updated! \033[0m'
+	echo -e '\n--------------------------------------------------\n'
+
+
 	# back to develop
 	git checkout develop
 	echo -e '\033[42;37m All done! origin/master is updated. \033[0m'
