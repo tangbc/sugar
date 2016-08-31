@@ -5,6 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Sugar.js • TodoMVC</title>
 	<link rel="stylesheet" href="libs/todomvc.css">
+	<style type="text/css">
+	[v-cloak] {display: none;}
+	</style>
 </head>
 <body>
 	<section class="todoapp">
@@ -13,7 +16,7 @@
 			<input v-model="newTodo" v-on:keyup.13="addTodo" type="text" class="new-todo" placeholder="What needs to be done?" autofocus>
 		</header>
 		<!-- This section should be hidden by default and shown when there are todos -->
-		<section class="main" v-show="todos.length">
+		<section class="main" v-show="todos.length" v-cloak>
 			<input v-model="toggleAll" class="toggle-all" type="checkbox">
 			<label for="toggle-all">Mark all as complete</label>
 			<ul class="todo-list">
@@ -30,7 +33,7 @@
 			</ul>
 		</section>
 		<!-- This footer should hidden by default and shown when there are todos -->
-		<footer class="footer" v-show="allTodos.length">
+		<footer class="footer" v-show="allTodos.length" v-cloak>
 			<!-- This should be `0 items left` by default -->
 			<span class="todo-count"><strong>{{ left }}</strong> item left</span>
 			<!-- Remove this if you don't implement routing -->
