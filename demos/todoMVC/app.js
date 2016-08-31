@@ -15,7 +15,8 @@
 					'allTodos'   : allTodos,
 					'toggleAll'  : allTodos.length === filter.completed(allTodos).length,
 					'editingTodo': null,
-					// events declaration
+				},
+				'methods': {
 					'addTodo'       : this.addTodo,
 					'editTodo'      : this.editTodo,
 					'doneEdit'      : this.doneEdit,
@@ -28,6 +29,15 @@
 					},
 					'showClear': function computedShowClear () {
 						return filter.completed(this.allTodos).length > 0;
+					}
+				},
+				'customs': {
+					// make edit-input get focus
+					// define custom directive refresh function
+					'focus': function focusEdit (editing) {
+						if (editing) {
+							this.el.focus();
+						}
 					}
 				}
 			});
@@ -95,12 +105,9 @@
 		/**
 		 * double click todo label to edit
 		 * @param   {Object}  todo
-		 * @param   {Event}   e
 		 */
-		editTodo: function (todo, e) {
+		editTodo: function (todo) {
 			this.vm.$data.editingTodo = todo;
-			// make edit-input get foucs
-			e.target.parentNode.nextElementSibling.focus();
 		},
 
 		/**

@@ -28,7 +28,7 @@
 						<label v-on:dblclick="editTodo(todo, $event)">{{ todo.title }}</label>
 						<button class="destroy" v-on:click="removeTodo(todo)"></button>
 					</div>
-					<input type="text" class="edit" v-model="todo.title" lazy v-on="{blur: doneEdit(todo), keyup.13: doneEdit(todo)}">
+					<input type="text" class="edit" v-model="todo.title" v-custom:focus="todo === editingTodo" lazy v-on="{blur: doneEdit(todo), keyup.13: doneEdit(todo)}">
 				</li>
 			</ul>
 		</section>
