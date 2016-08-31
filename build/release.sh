@@ -1,7 +1,7 @@
 echo -e '\033[45;37m Prepare for packing source code in branch develop. \033[0m'
 echo -e '\033[45;37m Please make sure current branch is develop and working directory is clean. \033[0m'
 echo -e '\033[45;37m Notice: this shell is only use for packing source, updating branch master. \033[0m'
-read -p 'Are you sure and ready to pack ? (y or n) '
+read -p 'Are you sure and ready to bundle ? (y or n) '
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 	then
@@ -41,12 +41,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 	git merge develop
 	git push origin master
 	echo -e '\033[32m Origin master is updated! \033[0m'
-	echo -e '\n--------------------------------------------------\n'
-
-
-	# publish to npmjs.com
-	npm publish
-	echo -e '\033[32m npm package is updated! \033[0m'
 	echo -e '\n--------------------------------------------------\n'
 
 
