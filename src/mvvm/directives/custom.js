@@ -15,8 +15,7 @@ var vcustom = linkParser(VCustom);
  */
 vcustom.parse = function () {
 	var desc = this.desc;
-	var customs = this.vm.$customs;
-	var update = customs[desc.args];
+	var update = this.vm.$customs[desc.args];
 
 	if (!isFunc(update)) {
 		return warn('Custom directive ['+ desc.attr +'] must define with a refresh function!');
