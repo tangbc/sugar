@@ -25,7 +25,7 @@ function isDirective (directive) {
  * @param   {Element}  node
  * @return  {Boolean}
  */
-function isLateCompileChilds (node) {
+function hasLateCompileChilds (node) {
 	return hasAttr(node, 'v-if') || hasAttr(node, 'v-for') || hasAttr(node, 'v-pre');
 }
 
@@ -147,7 +147,7 @@ cp.collect = function (element, root, scope) {
 			this.$compiles.push([node, scope]);
 		}
 
-		if (node.hasChildNodes() && !isLateCompileChilds(node)) {
+		if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
 			this.collect(node, false, scope);
 		}
 	}
