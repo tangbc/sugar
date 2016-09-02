@@ -50,6 +50,20 @@ describe("v-model >", function () {
 	});
 
 
+	it('use incorrect form-type', function () {
+		element.innerHTML = '<input v-model="model">'; // miss type="text"
+
+		new MVVM({
+			'view': element,
+			'model': {
+				'model': 'xxxxxxxx'
+			}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('Do not use incorrect form-type with v-model: ', element.firstChild);
+	});
+
+
 	it('use dynamic expression', function () {
 		element.innerHTML = '<input type="text" v-model="isA ? aaa : bbb">';
 
