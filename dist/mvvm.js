@@ -1,7 +1,7 @@
 /*!
- * mvvm.js v1.2.3 (c) 2016 TANG
+ * mvvm.js v1.2.4 (c) 2016 TANG
  * Released under the MIT license
- * Fri Sep 02 2016 15:46:08 GMT+0800 (CST)
+ * Fri Sep 02 2016 20:12:41 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -389,92 +389,6 @@
 	var regSpaceAll = /\s/g;
 	function removeSpace (string) {
 		return string.replace(regSpaceAll, '');
-	}
-
-	/**
-	 * 返回 contrastObject 相对于 referObject 的差异对象
-	 * @param   {Object}  contrastObject  [对比对象]
-	 * @param   {Object}  referObject     [参照对象]
-	 * @return  {Object}
-	 */
-	function getUniqueObject (contrastObject, referObject) {
-		var unique = {};
-
-		each(contrastObject, function (value, key) {
-			var _diff, oldItem = referObject[key];
-
-			if (isObject(value)) {
-				_diff = getUniqueObject(value, oldItem);
-				if (!isEmptyObject(_diff)) {
-					unique[key] = _diff;
-				}
-			} else if (isArray(value)) {
-				var newArray = [];
-
-				each(value, function (nItem, index) {
-					var _diff;
-
-					if (isObject(nItem)) {
-						_diff = getUniqueObject(nItem, oldItem[index]);
-						newArray.push(_diff);
-					}
-					else {
-						// 新数组元素
-						if (oldItem.indexOf(nItem) < 0) {
-							newArray.push(nItem);
-						}
-					}
-				});
-
-				unique[key] = newArray;
-			} else {
-				if (value !== oldItem) {
-					unique[key] = value;
-				}
-			}
-		});
-
-		return unique;
-	}
-
-	/**
-	 * 返回 contrastArray 相对于 referArray 的差异数组
-	 * @param   {Array}  contrastArray  [对比数组]
-	 * @param   {Array}  referArray     [参照数组]
-	 * @return  {Array}
-	 */
-	function getUniqueArray (contrastArray, referArray) {
-		var uniques = [];
-
-		if (!isArray(contrastArray) || !isArray(referArray)) {
-			return contrastArray;
-		}
-
-		each(contrastArray, function (item) {
-			if (referArray.indexOf(item) < 0) {
-				uniques.push(item);
-			}
-		});
-
-		return uniques;
-	}
-
-	/**
-	 * 返回两个比较值的差异
-	 * 用于获取 v-bind 绑定 object 的更新差异
-	 * @param   {Object|Array}  newTarget
-	 * @param   {Object|Array}  oldTarget
-	 * @return  {Object}
-	 */
-	function diff (newTarget, oldTarget) {
-		var isA = isArray(newTarget) && isArray(oldTarget);
-		var isO = isObject(newTarget) && isObject(oldTarget);
-		var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
-
-		var after = handler && handler(newTarget, oldTarget) || newTarget;
-		var before = handler && handler(oldTarget, newTarget) || oldTarget;
-
-		return { after: after, before: before };
 	}
 
 	var guid = 0;
@@ -1042,7 +956,7 @@
 		var callback = this.callback;
 		if (callback && oldVal !== newVal) {
 			var fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
-			callback.call(this.context, newVal, oldVal, args, fromDeep);
+			callback.call(this.context, newVal, oldVal, fromDeep, args);
 		}
 	}
 
@@ -1091,13 +1005,14 @@
 
 	/**
 	 * 更新指令视图
-	 * @param   {Mix}     newVal  [依赖数据新值]
-	 * @param   {Mix}     oldVal  [依赖数据旧值]
-	 * @param   {Object}  args    [数组操作参数信息]
+	 * @param   {Mix}      newVal     [依赖数据新值]
+	 * @param   {Mix}      oldVal     [依赖数据旧值]
+	 * @param   {Boolean}  fromDeep   [是否是深层更新]
+	 * @param   {Object}   methodArg  [数组操作参数信息]
 	 */
-	dp$1.update = function (newVal, oldVal, args) {
+	dp$1.update = function (newVal, oldVal, fromDeep, methodArg) {
 		var parser = this.parser;
-		parser.update.call(parser, newVal, oldVal, args);
+		parser.update.call(parser, newVal, oldVal, fromDeep, methodArg);
 	}
 
 	/**
@@ -1340,6 +1255,13 @@
 		node.removeEventListener(evt, callback, capture);
 	}
 
+	/**
+	 * 事件 id 唯一计数
+	 * @type  {Number}
+	 */
+	var vonGuid = 2000;
+	var identifier = '__vonid__';
+
 	var regBigBrackets = /^\{.*\}$/;
 	var regSmallBrackets = /(\(.*\))/;
 	var regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
@@ -1459,7 +1381,6 @@
 	 * 不需要实例化 Directive
 	 */
 	function VOn () {
-		this.guid = 1000;
 		this.agents = {};
 		this.funcWatchers = [];
 		this.argsWatchers = [];
@@ -1577,8 +1498,8 @@
 			func.apply(this, args);
 		}
 
-		var guid = this.guid++;
-		func.guid = guid;
+		var guid = vonGuid++;
+		func[identifier] = guid;
 		this.agents[guid] = eventAgent;
 
 		// 添加绑定
@@ -1603,7 +1524,7 @@
 	 */
 	von.off = function (type, callback, capture) {
 		var agents = this.agents;
-		var guid = callback.guid;
+		var guid = callback[identifier];
 		var eventAgent = agents[guid];
 
 		if (eventAgent) {
@@ -2053,19 +1974,20 @@
 
 	/**
 	 * 更新视图
-	 * @param   {Array}   newArray  [新数组]
-	 * @param   {Array}   oldArray  [旧数组]
-	 * @param   {Object}  arg       [数组操作参数信息]
+	 * @param   {Array}    newArray   [新数组]
+	 * @param   {Array}    oldArray   [旧数组]
+	 * @param   {Boolean}  fromDeep   [是否是深层更新]
+	 * @param   {Object}   methodArg  [数组操作参数信息]
 	 */
-	vfor.update = function (newArray, oldArray, arg) {
+	vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 		// 初次构建列表
 		if (this.init) {
 			this.initList(newArray);
 		} else {
 			// 数组操作部分更新
-			if (arg && partlyMethods.indexOf(arg.method) > -1) {
+			if (methodArg && partlyMethods.indexOf(methodArg.method) > -1) {
 				this.partly = true;
-				this.updatePartly(newArray, arg);
+				this.updatePartly(newArray, methodArg);
 				this.partly = false;
 			} else {
 				this.recompileList(newArray);
@@ -2466,6 +2388,92 @@
 	}
 
 	/**
+	 * 返回 contrastObject 相对于 referObject 的差异对象
+	 * @param   {Object}  contrastObject  [对比对象]
+	 * @param   {Object}  referObject     [参照对象]
+	 * @return  {Object}
+	 */
+	function getUniqueObject (contrastObject, referObject) {
+		var unique = {};
+
+		each(contrastObject, function (value, key) {
+			var _diff, oldItem = referObject[key];
+
+			if (isObject(value)) {
+				_diff = getUniqueObject(value, oldItem);
+				if (!isEmptyObject(_diff)) {
+					unique[key] = _diff;
+				}
+			} else if (isArray(value)) {
+				var newArray = [];
+
+				each(value, function (nItem, index) {
+					var _diff;
+
+					if (isObject(nItem)) {
+						_diff = getUniqueObject(nItem, oldItem[index]);
+						newArray.push(_diff);
+					}
+					else {
+						// 新数组元素
+						if (oldItem.indexOf(nItem) < 0) {
+							newArray.push(nItem);
+						}
+					}
+				});
+
+				unique[key] = newArray;
+			} else {
+				if (value !== oldItem) {
+					unique[key] = value;
+				}
+			}
+		});
+
+		return unique;
+	}
+
+	/**
+	 * 返回 contrastArray 相对于 referArray 的差异数组
+	 * @param   {Array}  contrastArray  [对比数组]
+	 * @param   {Array}  referArray     [参照数组]
+	 * @return  {Array}
+	 */
+	function getUniqueArray (contrastArray, referArray) {
+		var uniques = [];
+
+		if (!isArray(contrastArray) || !isArray(referArray)) {
+			return contrastArray;
+		}
+
+		each(contrastArray, function (item) {
+			if (referArray.indexOf(item) < 0) {
+				uniques.push(item);
+			}
+		});
+
+		return uniques;
+	}
+
+	/**
+	 * 返回两个比较值的差异
+	 * 获取绑定 object 和 array 的更新差异
+	 * @param   {Object|Array}  newTarget
+	 * @param   {Object|Array}  oldTarget
+	 * @return  {Object}
+	 */
+	function diff (newTarget, oldTarget) {
+		var isA = isArray(newTarget) && isArray(oldTarget);
+		var isO = isObject(newTarget) && isObject(oldTarget);
+		var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
+
+		var after = handler && handler(newTarget, oldTarget) || newTarget;
+		var before = handler && handler(oldTarget, newTarget) || oldTarget;
+
+		return { after: after, before: before };
+	}
+
+	/**
 	 * 处理 styleObject, 批量更新元素 style
 	 * @param   {Element}  element
 	 * @param   {String}   styleObject
@@ -2567,7 +2575,7 @@
 				this.handleStyle(newValue, oldValue);
 				break;
 			default:
-				this.handleAttr(type, newValue, oldValue);
+				this.handleAttr(type, newValue);
 		}
 	}
 
@@ -2642,11 +2650,10 @@
 	/**
 	 * 更新处理 attribute
 	 * @param   {String}   attr
-	 * @param   {String}   newValue
-	 * @param   {String}   oldValue
+	 * @param   {String}   value
 	 */
-	vbind.handleAttr = function (attr, newValue, oldValue) {
-		setAttr(this.el, attr, newValue);
+	vbind.handleAttr = function (attr, value) {
+		setAttr(this.el, attr, value);
 	}
 
 	/**
@@ -2859,11 +2866,7 @@
 	}
 
 	// 双向数据绑定限制的表单元素
-	var validForms = [
-		'input',
-		'select',
-		'textarea'
-	];
+	var validForms = ['input', 'select', 'textarea'];
 
 
 	/**
@@ -2931,6 +2934,11 @@
 				break;
 		}
 
+		// 提示未指定类型的表单元素
+		if (!form) {
+			return warn('Do not use incorrect form-type with v-model: ', el);
+		}
+
 		// 是否将绑定值转化成数字
 		this.number = hasAttr(el, 'number');
 
@@ -2967,8 +2975,7 @@
 	 */
 	vcustom.parse = function () {
 		var desc = this.desc;
-		var customs = this.vm.$customs;
-		var update = customs[desc.args];
+		var update = this.vm.$customs[desc.args];
 
 		if (!isFunc(update)) {
 			return warn('Custom directive ['+ desc.attr +'] must define with a refresh function!');
@@ -3002,7 +3009,7 @@
 	 * @param   {Element}  node
 	 * @return  {Boolean}
 	 */
-	function isLateCompileChilds (node) {
+	function hasLateCompileChilds (node) {
 		return hasAttr(node, 'v-if') || hasAttr(node, 'v-for') || hasAttr(node, 'v-pre');
 	}
 
@@ -3126,7 +3133,7 @@
 				this$1.$compiles.push([node, scope]);
 			}
 
-			if (node.hasChildNodes() && !isLateCompileChilds(node)) {
+			if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
 				this$1.collect(node, false, scope);
 			}
 		}
