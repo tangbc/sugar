@@ -1,7 +1,5 @@
-node_modules
-logs.text
 bin
 temp
-npm-debug.log
-test/coverage
 bundle
+node_modules
+test/coverage
