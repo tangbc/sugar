@@ -5,11 +5,7 @@ import { hasAttr, getAttr, addEvent } from '../../dom';
 import { text, radio, select, checkbox } from './duplex/index';
 
 // 双向数据绑定限制的表单元素
-const validForms = [
-	'input',
-	'select',
-	'textarea'
-];
+const validForms = ['input', 'select', 'textarea'];
 
 
 /**
@@ -75,6 +71,11 @@ vmodel.bindDuplex = function (type) {
 			this.multi = hasAttr(el, 'multiple');
 			this.forceUpdate = select.forceUpdate.bind(this);
 			break;
+	}
+
+	// 提示未指定类型的表单元素
+	if (!form) {
+		return warn('Do not use incorrect form-type with v-model: ', el);
 	}
 
 	// 是否将绑定值转化成数字
