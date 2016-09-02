@@ -1,6 +1,6 @@
 (function (exports) {
 	/**
-	 * todos localStorage
+	 * Todos localStorage
 	 * @type  {Object}
 	 */
 	var Storage = {
@@ -16,7 +16,7 @@
 
 
 	/**
-	 * data filter, change by router type
+	 * Data filter, change by router type
 	 * @type  {Object}
 	 */
 	var Filter = {

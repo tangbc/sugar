@@ -20,6 +20,7 @@
 					'addTodo'       : this.addTodo,
 					'editTodo'      : this.editTodo,
 					'doneEdit'      : this.doneEdit,
+					'cancelEdit'    : this.cancelEdit,
 					'removeTodo'    : this.removeTodo,
 					'clearCompleted': this.clearCompleted
 				},
@@ -41,6 +42,7 @@
 					}
 				}
 			});
+			this.ready = true;
 			this.Super('init', arguments);
 		},
 
@@ -65,7 +67,10 @@
 				data.toggleAll = filter.active(allTodos).length === 0;
 				this.$checking = false;
 
-				this.updateList();
+				if (this.ready) {
+					this.updateList();
+				}
+
 				storage.save(allTodos);
 			}, true);
 
@@ -107,6 +112,8 @@
 		 * @param   {Object}  todo
 		 */
 		editTodo: function (todo) {
+			this.ready = false;
+			this.titleCache = todo.title;
 			this.vm.$data.editingTodo = todo;
 		},
 
@@ -115,7 +122,26 @@
 		 * @param   {Object}  todo
 		 */
 		doneEdit: function (todo) {
+			var data = this.vm.$data;
+
+			data.editingTodo = null;
+
+			// remove it if it's empty
+			if (!todo.title.trim()) {
+				this.removeTodo(todo);
+			}
+
+			// sign for update
+			this.ready = true;
+		},
+
+		/**
+		 * cancel edit a todo, press esc
+		 * @param   {Object}  todo
+		 */
+		cancelEdit: function (todo) {
 			this.vm.$data.editingTodo = null;
+			todo.title = this.titleCache;
 		},
 
 		/**
@@ -130,13 +156,15 @@
 		 * clear completed todos
 		 */
 		clearCompleted: function () {
-			var allTodos = this.vm.get('allTodos');
-			filter.completed(allTodos).forEach(function (todo) {
-				allTodos.$remove(todo);
-			});
+			var data = this.vm.$data;
+			data.allTodos = filter.active(data.allTodos);
 		}
 	});
 
-	exports.TodoMVC = TodoMVC;
+	/**
+	 * Create todoMVC instanc
+	 * @type  {Object}
+	 */
+	exports.todoMVC = Sugar.core.create('todoMVC', TodoMVC);
 
 })(window, Filter, Storage);

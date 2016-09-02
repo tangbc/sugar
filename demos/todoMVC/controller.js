@@ -1,6 +1,6 @@
 (function (app, Controller) {
 	/**
-	 * router control for todoMVC
+	 * Router control for todoMVC
 	 * https://github.com/flatiron/director
 	 */
 
@@ -14,7 +14,7 @@
 	});
 
 	/**
-	 * handle for undefined router
+	 * Handle for undefined router
 	 */
 	controller.configure({
 		'notfound': function notfound () {
@@ -23,7 +23,7 @@
 		}
 	});
 
-	// start for control
+	// Start for control
 	controller.init();
 
 })(todoMVC, Router);
