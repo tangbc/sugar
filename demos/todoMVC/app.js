@@ -124,15 +124,15 @@
 		doneEdit: function (todo) {
 			var data = this.vm.$data;
 
+			// sign for update
+			this.ready = true;
+
 			data.editingTodo = null;
 
 			// remove it if it's empty
 			if (!todo.title.trim()) {
 				this.removeTodo(todo);
 			}
-
-			// sign for update
-			this.ready = true;
 		},
 
 		/**
