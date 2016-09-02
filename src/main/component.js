@@ -44,6 +44,13 @@ function config (data, name, value) {
 	}
 }
 
+/**
+ * 事件 id 唯一计数
+ * @type  {Number}
+ */
+let componentEventGuid = 1000;
+let identifier = '__eventid__';
+
 
 /**
  * Component 基础视图组件
@@ -90,8 +97,6 @@ var Component = Module.extend({
 		this.vm = null;
 		// 组件是否已经创建完成
 		this.$ready = false;
-		// 事件 guid
-		this.$guid = 1000;
 		// DOM 事件绑定记录
 		this.$listeners = {};
 
@@ -333,13 +338,13 @@ var Component = Module.extend({
 	 */
 	on: function (node, type, callback, capture) {
 		var self = this;
-		var guid = this.$guid++;
+		var guid = componentEventGuid++;
 
 		if (isString(callback)) {
 			callback = this[callback];
 		}
 
-		callback.guid = guid;
+		callback[identifier] = guid;
 		var eventAgent = function (e) {
 			callback.call(self, e);
 		}
@@ -356,7 +361,7 @@ var Component = Module.extend({
 			callback = this[callback];
 		}
 
-		var guid = callback.guid;
+		var guid = callback[identifier];
 		var eventAgent = this.$listeners[guid];
 		if (eventAgent) {
 			removeEvent(node, type, eventAgent, capture);

@@ -3,6 +3,13 @@ import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
 import { removeSpace, each, getKeyValue, defRec, extend, clearObject } from '../../util';
 
+/**
+ * 事件 id 唯一计数
+ * @type  {Number}
+ */
+let vonGuid = 2000;
+let identifier = '__vonid__';
+
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
 const regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
@@ -122,7 +129,6 @@ function getDress (type, dress) {
  * 不需要实例化 Directive
  */
 export function VOn () {
-	this.guid = 1000;
 	this.agents = {};
 	this.funcWatchers = [];
 	this.argsWatchers = [];
@@ -235,8 +241,8 @@ von.bindEvent = function (type, dress, func, argString) {
 		func.apply(this, args);
 	}
 
-	var guid = this.guid++;
-	func.guid = guid;
+	var guid = vonGuid++;
+	func[identifier] = guid;
 	this.agents[guid] = eventAgent;
 
 	// 添加绑定
@@ -261,7 +267,7 @@ von.on = function (type, callback, capture) {
  */
 von.off = function (type, callback, capture) {
 	var agents = this.agents;
-	var guid = callback.guid;
+	var guid = callback[identifier];
 	var eventAgent = agents[guid];
 
 	if (eventAgent) {
