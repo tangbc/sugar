@@ -191,7 +191,7 @@ wp.update = function (args, guid) {
 	var callback = this.callback;
 	if (callback && oldVal !== newVal) {
 		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
-		callback.call(this.context, newVal, oldVal, args, fromDeep);
+		callback.call(this.context, newVal, oldVal, fromDeep, args);
 	}
 }
 

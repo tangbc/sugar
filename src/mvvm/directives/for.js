@@ -72,19 +72,20 @@ vfor.updateModel = function () {
 
 /**
  * 更新视图
- * @param   {Array}   newArray  [新数组]
- * @param   {Array}   oldArray  [旧数组]
- * @param   {Object}  arg       [数组操作参数信息]
+ * @param   {Array}    newArray   [新数组]
+ * @param   {Array}    oldArray   [旧数组]
+ * @param   {Boolean}  fromDeep   [是否是深层更新]
+ * @param   {Object}   methodArg  [数组操作参数信息]
  */
-vfor.update = function (newArray, oldArray, arg) {
+vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 	// 初次构建列表
 	if (this.init) {
 		this.initList(newArray);
 	} else {
 		// 数组操作部分更新
-		if (arg && partlyMethods.indexOf(arg.method) > -1) {
+		if (methodArg && partlyMethods.indexOf(methodArg.method) > -1) {
 			this.partly = true;
-			this.updatePartly(newArray, arg);
+			this.updatePartly(newArray, methodArg);
 			this.partly = false;
 		} else {
 			this.recompileList(newArray);
