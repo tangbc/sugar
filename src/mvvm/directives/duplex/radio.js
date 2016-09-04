@@ -1,4 +1,4 @@
-import { formatValue, isNumber } from '../../../util';
+import { formatValue } from '../../../util';
 
 export default {
 	/**
@@ -18,7 +18,9 @@ export default {
 	 * @param   {String}  value
 	 */
 	update: function (value) {
+		/* jshint ignore:start */
 		var el = this.el;
-		el.checked = el.value === (isNumber(value) ? String(value) : value);
+		el.checked = el.value == value;
+		/* jshint ignore:end */
 	}
 }
