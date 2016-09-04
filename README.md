@@ -76,9 +76,9 @@ And then the HTML structure will be:
 
 There are several demos in **`demos/`** directory, check it out and preview them in the following links:
 
-* [StarRating](http://tangbc.github.io/sugar/demos/starRating)
-* [DatePicker](http://tangbc.github.io/sugar/demos/datePicker)
-* [TodoMVC](http://tangbc.github.io/sugar/demos/todoMVC)
+* [StarRating](https://tangbc.github.io/sugar/demos/starRating)
+* [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
+* [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
 
 You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
 
@@ -86,8 +86,8 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 ## Usage
 
 * Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>`.
-	* `mvvm (about 25 kb)` http://tangbc.github.io/sugar/dist/mvvm.min.js
-	* `sugar (about 31 kb)` http://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm (about 25 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar (about 31 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
 
 * Browser support: does not support IE8 and below, used `Object.defineProperty`, `Object.create` ...
 
