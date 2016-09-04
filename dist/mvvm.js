@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.4 (c) 2016 TANG
  * Released under the MIT license
- * Fri Sep 02 2016 20:12:41 GMT+0800 (CST)
+ * Sun Sep 04 2016 11:06:50 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2741,8 +2741,10 @@
 		 * @param   {String}  value
 		 */
 		update: function (value) {
+			/* jshint ignore:start */
 			var el = this.el;
-			el.checked = el.value === (isNumber(value) ? String(value) : value);
+			el.checked = el.value == value;
+			/* jshint ignore:end */
 		}
 	}
 
