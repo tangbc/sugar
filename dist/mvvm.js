@@ -1,7 +1,7 @@
 /*!
- * mvvm.js v1.2.4 (c) 2016 TANG
+ * mvvm.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 04 2016 11:06:50 GMT+0800 (CST)
+ * Mon Sep 05 2016 14:49:08 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -389,6 +389,32 @@
 	var regSpaceAll = /\s/g;
 	function removeSpace (string) {
 		return string.replace(regSpaceAll, '');
+	}
+
+	/**
+	 * 设置/读取数据配置对象
+	 * @param  {Object}   data   [配置对象]
+	 * @param  {String}   name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}      value  [不传为读取配置信息]
+	 * @return {Mix}             [返回读取的配置值]
+	 */
+	function config (data, name, value) {
+		if (name) {
+			var ns = name.split('.');
+			while (ns.length > 1 && hasOwn(data, ns[0])) {
+				data = data[ns.shift()];
+			}
+			name = ns[0];
+		} else {
+			return data;
+		}
+
+		if (typeof value !== 'undefined') {
+			data[name] = value;
+			return;
+		} else {
+			return data[name];
+		}
 	}
 
 	var guid = 0;
@@ -3350,7 +3376,7 @@
 	 */
 	mvp.get = function (key) {
 		var data = this.$data;
-		return isString(key) ? data[key] : data;
+		return isString(key) ? config(data, key) : data;
 	}
 
 	/**
@@ -3374,12 +3400,12 @@
 
 		// 设置单个
 		if (isString(key)) {
-			data[key] = value;
+			config(data, key, value);
 		}
 		// 批量设置
 		else if (isObject(key)) {
 			each(key, function (v, k) {
-				data[k] = v;
+				config(data, k, v);
 			});
 		}
 	}

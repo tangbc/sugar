@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.2.4 (c) 2016 TANG
+ * sugar.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 04 2016 11:06:49 GMT+0800 (CST)
+ * Mon Sep 05 2016 14:49:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -392,12 +392,39 @@
 	}
 
 	/**
+	 * 设置/读取数据配置对象
+	 * @param  {Object}   data   [配置对象]
+	 * @param  {String}   name   [配置名称, 支持/分隔层次]
+	 * @param  {Mix}      value  [不传为读取配置信息]
+	 * @return {Mix}             [返回读取的配置值]
+	 */
+	function config (data, name, value) {
+		if (name) {
+			var ns = name.split('.');
+			while (ns.length > 1 && hasOwn(data, ns[0])) {
+				data = data[ns.shift()];
+			}
+			name = ns[0];
+		} else {
+			return data;
+		}
+
+		if (typeof value !== 'undefined') {
+			data[name] = value;
+			return;
+		} else {
+			return data[name];
+		}
+	}
+
+	/**
 	 * 挂载到 sugar 上的工具方法
 	 * @param   {Object}
 	 */
 	var util = {
 		each: each,
 		copy: copy,
+		config: config,
 		extend: extend,
 		hasOwn: hasOwn,
 		defRec: defRec,
@@ -589,7 +616,7 @@
 		var component = null;
 
 		each(cache, function (instance) {
-			if ((instance._ && instance._.name) === name) {
+			if ((instance.__rd__ && instance.__rd__.name) === name) {
 				component = instance;
 				return false;
 			}
@@ -794,10 +821,10 @@
 	 */
 	var Module = Root.extend({
 		/**
-		 * _ 记录模块信息
+		 * __rd__ 记录模块信息
 		 * @type {Object}
 		 */
-		_: {},
+		__rd__: {},
 
 		/**
 		 * 创建一个子模块实例
@@ -814,18 +841,18 @@
 				return warn('Module Class ['+ Class +'] must be a type of Component');
 			}
 
-			var cls = this._;
+			var record = this.__rd__;
 
 			// 建立模块关系信息
-			if (!hasOwn(cls, childArray)) {
+			if (!hasOwn(record, childArray)) {
 				// 子模块实例缓存数组
-				cls[childArray] = [];
+				record[childArray] = [];
 				// 子模块命名索引
-				cls[childMap] = {};
+				record[childMap] = {};
 			}
 
 			// 判断是否已经创建过
-			if (cls[childMap][name]) {
+			if (record[childMap][name]) {
 				return warn('Module ['+ name +'] is already exists!');
 			}
 
@@ -833,23 +860,23 @@
 			var instance = new Class(config);
 
 			// 记录子模块实例信息和父模块实例的对应关系
-			var info = {
+			var subRecord = {
 				// 子模块实例名称
 				'name': name,
 				// 子模块实例id
 				'id'  : cache.id++,
 				// 父模块实例 id，0 为顶级模块实例
-				'pid' : cls.id || 0
+				'pid' : record.id || 0
 			}
-			instance._ = info;
+			instance.__rd__ = subRecord;
 
 			// 存入系统实例缓存队列
-			cache[info.id] = instance;
+			cache[subRecord.id] = instance;
 			cache.length++;
 
 			// 缓存子模块实例
-			cls[childArray].push(instance);
-			cls[childMap][name] = instance;
+			record[childArray].push(instance);
+			record[childMap][name] = instance;
 
 			// 调用模块实例的 init 方法，传入配置参数和父模块
 			if (isFunc(instance.init)) {
@@ -863,8 +890,8 @@
 		 * 获取当前模块的父模块实例（模块创建者）
 		 */
 		getParent: function () {
-			var cls = this._;
-			var pid = cls && cls.pid;
+			var record = this.__rd__;
+			var pid = record && record.pid;
 			return cache[pid] || null;
 		},
 
@@ -874,8 +901,8 @@
 		 * @return {Object}
 		 */
 		getChild: function (name) {
-			var cls = this._;
-			return cls && cls[childMap] && cls[childMap][name] || null;
+			var record = this.__rd__;
+			return record && record[childMap] && record[childMap][name] || null;
 		},
 
 		/**
@@ -884,9 +911,9 @@
 		 * @return {Mix}
 		 */
 		getChilds: function (returnArray) {
-			var cls = this._;
+			var record = this.__rd__;
 			returnArray = isBool(returnArray) && returnArray;
-			return returnArray ? (cls[childArray] || []) : (cls[childMap] || {});
+			return returnArray ? (record[childArray] || []) : (record[childMap] || {});
 		},
 
 		/**
@@ -895,9 +922,9 @@
 		 * @return {Boolean}
 		 */
 		_removeChild: function (name) {
-			var cls = this._;
-			var cMap = cls[childMap] || {};
-			var cArray = cls[childArray] || [];
+			var record = this.__rd__;
+			var cMap = record[childMap] || {};
+			var cArray = record[childArray] || [];
 			var child = cMap[name];
 
 			for (var i = 0, len = cArray.length; i < len; i++) {
@@ -914,8 +941,8 @@
 		 * @param  {Mix}  notify  [是否向父模块发送销毁消息]
 		 */
 		destroy: function (notify) {
-			var cls = this._;
-			var name = cls.name;
+			var record = this.__rd__;
+			var name = record.name;
 
 			// 调用销毁前函数，可进行必要的数据保存
 			if (isFunc(this.beforeDestroy)) {
@@ -937,7 +964,7 @@
 			}
 
 			// 从系统缓存队列中销毁相关记录
-			var id = cls.id;
+			var id = record.id;
 			if (hasOwn(cache, id)) {
 				delete cache[id];
 				cache.length--;
@@ -1058,6 +1085,193 @@
 	});
 
 	var core = cache['0'] = new Core();
+
+	/**
+	 * 是否是元素节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	function isElement (element) {
+		return element.nodeType === 1;
+	}
+
+	/**
+	 * 是否是文本节点
+	 * @param   {DOMElement}   element
+	 * @return  {Boolean}
+	 */
+	function isTextNode (element) {
+		return element.nodeType === 3;
+	}
+
+	/**
+	 * 清空 element 的所有子节点
+	 * @param   {DOMElement}  element
+	 */
+	function empty (element) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
+		return element;
+	}
+
+	/**
+	 * 获取节点属性值
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @return  {String}
+	 */
+	function getAttr (node, name) {
+		return node.getAttribute(name) || '';
+	}
+
+	/**
+	 * 移除节点属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 */
+	function removeAttr (node, name) {
+		node.removeAttribute(name);
+	}
+
+	/**
+	 * 设置节点属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @param   {String}      value
+	 */
+	function setAttr (node, name, value) {
+		if (typeof value === 'boolean') {
+			node[name] = value;
+		} else if (value === null) {
+			removeAttr(node, name);
+		} else if (value !== getAttr(node, name)) {
+			node.setAttribute(name, value);
+		}
+	}
+
+	/**
+	 * 判断节点是否存在属性
+	 * @param   {DOMElement}  node
+	 * @param   {String}      name
+	 * @return  {Boolean}
+	 */
+	function hasAttr (node, name) {
+		return node.hasAttribute(name);
+	}
+
+	/**
+	 * 节点是否存在 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 * @return {Boolean}
+	 */
+	function hasClass (node, classname) {
+		var current, list = node.classList;
+
+		/* istanbul ignore else */
+		if (list) {
+			return list.contains(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+			return current.indexOf(' ' + classname + ' ') > -1;
+		}
+	}
+
+	/**
+	 * 节点添加 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 */
+	function addClass (node, classname) {
+		var current, list = node.classList;
+
+		if (!classname || hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.add(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			if (current.indexOf(' ' + classname + ' ') === -1) {
+				setAttr(node, 'class', (current + classname).trim());
+			}
+		}
+	}
+
+	/**
+	 * 节点删除 classname
+	 * @param  {DOMElement}  node
+	 * @param  {String}      classname
+	 */
+	function removeClass (node, classname) {
+		var current, target, list = node.classList;
+
+		if (!classname || !hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.remove(classname);
+		} else {
+			target = ' ' + classname + ' ';
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			while (current.indexOf(target) > -1) {
+				current = current.replace(target, ' ');
+			}
+
+			setAttr(node, 'class', current.trim());
+		}
+
+		if (!node.className) {
+			removeAttr(node, 'class');
+		}
+	}
+
+	/**
+	 * 节点事件绑定
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	function addEvent (node, evt, callback, capture) {
+		node.addEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 解除节点事件绑定
+	 * @param   {DOMElement}   node
+	 * @param   {String}       evt
+	 * @param   {Function}     callback
+	 * @param   {Boolean}      capture
+	 */
+	function removeEvent (node, evt, callback, capture) {
+		node.removeEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 导出作为组件系统的 DOM 处理构造函数
+	 */
+	function DOM () {
+		this.isElement = isElement;
+		this.isTextNode = isTextNode;
+		this.empty = empty;
+		this.getAttr = getAttr;
+		this.removeAttr = removeAttr;
+		this.setAttr = setAttr;
+		this.hasAttr = hasAttr;
+		this.hasClass = hasClass;
+		this.addClass = addClass;
+		this.removeClass = removeClass;
+		this.addEvent = addEvent;
+		this.removeEvent = removeEvent;
+	}
 
 	var guid = 0;
 
@@ -1752,175 +1966,6 @@
 	 */
 	function linkParser (PostParser) {
 		return PostParser.prototype = Object.create(Parser.prototype);
-	}
-
-	/**
-	 * 是否是元素节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isElement (element) {
-		return element.nodeType === 1;
-	}
-
-	/**
-	 * 是否是文本节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isTextNode (element) {
-		return element.nodeType === 3;
-	}
-
-	/**
-	 * 清空 element 的所有子节点
-	 * @param   {DOMElement}  element
-	 */
-	function empty (element) {
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
-		}
-		return element;
-	}
-
-	/**
-	 * 获取节点属性值
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {String}
-	 */
-	function getAttr (node, name) {
-		return node.getAttribute(name) || '';
-	}
-
-	/**
-	 * 移除节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 */
-	function removeAttr (node, name) {
-		node.removeAttribute(name);
-	}
-
-	/**
-	 * 设置节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @param   {String}      value
-	 */
-	function setAttr (node, name, value) {
-		if (typeof value === 'boolean') {
-			node[name] = value;
-		} else if (value === null) {
-			removeAttr(node, name);
-		} else if (value !== getAttr(node, name)) {
-			node.setAttribute(name, value);
-		}
-	}
-
-	/**
-	 * 判断节点是否存在属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {Boolean}
-	 */
-	function hasAttr (node, name) {
-		return node.hasAttribute(name);
-	}
-
-	/**
-	 * 节点是否存在 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 * @return {Boolean}
-	 */
-	function hasClass (node, classname) {
-		var current, list = node.classList;
-
-		/* istanbul ignore else */
-		if (list) {
-			return list.contains(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-			return current.indexOf(' ' + classname + ' ') > -1;
-		}
-	}
-
-	/**
-	 * 节点添加 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function addClass (node, classname) {
-		var current, list = node.classList;
-
-		if (!classname || hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.add(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			if (current.indexOf(' ' + classname + ' ') === -1) {
-				setAttr(node, 'class', (current + classname).trim());
-			}
-		}
-	}
-
-	/**
-	 * 节点删除 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function removeClass (node, classname) {
-		var current, target, list = node.classList;
-
-		if (!classname || !hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.remove(classname);
-		} else {
-			target = ' ' + classname + ' ';
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			while (current.indexOf(target) > -1) {
-				current = current.replace(target, ' ');
-			}
-
-			setAttr(node, 'class', current.trim());
-		}
-
-		if (!node.className) {
-			removeAttr(node, 'class');
-		}
-	}
-
-	/**
-	 * 节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function addEvent (node, evt, callback, capture) {
-		node.addEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 解除节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function removeEvent (node, evt, callback, capture) {
-		node.removeEventListener(evt, callback, capture);
 	}
 
 	/**
@@ -4018,7 +4063,7 @@
 	 */
 	mvp.get = function (key) {
 		var data = this.$data;
-		return isString(key) ? data[key] : data;
+		return isString(key) ? config(data, key) : data;
 	}
 
 	/**
@@ -4042,12 +4087,12 @@
 
 		// 设置单个
 		if (isString(key)) {
-			data[key] = value;
+			config(data, key, value);
 		}
 		// 批量设置
 		else if (isObject(key)) {
 			each(key, function (v, k) {
-				data[k] = v;
+				config(data, k, v);
 			});
 		}
 	}
@@ -4097,34 +4142,6 @@
 	mvp.destroy = function () {
 		this.vm.destroy();
 		this.vm = this.context = this.backup = this.$data = null;
-	}
-
-	/**
-	 * 设置/读取配置对象
-	 * @param  {Object}   data   [配置对象]
-	 * @param  {String}   name   [配置名称, 支持/分隔层次]
-	 * @param  {Mix}      value  [不传为读取配置信息]
-	 * @return {Mix}             [返回读取的配置值]
-	 */
-	function config (data, name, value) {
-		if (name) {
-			var ns = name.split('/');
-
-			while (ns.length > 1 && hasOwn(data, ns[0])) {
-				data = data[ns.shift()];
-			}
-
-			name = ns[0];
-		} else {
-			return data;
-		}
-
-		if (typeof value !== 'undefined') {
-			data[name] = value;
-			return true;
-		} else {
-			return data[name];
-		}
 	}
 
 	/**
@@ -4178,6 +4195,8 @@
 			this.el = null;
 			// mvvm 实例
 			this.vm = null;
+			// 通用 DOM 处理方法
+			this.$ = new DOM();
 			// 组件是否已经创建完成
 			this.$ready = false;
 			// DOM 事件绑定记录
