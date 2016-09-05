@@ -17,7 +17,7 @@ function getComponentByName (name) {
 	var component = null;
 
 	each(cache, function (instance) {
-		if ((instance._ && instance._.name) === name) {
+		if ((instance.__rd__ && instance.__rd__.name) === name) {
 			component = instance;
 			return false;
 		}
