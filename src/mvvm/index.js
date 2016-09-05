@@ -1,6 +1,6 @@
 import Watcher from './watcher';
 import Compiler from './compiler';
-import { each, copy, isFunc, isArray, isString, isObject } from '../util';
+import { each, copy, isFunc, isArray, isString, isObject, config } from '../util';
 
 /**
  * MVVM 构造函数入口
@@ -48,7 +48,7 @@ var mvp = MVVM.prototype;
  */
 mvp.get = function (key) {
 	var data = this.$data;
-	return isString(key) ? data[key] : data;
+	return isString(key) ? config(data, key) : data;
 }
 
 /**
@@ -72,12 +72,12 @@ mvp.set = function (key, value) {
 
 	// 设置单个
 	if (isString(key)) {
-		data[key] = value;
+		config(data, key, value);
 	}
 	// 批量设置
 	else if (isObject(key)) {
 		each(key, function (v, k) {
-			data[k] = v;
+			config(data, k, v);
 		});
 	}
 }

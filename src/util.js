@@ -379,12 +379,39 @@ export function removeSpace (string) {
 }
 
 /**
+ * 设置/读取数据配置对象
+ * @param  {Object}   data   [配置对象]
+ * @param  {String}   name   [配置名称, 支持/分隔层次]
+ * @param  {Mix}      value  [不传为读取配置信息]
+ * @return {Mix}             [返回读取的配置值]
+ */
+export function config (data, name, value) {
+	if (name) {
+		let ns = name.split('.');
+		while (ns.length > 1 && hasOwn(data, ns[0])) {
+			data = data[ns.shift()];
+		}
+		name = ns[0];
+	} else {
+		return data;
+	}
+
+	if (typeof value !== 'undefined') {
+		data[name] = value;
+		return;
+	} else {
+		return data[name];
+	}
+}
+
+/**
  * 挂载到 sugar 上的工具方法
  * @param   {Object}
  */
 export default {
 	each,
 	copy,
+	config,
 	extend,
 	hasOwn,
 	defRec,
