@@ -245,7 +245,7 @@ describe('sugar message >', function () {
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(null);
 				msg.returns = 'xxdk';
-				expect(this.getParent()._.name).toBe('comp1');
+				expect(this.getParent().__rd__.name).toBe('comp1');
 			}
 		});
 
@@ -262,7 +262,7 @@ describe('sugar message >', function () {
 				expect(msg.to).toBe(this);
 				expect(msg.count).toBe(1);
 				expect(msg.param).toBe(456);
-				expect(this.getParent()._.name).toBe('view1');
+				expect(this.getParent().__rd__.name).toBe('view1');
 				msg.returns = 'who are you?';
 			}
 		});

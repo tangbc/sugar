@@ -84,7 +84,7 @@ describe('sugar Component api >', function () {
 				});
 
 				// test getConfig path
-				expect(this.getConfig('aaa/bbb/ccc')).toBe('so deep');
+				expect(this.getConfig('aaa.bbb.ccc')).toBe('so deep');
 
 				return this;
 			},
@@ -95,9 +95,9 @@ describe('sugar Component api >', function () {
 				expect(this.getConfig('xxx')).toBe(321);
 
 				// set path
-				expect(this.getConfig('aaa/bbb/ccc')).toBe('so deep');
-				this.setConfig('aaa/bbb/ccc', 'really deep');
-				expect(this.getConfig('aaa/bbb/ccc')).toBe('really deep');
+				expect(this.getConfig('aaa.bbb.ccc')).toBe('so deep');
+				this.setConfig('aaa.bbb.ccc', 'really deep');
+				expect(this.getConfig('aaa.bbb.ccc')).toBe('really deep');
 
 				return this;
 			},
@@ -662,7 +662,7 @@ describe('sugar Component api >', function () {
 				this.Super('init', arguments);
 			},
 			getC: function () {
-				return this.getConfig('b/c');
+				return this.getConfig('b.c');
 			}
 		});
 
@@ -677,7 +677,7 @@ describe('sugar Component api >', function () {
 				this.Super('init', arguments);
 			},
 			getD: function () {
-				return this.getConfig('b/d');
+				return this.getConfig('b.d');
 			}
 		});
 

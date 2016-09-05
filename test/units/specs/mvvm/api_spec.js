@@ -91,6 +91,12 @@ describe("mvvm instance api >", function () {
 	});
 
 
+	it('get deep', function () {
+		expect(vm.get('obj.a')).toBe(1);
+		expect(vm.get('obj.b')).toBe(2);
+	});
+
+
 	it('getCopy', function () {
 		// getCopy returns a copy of model
 		var model = vm.getCopy();
@@ -122,6 +128,17 @@ describe("mvvm instance api >", function () {
 		expect(data.text).toBe('bbb');
 		expect(data.obj).toEqual({
 			'x': 123
+		});
+	});
+
+
+	it('set deep', function () {
+		vm.set('obj.a', 520);
+		vm.set('obj.b', 1314);
+
+		expect(data.obj).toEqual({
+			'a': 520,
+			'b': 1314
 		});
 	});
 
