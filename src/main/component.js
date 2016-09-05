@@ -1,3 +1,4 @@
+import DOM from '../dom';
 import ajax from './ajax';
 import Module from './module';
 import MVVM from '../mvvm/index';
@@ -5,9 +6,9 @@ import { addClass, setAttr, addEvent, removeEvent } from '../dom';
 import {
 	each,
 	warn,
+	config,
 	isFunc,
 	extend,
-	hasOwn,
 	isArray,
 	isObject,
 	isString,
@@ -15,34 +16,6 @@ import {
 	createElement,
 	stringToFragment
 } from '../util';
-
-/**
- * 设置/读取配置对象
- * @param  {Object}   data   [配置对象]
- * @param  {String}   name   [配置名称, 支持/分隔层次]
- * @param  {Mix}      value  [不传为读取配置信息]
- * @return {Mix}             [返回读取的配置值]
- */
-function config (data, name, value) {
-	if (name) {
-		let ns = name.split('/');
-
-		while (ns.length > 1 && hasOwn(data, ns[0])) {
-			data = data[ns.shift()];
-		}
-
-		name = ns[0];
-	} else {
-		return data;
-	}
-
-	if (typeof value !== 'undefined') {
-		data[name] = value;
-		return true;
-	} else {
-		return data[name];
-	}
-}
 
 /**
  * 事件 id 唯一计数
@@ -95,6 +68,8 @@ var Component = Module.extend({
 		this.el = null;
 		// mvvm 实例
 		this.vm = null;
+		// 通用 DOM 处理方法
+		this.$ = new DOM();
 		// 组件是否已经创建完成
 		this.$ready = false;
 		// DOM 事件绑定记录

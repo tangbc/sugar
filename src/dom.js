@@ -166,3 +166,21 @@ export function addEvent (node, evt, callback, capture) {
 export function removeEvent (node, evt, callback, capture) {
 	node.removeEventListener(evt, callback, capture);
 }
+
+/**
+ * 导出作为组件系统的 DOM 处理构造函数
+ */
+export default function DOM () {
+	this.isElement = isElement;
+	this.isTextNode = isTextNode;
+	this.empty = empty;
+	this.getAttr = getAttr;
+	this.removeAttr = removeAttr;
+	this.setAttr = setAttr;
+	this.hasAttr = hasAttr;
+	this.hasClass = hasClass;
+	this.addClass = addClass;
+	this.removeClass = removeClass;
+	this.addEvent = addEvent;
+	this.removeEvent = removeEvent;
+}
