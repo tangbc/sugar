@@ -1,8 +1,7 @@
-import DOM from '../dom';
 import ajax from './ajax';
 import Module from './module';
 import MVVM from '../mvvm/index';
-import { addClass, setAttr, addEvent, removeEvent } from '../dom';
+import DOM, { addClass, setAttr, addEvent, removeEvent, getVisible } from '../dom';
 import {
 	each,
 	warn,
@@ -35,7 +34,7 @@ var Component = Module.extend({
 	 * @param  {Object}  parent  [父组件对象]
 	 */
 	init: function (config, parent) {
-		this._config = this.cover(config, {
+		this.__config__ = this.cover(config, {
 			/********* 组件位置定义 *********/
 			'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
 			'replace': false, // 组件是否替换目标容器 <Boolean>
@@ -70,10 +69,13 @@ var Component = Module.extend({
 		this.vm = null;
 		// 通用 DOM 处理方法
 		this.$ = new DOM();
-		// 组件是否已经创建完成
-		this.$ready = false;
-		// DOM 事件绑定记录
-		this.$listeners = {};
+
+		// (Private) 组件初始显示状态
+		this.__visible__ = '';
+		// (Private) 组件是否已经创建完成
+		this.__ready__ = false;
+		// (Private) DOM 事件绑定记录
+		this.__listeners__ = {};
 
 		// 调用渲染前函数
 		if (isFunc(this.beforeRender)) {
@@ -89,7 +91,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 加载模板布局文件
+	 * (Private) 加载模板布局文件
 	 */
 	_loadTemplate: function () {
 		var c = this.getConfig();
@@ -111,21 +113,22 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 渲染组件视图、初始化配置
+	 * (Private) 渲染组件视图、初始化配置
 	 */
 	_render: function () {
 		// 判断是否已创建过
-		if (this.$ready) {
+		if (this.__ready__) {
 			return this;
 		}
 
-		this.$ready = true;
+		this.__ready__ = true;
 
 		var c = this.getConfig();
 
 		var target = c.target;
 		var isAppend = target instanceof HTMLElement;
 
+		// 组件 el 创建
 		if (isAppend) {
 			this.el = createElement(c.tag);
 		} else {
@@ -172,6 +175,9 @@ var Component = Module.extend({
 			});
 		}
 
+		// 组件初始显示状态
+		this.__visible__ = getVisible(this.el);
+
 		// 创建子组件
 		each(c.childs, this._buildBatchChilds, this);
 
@@ -192,7 +198,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 批量创建子组件
+	 * (Private) 批量创建子组件
 	 * @param   {Function}  ChildComp  [子组件类]
 	 * @param   {String}    symbol     [子组件名称]
 	 */
@@ -219,7 +225,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 创建一个子组件实例
+	 * (Private) 创建一个子组件实例
 	 * @param   {DOMElement}  target
 	 * @param   {String}      childName
 	 * @param   {Function}    ChildComp
@@ -239,7 +245,7 @@ var Component = Module.extend({
 	},
 
 	/**
-	 * 组件销毁后的回调函数
+	 * (Private) 组件销毁后的回调函数
 	 */
 	_afterDestroy: function () {
 		var vm = this.vm;
@@ -257,7 +263,7 @@ var Component = Module.extend({
 		}
 
 		this.el = this.vm = null;
-		clearObject(this.$listeners);
+		clearObject(this.__listeners__);
 	},
 
 	/**
@@ -278,7 +284,7 @@ var Component = Module.extend({
 	 * @param  {String}  name  [参数字段名称，支持/层级]
 	 */
 	getConfig: function (name) {
-		return config(this._config, name);
+		return config(this.__config__, name);
 	},
 
 	/**
@@ -287,7 +293,7 @@ var Component = Module.extend({
 	 * @param {Mix}     value  [值]
 	 */
 	setConfig: function (name, value) {
-		return config(this._config, name, value);
+		return config(this.__config__, name, value);
 	},
 
 	/**
@@ -309,6 +315,22 @@ var Component = Module.extend({
 	},
 
 	/**
+	 * 显示组件
+	 */
+	show: function () {
+		this.el.style.display = this.__visible__;
+		return this;
+	},
+
+	/**
+	 * 隐藏组件
+	 */
+	hide: function () {
+		this.el.style.display = 'none';
+		return this;
+	},
+
+	/**
 	 * 元素添加绑定事件
 	 */
 	on: function (node, type, callback, capture) {
@@ -324,8 +346,10 @@ var Component = Module.extend({
 			callback.call(self, e);
 		}
 
-		this.$listeners[guid] = eventAgent;
+		this.__listeners__[guid] = eventAgent;
 		addEvent(node, type, eventAgent, capture);
+
+		return this;
 	},
 
 	/**
@@ -337,10 +361,12 @@ var Component = Module.extend({
 		}
 
 		var guid = callback[identifier];
-		var eventAgent = this.$listeners[guid];
+		var eventAgent = this.__listeners__[guid];
 		if (eventAgent) {
 			removeEvent(node, type, eventAgent, capture);
 		}
+
+		return this;
 	}
 });
 

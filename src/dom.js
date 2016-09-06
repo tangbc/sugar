@@ -1,6 +1,8 @@
+import { isBool, removeSpace, getKeyValue, each } from './util';
+
 /**
  * 是否是元素节点
- * @param   {DOMElement}   element
+ * @param   {Element}  element
  * @return  {Boolean}
  */
 export function isElement (element) {
@@ -9,7 +11,7 @@ export function isElement (element) {
 
 /**
  * 是否是文本节点
- * @param   {DOMElement}   element
+ * @param   {Element}  element
  * @return  {Boolean}
  */
 export function isTextNode (element) {
@@ -18,7 +20,7 @@ export function isTextNode (element) {
 
 /**
  * 清空 element 的所有子节点
- * @param   {DOMElement}  element
+ * @param   {Element}  element
  */
 export function empty (element) {
 	while (element.firstChild) {
@@ -29,8 +31,8 @@ export function empty (element) {
 
 /**
  * 获取节点属性值
- * @param   {DOMElement}  node
- * @param   {String}      name
+ * @param   {Element}  node
+ * @param   {String}   name
  * @return  {String}
  */
 export function getAttr (node, name) {
@@ -39,8 +41,8 @@ export function getAttr (node, name) {
 
 /**
  * 移除节点属性
- * @param   {DOMElement}  node
- * @param   {String}      name
+ * @param   {Element}  node
+ * @param   {String}   name
  */
 export function removeAttr (node, name) {
 	node.removeAttribute(name);
@@ -48,12 +50,12 @@ export function removeAttr (node, name) {
 
 /**
  * 设置节点属性
- * @param   {DOMElement}  node
- * @param   {String}      name
- * @param   {String}      value
+ * @param   {Element}  node
+ * @param   {String}   name
+ * @param   {String}   value
  */
 export function setAttr (node, name, value) {
-	if (typeof value === 'boolean') {
+	if (isBool(value)) {
 		node[name] = value;
 	} else if (value === null) {
 		removeAttr(node, name);
@@ -64,8 +66,8 @@ export function setAttr (node, name, value) {
 
 /**
  * 判断节点是否存在属性
- * @param   {DOMElement}  node
- * @param   {String}      name
+ * @param   {Element}  node
+ * @param   {String}   name
  * @return  {Boolean}
  */
 export function hasAttr (node, name) {
@@ -74,8 +76,8 @@ export function hasAttr (node, name) {
 
 /**
  * 节点是否存在 classname
- * @param  {DOMElement}  node
- * @param  {String}      classname
+ * @param  {Element}  node
+ * @param  {String}   classname
  * @return {Boolean}
  */
 export function hasClass (node, classname) {
@@ -92,8 +94,8 @@ export function hasClass (node, classname) {
 
 /**
  * 节点添加 classname
- * @param  {DOMElement}  node
- * @param  {String}      classname
+ * @param  {Element}  node
+ * @param  {String}   classname
  */
 export function addClass (node, classname) {
 	var current, list = node.classList;
@@ -116,8 +118,8 @@ export function addClass (node, classname) {
 
 /**
  * 节点删除 classname
- * @param  {DOMElement}  node
- * @param  {String}      classname
+ * @param  {Element}  node
+ * @param  {String}   classname
  */
 export function removeClass (node, classname) {
 	var current, target, list = node.classList;
@@ -147,10 +149,10 @@ export function removeClass (node, classname) {
 
 /**
  * 节点事件绑定
- * @param   {DOMElement}   node
- * @param   {String}       evt
- * @param   {Function}     callback
- * @param   {Boolean}      capture
+ * @param   {Element}   node
+ * @param   {String}    evt
+ * @param   {Function}  callback
+ * @param   {Boolean}   capture
  */
 export function addEvent (node, evt, callback, capture) {
 	node.addEventListener(evt, callback, capture);
@@ -158,21 +160,44 @@ export function addEvent (node, evt, callback, capture) {
 
 /**
  * 解除节点事件绑定
- * @param   {DOMElement}   node
- * @param   {String}       evt
- * @param   {Function}     callback
- * @param   {Boolean}      capture
+ * @param   {Element}   node
+ * @param   {String}    evt
+ * @param   {Function}  callback
+ * @param   {Boolean}   capture
  */
 export function removeEvent (node, evt, callback, capture) {
 	node.removeEventListener(evt, callback, capture);
 }
 
 /**
+ * 获取节点行内样式显示值
+ * 行内样式 display = '' 不会影响由 classname 中的定义
+ * 在文档碎片中是不能通过 getComputedStyle 方法来获取样式值的
+ * @param  {Element}  node
+ */
+export function getVisible (node) {
+	var display;
+	var inlineStyle = removeSpace(getAttr(node, 'style'));
+
+	if (inlineStyle && inlineStyle.indexOf('display') > -1) {
+		let styles = inlineStyle.split(';');
+
+		each(styles, function (style) {
+			if (style.indexOf('display') > -1) {
+				display = getKeyValue(style);
+			}
+		});
+	}
+
+	return display || '';
+}
+
+/**
  * 导出作为组件系统的 DOM 处理构造函数
  */
 export default function DOM () {
-	this.isElement = isElement;
-	this.isTextNode = isTextNode;
+	// this.isElement = isElement;
+	// this.isTextNode = isTextNode;
 	this.empty = empty;
 	this.getAttr = getAttr;
 	this.removeAttr = removeAttr;
@@ -183,4 +208,5 @@ export default function DOM () {
 	this.removeClass = removeClass;
 	this.addEvent = addEvent;
 	this.removeEvent = removeEvent;
+	// this.getVisible = getVisible;
 }

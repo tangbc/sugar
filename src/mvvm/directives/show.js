@@ -1,6 +1,6 @@
-import { getAttr, hasAttr } from '../../dom';
+import { defRec } from '../../util';
 import Parser, { linkParser } from '../parser';
-import { removeSpace, getKeyValue, each, defRec } from '../../util';
+import { hasAttr, getVisible } from '../../dom';
 
 const visibleDisplay = '__visible__';
 
@@ -11,23 +11,9 @@ const visibleDisplay = '__visible__';
  * @param  {Element}  node
  */
 function setVisibleDisplay (node) {
-	if (!node[visibleDisplay]) {
-		let display;
-		let inlineStyle = removeSpace(getAttr(node, 'style'));
-
-		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-			let styles = inlineStyle.split(';');
-
-			each(styles, function (style) {
-				if (style.indexOf('display') > -1) {
-					display = getKeyValue(style);
-				}
-			});
-		}
-
-		if (display !== 'none') {
-			defRec(node, visibleDisplay, display || '');
-		}
+	var display = getVisible(node);
+	if (display !== 'none') {
+		defRec(node, visibleDisplay, display || '');
 	}
 }
 

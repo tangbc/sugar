@@ -35,7 +35,8 @@ describe('sugar Component api >', function () {
 					'class': 'simple-view',
 					'tag'  : 'p',
 					'css'  : {
-						'width': '100px'
+						'width': '100px',
+						'display': 'inline'
 					},
 					'attr' : {
 						'id': 'su-view'
@@ -56,8 +57,10 @@ describe('sugar Component api >', function () {
 					.test_getConfig() // test api getConfig
 					.test_setConfig() // test api setConfig
 					.test_query()     // test api query
-					.test_on()      // test api on
-					.test_off()    // test api off
+					.test_hide()      // test api hide
+					.test_show()      // test api show
+					.test_on()        // test api on
+					.test_off()       // test api off
 			},
 			test_interface: function () {
 				var el = this.el;
@@ -75,7 +78,8 @@ describe('sugar Component api >', function () {
 
 				expect(c.view).toBe('<h1 class="aa">a component</h1><h2 class="aa">a title</h2>');
 				expect(c.css).toEqual({
-					'width': '100px'
+					'width': '100px',
+					'display': 'inline'
 				});
 
 				// test getConfig single
@@ -110,6 +114,18 @@ describe('sugar Component api >', function () {
 				expect(aas[0].innerHTML).toBe('a component');
 				expect(aas[1].innerHTML).toBe('a title');
 
+				return this;
+			},
+			test_hide: function () {
+				expect(this.el.style.display).toBe('inline');
+				this.hide();
+				expect(this.el.style.display).toBe('none');
+				return this;
+			},
+			test_show: function () {
+				expect(this.el.style.display).toBe('none');
+				this.show();
+				expect(this.el.style.display).toBe('inline');
 				return this;
 			},
 			test_on: function () {
