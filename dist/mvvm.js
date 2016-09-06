@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Mon Sep 05 2016 14:49:08 GMT+0800 (CST)
+ * Tue Sep 06 2016 15:12:44 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1114,7 +1114,7 @@
 
 	/**
 	 * 是否是元素节点
-	 * @param   {DOMElement}   element
+	 * @param   {Element}  element
 	 * @return  {Boolean}
 	 */
 	function isElement (element) {
@@ -1123,7 +1123,7 @@
 
 	/**
 	 * 是否是文本节点
-	 * @param   {DOMElement}   element
+	 * @param   {Element}  element
 	 * @return  {Boolean}
 	 */
 	function isTextNode (element) {
@@ -1132,7 +1132,7 @@
 
 	/**
 	 * 清空 element 的所有子节点
-	 * @param   {DOMElement}  element
+	 * @param   {Element}  element
 	 */
 	function empty (element) {
 		while (element.firstChild) {
@@ -1143,8 +1143,8 @@
 
 	/**
 	 * 获取节点属性值
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
+	 * @param   {Element}  node
+	 * @param   {String}   name
 	 * @return  {String}
 	 */
 	function getAttr (node, name) {
@@ -1153,8 +1153,8 @@
 
 	/**
 	 * 移除节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
+	 * @param   {Element}  node
+	 * @param   {String}   name
 	 */
 	function removeAttr (node, name) {
 		node.removeAttribute(name);
@@ -1162,12 +1162,12 @@
 
 	/**
 	 * 设置节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @param   {String}      value
+	 * @param   {Element}  node
+	 * @param   {String}   name
+	 * @param   {String}   value
 	 */
 	function setAttr (node, name, value) {
-		if (typeof value === 'boolean') {
+		if (isBool(value)) {
 			node[name] = value;
 		} else if (value === null) {
 			removeAttr(node, name);
@@ -1178,8 +1178,8 @@
 
 	/**
 	 * 判断节点是否存在属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
+	 * @param   {Element}  node
+	 * @param   {String}   name
 	 * @return  {Boolean}
 	 */
 	function hasAttr (node, name) {
@@ -1188,8 +1188,8 @@
 
 	/**
 	 * 节点是否存在 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
 	 * @return {Boolean}
 	 */
 	function hasClass (node, classname) {
@@ -1206,8 +1206,8 @@
 
 	/**
 	 * 节点添加 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
 	 */
 	function addClass (node, classname) {
 		var current, list = node.classList;
@@ -1230,8 +1230,8 @@
 
 	/**
 	 * 节点删除 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
 	 */
 	function removeClass (node, classname) {
 		var current, target, list = node.classList;
@@ -1261,10 +1261,10 @@
 
 	/**
 	 * 节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
+	 * @param   {Element}   node
+	 * @param   {String}    evt
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
 	 */
 	function addEvent (node, evt, callback, capture) {
 		node.addEventListener(evt, callback, capture);
@@ -1272,13 +1272,36 @@
 
 	/**
 	 * 解除节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
+	 * @param   {Element}   node
+	 * @param   {String}    evt
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
 	 */
 	function removeEvent (node, evt, callback, capture) {
 		node.removeEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 获取节点行内样式显示值
+	 * 行内样式 display = '' 不会影响由 classname 中的定义
+	 * 在文档碎片中是不能通过 getComputedStyle 方法来获取样式值的
+	 * @param  {Element}  node
+	 */
+	function getVisible (node) {
+		var display;
+		var inlineStyle = removeSpace(getAttr(node, 'style'));
+
+		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
+			var styles = inlineStyle.split(';');
+
+			each(styles, function (style) {
+				if (style.indexOf('display') > -1) {
+					display = getKeyValue(style);
+				}
+			});
+		}
+
+		return display || '';
 	}
 
 	/**
@@ -2341,23 +2364,9 @@
 	 * @param  {Element}  node
 	 */
 	function setVisibleDisplay (node) {
-		if (!node[visibleDisplay]) {
-			var display;
-			var inlineStyle = removeSpace(getAttr(node, 'style'));
-
-			if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-				var styles = inlineStyle.split(';');
-
-				each(styles, function (style) {
-					if (style.indexOf('display') > -1) {
-						display = getKeyValue(style);
-					}
-				});
-			}
-
-			if (display !== 'none') {
-				defRec(node, visibleDisplay, display || '');
-			}
+		var display = getVisible(node);
+		if (display !== 'none') {
+			defRec(node, visibleDisplay, display || '');
 		}
 	}
 

@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Mon Sep 05 2016 14:49:07 GMT+0800 (CST)
+ * Tue Sep 06 2016 15:12:43 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1086,193 +1086,6 @@
 
 	var core = cache['0'] = new Core();
 
-	/**
-	 * 是否是元素节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isElement (element) {
-		return element.nodeType === 1;
-	}
-
-	/**
-	 * 是否是文本节点
-	 * @param   {DOMElement}   element
-	 * @return  {Boolean}
-	 */
-	function isTextNode (element) {
-		return element.nodeType === 3;
-	}
-
-	/**
-	 * 清空 element 的所有子节点
-	 * @param   {DOMElement}  element
-	 */
-	function empty (element) {
-		while (element.firstChild) {
-			element.removeChild(element.firstChild);
-		}
-		return element;
-	}
-
-	/**
-	 * 获取节点属性值
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {String}
-	 */
-	function getAttr (node, name) {
-		return node.getAttribute(name) || '';
-	}
-
-	/**
-	 * 移除节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 */
-	function removeAttr (node, name) {
-		node.removeAttribute(name);
-	}
-
-	/**
-	 * 设置节点属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @param   {String}      value
-	 */
-	function setAttr (node, name, value) {
-		if (typeof value === 'boolean') {
-			node[name] = value;
-		} else if (value === null) {
-			removeAttr(node, name);
-		} else if (value !== getAttr(node, name)) {
-			node.setAttribute(name, value);
-		}
-	}
-
-	/**
-	 * 判断节点是否存在属性
-	 * @param   {DOMElement}  node
-	 * @param   {String}      name
-	 * @return  {Boolean}
-	 */
-	function hasAttr (node, name) {
-		return node.hasAttribute(name);
-	}
-
-	/**
-	 * 节点是否存在 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 * @return {Boolean}
-	 */
-	function hasClass (node, classname) {
-		var current, list = node.classList;
-
-		/* istanbul ignore else */
-		if (list) {
-			return list.contains(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-			return current.indexOf(' ' + classname + ' ') > -1;
-		}
-	}
-
-	/**
-	 * 节点添加 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function addClass (node, classname) {
-		var current, list = node.classList;
-
-		if (!classname || hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.add(classname);
-		} else {
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			if (current.indexOf(' ' + classname + ' ') === -1) {
-				setAttr(node, 'class', (current + classname).trim());
-			}
-		}
-	}
-
-	/**
-	 * 节点删除 classname
-	 * @param  {DOMElement}  node
-	 * @param  {String}      classname
-	 */
-	function removeClass (node, classname) {
-		var current, target, list = node.classList;
-
-		if (!classname || !hasClass(node, classname)) {
-			return;
-		}
-
-		/* istanbul ignore else */
-		if (list) {
-			list.remove(classname);
-		} else {
-			target = ' ' + classname + ' ';
-			current = ' ' + getAttr(node, 'class') + ' ';
-
-			while (current.indexOf(target) > -1) {
-				current = current.replace(target, ' ');
-			}
-
-			setAttr(node, 'class', current.trim());
-		}
-
-		if (!node.className) {
-			removeAttr(node, 'class');
-		}
-	}
-
-	/**
-	 * 节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function addEvent (node, evt, callback, capture) {
-		node.addEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 解除节点事件绑定
-	 * @param   {DOMElement}   node
-	 * @param   {String}       evt
-	 * @param   {Function}     callback
-	 * @param   {Boolean}      capture
-	 */
-	function removeEvent (node, evt, callback, capture) {
-		node.removeEventListener(evt, callback, capture);
-	}
-
-	/**
-	 * 导出作为组件系统的 DOM 处理构造函数
-	 */
-	function DOM () {
-		this.isElement = isElement;
-		this.isTextNode = isTextNode;
-		this.empty = empty;
-		this.getAttr = getAttr;
-		this.removeAttr = removeAttr;
-		this.setAttr = setAttr;
-		this.hasAttr = hasAttr;
-		this.hasClass = hasClass;
-		this.addClass = addClass;
-		this.removeClass = removeClass;
-		this.addEvent = addEvent;
-		this.removeEvent = removeEvent;
-	}
-
 	var guid = 0;
 
 	/**
@@ -1966,6 +1779,217 @@
 	 */
 	function linkParser (PostParser) {
 		return PostParser.prototype = Object.create(Parser.prototype);
+	}
+
+	/**
+	 * 是否是元素节点
+	 * @param   {Element}  element
+	 * @return  {Boolean}
+	 */
+	function isElement (element) {
+		return element.nodeType === 1;
+	}
+
+	/**
+	 * 是否是文本节点
+	 * @param   {Element}  element
+	 * @return  {Boolean}
+	 */
+	function isTextNode (element) {
+		return element.nodeType === 3;
+	}
+
+	/**
+	 * 清空 element 的所有子节点
+	 * @param   {Element}  element
+	 */
+	function empty (element) {
+		while (element.firstChild) {
+			element.removeChild(element.firstChild);
+		}
+		return element;
+	}
+
+	/**
+	 * 获取节点属性值
+	 * @param   {Element}  node
+	 * @param   {String}   name
+	 * @return  {String}
+	 */
+	function getAttr (node, name) {
+		return node.getAttribute(name) || '';
+	}
+
+	/**
+	 * 移除节点属性
+	 * @param   {Element}  node
+	 * @param   {String}   name
+	 */
+	function removeAttr (node, name) {
+		node.removeAttribute(name);
+	}
+
+	/**
+	 * 设置节点属性
+	 * @param   {Element}  node
+	 * @param   {String}   name
+	 * @param   {String}   value
+	 */
+	function setAttr (node, name, value) {
+		if (isBool(value)) {
+			node[name] = value;
+		} else if (value === null) {
+			removeAttr(node, name);
+		} else if (value !== getAttr(node, name)) {
+			node.setAttribute(name, value);
+		}
+	}
+
+	/**
+	 * 判断节点是否存在属性
+	 * @param   {Element}  node
+	 * @param   {String}   name
+	 * @return  {Boolean}
+	 */
+	function hasAttr (node, name) {
+		return node.hasAttribute(name);
+	}
+
+	/**
+	 * 节点是否存在 classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
+	 * @return {Boolean}
+	 */
+	function hasClass (node, classname) {
+		var current, list = node.classList;
+
+		/* istanbul ignore else */
+		if (list) {
+			return list.contains(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+			return current.indexOf(' ' + classname + ' ') > -1;
+		}
+	}
+
+	/**
+	 * 节点添加 classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
+	 */
+	function addClass (node, classname) {
+		var current, list = node.classList;
+
+		if (!classname || hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.add(classname);
+		} else {
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			if (current.indexOf(' ' + classname + ' ') === -1) {
+				setAttr(node, 'class', (current + classname).trim());
+			}
+		}
+	}
+
+	/**
+	 * 节点删除 classname
+	 * @param  {Element}  node
+	 * @param  {String}   classname
+	 */
+	function removeClass (node, classname) {
+		var current, target, list = node.classList;
+
+		if (!classname || !hasClass(node, classname)) {
+			return;
+		}
+
+		/* istanbul ignore else */
+		if (list) {
+			list.remove(classname);
+		} else {
+			target = ' ' + classname + ' ';
+			current = ' ' + getAttr(node, 'class') + ' ';
+
+			while (current.indexOf(target) > -1) {
+				current = current.replace(target, ' ');
+			}
+
+			setAttr(node, 'class', current.trim());
+		}
+
+		if (!node.className) {
+			removeAttr(node, 'class');
+		}
+	}
+
+	/**
+	 * 节点事件绑定
+	 * @param   {Element}   node
+	 * @param   {String}    evt
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
+	 */
+	function addEvent (node, evt, callback, capture) {
+		node.addEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 解除节点事件绑定
+	 * @param   {Element}   node
+	 * @param   {String}    evt
+	 * @param   {Function}  callback
+	 * @param   {Boolean}   capture
+	 */
+	function removeEvent (node, evt, callback, capture) {
+		node.removeEventListener(evt, callback, capture);
+	}
+
+	/**
+	 * 获取节点行内样式显示值
+	 * 行内样式 display = '' 不会影响由 classname 中的定义
+	 * 在文档碎片中是不能通过 getComputedStyle 方法来获取样式值的
+	 * @param  {Element}  node
+	 */
+	function getVisible (node) {
+		var display;
+		var inlineStyle = removeSpace(getAttr(node, 'style'));
+
+		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
+			var styles = inlineStyle.split(';');
+
+			each(styles, function (style) {
+				if (style.indexOf('display') > -1) {
+					display = getKeyValue(style);
+				}
+			});
+		}
+
+		return display || '';
+	}
+
+	/**
+	 * 导出作为组件系统的 DOM 处理构造函数
+	 */
+	function DOM () {
+		// this.isElement = isElement;
+		// this.isTextNode = isTextNode;
+		this.empty = empty;
+		this.getAttr = getAttr;
+		this.removeAttr = removeAttr;
+		this.setAttr = setAttr;
+		this.hasAttr = hasAttr;
+		this.hasClass = hasClass;
+		this.addClass = addClass;
+		this.removeClass = removeClass;
+		this.addEvent = addEvent;
+		this.removeEvent = removeEvent;
+		// this.getVisible = getVisible;
 	}
 
 	/**
@@ -3028,23 +3052,9 @@
 	 * @param  {Element}  node
 	 */
 	function setVisibleDisplay (node) {
-		if (!node[visibleDisplay]) {
-			var display;
-			var inlineStyle = removeSpace(getAttr(node, 'style'));
-
-			if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-				var styles = inlineStyle.split(';');
-
-				each(styles, function (style) {
-					if (style.indexOf('display') > -1) {
-						display = getKeyValue(style);
-					}
-				});
-			}
-
-			if (display !== 'none') {
-				defRec(node, visibleDisplay, display || '');
-			}
+		var display = getVisible(node);
+		if (display !== 'none') {
+			defRec(node, visibleDisplay, display || '');
 		}
 	}
 
@@ -4162,7 +4172,7 @@
 		 * @param  {Object}  parent  [父组件对象]
 		 */
 		init: function (config, parent) {
-			this._config = this.cover(config, {
+			this.__config__ = this.cover(config, {
 				/********* 组件位置定义 *********/
 				'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
 				'replace': false, // 组件是否替换目标容器 <Boolean>
@@ -4197,10 +4207,13 @@
 			this.vm = null;
 			// 通用 DOM 处理方法
 			this.$ = new DOM();
-			// 组件是否已经创建完成
-			this.$ready = false;
-			// DOM 事件绑定记录
-			this.$listeners = {};
+
+			// (Private) 组件初始显示状态
+			this.__visible__ = '';
+			// (Private) 组件是否已经创建完成
+			this.__ready__ = false;
+			// (Private) DOM 事件绑定记录
+			this.__listeners__ = {};
 
 			// 调用渲染前函数
 			if (isFunc(this.beforeRender)) {
@@ -4216,7 +4229,7 @@
 		},
 
 		/**
-		 * 加载模板布局文件
+		 * (Private) 加载模板布局文件
 		 */
 		_loadTemplate: function () {
 			var c = this.getConfig();
@@ -4238,21 +4251,22 @@
 		},
 
 		/**
-		 * 渲染组件视图、初始化配置
+		 * (Private) 渲染组件视图、初始化配置
 		 */
 		_render: function () {
 			// 判断是否已创建过
-			if (this.$ready) {
+			if (this.__ready__) {
 				return this;
 			}
 
-			this.$ready = true;
+			this.__ready__ = true;
 
 			var c = this.getConfig();
 
 			var target = c.target;
 			var isAppend = target instanceof HTMLElement;
 
+			// 组件 el 创建
 			if (isAppend) {
 				this.el = createElement(c.tag);
 			} else {
@@ -4299,6 +4313,9 @@
 				});
 			}
 
+			// 组件初始显示状态
+			this.__visible__ = getVisible(this.el);
+
 			// 创建子组件
 			each(c.childs, this._buildBatchChilds, this);
 
@@ -4319,7 +4336,7 @@
 		},
 
 		/**
-		 * 批量创建子组件
+		 * (Private) 批量创建子组件
 		 * @param   {Function}  ChildComp  [子组件类]
 		 * @param   {String}    symbol     [子组件名称]
 		 */
@@ -4348,7 +4365,7 @@
 		},
 
 		/**
-		 * 创建一个子组件实例
+		 * (Private) 创建一个子组件实例
 		 * @param   {DOMElement}  target
 		 * @param   {String}      childName
 		 * @param   {Function}    ChildComp
@@ -4368,7 +4385,7 @@
 		},
 
 		/**
-		 * 组件销毁后的回调函数
+		 * (Private) 组件销毁后的回调函数
 		 */
 		_afterDestroy: function () {
 			var vm = this.vm;
@@ -4386,7 +4403,7 @@
 			}
 
 			this.el = this.vm = null;
-			clearObject(this.$listeners);
+			clearObject(this.__listeners__);
 		},
 
 		/**
@@ -4407,7 +4424,7 @@
 		 * @param  {String}  name  [参数字段名称，支持/层级]
 		 */
 		getConfig: function (name) {
-			return config(this._config, name);
+			return config(this.__config__, name);
 		},
 
 		/**
@@ -4416,7 +4433,7 @@
 		 * @param {Mix}     value  [值]
 		 */
 		setConfig: function (name, value) {
-			return config(this._config, name, value);
+			return config(this.__config__, name, value);
 		},
 
 		/**
@@ -4438,6 +4455,22 @@
 		},
 
 		/**
+		 * 显示组件
+		 */
+		show: function () {
+			this.el.style.display = this.__visible__;
+			return this;
+		},
+
+		/**
+		 * 隐藏组件
+		 */
+		hide: function () {
+			this.el.style.display = 'none';
+			return this;
+		},
+
+		/**
 		 * 元素添加绑定事件
 		 */
 		on: function (node, type, callback, capture) {
@@ -4453,8 +4486,10 @@
 				callback.call(self, e);
 			}
 
-			this.$listeners[guid] = eventAgent;
+			this.__listeners__[guid] = eventAgent;
 			addEvent(node, type, eventAgent, capture);
+
+			return this;
 		},
 
 		/**
@@ -4466,10 +4501,12 @@
 			}
 
 			var guid = callback[identifier];
-			var eventAgent = this.$listeners[guid];
+			var eventAgent = this.__listeners__[guid];
 			if (eventAgent) {
 				removeEvent(node, type, eventAgent, capture);
 			}
+
+			return this;
 		}
 	});
 
