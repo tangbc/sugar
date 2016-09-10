@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Tue Sep 06 2016 15:12:43 GMT+0800 (CST)
+ * Sat Sep 10 2016 11:27:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4416,7 +4416,7 @@
 			if (!parent) {
 				warn('Failed to cover config, 2 arguments required');
 			}
-			return extend(true, {}, parent, child);
+			return extend(true, parent, child);
 		},
 
 		/**
