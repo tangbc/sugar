@@ -276,7 +276,7 @@ var Component = Module.extend({
 		if (!parent) {
 			warn('Failed to cover config, 2 arguments required');
 		}
-		return extend(true, {}, parent, child);
+		return extend(true, parent, child);
 	},
 
 	/**
