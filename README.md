@@ -85,7 +85,7 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Usage
 
-* npm install: `npm install sugar-js`
+* Use by nodejs package: `npm install sugar-js`
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
 	* `mvvm.js (about 25 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
