@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Sat Sep 10 2016 11:27:08 GMT+0800 (CST)
+ * Sun Sep 11 2016 20:35:34 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1671,17 +1671,15 @@
 	 */
 	vif.parse = function () {
 		var el = this.el;
+		var elseEl = el.nextElementSibling;
 
 		// 缓存渲染内容
-		this.elContent = el.innerHTML;
-		empty(el);
+		this.elFrag = nodeToFragment(el);
 
 		// else 节点
-		var elseEl = el.nextElementSibling;
 		if (elseEl && hasAttr(elseEl, 'v-else')) {
 			this.elseEl = elseEl;
-			this.elseElContent = elseEl.innerHTML;
-			empty(elseEl);
+			this.elseElFrag = nodeToFragment(elseEl);
 		}
 
 		this.bind();
@@ -1692,29 +1690,33 @@
 	 * @param   {Boolean}  isRender
 	 */
 	vif.update = function (isRender) {
-		this.toggle(this.el, this.elContent, isRender);
-
 		var elseEl = this.elseEl;
+
+		this.toggle(this.el, this.elFrag, isRender);
+
 		if (elseEl) {
-			this.toggle(elseEl, this.elseElContent, !isRender);
+			this.toggle(elseEl, this.elseElFrag, !isRender);
 		}
 	}
 
 	/**
 	 * 切换节点内容渲染
+	 * @param   {Element}   renderEl
+	 * @param   {Fragment}  fragment
+	 * @param   {Boolean}   isRender
 	 */
-	vif.toggle = function (node, content, isRender) {
+	vif.toggle = function (renderEl, fragment, isRender) {
 		var vm = this.vm;
-		var frag = stringToFragment(content);
+		var frag = fragment.cloneNode(true);
 
-		// 渲染
+		// 渲染 & 更新视图
 		if (isRender) {
 			vm.collect(frag, true, this.$scope);
-			node.appendChild(frag);
+			renderEl.appendChild(frag);
 		}
-		// 不渲染的情况需要移除 DOM 注册的引用
+		// 不渲染的情况需要移除 DOM 索引的引用
 		else {
-			empty(node);
+			empty(renderEl);
 			removeDOMRegister(vm, frag);
 		}
 	}
@@ -3344,10 +3346,11 @@
 	 * @param  {Object}  option    [数据参数对象]
 	 * @param  {Element}   - view      [视图对象]
 	 * @param  {Object}    - model     [数据对象]
-	 * @param  {Object}    - methods   [<可选>事件声明函数对象]
 	 * @param  {Object}    - computed  [<可选>计算属性对象]
+	 * @param  {Object}    - methods   [<可选>事件声明函数对象]
+	 * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
 	 * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
-	 * @param  {Object}    - context   [<可选>回调上下文]
+	 * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
 	 */
 	function MVVM (option) {
 		this.context = option.context || option.model;
@@ -3372,6 +3375,9 @@
 
 		// 数据模型
 		this.$data = this.vm.$data;
+
+		// 批量 watch
+		this._watchBatches(option.watches);
 	}
 
 	var mvp = MVVM.prototype;
@@ -3456,6 +3462,20 @@
 			'deep': deep,
 			'expression': expression
 		}, callback.bind(this.context));
+	}
+
+	/**
+	 * 批量 watch 配置的监测模型
+	 * @param   {Object}  watches
+	 */
+	mvp._watchBatches = function (watches) {
+		each(watches, function (callback, expression) {
+			if (isFunc(callback)) {
+				this.watch(expression, callback, false);
+			} else if (isObject(callback)) {
+				this.watch(expression, callback.handler, callback.deep);
+			}
+		}, this);
 	}
 
 	/**
