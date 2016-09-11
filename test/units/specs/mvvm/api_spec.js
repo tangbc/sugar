@@ -1,31 +1,17 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util');
 
+var triggerEvent = require('../../test_util').triggerEvent;
+
 describe("mvvm instance api >", function () {
-	var element, vm, data;
+	var element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
-		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 		document.body.appendChild(element);
-
-		data = {
-			'vid': 'aaa',
-			'text': 'bbb',
-			'obj': {
-				'a': 1,
-				'b': 2
-			}
-		}
-
-		vm = new MVVM({
-			'view': element,
-			'model': data
-		});
 	});
 
 	afterEach(function () {
-		vm = data = null;
 		document.body.removeChild(element);
 	});
 
@@ -66,6 +52,20 @@ describe("mvvm instance api >", function () {
 
 
 	it('get', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
 		var model = vm.get();
 		var descriptor = Object.getOwnPropertyDescriptor(model, 'obj');
 
@@ -92,12 +92,40 @@ describe("mvvm instance api >", function () {
 
 
 	it('get deep', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
 		expect(vm.get('obj.a')).toBe(1);
 		expect(vm.get('obj.b')).toBe(2);
 	});
 
 
 	it('getCopy', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
 		// getCopy returns a copy of model
 		var model = vm.getCopy();
 		var descriptor = Object.getOwnPropertyDescriptor(model, 'obj');
@@ -112,6 +140,22 @@ describe("mvvm instance api >", function () {
 
 
 	it('set', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
+		var data = vm.$data;
+
 		// set one
 		vm.set('text', 'BBB');
 		expect(data.text).toBe('BBB');
@@ -133,6 +177,22 @@ describe("mvvm instance api >", function () {
 
 
 	it('set deep', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
+		var data = vm.$data;
+
 		vm.set('obj.a', 520);
 		vm.set('obj.b', 1314);
 
@@ -144,6 +204,22 @@ describe("mvvm instance api >", function () {
 
 
 	it('reset', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
+		var data = vm.$data;
+
 		data.vid = 23333;
 		data.text = 94949494;
 		data.obj = {'x': 456};
@@ -175,6 +251,21 @@ describe("mvvm instance api >", function () {
 
 
 	it('watch', function () {
+		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'vid': 'aaa',
+				'text': 'bbb',
+				'obj': {
+					'a': 1,
+					'b': 2
+				}
+			}
+		});
+
+		var data = vm.$data;
 		var tempVid;
 
 		vm.watch('vid', function (newValue) {
@@ -187,10 +278,6 @@ describe("mvvm instance api >", function () {
 
 
 	it('shallow watch for array', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
 
 		element.innerHTML =
 			'<ul>' +
@@ -199,7 +286,7 @@ describe("mvvm instance api >", function () {
 				'</li>' +
 			'</ul>'
 
-		data = {
+		var data = {
 			'items': [
 				{'text': 111},
 				{'text': 222},
@@ -207,7 +294,7 @@ describe("mvvm instance api >", function () {
 			]
 		}
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': data
 		});
@@ -233,11 +320,6 @@ describe("mvvm instance api >", function () {
 
 
 	it('deep watch for array', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
@@ -245,7 +327,7 @@ describe("mvvm instance api >", function () {
 				'</li>' +
 			'</ul>'
 
-		data = {
+		var data = {
 			'items': [
 				{'text': 111},
 				{'text': 222},
@@ -253,7 +335,7 @@ describe("mvvm instance api >", function () {
 			]
 		}
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': data
 		});
@@ -278,20 +360,15 @@ describe("mvvm instance api >", function () {
 
 
 	it('shallow watch for object', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		element.innerHTML = '<h1>{{ info.title }}</h1>';
 
-		data = {
+		var data = {
 			'info': {
 				'title': 'xxdk'
 			}
 		}
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': data
 		});
@@ -320,20 +397,15 @@ describe("mvvm instance api >", function () {
 
 
 	it('deep watch for object', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		element.innerHTML = '<h1>{{ info.title }}</h1>';
 
-		data = {
+		var data = {
 			'info': {
 				'title': 'xxdk'
 			}
 		}
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': data
 		});
@@ -362,11 +434,6 @@ describe("mvvm instance api >", function () {
 
 
 	it('destroy', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		// try to use all directives
 		element.innerHTML =
 			'<div>{{ title }}</div>' +
@@ -410,7 +477,7 @@ describe("mvvm instance api >", function () {
 
 			'<div v-pre>{{ title }}</div>'
 
-		data = {
+		var data = {
 			'title': 'xxdk',
 			'html': '<b>123</b>',
 			'show': true,
@@ -432,7 +499,7 @@ describe("mvvm instance api >", function () {
 			]
 		}
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': data
 		});
@@ -447,11 +514,6 @@ describe("mvvm instance api >", function () {
 
 
 	it('computed property', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		element.innerHTML =
 			'<div>{{ a }}</div>' +
 			'<div>{{ b }}</div>' +
@@ -459,7 +521,7 @@ describe("mvvm instance api >", function () {
 			'<div>{{ d }}</div>' +
 			'<div>{{ e }}</div>'
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': {
 				'a': 520,
@@ -504,16 +566,11 @@ describe("mvvm instance api >", function () {
 
 
 	it('computed property with non-function', function () {
-		// clear first
-		element = data = vm = null;
-		element = document.createElement('div');
-		document.body.appendChild(element);
-
 		element.innerHTML =
 			'<div>{{ a }}</div>' +
 			'<div>{{ b }}</div>'
 
-		vm = new MVVM({
+		var vm = new MVVM({
 			'view': element,
 			'model': {
 				'a': 123
@@ -524,5 +581,202 @@ describe("mvvm instance api >", function () {
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('computed property [b] must be a getter function!');
+	});
+
+
+	it('use methods and context', function () {
+		element.innerHTML =
+			'<div v-on:click="evClick"></div>'
+
+		var scope = {
+			'a': 123
+		};
+
+		var context;
+		var vm = new MVVM({
+			'view': element,
+			'model': {},
+			'methods': {
+				'evClick': function cb () {
+					context = this;
+				}
+			},
+			// when specify context, methods will bind for context
+			'context': scope
+		});
+
+		triggerEvent(element.firstChild, 'click');
+		expect(context).toBe(scope);
+	});
+
+
+	it('use methods and without context', function () {
+		element.innerHTML =
+			'<div v-on:click="evClick"></div>'
+
+		var context;
+		var vm = new MVVM({
+			'view': element,
+			'model': {},
+			'methods': {
+				'evClick': function cb () {
+					context = this;
+				}
+			}
+			// when no-specify context, methods will bind for vm.$data
+		});
+
+		triggerEvent(element.firstChild, 'click');
+		expect(context).toBe(vm.$data);
+	});
+
+
+	it('batch watches with context', function () {
+		element.innerHTML =
+			'<h1>{{ title }}</h1>' +
+			'<ul class="test1">' +
+				'<li v-for="item of items">' +
+					'{{ item.text }}' +
+				'</li>' +
+			'</ul>' +
+			'<ul class="test2">' +
+				'<li v-for="item of list">' +
+					'{{ item.name }}' +
+				'</li>' +
+			'</ul>'
+
+		var scope = {
+			'a': 123
+		};
+
+		var context;
+		var flag_title;
+		var flag_items_shallow;
+		var flag_list_deep;
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'title': 'xxdk',
+				'items': [
+					{'text': 'aaa'},
+					{'text': 'bbb'},
+				],
+				'list': [
+					{'name': 'AAA'},
+					{'name': 'BBB'},
+				]
+			},
+			'watches': {
+				// normal/shallow watch, just pass a watch callback
+				'title': function (newVal, oldValue) {
+					context = this;
+					flag_title = newVal;
+				},
+				'items': function () {
+					context = this;
+					flag_items_shallow = true;
+				},
+				// for deep watch, pass a object contains handler and deep
+				'list': {
+					'handler': function () {
+						context = this;
+						flag_list_deep = true;
+					},
+					'deep': true
+				}
+			},
+			// when specify context, each watch callback will bind for context
+			'context': scope
+		});
+
+		var data = vm.$data;
+		var ulItems = element.querySelector('.test1');
+		var ulLists = element.querySelector('.test2');
+
+		// change for title
+		data.title = 'txgc';
+		expect(context).toBe(scope);
+		expect(flag_title).toBe('txgc');
+
+		// change for items, deep change, and will not trigger it's watch callback
+		context = null;
+		data.items[0].text = 'a';
+		expect(ulItems.textContent).toBe('abbb');
+		expect(context).toBeNull();
+		expect(flag_items_shallow).toBe(undefined);
+
+		// change for items, shallow changes, and it works
+		data.items.push({'text': 'ccc'});
+		expect(ulItems.textContent).toBe('abbbccc');
+		expect(context).toBe(scope);
+		expect(flag_items_shallow).toBe(true);
+
+		// change for list, deep changes, and it works because specified a deep config
+		context = null;
+		data.list[1].name = 'B';
+		expect(ulLists.textContent).toBe('AAAB');
+		expect(context).toBe(scope);
+		expect(flag_list_deep).toBe(true);
+
+		// reset flag, and change for list, shallow changes, it also works
+		context = null, flag_list_deep = false;
+		data.list.unshift({'name': 'OOO'});
+		expect(ulLists.textContent).toBe('OOOAAAB');
+		expect(context).toBe(scope);
+		expect(flag_list_deep).toBe(true);
+	});
+
+
+	it('batch watches without context', function () {
+		element.innerHTML =
+			'<h1>{{ title }}</h1>' +
+			'<ul>' +
+				'<li v-for="item of items">' +
+					'{{ item.text }}' +
+				'</li>' +
+			'</ul>'
+
+		var context;
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'title': 'xxdk',
+				'items': [
+					{'text': 'aaa'},
+					{'text': 'bbb'},
+				]
+			},
+			'watches': {
+				// normal/shallow watch, just pass a watch callback
+				'title': function (newVal, oldValue) {
+					context = this;
+				},
+				// for deep watch, pass a object contains handler and deep
+				'items': {
+					'handler': function () {
+						context = this;
+					},
+					'deep': true
+				}
+			}
+			// when no-specify context, watch callback will bind for vm.$data
+		});
+
+		var data = vm.$data;
+
+		// change for title
+		data.title = 'txgc';
+		expect(context).toBe(data);
+
+		// change for items, deep change
+		context = null;
+		data.items[0].text = 'a';
+		expect(context).toBe(data);
+
+		// change for items, shallow changes
+		context = null;
+		data.items.push({'text': 'ccc'});
+		expect(context).toBe(data);
 	});
 });
