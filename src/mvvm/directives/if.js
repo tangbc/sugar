@@ -1,5 +1,5 @@
 import Parser, { linkParser } from '../parser';
-import { hasOwn, stringToFragment } from '../../util';
+import { hasOwn, nodeToFragment } from '../../util';
 import { isElement, hasAttr, empty } from '../../dom';
 
 /**
@@ -52,17 +52,15 @@ var vif = linkParser(VIf);
  */
 vif.parse = function () {
 	var el = this.el;
+	var elseEl = el.nextElementSibling;
 
 	// 缓存渲染内容
-	this.elContent = el.innerHTML;
-	empty(el);
+	this.elFrag = nodeToFragment(el);
 
 	// else 节点
-	var elseEl = el.nextElementSibling;
 	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
-		this.elseElContent = elseEl.innerHTML;
-		empty(elseEl);
+		this.elseElFrag = nodeToFragment(elseEl);
 	}
 
 	this.bind();
@@ -73,29 +71,33 @@ vif.parse = function () {
  * @param   {Boolean}  isRender
  */
 vif.update = function (isRender) {
-	this.toggle(this.el, this.elContent, isRender);
-
 	var elseEl = this.elseEl;
+
+	this.toggle(this.el, this.elFrag, isRender);
+
 	if (elseEl) {
-		this.toggle(elseEl, this.elseElContent, !isRender);
+		this.toggle(elseEl, this.elseElFrag, !isRender);
 	}
 }
 
 /**
  * 切换节点内容渲染
+ * @param   {Element}   renderEl
+ * @param   {Fragment}  fragment
+ * @param   {Boolean}   isRender
  */
-vif.toggle = function (node, content, isRender) {
+vif.toggle = function (renderEl, fragment, isRender) {
 	var vm = this.vm;
-	var frag = stringToFragment(content);
+	var frag = fragment.cloneNode(true);
 
-	// 渲染
+	// 渲染 & 更新视图
 	if (isRender) {
 		vm.collect(frag, true, this.$scope);
-		node.appendChild(frag);
+		renderEl.appendChild(frag);
 	}
-	// 不渲染的情况需要移除 DOM 注册的引用
+	// 不渲染的情况需要移除 DOM 索引的引用
 	else {
-		empty(node);
+		empty(renderEl);
 		removeDOMRegister(vm, frag);
 	}
 }
