@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
 
 
-A lightweight and powerfull MVVM library for building web UI component. Simple API and without any dependence.
+A lightweight and powerfull MVVM library for building web UI component. Simple api and without any dependence.
 Consists of two independent parts: **`sugar`** ( *support component system* ) and **`mvvm`** ( *support data binding & view refresh* )
 
 
@@ -15,13 +15,13 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 
 ## Directory
 
-* `test/` Unit test files and API test demos.
+* `test/` Unit test files and API test.
 
 * `build/` Development and production config files.
 
 * `demos/` Several complete demos developed by sugar.js.
 
-* `dist/` Bundle files of sugar.js and mvvm.js, and their compressed files.
+* `dist/` Bundle files of sugar.js and mvvm.js, and their compressed.
 
 * `src/` Source code files:
 
@@ -85,11 +85,13 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Usage
 
-* Both `sugar.js` and `mvvm.js` can be used by `CMD`, `AMD` and `<script></script>`.
-	* `mvvm (about 25 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
-	* `sugar (about 31 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
+* npm install: `npm install sugar-js`
 
-* Browser support: does not support IE8 and below, used `Object.defineProperty`, `Object.create` ...
+* Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
+	* `mvvm.js (about 25 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar.js (about 32 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
+
+* Browsers: **not support IE8 and below**, used `Object.defineProperty`, `Object.create`.
 
 
 ## ChangeLog
