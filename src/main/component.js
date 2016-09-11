@@ -53,6 +53,7 @@ var Component = Module.extend({
 			/********* 组件 MVVM 定义 *********/
 			'model'   : null, // mvvm 数据模型对象 <Object>
 			'methods' : null, // 事件声明函数对象  <Object>
+			'watches' : null, // 批量 watch 数据对象  <Object>
 			'computed': null, // mvvm 计算属性对象 <Object>
 			'customs' : null, // 自定义指令刷新函数对象 <Object>
 
@@ -169,6 +170,7 @@ var Component = Module.extend({
 				'view'    : this.el,
 				'model'   : model,
 				'methods' : c.methods,
+				'watches' : c.watches,
 				'computed': c.computed,
 				'customs' : c.customs,
 				'context' : this

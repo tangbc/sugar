@@ -7,10 +7,11 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Object}  option    [数据参数对象]
  * @param  {Element}   - view      [视图对象]
  * @param  {Object}    - model     [数据对象]
- * @param  {Object}    - methods   [<可选>事件声明函数对象]
  * @param  {Object}    - computed  [<可选>计算属性对象]
+ * @param  {Object}    - methods   [<可选>事件声明函数对象]
+ * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
  * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
- * @param  {Object}    - context   [<可选>回调上下文]
+ * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
  */
 export default function MVVM (option) {
 	this.context = option.context || option.model;
@@ -35,6 +36,9 @@ export default function MVVM (option) {
 
 	// 数据模型
 	this.$data = this.vm.$data;
+
+	// 批量 watch
+	this._watchBatches(option.watches);
 }
 
 var mvp = MVVM.prototype;
@@ -119,6 +123,20 @@ mvp.watch = function (expression, callback, deep) {
 		'deep': deep,
 		'expression': expression
 	}, callback.bind(this.context));
+}
+
+/**
+ * 批量 watch 配置的监测模型
+ * @param   {Object}  watches
+ */
+mvp._watchBatches = function (watches) {
+	each(watches, function (callback, expression) {
+		if (isFunc(callback)) {
+			this.watch(expression, callback, false);
+		} else if (isObject(callback)) {
+			this.watch(expression, callback.handler, callback.deep);
+		}
+	}, this);
 }
 
 /**
