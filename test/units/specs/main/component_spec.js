@@ -3,16 +3,7 @@ var dom = require('src/dom');
 var util = require('src/util');
 var Component = sugar.Component;
 
-function triggerEvent (target, evt, process) {
-	var e = document.createEvent('HTMLEvents');
-	e.initEvent(evt, true, true);
-
-	if (process) {
-		process(e);
-	}
-
-	target.dispatchEvent(e);
-}
+var triggerEvent = require('../../test_util').triggerEvent;
 
 describe('sugar Component api >', function () {
 	var wraper;

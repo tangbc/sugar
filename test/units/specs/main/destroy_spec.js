@@ -2,16 +2,7 @@ var sugar = require('src/main/index').default;
 var Component = sugar.Component;
 var Cache = require('src/main/cache').default;
 
-function triggerEvent (target, evt, process) {
-	var e = document.createEvent('HTMLEvents');
-	e.initEvent(evt, true, true);
-
-	if (process) {
-		process(e);
-	}
-
-	target.dispatchEvent(e);
-}
+var triggerEvent = require('../../test_util').triggerEvent;
 
 describe('sugar module api >', function () {
 	var wraper = document.createElement('div');

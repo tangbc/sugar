@@ -1,16 +1,6 @@
 var MVVM = require('mvvm').default;
 
-function triggerEvent (target, evt, process) {
-	var e = document.createEvent('HTMLEvents');
-	e.initEvent(evt, true, true);
-
-	if (process) {
-		process(e);
-	}
-
-	target.dispatchEvent(e);
-}
-
+var triggerEvent = require('../../../test_util').triggerEvent;
 
 describe("v-on >", function () {
 	var element;

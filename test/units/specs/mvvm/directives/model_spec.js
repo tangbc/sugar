@@ -1,26 +1,9 @@
 var MVVM = require('mvvm').default;
 var util = require('src/util');
 
-function triggerEvent (target, evt, process) {
-	var e = document.createEvent('HTMLEvents');
-	e.initEvent(evt, true, true);
-
-	if (process) {
-		process(e);
-	}
-
-	target.dispatchEvent(e);
-}
-
-function setSelect(select, value) {
-	var options = select.options;
-
-	for (var i = 0; i < options.length; i++) {
-		if (options[i].value == value) {
-			options[i].selected = true;
-		}
-	}
-}
+var test_util = require('../../../test_util');
+var triggerEvent = test_util.triggerEvent;
+var setSelect = test_util.setSelect;
 
 
 describe("v-model >", function () {

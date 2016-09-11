@@ -14,7 +14,7 @@ describe("v-bind >", function () {
 		document.body.removeChild(element);
 	});
 
-	function equalClass(classString, stringClass) {
+	function equalClass (classString, stringClass) {
 		var fronts = classString.split(' ');
 		var backs = stringClass.split(' ');
 
