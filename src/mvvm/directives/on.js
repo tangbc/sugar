@@ -1,14 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, defRec, extend, clearObject } from '../../util';
-
-/**
- * 事件 id 唯一计数
- * @type  {Number}
- */
-let vonGuid = 2000;
-let identifier = '__vonid__';
+import { removeSpace, each, getKeyValue, defRec, extend, clearObject, warn } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
@@ -123,6 +116,13 @@ function getDress (type, dress) {
 	return { self, stop, prevent, capture, keyCode }
 }
 
+/**
+ * 事件 id 唯一计数
+ * @type  {Number}
+ */
+let vonGuid = 2000;
+let identifier = '__vonid__';
+
 
 /**
  * v-on 指令解析模块
@@ -162,12 +162,17 @@ von.getExpDesc = function (expression) {
  * @param   {Object}  bind
  */
 von.parseEvent = function (bind) {
+	var func = bind.func;
 	var args = bind.args;
 	var type = bind.type;
 	var dress = bind.dress;
 	var capture = dress.indexOf('capture') > -1;
-	var desc = this.getExpDesc(bind.func);
 
+	if (func === '$remove') {
+		return this.removeItem(type, dress);
+	}
+
+	var desc = this.getExpDesc(func);
 	var funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
 		this.off(type, oldFunc, capture);
 		this.bindEvent(type, dress, newFunc, args);
@@ -177,6 +182,24 @@ von.parseEvent = function (bind) {
 
 	// 缓存数据订阅对象
 	this.funcWatchers.push(funcWatcher);
+}
+
+/**
+ * 隐性绑定删除($remove) vfor 选项事件
+ * @param   {String}  type   [事件类型]
+ * @param   {String}  dress  [事件修饰符]
+ */
+von.removeItem = function (type, dress) {
+	var scope = this.$scope;
+
+	if (!scope) {
+		return warn('The specify event $remove must be used in v-for scope');
+	}
+
+	var alias = scope.__alias__;
+	this.bindEvent(type, dress, function $remove () {
+		scope.__viterator__.$remove(scope[alias]);
+	}, '['+ alias +']');
 }
 
 /**

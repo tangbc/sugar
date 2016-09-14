@@ -1,4 +1,5 @@
 var MVVM = require('mvvm').default;
+var util = require('src/util');
 
 var triggerEvent = require('../../../test_util').triggerEvent;
 
@@ -392,5 +393,87 @@ describe("v-on >", function () {
 		triggerEvent(els[1], 'click');
 		expect(index).toBe(1);
 		expect(evt.target.textContent).toBe('ccc');
+	});
+
+
+	it('use $remove event in v-for', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items" v-on:dblclick="$remove">' +
+					'{{ $index }}{{ item }}_' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': ['a', 'b', 'c']
+			}
+		});
+
+		var data = vm.$data;
+		var ul = element.firstChild;
+
+		expect(ul.textContent).toBe('0a_1b_2c_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[1], 'dblclick');
+		expect(ul.textContent).toBe('0a_1c_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('0c_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('');
+
+		// push new data
+		data.items.push('b');
+		data.items.unshift('a');
+		data.items.push('c');
+		expect(ul.textContent).toBe('0a_1b_2c_');
+
+		// come again above action
+		var lis = ul.childNodes;
+		triggerEvent(lis[1], 'dblclick');
+		expect(ul.textContent).toBe('0a_1c_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('0c_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('');
+
+		// cover new data
+		data.items = ['n', 'b', 'a'];
+		expect(ul.textContent).toBe('0n_1b_2a_');
+
+		// come again above action
+		var lis = ul.childNodes;
+		triggerEvent(lis[1], 'dblclick');
+		expect(ul.textContent).toBe('0n_1a_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('0a_');
+
+		var lis = ul.childNodes;
+		triggerEvent(lis[0], 'dblclick');
+		expect(ul.textContent).toBe('');
+	});
+
+
+	it('use $remove outside v-for', function () {
+		element.innerHTML = '<div v-on="{click: $remove}"></div>';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('The specify event $remove must be used in v-for scope');
 	});
 });

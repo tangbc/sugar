@@ -6,16 +6,6 @@ const vforAlias = '__vfor__';
 const regForExp = /(.*) (?:in|of) (.*)/;
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
-/**
- * 标记 vfor 节点特征字段
- * @param   {Element}  node
- * @param   {String}   feature  [特征字段]
- * @param   {String}   value    [特征值]
- */
-function markVforFeature (node, feature, value) {
-	defRec(node, feature, value);
-}
-
 
 /**
  * v-for 指令解析模块
@@ -178,6 +168,7 @@ vfor.buildList = function (list, startIndex) {
 	var start = startIndex || 0;
 	var bodyDirs = el.__dirs__;
 	var listFragment = createFragment();
+	var iterator = this.directive.watcher.value;
 
 	each(list, function (item, i) {
 		var index = start + i;
@@ -190,6 +181,11 @@ vfor.buildList = function (list, startIndex) {
 		// 绑定下标
 		observe(scope, '$index', index);
 
+		// 挂载别名
+		defRec(scope, '__alias__', alias);
+		// 挂载迭代器
+		defRec(scope, '__viterator__', iterator);
+
 		if (this.partly) {
 			this.partlyArgs.push(scope);
 		} else {
@@ -201,8 +197,8 @@ vfor.buildList = function (list, startIndex) {
 			vm.block(el);
 		}
 
-		// 标记别名
-		markVforFeature(plate, vforAlias, alias);
+		// 片段挂载别名
+		defRec(plate, vforAlias, alias);
 
 		// 收集指令并编译板块
 		vm.collect(plate, true, scope);
