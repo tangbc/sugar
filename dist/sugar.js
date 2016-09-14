@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 11 2016 20:35:33 GMT+0800 (CST)
+ * Wed Sep 14 2016 12:17:27 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1992,13 +1992,6 @@
 		// this.getVisible = getVisible;
 	}
 
-	/**
-	 * 事件 id 唯一计数
-	 * @type  {Number}
-	 */
-	var vonGuid = 2000;
-	var identifier$1 = '__vonid__';
-
 	var regBigBrackets = /^\{.*\}$/;
 	var regSmallBrackets = /(\(.*\))/;
 	var regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
@@ -2112,6 +2105,13 @@
 		return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode }
 	}
 
+	/**
+	 * 事件 id 唯一计数
+	 * @type  {Number}
+	 */
+	var vonGuid = 2000;
+	var identifier$1 = '__vonid__';
+
 
 	/**
 	 * v-on 指令解析模块
@@ -2151,12 +2151,17 @@
 	 * @param   {Object}  bind
 	 */
 	von.parseEvent = function (bind) {
+		var func = bind.func;
 		var args = bind.args;
 		var type = bind.type;
 		var dress = bind.dress;
 		var capture = dress.indexOf('capture') > -1;
-		var desc = this.getExpDesc(bind.func);
 
+		if (func === '$remove') {
+			return this.removeItem(type, dress);
+		}
+
+		var desc = this.getExpDesc(func);
 		var funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
 			this.off(type, oldFunc, capture);
 			this.bindEvent(type, dress, newFunc, args);
@@ -2166,6 +2171,24 @@
 
 		// 缓存数据订阅对象
 		this.funcWatchers.push(funcWatcher);
+	}
+
+	/**
+	 * 隐性绑定删除($remove) vfor 选项事件
+	 * @param   {String}  type   [事件类型]
+	 * @param   {String}  dress  [事件修饰符]
+	 */
+	von.removeItem = function (type, dress) {
+		var scope = this.$scope;
+
+		if (!scope) {
+			return warn('The specify event $remove must be used in v-for scope');
+		}
+
+		var alias = scope.__alias__;
+		this.bindEvent(type, dress, function $remove () {
+			scope.__viterator__.$remove(scope[alias]);
+		}, '['+ alias +']');
 	}
 
 	/**
@@ -2647,16 +2670,6 @@
 	var regForExp = /(.*) (?:in|of) (.*)/;
 	var partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
-	/**
-	 * 标记 vfor 节点特征字段
-	 * @param   {Element}  node
-	 * @param   {String}   feature  [特征字段]
-	 * @param   {String}   value    [特征值]
-	 */
-	function markVforFeature (node, feature, value) {
-		defRec(node, feature, value);
-	}
-
 
 	/**
 	 * v-for 指令解析模块
@@ -2819,6 +2832,7 @@
 		var start = startIndex || 0;
 		var bodyDirs = el.__dirs__;
 		var listFragment = createFragment();
+		var iterator = this.directive.watcher.value;
 
 		each(list, function (item, i) {
 			var index = start + i;
@@ -2831,6 +2845,11 @@
 			// 绑定下标
 			observe(scope, '$index', index);
 
+			// 挂载别名
+			defRec(scope, '__alias__', alias);
+			// 挂载迭代器
+			defRec(scope, '__viterator__', iterator);
+
 			if (this.partly) {
 				this.partlyArgs.push(scope);
 			} else {
@@ -2842,8 +2861,8 @@
 				vm.block(el);
 			}
 
-			// 标记别名
-			markVforFeature(plate, vforAlias, alias);
+			// 片段挂载别名
+			defRec(plate, vforAlias, alias);
 
 			// 收集指令并编译板块
 			vm.collect(plate, true, scope);
