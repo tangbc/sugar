@@ -459,7 +459,7 @@ describe("v-model >", function () {
 	});
 
 
-	it('select single selection without value', function () {
+	it('single select without value', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option>a</option>' +
@@ -500,7 +500,49 @@ describe("v-model >", function () {
 	});
 
 
-	it('select single selection with value', function () {
+	it('single select & without specify default selected', function () {
+			element.innerHTML =
+			'<select v-model="test">' +
+				'<option>a</option>' +
+				'<option>b</option>' +
+				'<option>c</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ''
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		// if no default selected value was defined in model, the single select will not select any options
+		// in modern browsers behavior, if no specify, single select always selected the first option by default
+		// but in v-model of mvvm, we hope that `data` is the highest-priority decision-maker instead of options
+		expect(data.test).toBe('');
+		expect(select.value).toBe('');
+
+		// set value by data
+		data.test = 'c';
+		expect(select.value).toBe('c');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+
+		// set value by event
+		setSelect(select, 'a');
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('a');
+		expect(select.value).toBe('a');
+		expect(options[0].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+	});
+
+
+	it('single select with value', function () {
 		element.innerHTML =
 			'<select v-model="test">' +
 				'<option value="a">AAA</option>' +
@@ -541,7 +583,7 @@ describe("v-model >", function () {
 	});
 
 
-	it('select single selection return all number', function () {
+	it('single select return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" number>' +
 				'<option value="1">AAA</option>' +
@@ -588,7 +630,406 @@ describe("v-model >", function () {
 	});
 
 
-	it('select multi selection without value', function () {
+	it('single select return all number & specify a not-number default selected', function () {
+		element.innerHTML =
+			'<select v-model="test" number>' +
+				'<option value="1">AAA</option>' +
+				'<option value="2">BBB</option>' +
+				'<option value="3">CCC</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': '1'
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		// here we hope that if specify number attribute
+		// not only return data, but also input data both require a number
+		expect(data.test).toBe('1');
+		expect(select.value).toBe('');
+
+		// set value by event
+		setSelect(select, '2');
+		triggerEvent(select, 'change');
+		expect(data.test).toBe(2);
+		expect(select.value).toBe('2');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(true);
+		expect(options[2].selected).toBe(false);
+
+		// set value by data
+		data.test = 3;
+		expect(select.value).toBe('3');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+	});
+
+
+	it('single select with v-for', function () {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option v-for="op in options" v-bind:value="op.value">' +
+					'{{ op.text }}' +
+				'</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'b',
+				'options': [
+					{'value': 'a', 'text': 'AAA'},
+					{'value': 'b', 'text': 'BBB'},
+					{'value': 'c', 'text': 'CCC'}
+				]
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(true);
+		expect(options[2].selected).toBe(false);
+
+		// set value by event
+		options[0].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('a');
+		expect(options[0].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+
+		// set value by data
+		data.test = 'c';
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+	});
+
+
+	it('single select with v-for & without specify default selected', function () {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option v-for="op in options" v-bind:value="op.value">' +
+					'{{ op.text }}' +
+				'</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': '',
+				'options': [
+					{'value': 'a', 'text': 'AAA'},
+					{'value': 'b', 'text': 'BBB'},
+					{'value': 'c', 'text': 'CCC'}
+				]
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		expect(data.test).toBe('');
+		expect(select.value).toBe('');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+
+		// set value by data
+		data.test = 'c';
+		expect(select.value).toBe('c');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+
+		// set value by event
+		options[0].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('a');
+		expect(select.value).toBe('a');
+		expect(options[0].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+	});
+
+
+	it('single select with v-for & change option data', function () {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option v-for="op in options" v-bind:value="op.value">' +
+					'{{ op.value }}' +
+				'</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'c',
+				'options': [
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'}
+				]
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		expect(select.value).toBe('c');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+
+		// change/cover v-for(options) data,
+		// becasue we are not sure if new options has previous selected value
+		// so we clear the default selected value when options were rebuild
+		data.options = [
+			{'value': 'aa'},
+			{'value': 'bb'},
+			{'value': 'cc'}
+		];
+		expect(data.test).toBe('');
+		expect(select.value).toBe('');
+
+		// set value by data
+		data.test = 'cc';
+		expect(select.value).toBe('cc');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+
+		// set value by event
+		options[0].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('aa');
+		expect(select.value).toBe('aa');
+		expect(options[0].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+
+		// test for array method
+		data.options.push({'value': 'dd'});
+		options = select.childNodes;
+		expect(select.value).toBe('aa');
+		expect(options.length).toBe(4);
+		expect(options[0].selected).toBe(true);
+		expect(options[3].value).toBe('dd');
+
+		data.options.unshift({'value': 'xx'});
+		options = select.childNodes;
+		expect(select.value).toBe('aa');
+		expect(options.length).toBe(5);
+		expect(options[1].selected).toBe(true);
+		expect(options[0].value).toBe('xx');
+
+		data.options.splice(1, 0, {'value': 'oo'});
+		options = select.childNodes;
+		expect(select.value).toBe('aa');
+		expect(options.length).toBe(6);
+		expect(options[0].value).toBe('xx');
+		expect(options[1].value).toBe('oo');
+		expect(options[2].value).toBe('aa');
+		expect(options[3].value).toBe('bb');
+		expect(options[4].value).toBe('cc');
+		expect(options[5].value).toBe('dd');
+		expect(options[2].selected).toBe(true);
+
+		options[1].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('oo');
+		expect(select.value).toBe('oo');
+
+		data.options.pop();
+		options = select.childNodes;
+		expect(data.test).toBe('oo');
+		expect(select.value).toBe('oo');
+		expect(options.length).toBe(5);
+		expect(options[0].value).toBe('xx');
+		expect(options[1].value).toBe('oo');
+		expect(options[2].value).toBe('aa');
+		expect(options[3].value).toBe('bb');
+		expect(options[4].value).toBe('cc');
+		expect(options[1].selected).toBe(true);
+
+		data.options.shift();
+		options = select.childNodes;
+		expect(data.test).toBe('oo');
+		expect(select.value).toBe('oo');
+		expect(options.length).toBe(4);
+		expect(options[0].value).toBe('oo');
+		expect(options[1].value).toBe('aa');
+		expect(options[2].value).toBe('bb');
+		expect(options[3].value).toBe('cc');
+		expect(options[0].selected).toBe(true);
+
+		// if remove the selected option, data will not clear default selected value!
+		// so we should specify a new select value after remove before
+		data.options.shift();
+		data.test = 'bb';
+		options = select.childNodes;
+		expect(select.value).toBe('bb');
+		expect(options.length).toBe(3);
+		expect(options[0].value).toBe('aa');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].value).toBe('bb');
+		expect(options[1].selected).toBe(true);
+		expect(options[2].value).toBe('cc');
+		expect(options[2].selected).toBe(false);
+
+		data.options.splice(2, 1);
+		options = select.childNodes;
+		expect(data.test).toBe('bb');
+		expect(select.value).toBe('bb');
+		expect(options.length).toBe(2);
+		expect(options[0].value).toBe('aa');
+		expect(options[1].value).toBe('bb');
+
+		// if not specify a new select value after remove
+		// it will be wrong and confused! DO NOT HAPPEN THIS!
+		data.options.$set(1, {'value': 'BB'});
+		options = select.childNodes;
+		expect(data.test).toBe('bb');
+		expect(select.value).toBe('aa');
+		expect(options.length).toBe(2);
+		expect(options[0].value).toBe('aa');
+		expect(options[1].value).toBe('BB');
+
+		options[1].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toBe('BB');
+		expect(select.value).toBe('BB');
+
+		data.options.$remove(data.options[0]);
+		options = select.childNodes;
+		expect(data.test).toBe('BB');
+		expect(select.value).toBe('BB');
+		expect(options.length).toBe(1);
+		expect(options[0].value).toBe('BB');
+	});
+
+
+	it('single select with v-for & nesting level select-group', function () {
+		element.innerHTML =
+			'<div id="select-group">' +
+				'<select v-for="sel in selects" v-model="sel.selected" number>' +
+					'<option v-for="op in sel.options" v-bind:value="op.value">' +
+						'{{ op.value }}' +
+					'</option>' +
+				'</select>' +
+			'</div>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'selects': [
+					{
+						'selected': 11,
+						'options': [
+							{'value': 11},
+							{'value': 12},
+							{'value': 13}
+						]
+					},
+					{
+						'selected': 22,
+						'options': [
+							{'value': 21},
+							{'value': 22},
+							{'value': 23}
+						]
+					},
+					{
+						'selected': 33,
+						'options': [
+							{'value': 31},
+							{'value': 32},
+							{'value': 33},
+							{'value': 34}
+						]
+					}
+				]
+			}
+		});
+		var data = vm.$data;
+		var div = element.querySelector('#select-group');
+		var selects = div.childNodes;
+
+		// test list
+		expect(selects[0].value).toBe('11');
+		expect(selects[0].options.length).toBe(3);
+		expect(selects[1].value).toBe('22');
+		expect(selects[1].options.length).toBe(3);
+		expect(selects[2].value).toBe('33');
+		expect(selects[2].options.length).toBe(4);
+
+		// test select event
+		selects[0].options[1].selected = true;
+		triggerEvent(selects[0], 'change');
+		expect(selects[0].value).toBe('12');
+		expect(data.selects[0].selected).toBe(12);
+
+		selects[1].options[0].selected = true;
+		triggerEvent(selects[1], 'change');
+		expect(selects[1].value).toBe('21');
+		expect(data.selects[1].selected).toBe(21);
+
+		selects[2].options[3].selected = true;
+		triggerEvent(selects[2], 'change');
+		expect(selects[2].value).toBe('34');
+		expect(data.selects[2].selected).toBe(34);
+
+		// test data reactive
+		data.selects[0].selected = 13;
+		expect(selects[0].value).toBe('13');
+		expect(selects[0].options[0].selected).toBe(false);
+		expect(selects[0].options[1].selected).toBe(false);
+		expect(selects[0].options[2].selected).toBe(true);
+
+		data.selects[1].selected = 23;
+		expect(selects[1].value).toBe('23');
+		expect(selects[1].options[0].selected).toBe(false);
+		expect(selects[1].options[1].selected).toBe(false);
+		expect(selects[1].options[2].selected).toBe(true);
+
+		data.selects[2].selected = 33;
+		expect(selects[2].value).toBe('33');
+		expect(selects[2].options[0].selected).toBe(false);
+		expect(selects[2].options[1].selected).toBe(false);
+		expect(selects[2].options[2].selected).toBe(true);
+		expect(selects[2].options[3].selected).toBe(false);
+	});
+
+
+	it('single select but bind for array', function () {
+		element.innerHTML =
+			'<select v-model="test">' +
+				'<option>a</option>' +
+				'<option>b</option>' +
+				'<option>c</option>' +
+			'</select>'
+
+		new MVVM({
+			'view': element,
+			'model': {
+				'test': ['b']
+			}
+		});
+
+		var warnMsg = 'The model [test] cannot set as Array when <select> has no multiple propperty';
+		expect(util.warn).toHaveBeenCalledWith(warnMsg);
+	});
+
+
+	it('multiple select without value', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option>a</option>' +
@@ -635,7 +1076,7 @@ describe("v-model >", function () {
 	});
 
 
-	it('select multi selection return all number', function () {
+	it('multiple select return all number', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple number>' +
 				'<option value="1">A</option>' +
@@ -646,32 +1087,30 @@ describe("v-model >", function () {
 		var vm = new MVVM({
 			'view': element,
 			'model': {
-				'test': [2]
+				'test': []
 			}
 		});
 		var data = vm.$data;
 		var select = element.querySelector('select');
 		var options = select.childNodes;
 
-		expect(data.test).toEqual([2]);
-
 		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(false);
 
 		// set value by event
 		options[0].selected = true;
 		triggerEvent(select, 'change');
-		expect(data.test).toEqual([1, 2]);
+		expect(data.test).toEqual([1]);
 
 		options[2].selected = true;
 		triggerEvent(select, 'change');
-		expect(data.test).toEqual([1, 2, 3]);
+		expect(data.test).toEqual([1, 3]);
 
 		// set value by data
 		data.test.pop();
 		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(false);
 
 		data.test = [];
@@ -679,61 +1118,23 @@ describe("v-model >", function () {
 		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(false);
 
-		data.test.push(3); // does not work if string
+		data.test.push(3); // does not work if string '3'
 		expect(options[0].selected).toBe(false);
 		expect(options[1].selected).toBe(false);
 		expect(options[2].selected).toBe(true);
-	});
 
-
-	it('select single selection with v-for', function () {
-		element.innerHTML =
-			'<select v-model="test">' +
-				'<option v-for="op in options" v-bind:value="op.value">' +
-					'{{ op.text }}' +
-				'</option>' +
-			'</select>'
-
-		var vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'b',
-				'options': [
-					{'value': 'a', 'text': 'AAA'},
-					{'value': 'b', 'text': 'BBB'},
-					{'value': 'c', 'text': 'CCC'}
-				]
-			}
-		});
-		var data = vm.$data;
-		var select = element.querySelector('select');
-		var options = select.childNodes;
-
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(true);
-		expect(options[2].selected).toBe(false);
-
-		// set value by event
 		options[0].selected = true;
+		options[1].selected = true;
 		triggerEvent(select, 'change');
-		expect(data.test).toBe('a');
-		expect(options[0].selected).toBe(true);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(false);
-
-		// set value by data
-		data.test = 'c';
-		expect(options[0].selected).toBe(false);
-		expect(options[1].selected).toBe(false);
-		expect(options[2].selected).toBe(true);
+		expect(data.test).toEqual([1, 2, 3]);
 	});
 
 
-	it('select multi selection with v-for', function () {
+	it('multiple select with v-for', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option v-for="op in options" v-bind:value="op.value">' +
-					'{{ op.text }}' +
+					'{{ op.value }}' +
 				'</option>' +
 			'</select>'
 
@@ -742,9 +1143,9 @@ describe("v-model >", function () {
 			'model': {
 				'test': ['a', 'b'],
 				'options': [
-					{'value': 'a', 'text': 'AAA'},
-					{'value': 'b', 'text': 'BBB'},
-					{'value': 'c', 'text': 'CCC'}
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'}
 				]
 			}
 		});
@@ -778,7 +1179,179 @@ describe("v-model >", function () {
 	});
 
 
-	it('select has multiple but not bind for array', function () {
+	it('multiple select with v-for & change option data', function () {
+		element.innerHTML =
+			'<select v-model="test" multiple>' +
+				'<option v-for="op in options" v-bind:value="op.value">' +
+					'{{ op.value }}' +
+				'</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': [],
+				'options': [
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'}
+				]
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(false);
+
+		options[1].selected = true;
+		options[2].selected = true;
+		triggerEvent(select, 'change');
+		expect(data.test).toEqual(['b', 'c']);
+
+		data.options.push({'value': 'd'});
+		options = select.childNodes;
+		expect(options.length).toBe(4);
+		expect(options[3].value).toBe('d');
+		expect(options[0].selected).toBe(false);// a
+		expect(options[1].selected).toBe(true); // b
+		expect(options[2].selected).toBe(true); // c
+		expect(options[3].selected).toBe(false);// d
+
+		data.options.$remove(data.options[1]);
+		options = select.childNodes;
+		expect(data.test).toEqual(['b', 'c']);
+		// if remove the selected option, data will not clear default selected value!
+		// so we should manual remove the selected value from data
+		data.test.$remove('b');
+		expect(data.test).toEqual(['c']);
+		expect(options.length).toBe(3);
+		expect(options[0].value).toBe('a');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].value).toBe('c');
+		expect(options[1].selected).toBe(true);
+		expect(options[2].value).toBe('d');
+		expect(options[2].selected).toBe(false);
+
+		data.options = [
+			{'value': 'aa'},
+			{'value': 'bb'},
+			{'value': 'cc'}
+		];
+		options = select.childNodes;
+		expect(options[0].value).toBe('aa');
+		expect(options[0].selected).toBe(false);
+		expect(options[1].value).toBe('bb');
+		expect(options[1].selected).toBe(false);
+		expect(options[2].value).toBe('cc');
+		expect(options[2].selected).toBe(false);
+		// when cover option the data.test will be reset
+		expect(data.test).toEqual([]);
+	});
+
+
+	it('multiple select & nesting level select-group', function () {
+		element.innerHTML =
+			'<div id="select-group">' +
+				'<select v-for="sel in selects" v-model="sel.selected" number multiple>' +
+					'<option v-for="op in sel.options" v-bind:value="op.value">' +
+						'{{ op.value }}' +
+					'</option>' +
+				'</select>' +
+			'</div>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'selects': [
+					{
+						'selected': [11, 12],
+						'options': [
+							{'value': 11},
+							{'value': 12},
+							{'value': 13}
+						]
+					},
+					{
+						'selected': [22, 23],
+						'options': [
+							{'value': 21},
+							{'value': 22},
+							{'value': 23}
+						]
+					},
+					{
+						'selected': [33, 34],
+						'options': [
+							{'value': 31},
+							{'value': 32},
+							{'value': 33},
+							{'value': 34}
+						]
+					}
+				]
+			}
+		});
+		var data = vm.$data;
+		var div = element.querySelector('#select-group');
+		var selects = div.childNodes;
+
+		// test list
+		expect(selects[0].options.length).toBe(3);
+		expect(selects[0].options[0].value).toBe('11');
+		expect(selects[0].options[0].selected).toBe(true);
+		expect(selects[0].options[1].value).toBe('12');
+		expect(selects[0].options[1].selected).toBe(true);
+		expect(selects[0].options[2].value).toBe('13');
+		expect(selects[0].options[2].selected).toBe(false);
+
+		expect(selects[1].options.length).toBe(3);
+		expect(selects[1].options[0].value).toBe('21');
+		expect(selects[1].options[0].selected).toBe(false);
+		expect(selects[1].options[1].value).toBe('22');
+		expect(selects[1].options[1].selected).toBe(true);
+		expect(selects[1].options[2].value).toBe('23');
+		expect(selects[1].options[2].selected).toBe(true);
+
+		expect(selects[2].options.length).toBe(4);
+		expect(selects[2].options[0].value).toBe('31');
+		expect(selects[2].options[0].selected).toBe(false);
+		expect(selects[2].options[1].value).toBe('32');
+		expect(selects[2].options[1].selected).toBe(false);
+		expect(selects[2].options[2].value).toBe('33');
+		expect(selects[2].options[2].selected).toBe(true);
+		expect(selects[2].options[3].value).toBe('34');
+		expect(selects[2].options[3].selected).toBe(true);
+
+		// test select event
+		selects[0].options[2].selected = true;
+		triggerEvent(selects[0], 'change');
+		expect(data.selects[0].selected).toEqual([11, 12, 13]);
+
+		selects[1].options[0].selected = true;
+		triggerEvent(selects[1], 'change');
+		expect(data.selects[1].selected).toEqual([21, 22, 23]);
+
+		selects[2].options[0].selected = true;
+		selects[2].options[1].selected = true;
+		triggerEvent(selects[2], 'change');
+		expect(data.selects[2].selected).toEqual([31, 32, 33, 34]);
+
+		// test data reactive
+		data.selects[0].selected.shift();
+		expect(selects[0].options[0].selected).toBe(false);
+
+		data.selects[1].selected.pop();
+		expect(selects[1].options[2].selected).toBe(false);
+
+		data.selects[2].selected.splice(2, 1);
+		expect(selects[2].options[2].selected).toBe(false);
+	});
+
+
+	it('multiple select but not bind for array', function () {
 		element.innerHTML =
 			'<select v-model="test" multiple>' +
 				'<option>a</option>' +
@@ -793,25 +1366,7 @@ describe("v-model >", function () {
 			}
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('<select> cannot be multiple when the model set [test] as not Array');
-	});
-
-
-	it('select has no multiple but bind for array', function () {
-		element.innerHTML =
-			'<select v-model="test">' +
-				'<option>a</option>' +
-				'<option>b</option>' +
-				'<option>c</option>' +
-			'</select>'
-
-		new MVVM({
-			'view': element,
-			'model': {
-				'test': ['b']
-			}
-		});
-
-		expect(util.warn).toHaveBeenCalledWith('The model [test] cannot set as Array when <select> has no multiple propperty');
+		var warnMsg = '<select> cannot be multiple when the model set [test] as not Array';
+		expect(util.warn).toHaveBeenCalledWith(warnMsg);
 	});
 });
