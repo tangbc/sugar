@@ -62,7 +62,7 @@ export default {
 
 		// change 事件(失去焦点触发)
 		this.on('change', function () {
-			directive.set(formatValue(this.value, number));
+			setModelValue(this.value);
 		});
 	},
 
