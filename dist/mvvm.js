@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Tue Sep 20 2016 11:41:44 GMT+0800 (CST)
+ * Tue Sep 20 2016 15:25:28 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -526,7 +526,7 @@
 			case 39: // '
 				return QUOTE;
 			default:
-				return OTHER; // @todo
+				return OTHER;
 		}
 	}
 
@@ -552,7 +552,6 @@
 			var ref = this.get(state);
 			var keepIdent = ref.keepIdent;
 			var tobeQuote = ref.tobeQuote;
-			var keepQuote = ref.keepQuote;
 			var tobeIdent = ref.tobeIdent;
 
 			if (keepIdent) {
@@ -562,8 +561,6 @@
 				this.saves = '';
 				this.change(state);
 				return saves;
-			} else if (keepQuote) {
-				// to do nothing
 			} else if (tobeIdent) {
 				this.save(state, value);
 				this.change(state);
@@ -670,8 +667,7 @@
 		var copyPaths = copy(paths);
 		var set = copyPaths.pop();
 		var data = getDeepValue(scope, copyPaths);
-
-		if (data) {
+		if (isObject(data)) {
 			data[set] = value;
 		}
 	}
@@ -973,14 +969,14 @@
 	/**
 	 * 依赖变化，更新取值
 	 * @param   {Object}  args  [数组操作参数信息]
-	 * @param   {Number}  guid  [变更的依赖对象 id]
+	 * @param   {Number}  guid  [变更依赖对象 id]
 	 */
 	wp.update = function (args, guid) {
 		var oldVal = this.oldVal;
 		var newVal = this.value = this.get();
 
 		var callback = this.callback;
-		if (callback && oldVal !== newVal) {
+		if (callback && (oldVal !== newVal)) {
 			var fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
 			callback.call(this.context, newVal, oldVal, fromDeep, args);
 		}
@@ -989,7 +985,7 @@
 	/**
 	 * 销毁函数
 	 */
-	wp.destory = function () {
+	wp.destroy = function () {
 		this.value = null;
 		this.removeDepends();
 		this.getter = this.setter = null;
@@ -1011,12 +1007,10 @@
 	/**
 	 * 安装/解析指令，订阅数据、更新视图
 	 */
-	dp$1.install = function () {
+	dp$1.mount = function () {
 		var parser = this.parser;
-
 		// 生成数据订阅实例
 		var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
-
 		// 更新初始视图
 		this.update(watcher.value);
 	}
@@ -1024,8 +1018,8 @@
 	/**
 	 * 销毁/卸载指令
 	 */
-	dp$1.uninstall = function () {
-		this.watcher.destory();
+	dp$1.destroy = function () {
+		this.watcher.destroy();
 		this.parser = this.$scope = null;
 	}
 
@@ -1081,8 +1075,8 @@
 	 * 安装一个指令实例
 	 */
 	pp.bind = function () {
-		var dir = this.directive = new Directive(this);
-		dir.install();
+		this.directive = new Directive(this);
+		this.directive.mount();
 	}
 
 	/**
@@ -1094,8 +1088,8 @@
 		// 有些指令没有实例化 Directive
 		// 所以需要调用额外定义的销毁函数
 		if (directive) {
-			directive.uninstall();
-		} else if (this._destroy) {
+			directive.destroy();
+		} else if (isFunc(this._destroy)) {
 			this._destroy();
 		}
 
@@ -1612,11 +1606,11 @@
 		clearObject(this.agents);
 
 		each(this.funcWatchers, function (watcher) {
-			watcher.destory();
+			watcher.destroy();
 		});
 
 		each(this.argsWatchers, function (watcher) {
-			watcher.destory();
+			watcher.destroy();
 		});
 	}
 
@@ -1744,24 +1738,16 @@
 		}
 	}
 
-	// 重写数组操作方法
-	var rewriteArrayMethods = [
-		'pop',
-		'push',
-		'sort',
-		'shift',
-		'splice',
-		'unshift',
-		'reverse'
-	];
-
 	var arrayProto = Array.prototype;
 	var arrayMethods = Object.create(arrayProto);
+
+	// 重写数组操作方法
+	var rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
 
 	/**
 	 * 重写 array 操作方法
 	 */
-	each(rewriteArrayMethods, function (method) {
+	each(rewrites, function (method) {
 		var original = arrayProto[method];
 
 		defRec(arrayMethods, method, function () {
@@ -3199,8 +3185,10 @@
 
 	var cp = Compiler.prototype;
 
+	/**
+	 * 根节点转文档碎片/开始编译
+	 */
 	cp.mount = function () {
-		// 根节点转文档碎片（this.$element 将被清空）
 		this.$fragment = nodeToFragment(this.$element);
 		this.compile(this.$fragment, true);
 	}
@@ -3208,8 +3196,8 @@
 	/**
 	 * 收集节点所有需要编译的指令
 	 * 并在收集完成后编译指令队列
-	 * @param   {Element}  element  [文档碎片/节点]
-	 * @param   {Boolean}  root     [是否编译根节点]
+	 * @param   {Element}  element  [编译节点]
+	 * @param   {Boolean}  root     [是否是根节点]
 	 * @param   {Object}   scope    [vfor 取值域]
 	 */
 	cp.compile = function (element, root, scope) {
@@ -3247,7 +3235,7 @@
 			return null;
 		}, this);
 
-		this.checkRoot();
+		this.completed();
 	}
 
 	/**
@@ -3387,7 +3375,7 @@
 	/**
 	 * 检查根节点是否编译完成
 	 */
-	cp.checkRoot = function () {
+	cp.completed = function () {
 		if (this.$queue.length === 0 && !this.$done) {
 			this.$done = true;
 			this.$element.appendChild(this.$fragment);
@@ -3401,7 +3389,7 @@
 	}
 
 	/**
-	 * 销毁函数
+	 * vm 销毁函数，销毁指令，清空根节点
 	 */
 	cp.destroy = function () {
 		this.$data = null;
@@ -3424,19 +3412,19 @@
 	 * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
 	 */
 	function MVVM (option) {
-		this.context = option.context || option.model;
+		var ctx = this.context = option.context || option.model;
 
 		// 将事件函数 this 指向调用者
 		each(option.model, function (value, key) {
 			if (isFunc(value)) {
-				option.model[key] = value.bind(this.context);
+				option.model[key] = value.bind(ctx);
 			}
-		}, this);
+		});
 
 		// 整合事件函数声明对象
 		each(option.methods, function (callback, func) {
-			option.model[func] = callback.bind(this.context);
-		}, this);
+			option.model[func] = callback.bind(ctx);
+		});
 
 		// 初始数据备份，用于 reset
 		this.backup = copy(option.model);
