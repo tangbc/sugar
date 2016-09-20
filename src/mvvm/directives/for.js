@@ -1,6 +1,6 @@
 import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
-import { warn, createFragment, each, defRec, copy } from '../../util';
+import { warn, createFragment, each, defRec } from '../../util';
 
 const vforAlias = '__vfor__';
 const regForExp = /(.*) (?:in|of) (.*)/;
@@ -50,12 +50,13 @@ vfor.parse = function () {
 
 /**
  * 更新 select 绑定
+ * @param   {Boolean}  reset  [数组操作或覆盖]
  */
-vfor.updateModel = function () {
+vfor.updateModel = function (reset) {
 	if (this.isOption) {
 		let model = this.$parent.__vmodel__;
 		if (model) {
-			model.forceUpdate();
+			model.forceUpdate(reset);
 		}
 	}
 }
@@ -79,6 +80,7 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 			this.partly = false;
 		} else {
 			this.recompileList(newArray);
+			this.updateModel(true);
 		}
 	}
 }
@@ -100,12 +102,12 @@ vfor.initList = function (list) {
  */
 vfor.updatePartly = function (list, arg) {
 	var partlyArgs = [];
+	var args = arg.args;
 	var method = arg.method;
 	var scopes = this.scopes;
-	var args = copy(arg.args);
 
 	// 更新处理 DOM 片段
-	this[method].call(this, list, arg.args);
+	this[method].call(this, list, args);
 
 	// 更新 scopes
 	switch (method) {
@@ -201,7 +203,7 @@ vfor.buildList = function (list, startIndex) {
 		defRec(plate, vforAlias, alias);
 
 		// 收集指令并编译板块
-		vm.collect(plate, true, scope);
+		vm.compile(plate, true, scope);
 		listFragment.appendChild(plate);
 	}, this);
 
@@ -302,13 +304,13 @@ vfor.unshift = function (list, args) {
  */
 vfor.splice = function (list, args) {
 	// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
-	var start = args.shift();
+	var start = args[0];
 	// 整数，表示要移除的数组元素的个数。
 	// 如果 deleteCount 是 0，则不移除元素。这种情况下，至少应添加一个新元素。
 	// 如果 deleteCount 大于 start 之后的元素的总数，则从 start 后面的元素都将被删除（含第 start 位）。
-	var deleteCont = args.shift();
+	var deleteCont = args[1];
 	// 要添加进数组的元素。如果不指定，则 splice() 只删除数组元素。
-	var insertItems = args, insertLength = args.length;
+	var insertItems = args.slice(2), insertLength = args.length;
 
 	// 不删除也不添加
 	if (deleteCont === 0 && !insertLength) {

@@ -68,7 +68,9 @@ vmodel.bindDuplex = function (type) {
 			form = select;
 			// select 需要将指令实例挂载到元素上
 			defRec(el, '__vmodel__', this);
+			// 是否多选
 			this.multi = hasAttr(el, 'multiple');
+			// 动态 option 强制刷新取值方法
 			this.forceUpdate = select.forceUpdate.bind(this);
 			break;
 	}
