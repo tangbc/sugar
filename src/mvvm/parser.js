@@ -1,3 +1,4 @@
+import { isFunc } from '../util';
 import Directive from './directive';
 
 /**
@@ -24,8 +25,8 @@ var pp = Parser.prototype;
  * 安装一个指令实例
  */
 pp.bind = function () {
-	var dir = this.directive = new Directive(this);
-	dir.install();
+	this.directive = new Directive(this);
+	this.directive.mount();
 }
 
 /**
@@ -37,8 +38,8 @@ pp.destroy = function () {
 	// 有些指令没有实例化 Directive
 	// 所以需要调用额外定义的销毁函数
 	if (directive) {
-		directive.uninstall();
-	} else if (this._destroy) {
+		directive.destroy();
+	} else if (isFunc(this._destroy)) {
 		this._destroy();
 	}
 

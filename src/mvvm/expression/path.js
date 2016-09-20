@@ -1,4 +1,4 @@
-import { removeSpace, each, copy } from '../../util';
+import { removeSpace, each, copy, isObject } from '../../util';
 
 const INIT = 0;
 const IDENT = 1;
@@ -41,7 +41,7 @@ function getState (cha) {
 		case 39: // '
 			return QUOTE;
 		default:
-			return OTHER; // @todo
+			return OTHER;
 	}
 }
 
@@ -64,7 +64,7 @@ var StateMachine = {
 	 * @param  {String}  value
 	 */
 	set: function (state, value) {
-		var { keepIdent, tobeQuote, keepQuote, tobeIdent } = this.get(state);
+		var { keepIdent, tobeQuote, tobeIdent } = this.get(state);
 
 		if (keepIdent) {
 			this.save(state, value);
@@ -73,8 +73,6 @@ var StateMachine = {
 			this.saves = '';
 			this.change(state);
 			return saves;
-		} else if (keepQuote) {
-			// to do nothing
 		} else if (tobeIdent) {
 			this.save(state, value);
 			this.change(state);
@@ -181,8 +179,7 @@ export function setValueByPath (scope, value, paths) {
 	var copyPaths = copy(paths);
 	var set = copyPaths.pop();
 	var data = getDeepValue(scope, copyPaths);
-
-	if (data) {
+	if (isObject(data)) {
 		data[set] = value;
 	}
 }

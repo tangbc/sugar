@@ -306,10 +306,10 @@ von._destroy = function () {
 	clearObject(this.agents);
 
 	each(this.funcWatchers, function (watcher) {
-		watcher.destory();
+		watcher.destroy();
 	});
 
 	each(this.argsWatchers, function (watcher) {
-		watcher.destory();
+		watcher.destroy();
 	});
 }

@@ -1,24 +1,16 @@
 import { observeArray } from './index';
 import { each, defRec } from '../../util';
 
-// 重写数组操作方法
-const rewriteArrayMethods = [
-	'pop',
-	'push',
-	'sort',
-	'shift',
-	'splice',
-	'unshift',
-	'reverse'
-];
-
 var arrayProto = Array.prototype;
 var arrayMethods = Object.create(arrayProto);
+
+// 重写数组操作方法
+const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
 
 /**
  * 重写 array 操作方法
  */
-each(rewriteArrayMethods, function (method) {
+each(rewrites, function (method) {
 	var original = arrayProto[method];
 
 	defRec(arrayMethods, method, function () {

@@ -182,14 +182,14 @@ wp.beforeUpdate = function () {
 /**
  * 依赖变化，更新取值
  * @param   {Object}  args  [数组操作参数信息]
- * @param   {Number}  guid  [变更的依赖对象 id]
+ * @param   {Number}  guid  [变更依赖对象 id]
  */
 wp.update = function (args, guid) {
 	var oldVal = this.oldVal;
 	var newVal = this.value = this.get();
 
 	var callback = this.callback;
-	if (callback && oldVal !== newVal) {
+	if (callback && (oldVal !== newVal)) {
 		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
 		callback.call(this.context, newVal, oldVal, fromDeep, args);
 	}
@@ -198,7 +198,7 @@ wp.update = function (args, guid) {
 /**
  * 销毁函数
  */
-wp.destory = function () {
+wp.destroy = function () {
 	this.value = null;
 	this.removeDepends();
 	this.getter = this.setter = null;

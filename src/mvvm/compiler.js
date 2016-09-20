@@ -121,8 +121,10 @@ function Compiler (option) {
 
 var cp = Compiler.prototype;
 
+/**
+ * 根节点转文档碎片/开始编译
+ */
 cp.mount = function () {
-	// 根节点转文档碎片（this.$element 将被清空）
 	this.$fragment = nodeToFragment(this.$element);
 	this.compile(this.$fragment, true);
 }
@@ -130,8 +132,8 @@ cp.mount = function () {
 /**
  * 收集节点所有需要编译的指令
  * 并在收集完成后编译指令队列
- * @param   {Element}  element  [文档碎片/节点]
- * @param   {Boolean}  root     [是否编译根节点]
+ * @param   {Element}  element  [编译节点]
+ * @param   {Boolean}  root     [是否是根节点]
  * @param   {Object}   scope    [vfor 取值域]
  */
 cp.compile = function (element, root, scope) {
@@ -167,7 +169,7 @@ cp.compileAll = function () {
 		return null;
 	}, this);
 
-	this.checkRoot();
+	this.completed();
 }
 
 /**
@@ -307,7 +309,7 @@ cp.after = function (callback, context) {
 /**
  * 检查根节点是否编译完成
  */
-cp.checkRoot = function () {
+cp.completed = function () {
 	if (this.$queue.length === 0 && !this.$done) {
 		this.$done = true;
 		this.$element.appendChild(this.$fragment);
@@ -321,7 +323,7 @@ cp.checkRoot = function () {
 }
 
 /**
- * 销毁函数
+ * vm 销毁函数，销毁指令，清空根节点
  */
 cp.destroy = function () {
 	this.$data = null;

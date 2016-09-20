@@ -15,12 +15,10 @@ var dp = Directive.prototype;
 /**
  * 安装/解析指令，订阅数据、更新视图
  */
-dp.install = function () {
+dp.mount = function () {
 	var parser = this.parser;
-
 	// 生成数据订阅实例
 	var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
-
 	// 更新初始视图
 	this.update(watcher.value);
 }
@@ -28,8 +26,8 @@ dp.install = function () {
 /**
  * 销毁/卸载指令
  */
-dp.uninstall = function () {
-	this.watcher.destory();
+dp.destroy = function () {
+	this.watcher.destroy();
 	this.parser = this.$scope = null;
 }
 

@@ -14,19 +14,19 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
  */
 export default function MVVM (option) {
-	this.context = option.context || option.model;
+	var ctx = this.context = option.context || option.model;
 
 	// 将事件函数 this 指向调用者
 	each(option.model, function (value, key) {
 		if (isFunc(value)) {
-			option.model[key] = value.bind(this.context);
+			option.model[key] = value.bind(ctx);
 		}
-	}, this);
+	});
 
 	// 整合事件函数声明对象
 	each(option.methods, function (callback, func) {
-		option.model[func] = callback.bind(this.context);
-	}, this);
+		option.model[func] = callback.bind(ctx);
+	});
 
 	// 初始数据备份，用于 reset
 	this.backup = copy(option.model);
