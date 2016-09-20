@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.6 (c) 2016 TANG
  * Released under the MIT license
- * Tue Sep 20 2016 15:51:25 GMT+0800 (CST)
+ * Tue Sep 20 2016 16:34:18 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3450,7 +3450,7 @@
 
 			// change 事件(失去焦点触发)
 			this.on('change', function () {
-				directive.set(formatValue(this.value, number));
+				setModelValue(this.value);
 			});
 		},
 
