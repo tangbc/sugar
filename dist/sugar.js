@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Wed Sep 14 2016 12:17:27 GMT+0800 (CST)
+ * Tue Sep 20 2016 10:20:23 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2422,7 +2422,7 @@
 
 		// 渲染 & 更新视图
 		if (isRender) {
-			vm.collect(frag, true, this.$scope);
+			vm.compile(frag, true, this.$scope);
 			renderEl.appendChild(frag);
 		}
 		// 不渲染的情况需要移除 DOM 索引的引用
@@ -2714,12 +2714,13 @@
 
 	/**
 	 * 更新 select 绑定
+	 * @param   {Boolean}  reset  [数组操作或覆盖]
 	 */
-	vfor.updateModel = function () {
+	vfor.updateModel = function (reset) {
 		if (this.isOption) {
 			var model = this.$parent.__vmodel__;
 			if (model) {
-				model.forceUpdate();
+				model.forceUpdate(reset);
 			}
 		}
 	}
@@ -2743,6 +2744,7 @@
 				this.partly = false;
 			} else {
 				this.recompileList(newArray);
+				this.updateModel(true);
 			}
 		}
 	}
@@ -2764,12 +2766,12 @@
 	 */
 	vfor.updatePartly = function (list, arg) {
 		var partlyArgs = [];
+		var args = arg.args;
 		var method = arg.method;
 		var scopes = this.scopes;
-		var args = copy(arg.args);
 
 		// 更新处理 DOM 片段
-		this[method].call(this, list, arg.args);
+		this[method].call(this, list, args);
 
 		// 更新 scopes
 		switch (method) {
@@ -2865,7 +2867,7 @@
 			defRec(plate, vforAlias, alias);
 
 			// 收集指令并编译板块
-			vm.collect(plate, true, scope);
+			vm.compile(plate, true, scope);
 			listFragment.appendChild(plate);
 		}, this);
 
@@ -2968,13 +2970,13 @@
 	 */
 	vfor.splice = function (list, args) {
 		// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
-		var start = args.shift();
+		var start = args[0];
 		// 整数，表示要移除的数组元素的个数。
 		// 如果 deleteCount 是 0，则不移除元素。这种情况下，至少应添加一个新元素。
 		// 如果 deleteCount 大于 start 之后的元素的总数，则从 start 后面的元素都将被删除（含第 start 位）。
-		var deleteCont = args.shift();
+		var deleteCont = args[1];
 		// 要添加进数组的元素。如果不指定，则 splice() 只删除数组元素。
-		var insertItems = args, insertLength = args.length;
+		var insertItems = args.slice(2), insertLength = args.length;
 
 		// 不删除也不添加
 		if (deleteCont === 0 && !insertLength) {
@@ -3526,13 +3528,21 @@
 				var sels = getSelecteds(this, number);
 				directive.set(multi ? sels : sels[0]);
 			});
+
+			// 避免 selectedIndex 设为 -1 时再被重置回 0
+			// 从而导致 select.value 重新强制选中第一项，
+			// 在部分浏览器如 IE9, PhantomJS 等 selectedIndex 设为 -1 的情况下，
+			// 假如当前 select 片段的父元素被移动到其他地方的时候，
+			// selectedIndex 将会从 -1 又变回 0, 因为编译阶段都是在文档碎片上执行，
+			// 所以必须在片段编译完成并添加到文档后再次强制更新初始值
+			this.vm.after(this.forceUpdate, this);
 		},
 
 		/**
 		 * 更新 select 值
-		 * @param   {Array|String}  sels
+		 * @param   {Array|String}  values
 		 */
-		update: function (sels) {
+		update: function (values) {
 			var this$1 = this;
 
 			var el = this.el;
@@ -3540,26 +3550,39 @@
 			var multi = this.multi;
 			var exp = this.desc.expression;
 
-			if (multi && !isArray(sels)) {
+			// 初始选中项设为空（默认情况下会是第一项）
+			// 在 v-model 中 select 的选中项总是以数据(values)为准
+			el.selectedIndex = -1;
+
+			if (multi && !isArray(values)) {
 				return warn('<select> cannot be multiple when the model set ['+ exp +'] as not Array');
 			}
 
-			if (!multi && isArray(sels)) {
+			if (!multi && isArray(values)) {
 				return warn('The model ['+ exp +'] cannot set as Array when <select> has no multiple propperty');
 			}
 
 			for (var i = 0; i < options.length; i++) {
 				var option = options[i];
 				var val = formatValue(option.value, this$1.number);
-				option.selected = multi ? sels.indexOf(val) > -1 : sels === val;
+				option.selected = multi ? values.indexOf(val) > -1 : values === val;
 			}
 		},
 
 		/**
 		 * 强制更新 select 的值，用于动态的 option
+		 * @param   {Booleam}  reset  [是否清除默认选中状态]
 		 */
-		forceUpdate: function () {
-			this.update(this.directive.get());
+		forceUpdate: function (reset) {
+			var directive = this.directive;
+			var values = directive.get();
+
+			if (reset) {
+				values = this.multi ? [] : '';
+				directive.set(values);
+			}
+
+			this.update(values);
 		}
 	}
 
@@ -3675,7 +3698,9 @@
 				form = select;
 				// select 需要将指令实例挂载到元素上
 				defRec(el, '__vmodel__', this);
+				// 是否多选
 				this.multi = hasAttr(el, 'multiple');
+				// 动态 option 强制刷新取值方法
 				this.forceUpdate = select.forceUpdate.bind(this);
 				break;
 		}
@@ -3816,20 +3841,17 @@
 			return warn('model must be a type of Object: ', model);
 		}
 
-		// 缓存根节点
-		this.$element = element;
-		// 根节点转文档碎片（element 将被清空）
-		this.$fragment = nodeToFragment(element);
-
 		// 数据模型对象
 		this.$data = model;
+		// 缓存根节点
+		this.$element = element;
 		// DOM 注册索引
 		defRec(this.$data, '$els', {});
 
 		// 编译节点缓存队列
-		this.$compiles = [];
+		this.$queue = [];
 		// 根节点是否已完成编译
-		this.$complied = false;
+		this.$done = false;
 
 		// 指令实例缓存
 		this.$directives = [];
@@ -3844,16 +3866,20 @@
 			setComputedProperty(this.$data, computed);
 		}
 
+		// 编译完成后的回调集合
+		this.$afters = [];
 		// 自定义指令刷新函数
 		this.$customs = option.customs || {};
 
-		this.init();
+		this.mount();
 	}
 
 	var cp = Compiler.prototype;
 
-	cp.init = function () {
-		this.collect(this.$fragment, true);
+	cp.mount = function () {
+		// 根节点转文档碎片（this.$element 将被清空）
+		this.$fragment = nodeToFragment(this.$element);
+		this.compile(this.$fragment, true);
 	}
 
 	/**
@@ -3863,24 +3889,24 @@
 	 * @param   {Boolean}  root     [是否编译根节点]
 	 * @param   {Object}   scope    [vfor 取值域]
 	 */
-	cp.collect = function (element, root, scope) {
+	cp.compile = function (element, root, scope) {
 		var this$1 = this;
 
 		var childNodes = element.childNodes;
 
 		if (root && hasDirective(element)) {
-			this.$compiles.push([element, scope]);
+			this.$queue.push([element, scope]);
 		}
 
 		for (var i = 0; i < childNodes.length; i++) {
 			var node = childNodes[i];
 
 			if (hasDirective(node)) {
-				this$1.$compiles.push([node, scope]);
+				this$1.$queue.push([node, scope]);
 			}
 
 			if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
-				this$1.collect(node, false, scope);
+				this$1.compile(node, false, scope);
 			}
 		}
 
@@ -3893,7 +3919,7 @@
 	 * 编译节点缓存队列
 	 */
 	cp.compileAll = function () {
-		each(this.$compiles, function (info) {
+		each(this.$queue, function (info) {
 			this.complieNode(info);
 			return null;
 		}, this);
@@ -3932,23 +3958,23 @@
 				vfor = null;
 			}
 
-			// 编译节点指令
+			// 解析节点指令
 			each(attrs, function (attr) {
-				this.compile(node, attr, scope);
+				this.parse(node, attr, scope);
 			}, this);
 
 		} else if (isTextNode(node)) {
-			this.compileText(node, scope);
+			this.parseText(node, scope);
 		}
 	}
 
 	/**
-	 * 编译元素节点指令
+	 * 解析元素节点指令
 	 * @param   {Element}  node
 	 * @param   {Object}   attr
 	 * @param   {Object}   scope
 	 */
-	cp.compile = function (node, attr, scope) {
+	cp.parse = function (node, attr, scope) {
 		var desc = getDirectiveDesc(attr);
 		var directive = desc.directive;
 
@@ -3971,11 +3997,11 @@
 	}
 
 	/**
-	 * 编译文本节点 {{ text }} 和 {{{ html }}}
+	 * 解析文本指令 {{ text }} 和 {{{ html }}}
 	 * @param   {Element}  node
 	 * @param   {Object}   scope
 	 */
-	cp.compileText = function (node, scope) {
+	cp.parseText = function (node, scope) {
 		var exp, match, matches, pieces, tokens = [], desc = {};
 		var text = node.textContent.trim().replace(regNewline, '');
 
@@ -4019,7 +4045,7 @@
 	 * @param   {Element}  node
 	 */
 	cp.block = function (node) {
-		each(this.$compiles, function (info) {
+		each(this.$queue, function (info) {
 			if (node === info[0]) {
 				return null;
 			}
@@ -4027,12 +4053,27 @@
 	}
 
 	/**
+	 * 添加编译完成后的回调函数
+	 * @param  {Function}  callback
+	 * @param  {Object}    context
+	 */
+	cp.after = function (callback, context) {
+		this.$afters.push([callback, context]);
+	}
+
+	/**
 	 * 检查根节点是否编译完成
 	 */
 	cp.checkRoot = function () {
-		if (this.$compiles.length === 0 && !this.$complied) {
-			this.$complied = true;
+		if (this.$queue.length === 0 && !this.$done) {
+			this.$done = true;
 			this.$element.appendChild(this.$fragment);
+
+			// 触发编译完成后的回调函数
+			each(this.$afters, function (after) {
+				after[0].call(after[1]);
+				return null;
+			});
 		}
 	}
 
