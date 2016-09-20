@@ -26,7 +26,7 @@
     "cover": "karma start build/karma.cover.js",
     "dev": "npm run dev-sugar & npm run dev-mvvm",
     "jshint": "node node_modules/.bin/jshint src",
-    "build": "npm run jshint && npm run pack & npm run cover",
+    "build": "npm run jshint & npm run cover",
     "pack": "npm run pack-sugar & npm run pack-sugar-min & npm run pack-mvvm & npm run pack-mvvm-min",
     "dev-mvvm": "webpack --watch --config build/dev.mvvm.js",
     "dev-sugar": "webpack --watch --config build/dev.sugar.js",
