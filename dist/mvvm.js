@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.5 (c) 2016 TANG
  * Released under the MIT license
- * Tue Sep 20 2016 10:20:24 GMT+0800 (CST)
+ * Tue Sep 20 2016 11:41:44 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2731,35 +2731,46 @@
 		 * 绑定 text 变化事件
 		 */
 		bind: function () {
+			var self = this;
 			var lazy = this.lazy;
 			var number = this.number;
 			var debounce = this.debounce;
 			var directive = this.directive;
 
+			/**
+			 * 表单值变化设置数据值
+			 * @param  {String}  value  [表单值]
+			 */
+			function setModelValue (value) {
+				if (debounce) {
+					debounceDelay(function () {
+						self.onDebounce = true;
+						directive.set(formatValue(value, number));
+					}, debounce);
+				} else {
+					directive.set(formatValue(value, number));
+				}
+			}
+
 			// 解决中文输入时 input 事件在未选择词组时的触发问题
 			// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
 			var composeLock;
+
 			this.on('compositionstart', function () {
 				composeLock = true;
 			});
+
 			this.on('compositionend', function () {
 				composeLock = false;
+				if (!lazy) {
+					setModelValue(this.value);
+				}
 			});
 
-			var self = this;
 			// input 事件(实时触发)
 			this.on('input', function () {
 				if (!composeLock && !lazy) {
-					var value = this.value;
-
-					if (debounce) {
-						debounceDelay(function () {
-							self.onDebounce = true;
-							directive.set(formatValue(value, number));
-						}, debounce);
-					} else {
-						directive.set(formatValue(value, number));
-					}
+					setModelValue(this.value);
 				}
 			});
 
