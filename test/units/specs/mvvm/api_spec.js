@@ -570,7 +570,7 @@ describe("mvvm instance api >", function () {
 			'<div>{{ a }}</div>' +
 			'<div>{{ b }}</div>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'a': 123
@@ -593,7 +593,7 @@ describe("mvvm instance api >", function () {
 		};
 
 		var context;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {},
 			'methods': {
@@ -720,7 +720,8 @@ describe("mvvm instance api >", function () {
 		expect(flag_list_deep).toBe(true);
 
 		// reset flag, and change for list, shallow changes, it also works
-		context = null, flag_list_deep = false;
+		context = null;
+		flag_list_deep = false;
 		data.list.unshift({'name': 'OOO'});
 		expect(ulLists.textContent).toBe('OOOAAAB');
 		expect(context).toBe(scope);

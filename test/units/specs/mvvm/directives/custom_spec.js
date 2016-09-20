@@ -17,7 +17,7 @@ describe('v-custom >', function () {
 	it('use invalid directive value', function () {
 		element.innerHTML = '<div v-custom:xxdk="test"></div>';
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': 123
@@ -26,7 +26,6 @@ describe('v-custom >', function () {
 				'xxdk': 11111
 			}
 		});
-		var data = vm.$data;
 
 		expect(util.warn).toHaveBeenCalledWith('Custom directive [v-custom:xxdk] must define with a refresh function!');
 	});

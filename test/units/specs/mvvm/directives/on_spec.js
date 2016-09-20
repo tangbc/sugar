@@ -24,7 +24,7 @@ describe("v-on >", function () {
 
 		element.innerHTML = '<span id="el" v-on:click="test"></span>';
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': cb
@@ -49,7 +49,7 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'outer': function () {
@@ -89,7 +89,7 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'outer': function () {
@@ -133,7 +133,7 @@ describe("v-on >", function () {
 			'</div>'
 
 		var outerCount = 0, innerCount = 0;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'outer': function () {
@@ -161,7 +161,7 @@ describe("v-on >", function () {
 		element.innerHTML = '<a id="el" href="#abc" v-on:click="test"></a>';
 
 		var hasPrevent;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': function (e) {
@@ -185,7 +185,7 @@ describe("v-on >", function () {
 		element.innerHTML = '<a id="el" href="#abc" v-on:click.prevent="test"></a>';
 
 		var hasPrevent;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': function (e) {
@@ -206,7 +206,7 @@ describe("v-on >", function () {
 		element.innerHTML = '<input id="el" type="text" v-on:keyup.13="test">';
 
 		var isEnter13 = false;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': function (e) {
@@ -237,7 +237,7 @@ describe("v-on >", function () {
 		element.innerHTML = '<div id="el" v-on:mouseenter="test(123, \'sugar\', $event)"></div>';
 
 		var args;
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'test': function () {
@@ -287,7 +287,7 @@ describe("v-on >", function () {
 		var args, storeArgs = function () {
 			args = Array.prototype.slice.call(arguments);
 		}
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'clickTest': storeArgs,
@@ -420,11 +420,11 @@ describe("v-on >", function () {
 		triggerEvent(lis[1], 'dblclick');
 		expect(ul.textContent).toBe('0a_1c_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('0c_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('');
 
@@ -435,15 +435,15 @@ describe("v-on >", function () {
 		expect(ul.textContent).toBe('0a_1b_2c_');
 
 		// come again above action
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[1], 'dblclick');
 		expect(ul.textContent).toBe('0a_1c_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('0c_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('');
 
@@ -452,15 +452,15 @@ describe("v-on >", function () {
 		expect(ul.textContent).toBe('0n_1b_2a_');
 
 		// come again above action
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[1], 'dblclick');
 		expect(ul.textContent).toBe('0n_1a_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('0a_');
 
-		var lis = ul.childNodes;
+		lis = ul.childNodes;
 		triggerEvent(lis[0], 'dblclick');
 		expect(ul.textContent).toBe('');
 	});
@@ -469,7 +469,7 @@ describe("v-on >", function () {
 	it('use $remove outside v-for', function () {
 		element.innerHTML = '<div v-on="{click: $remove}"></div>';
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {}
 		});

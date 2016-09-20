@@ -50,7 +50,7 @@ describe("v-model >", function () {
 	it('use dynamic expression', function () {
 		element.innerHTML = '<input type="text" v-model="isA ? aaa : bbb">';
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {}
 		});

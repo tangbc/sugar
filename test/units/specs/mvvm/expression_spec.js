@@ -1,4 +1,3 @@
-var MVVM = require('mvvm').default;
 var util = require('src/util');
 var exp = require('src/mvvm/expression/index');
 var isNormal = exp.isNormal;

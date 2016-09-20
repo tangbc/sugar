@@ -20,7 +20,7 @@ describe("v-for >", function () {
 				'<li v-for="item for items"></li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'items': null
@@ -39,14 +39,12 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'items': null
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
 		var ul = element.querySelector('#test8');
 
 		expect(ul.textContent).toBe('');

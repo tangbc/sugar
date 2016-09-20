@@ -88,7 +88,7 @@ describe("v-el >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'items': [

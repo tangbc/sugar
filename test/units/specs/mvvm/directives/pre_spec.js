@@ -20,7 +20,7 @@ describe("v-pre >", function () {
 				'<i>{{ text }}</i>' +
 			'</div>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {}
 		});
@@ -38,7 +38,7 @@ describe("v-pre >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		new MVVM({
 			'view': element,
 			'model': {
 				'items': [{}, {}, {}]

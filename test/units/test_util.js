@@ -25,9 +25,11 @@ module.exports = {
 	setSelect: function (select, value) {
 		var options = select.options;
 		for (var i = 0; i < options.length; i++) {
+			/* jshint ignore:start */
 			if (options[i].value == value) {
 				options[i].selected = true;
 			}
+			/* jshint ignore:end */
 		}
 	}
 }

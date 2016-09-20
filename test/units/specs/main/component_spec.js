@@ -364,8 +364,8 @@ describe('sugar Component api >', function () {
 				// test getChilds map
 				var chsObj = this.getChilds();
 				expect(Object.keys(chsObj)).toEqual(['sub', 'sub_another']);
-				expect(chsObj['sub']).toBe(subInstance);
-				expect(chsObj['sub_another']).toBe(anotherSubInstance);
+				expect(chsObj.sub).toBe(subInstance);
+				expect(chsObj.sub_another).toBe(anotherSubInstance);
 
 				// return child array
 				var chsArr = this.getChilds(true);
