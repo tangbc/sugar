@@ -86,20 +86,17 @@ function Compiler (option) {
 		return warn('model must be a type of Object: ', model);
 	}
 
-	// 缓存根节点
-	this.$element = element;
-	// 根节点转文档碎片（element 将被清空）
-	this.$fragment = nodeToFragment(element);
-
 	// 数据模型对象
 	this.$data = model;
+	// 缓存根节点
+	this.$element = element;
 	// DOM 注册索引
 	defRec(this.$data, '$els', {});
 
 	// 编译节点缓存队列
-	this.$compiles = [];
+	this.$queue = [];
 	// 根节点是否已完成编译
-	this.$complied = false;
+	this.$done = false;
 
 	// 指令实例缓存
 	this.$directives = [];
@@ -114,16 +111,20 @@ function Compiler (option) {
 		setComputedProperty(this.$data, computed);
 	}
 
+	// 编译完成后的回调集合
+	this.$afters = [];
 	// 自定义指令刷新函数
 	this.$customs = option.customs || {};
 
-	this.init();
+	this.mount();
 }
 
 var cp = Compiler.prototype;
 
-cp.init = function () {
-	this.collect(this.$fragment, true);
+cp.mount = function () {
+	// 根节点转文档碎片（this.$element 将被清空）
+	this.$fragment = nodeToFragment(this.$element);
+	this.compile(this.$fragment, true);
 }
 
 /**
@@ -133,22 +134,22 @@ cp.init = function () {
  * @param   {Boolean}  root     [是否编译根节点]
  * @param   {Object}   scope    [vfor 取值域]
  */
-cp.collect = function (element, root, scope) {
+cp.compile = function (element, root, scope) {
 	var childNodes = element.childNodes;
 
 	if (root && hasDirective(element)) {
-		this.$compiles.push([element, scope]);
+		this.$queue.push([element, scope]);
 	}
 
 	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
 
 		if (hasDirective(node)) {
-			this.$compiles.push([node, scope]);
+			this.$queue.push([node, scope]);
 		}
 
 		if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
-			this.collect(node, false, scope);
+			this.compile(node, false, scope);
 		}
 	}
 
@@ -161,7 +162,7 @@ cp.collect = function (element, root, scope) {
  * 编译节点缓存队列
  */
 cp.compileAll = function () {
-	each(this.$compiles, function (info) {
+	each(this.$queue, function (info) {
 		this.complieNode(info);
 		return null;
 	}, this);
@@ -200,23 +201,23 @@ cp.complieNode = function (info) {
 			vfor = null;
 		}
 
-		// 编译节点指令
+		// 解析节点指令
 		each(attrs, function (attr) {
-			this.compile(node, attr, scope);
+			this.parse(node, attr, scope);
 		}, this);
 
 	} else if (isTextNode(node)) {
-		this.compileText(node, scope);
+		this.parseText(node, scope);
 	}
 }
 
 /**
- * 编译元素节点指令
+ * 解析元素节点指令
  * @param   {Element}  node
  * @param   {Object}   attr
  * @param   {Object}   scope
  */
-cp.compile = function (node, attr, scope) {
+cp.parse = function (node, attr, scope) {
 	var desc = getDirectiveDesc(attr);
 	var directive = desc.directive;
 
@@ -239,11 +240,11 @@ cp.compile = function (node, attr, scope) {
 }
 
 /**
- * 编译文本节点 {{ text }} 和 {{{ html }}}
+ * 解析文本指令 {{ text }} 和 {{{ html }}}
  * @param   {Element}  node
  * @param   {Object}   scope
  */
-cp.compileText = function (node, scope) {
+cp.parseText = function (node, scope) {
 	var exp, match, matches, pieces, tokens = [], desc = {};
 	var text = node.textContent.trim().replace(regNewline, '');
 
@@ -287,7 +288,7 @@ cp.compileText = function (node, scope) {
  * @param   {Element}  node
  */
 cp.block = function (node) {
-	each(this.$compiles, function (info) {
+	each(this.$queue, function (info) {
 		if (node === info[0]) {
 			return null;
 		}
@@ -295,12 +296,27 @@ cp.block = function (node) {
 }
 
 /**
+ * 添加编译完成后的回调函数
+ * @param  {Function}  callback
+ * @param  {Object}    context
+ */
+cp.after = function (callback, context) {
+	this.$afters.push([callback, context]);
+}
+
+/**
  * 检查根节点是否编译完成
  */
 cp.checkRoot = function () {
-	if (this.$compiles.length === 0 && !this.$complied) {
-		this.$complied = true;
+	if (this.$queue.length === 0 && !this.$done) {
+		this.$done = true;
 		this.$element.appendChild(this.$fragment);
+
+		// 触发编译完成后的回调函数
+		each(this.$afters, function (after) {
+			after[0].call(after[1]);
+			return null;
+		});
 	}
 }
 

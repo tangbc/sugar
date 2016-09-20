@@ -92,7 +92,7 @@ vif.toggle = function (renderEl, fragment, isRender) {
 
 	// 渲染 & 更新视图
 	if (isRender) {
-		vm.collect(frag, true, this.$scope);
+		vm.compile(frag, true, this.$scope);
 		renderEl.appendChild(frag);
 	}
 	// 不渲染的情况需要移除 DOM 索引的引用
