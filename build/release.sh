@@ -30,7 +30,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 	echo -e '\n--------------------------------------------------\n'
 
 	# add commit
-	git commit -m 'Bundle ['`date '+%Y%m%d-%H:%M:%S'`']'
+	git commit -m 'Released on '`date '+%Y%m%d'`'.'
 fi
 
 
