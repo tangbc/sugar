@@ -99,8 +99,30 @@ describe("v-model >", function () {
 		text.value = 'fff';
 		triggerEvent(text, 'change');
 		expect(text.value).toBe('fff');
-		expect(text.value).toBe('fff');
+		expect(area.value).toBe('fff');
 		expect(data.test).toBe('fff');
+	});
+
+
+	it('change and blur event', function () {
+		element.innerHTML = '<input id="text" type="text" v-model="test">';
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': 'abc'
+			}
+		});
+		var data = vm.$data;
+		var text = element.querySelector('#text');
+
+		text.value = 'xxdk';
+		triggerEvent(text, 'change');
+		expect(data.test).toBe('xxdk');
+
+		text.value = 'txgc';
+		triggerEvent(text, 'blur');
+		expect(data.test).toBe('txgc');
 	});
 
 
