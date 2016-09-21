@@ -18,7 +18,7 @@ export default {
 				let val = formatValue(this.value, number);
 				let index = value.indexOf(val);
 
-				// hook
+				// 勾选选项
 				if (checked) {
 					if (index === -1) {
 						value.push(val);

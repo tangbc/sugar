@@ -78,6 +78,16 @@ export function isEmptyObject (object) {
 }
 
 /**
+ * 将 value 转化为字符串
+ * undefined 和 null 都转成空字符串
+ * @param   {Mix}     value
+ * @return  {String}
+ */
+export function _toString (value) {
+	return value == null ? '' : value.toString();
+}
+
+/**
  * value 转成 Number 类型
  * @param   {String|Mix}  value
  * @return  {Number|Mix}

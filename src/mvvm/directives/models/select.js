@@ -79,13 +79,11 @@ export default {
 	 */
 	forceUpdate: function (reset) {
 		var directive = this.directive;
-		var values = directive.get();
 
 		if (reset) {
-			values = this.multi ? [] : '';
-			directive.set(values);
+			directive.set(this.multi ? [] : '');
+		} else {
+			this.update(directive.get());
 		}
-
-		this.update(values);
 	}
 }

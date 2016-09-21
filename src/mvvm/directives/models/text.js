@@ -1,9 +1,9 @@
-import { formatValue, toNumber } from '../../../util';
+import { formatValue, toNumber, _toString } from '../../../util';
 
 /**
  * 异步延迟函数
- * @param   {Function}  func
- * @param   {Number}    delay
+ * @param   {Function}   func
+ * @param   {Number}     delay
  * @return  {TimeoutId}
  */
 function debounceDelay (func, delay) {
@@ -28,39 +28,43 @@ export default {
 		 * @param  {String}  value  [表单值]
 		 */
 		function setModelValue (value) {
+			var val = formatValue(value, number);
+
 			if (debounce) {
 				debounceDelay(function () {
 					self.onDebounce = true;
-					directive.set(formatValue(value, number));
+					directive.set(val);
 				}, debounce);
 			} else {
-				directive.set(formatValue(value, number));
+				directive.set(val);
 			}
 		}
 
-		// 解决中文输入时 input 事件在未选择词组时的触发问题
+		// 解决输入板在未选择词组时 input 事件的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
 		var composeLock;
-
 		this.on('compositionstart', function () {
 			composeLock = true;
 		});
-
 		this.on('compositionend', function () {
 			composeLock = false;
 			if (!lazy) {
+				// 在某些浏览器下 compositionend 会在 input 事件之后触发
+				// 所以必须在 compositionend 之后进行一次更新以确保数据的同步
 				setModelValue(this.value);
 			}
 		});
 
-		// input 事件(实时触发)
 		this.on('input', function () {
 			if (!composeLock && !lazy) {
 				setModelValue(this.value);
 			}
 		});
 
-		// change 事件(失去焦点触发)
+		this.on('blur', function () {
+			setModelValue(this.value);
+		});
+
 		this.on('change', function () {
 			setModelValue(this.value);
 		});
@@ -72,8 +76,9 @@ export default {
 	 */
 	update: function (value) {
 		var el = this.el;
-		if (el.value !== value && !this.onDebounce) {
-			el.value = value;
+		var val = _toString(value);
+		if (el.value !== val && !this.onDebounce) {
+			el.value = val;
 		}
 	}
 }

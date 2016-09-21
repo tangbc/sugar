@@ -2,7 +2,7 @@ import { warn, defRec } from '../../util';
 import Parser, { linkParser } from '../parser';
 import { isNormal } from '../expression/index';
 import { hasAttr, getAttr, addEvent } from '../../dom';
-import { text, radio, select, checkbox } from './duplex/index';
+import { text, radio, select, checkbox } from './models/index';
 
 // 双向数据绑定限制的表单元素
 const validForms = ['input', 'select', 'textarea'];
