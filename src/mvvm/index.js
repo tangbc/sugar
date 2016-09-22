@@ -12,36 +12,46 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
  * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
  * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
+ * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
  */
 export default function MVVM (option) {
-	var ctx = this.context = option.context || option.model;
+	var context = option.context || option.model;
+
+	// 事件或 watch 函数作用域
+	this.__ct__ = context;
+	// 初始数据备份，用于 reset
+	this.__bk__ = copy(option.model);
 
 	// 将事件函数 this 指向调用者
 	each(option.model, function (value, key) {
 		if (isFunc(value)) {
-			option.model[key] = value.bind(ctx);
+			option.model[key] = value.bind(context);
 		}
 	});
 
 	// 整合事件函数声明对象
 	each(option.methods, function (callback, func) {
-		option.model[func] = callback.bind(ctx);
+		option.model[func] = callback.bind(context);
 	});
 
-	// 初始数据备份，用于 reset
-	this.backup = copy(option.model);
-
-	// ViewModel 实例
-	this.vm = new Compiler(option);
+	// 内部 ViewModel 实例
+	this.__vm__ = new Compiler(option);
 
 	// 数据模型
-	this.$data = this.vm.$data;
+	this.$data = this.__vm__.$data;
 
 	// 批量 watch
-	this._watchBatches(option.watches);
+	this._watchBatch(option.watches);
 }
 
 var mvp = MVVM.prototype;
+
+/**
+ * 手动挂载/编译根元素
+ */
+mvp.mount = function () {
+	this.__vm__.mount();
+}
 
 /**
  * 获取指定数据模型值
@@ -92,7 +102,7 @@ mvp.set = function (key, value) {
  */
 mvp.reset = function (key) {
 	var data = this.$data;
-	var backup = this.backup;
+	var backup = this.__bk__;
 
 	// 重置单个
 	if (isString(key)) {
@@ -122,14 +132,14 @@ mvp.watch = function (expression, callback, deep) {
 	return new Watcher(this, {
 		'deep': deep,
 		'expression': expression
-	}, callback.bind(this.context));
+	}, callback.bind(this.__ct__));
 }
 
 /**
  * 批量 watch 配置的监测模型
  * @param   {Object}  watches
  */
-mvp._watchBatches = function (watches) {
+mvp._watchBatch = function (watches) {
 	each(watches, function (callback, expression) {
 		if (isFunc(callback)) {
 			this.watch(expression, callback, false);
@@ -143,6 +153,6 @@ mvp._watchBatches = function (watches) {
  * 销毁函数
  */
 mvp.destroy = function () {
-	this.vm.destroy();
-	this.vm = this.context = this.backup = this.$data = null;
+	this.__vm__.destroy();
+	this.__vm__ = this.__ct__ = this.__bk__ = this.$data = null;
 }

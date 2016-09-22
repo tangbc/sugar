@@ -70,7 +70,7 @@ function getDirectiveDesc (attribute) {
 }
 
 /**
- * 元素编译模块
+ * ViewModel 编译模块
  * @param  {Object}  option  [参数对象]
  */
 function Compiler (option) {
@@ -86,17 +86,14 @@ function Compiler (option) {
 		return warn('model must be a type of Object: ', model);
 	}
 
+	// 编译节点缓存队列
+	this.$queue = [];
 	// 数据模型对象
 	this.$data = model;
 	// 缓存根节点
 	this.$element = element;
 	// DOM 注册索引
 	defRec(this.$data, '$els', {});
-
-	// 编译节点缓存队列
-	this.$queue = [];
-	// 根节点是否已完成编译
-	this.$done = false;
 
 	// 指令实例缓存
 	this.$directives = [];
@@ -105,7 +102,6 @@ function Compiler (option) {
 
 	// 监测数据模型
 	this.$ob = createObserver(this.$data, '__MODEL__');
-
 	// 设置计算属性
 	if (computed) {
 		setComputedProperty(this.$data, computed);
@@ -116,15 +112,19 @@ function Compiler (option) {
 	// 自定义指令刷新函数
 	this.$customs = option.customs || {};
 
-	this.mount();
+	// 是否立刻编译根元素
+	if (!option.lazy) {
+		this.mount();
+	}
 }
 
 var cp = Compiler.prototype;
 
 /**
- * 根节点转文档碎片/开始编译
+ * 挂载/编译根元素
  */
 cp.mount = function () {
+	this.$done = false;
 	this.$fragment = nodeToFragment(this.$element);
 	this.compile(this.$fragment, true);
 }
@@ -323,7 +323,7 @@ cp.completed = function () {
 }
 
 /**
- * vm 销毁函数，销毁指令，清空根节点
+ * 销毁函数，销毁指令，清空根节点
  */
 cp.destroy = function () {
 	this.$data = null;
