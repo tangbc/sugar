@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.6 (c) 2016 TANG
  * Released under the MIT license
- * Wed Sep 21 2016 20:07:25 GMT+0800 (CST)
+ * Thu Sep 22 2016 12:56:34 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3145,7 +3145,7 @@
 	}
 
 	/**
-	 * 元素编译模块
+	 * ViewModel 编译模块
 	 * @param  {Object}  option  [参数对象]
 	 */
 	function Compiler (option) {
@@ -3161,17 +3161,14 @@
 			return warn('model must be a type of Object: ', model);
 		}
 
+		// 编译节点缓存队列
+		this.$queue = [];
 		// 数据模型对象
 		this.$data = model;
 		// 缓存根节点
 		this.$element = element;
 		// DOM 注册索引
 		defRec(this.$data, '$els', {});
-
-		// 编译节点缓存队列
-		this.$queue = [];
-		// 根节点是否已完成编译
-		this.$done = false;
 
 		// 指令实例缓存
 		this.$directives = [];
@@ -3180,7 +3177,6 @@
 
 		// 监测数据模型
 		this.$ob = createObserver(this.$data, '__MODEL__');
-
 		// 设置计算属性
 		if (computed) {
 			setComputedProperty(this.$data, computed);
@@ -3191,15 +3187,19 @@
 		// 自定义指令刷新函数
 		this.$customs = option.customs || {};
 
-		this.mount();
+		// 是否立刻编译根元素
+		if (!option.lazy) {
+			this.mount();
+		}
 	}
 
 	var cp = Compiler.prototype;
 
 	/**
-	 * 根节点转文档碎片/开始编译
+	 * 挂载/编译根元素
 	 */
 	cp.mount = function () {
+		this.$done = false;
 		this.$fragment = nodeToFragment(this.$element);
 		this.compile(this.$fragment, true);
 	}
@@ -3400,7 +3400,7 @@
 	}
 
 	/**
-	 * vm 销毁函数，销毁指令，清空根节点
+	 * 销毁函数，销毁指令，清空根节点
 	 */
 	cp.destroy = function () {
 		this.$data = null;
@@ -3421,36 +3421,46 @@
 	 * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
 	 * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
 	 * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
+	 * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
 	 */
 	function MVVM (option) {
-		var ctx = this.context = option.context || option.model;
+		var context = option.context || option.model;
+
+		// 事件或 watch 函数作用域
+		this.__ct__ = context;
+		// 初始数据备份，用于 reset
+		this.__bk__ = copy(option.model);
 
 		// 将事件函数 this 指向调用者
 		each(option.model, function (value, key) {
 			if (isFunc(value)) {
-				option.model[key] = value.bind(ctx);
+				option.model[key] = value.bind(context);
 			}
 		});
 
 		// 整合事件函数声明对象
 		each(option.methods, function (callback, func) {
-			option.model[func] = callback.bind(ctx);
+			option.model[func] = callback.bind(context);
 		});
 
-		// 初始数据备份，用于 reset
-		this.backup = copy(option.model);
-
-		// ViewModel 实例
-		this.vm = new Compiler(option);
+		// 内部 ViewModel 实例
+		this.__vm__ = new Compiler(option);
 
 		// 数据模型
-		this.$data = this.vm.$data;
+		this.$data = this.__vm__.$data;
 
 		// 批量 watch
-		this._watchBatches(option.watches);
+		this._watchBatch(option.watches);
 	}
 
 	var mvp = MVVM.prototype;
+
+	/**
+	 * 手动挂载/编译根元素
+	 */
+	mvp.mount = function () {
+		this.__vm__.mount();
+	}
 
 	/**
 	 * 获取指定数据模型值
@@ -3501,7 +3511,7 @@
 	 */
 	mvp.reset = function (key) {
 		var data = this.$data;
-		var backup = this.backup;
+		var backup = this.__bk__;
 
 		// 重置单个
 		if (isString(key)) {
@@ -3531,14 +3541,14 @@
 		return new Watcher(this, {
 			'deep': deep,
 			'expression': expression
-		}, callback.bind(this.context));
+		}, callback.bind(this.__ct__));
 	}
 
 	/**
 	 * 批量 watch 配置的监测模型
 	 * @param   {Object}  watches
 	 */
-	mvp._watchBatches = function (watches) {
+	mvp._watchBatch = function (watches) {
 		each(watches, function (callback, expression) {
 			if (isFunc(callback)) {
 				this.watch(expression, callback, false);
@@ -3552,8 +3562,8 @@
 	 * 销毁函数
 	 */
 	mvp.destroy = function () {
-		this.vm.destroy();
-		this.vm = this.context = this.backup = this.$data = null;
+		this.__vm__.destroy();
+		this.__vm__ = this.__ct__ = this.__bk__ = this.$data = null;
 	}
 
 	return MVVM;
