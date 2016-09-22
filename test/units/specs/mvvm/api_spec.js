@@ -51,6 +51,70 @@ describe("mvvm instance api >", function () {
 	});
 
 
+	it('lazy compile', function () {
+		var layout =
+			'<h1 v-html="html"></h1>' +
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'{{ $index }}_{{ item.text }}.' +
+				'</li>' +
+			'</ul>' +
+			'<input type="text" v-model="title">';
+
+		element.innerHTML = layout;
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'html': '<i>xxdk</i>',
+				'items': [
+					{'text': 'aaa'},
+					{'text': 'bbb'},
+					{'text': 'ccc'},
+				],
+				'title': 'txgc'
+			},
+			// if lazy is true, MVVM will not start complie until `mount` is called
+			'lazy': true
+		});
+
+		var data = vm.$data;
+
+		// data observe is ready
+		expect(typeof data.__ob__).toBe('object');
+
+		// element has not been compile
+		expect(element.innerHTML).toBe(layout);
+
+		// start compile by manual
+		vm.mount();
+
+		// element is compiled this time
+		expect(element.innerHTML).toBe([
+			'<h1><i>xxdk</i></h1>',
+			'<ul>',
+				'<li>0_aaa.</li>',
+				'<li>1_bbb.</li>',
+				'<li>2_ccc.</li>',
+			'</ul>',
+			'<input type="text">'
+		].join(''));
+
+		var input = element.querySelector('input');
+		expect(input.value).toBe('txgc');
+		input.value = 'abc';
+		triggerEvent(input, 'input');
+		expect(data.title).toBe('abc');
+
+		// change innerHTML and mount again
+		element.innerHTML = '<h1>{{ title }}</h1><p>{{{ html }}}</p>';
+		vm.mount();
+		expect(element.innerHTML).toBe('<h1>abc</h1><p><i>xxdk</i></p>');
+		data.html = '<b>xxoo</b>';
+		expect(element.innerHTML).toBe('<h1>abc</h1><p><b>xxoo</b></p>');
+	});
+
+
 	it('get', function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
