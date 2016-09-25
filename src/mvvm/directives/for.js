@@ -1,6 +1,6 @@
 import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
-import { warn, createFragment, each, defRec } from '../../util';
+import { warn, createFragment, each, def } from '../../util';
 
 const vforAlias = '__vfor__';
 const regForExp = /(.*) (?:in|of) (.*)/;
@@ -184,9 +184,9 @@ vfor.buildList = function (list, startIndex) {
 		observe(scope, '$index', index);
 
 		// 挂载别名
-		defRec(scope, '__alias__', alias);
+		def(scope, '__alias__', alias);
 		// 挂载迭代器
-		defRec(scope, '__viterator__', iterator);
+		def(scope, '__viterator__', iterator);
 
 		if (this.partly) {
 			this.partlyArgs.push(scope);
@@ -200,7 +200,7 @@ vfor.buildList = function (list, startIndex) {
 		}
 
 		// 片段挂载别名
-		defRec(plate, vforAlias, alias);
+		def(plate, vforAlias, alias);
 
 		// 收集指令并编译板块
 		vm.compile(plate, true, scope);

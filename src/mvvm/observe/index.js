@@ -1,7 +1,7 @@
 import Depend from '../depend';
 import Watcher from '../watcher';
 import { changeArrayProto } from './array';
-import { defRec, isArray, each, isObject, hasOwn, isFunc, warn, noop } from '../../util';
+import { def, isArray, each, isObject, hasOwn, isFunc, warn, noop } from '../../util';
 
 /**
  * 监测对象
@@ -39,7 +39,7 @@ function Observer (data, key) {
 		observeObject(data);
 	}
 
-	defRec(data, '__ob__', this);
+	def(data, '__ob__', this);
 }
 
 

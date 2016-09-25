@@ -113,12 +113,10 @@ export function hasOwn (obj, key) {
 
 /**
  * object 定义或修改 property 属性
- * @param   {Object}   object        [对象]
- * @param   {String}   property      [属性字段]
- * @param   {Mix}      value         [属性的修改值/新值]
- * @param   {Boolean}  writable      [属性是否能被赋值运算符改变]
- * @param   {Boolean}  enumerable    [属性是否出现在枚举中]
- * @param   {Boolean}  configurable  [属性是否能够被改变或删除]
+ * @param   {Object}   object      [对象]
+ * @param   {String}   property    [属性字段]
+ * @param   {Mix}      value       [属性的修改值/新值]
+ * @param   {Boolean}  enumerable  [属性是否出现在枚举中]
  */
 export function def (object, property, value, enumerable) {
 	return Object.defineProperty(object, property, {
@@ -127,13 +125,6 @@ export function def (object, property, value, enumerable) {
 		'enumerable'  : !!enumerable,
 		'configurable': true
 	});
-}
-
-/**
- * 将 object[property] 定义为一个不可枚举的属性
- */
-export function defRec (object, property, value) {
-	return def(object, property, value, false);
 }
 
 /**
@@ -385,12 +376,12 @@ export function config (data, name, value) {
  * @param   {Object}
  */
 export default {
+	def,
 	each,
 	copy,
 	config,
 	extend,
 	hasOwn,
-	defRec,
 
 	isFunc,
 	isBool,

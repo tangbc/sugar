@@ -1,6 +1,6 @@
 import { directiveParsers } from './directives/index';
 import { createObserver, setComputedProperty } from './observe/index';
-import { defRec, each, warn, isObject, nodeToFragment } from '../util';
+import { def, each, warn, isObject, nodeToFragment } from '../util';
 import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
 
 const regNewline = /\n/g;
@@ -94,7 +94,7 @@ function Compiler (option) {
 	// 缓存根节点
 	this.$element = element;
 	// DOM 注册索引
-	defRec(this.$data, '$els', {});
+	def(this.$data, '$els', {});
 
 	// 指令实例缓存
 	this.$directives = [];
@@ -219,7 +219,7 @@ cp.complieNode = function (info) {
 
 		// vfor 指令与其他指令共存时优先编译 vfor 指令
 		if (vfor) {
-			defRec(node, '__dirs__', attrs.length);
+			def(node, '__dirs__', attrs.length);
 			attrs = [vfor];
 			vfor = null;
 		}

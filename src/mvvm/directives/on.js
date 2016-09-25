@@ -1,7 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, defRec, extend, clearObject, warn } from '../../util';
+import { removeSpace, each, getKeyValue, def, extend, clearObject, warn } from '../../util';
 
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
@@ -213,7 +213,7 @@ von.bindEvent = function (type, dress, func, argString) {
 	var { self, stop, prevent, capture, keyCode } = getDress(type, dress);
 
 	// 挂载 $event
-	defRec((this.$scope || this.vm.$data), '$event', '__e__');
+	def((this.$scope || this.vm.$data), '$event', '__e__');
 
 	// 处理回调参数以及依赖监测
 	var args = [];

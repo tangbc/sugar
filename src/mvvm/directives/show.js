@@ -1,4 +1,4 @@
-import { defRec } from '../../util';
+import { def } from '../../util';
 import Parser, { linkParser } from '../parser';
 import { hasAttr, getVisible } from '../../dom';
 
@@ -13,7 +13,7 @@ const visibleDisplay = '__visible__';
 function setVisibleDisplay (node) {
 	var display = getVisible(node);
 	if (display !== 'none') {
-		defRec(node, visibleDisplay, display || '');
+		def(node, visibleDisplay, display || '');
 	}
 }
 

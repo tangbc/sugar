@@ -1,4 +1,4 @@
-import { warn, defRec } from '../../util';
+import { warn, def } from '../../util';
 import Parser, { linkParser } from '../parser';
 import { isNormal } from '../expression/index';
 import { hasAttr, getAttr, addEvent } from '../../dom';
@@ -67,7 +67,7 @@ vmodel.bindDuplex = function (type) {
 		case 'select':
 			form = select;
 			// select 需要将指令实例挂载到元素上
-			defRec(el, '__vmodel__', this);
+			def(el, '__vmodel__', this);
 			// 是否多选
 			this.multi = hasAttr(el, 'multiple');
 			// 动态 option 强制刷新取值方法

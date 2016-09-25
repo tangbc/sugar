@@ -191,7 +191,6 @@ vbind.single = function (type, newValue, oldValue) {
 			break;
 		default:
 			this.handleAttr(type, newValue);
-
 	}
 }
 
