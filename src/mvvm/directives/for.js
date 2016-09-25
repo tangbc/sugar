@@ -39,8 +39,8 @@ vfor.parse = function () {
 	this.partly = false;
 	this.partlyArgs = [];
 	this.$parent = parent;
-	this.$next = el.nextSibling;
-	this.$prev = el.previousSibling;
+	this.$end = el.nextSibling;
+	this.$start = el.previousSibling;
 	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 	desc.expression = iterator;
@@ -69,7 +69,7 @@ vfor.updateModel = function (reset) {
  * @param   {Object}   methodArg  [数组操作参数信息]
  */
 vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
-	// 初次构建列表
+	// 初始化列表
 	if (this.init) {
 		this.initList(newArray);
 	} else {
@@ -138,14 +138,14 @@ vfor.updatePartly = function (list, arg) {
  * @param   {Array}  list
  */
 vfor.recompileList = function (list) {
-	var next = this.$next;
-	var prev = this.$prev;
+	var end = this.$end;
+	var start = this.$start;
 	var parent = this.$parent;
 
 	// 清空循环列表
 	var child;
-	while (child = (prev && prev.nextSibling || parent.firstChild)) {
-		if (next && child === next) {
+	while (child = (start && start.nextSibling || parent.firstChild)) {
+		if (end && child === end) {
 			break;
 		}
 		parent.removeChild(child);
@@ -155,7 +155,7 @@ vfor.recompileList = function (list) {
 	this.scopes.length = 0;
 
 	var listFragment = this.buildList(list);
-	parent.insertBefore(listFragment, next);
+	parent.insertBefore(listFragment, end);
 }
 
 /**
@@ -167,8 +167,8 @@ vfor.recompileList = function (list) {
 vfor.buildList = function (list, startIndex) {
 	var vm = this.vm;
 	var el = this.el;
-	var start = startIndex || 0;
 	var bodyDirs = el.__dirs__;
+	var start = startIndex || 0;
 	var listFragment = createFragment();
 	var iterator = this.directive.watcher.value;
 
@@ -234,8 +234,8 @@ vfor.getChilds = function () {
  * @return  {Element}
  */
 vfor.getFirst = function () {
-	var prev = this.$prev;
-	return prev && prev.nextSibling || this.$parent.firstChild;
+	var start = this.$start;
+	return start && start.nextSibling || this.$parent.firstChild;
 }
 
 /**
@@ -243,8 +243,8 @@ vfor.getFirst = function () {
  * @return  {Element}
  */
 vfor.getLast = function () {
-	var next = this.$next;
-	return next && next.previousSibling || this.$parent.lastChild;
+	var end = this.$end;
+	return end && end.previousSibling || this.$parent.lastChild;
 }
 
 /**
@@ -283,7 +283,7 @@ vfor.pop = function () {
  */
 vfor.push = function (list, args) {
 	var item = this.buildList(args, list.length - 1);
-	this.$parent.insertBefore(item, this.$next);
+	this.$parent.insertBefore(item, this.$end);
 }
 
 /**
@@ -330,7 +330,7 @@ vfor.splice = function (list, args) {
 	if (deleteOnly || deleAndInsert) {
 		let oldList = this.getChilds();
 		each(oldList, function (child, index) {
-			// 删除的范围内
+			// 删除范围内
 			if (index >= start && index < start + deleteCont) {
 				parent.removeChild(child);
 			}
@@ -341,10 +341,10 @@ vfor.splice = function (list, args) {
 	// 只插入 或 删除并插入
 	if (insertOnly || deleAndInsert) {
 		// 开始的元素
-		let startChild = this.getChild(start);
+		let startItem = this.getChild(start);
 		// 新增列表
 		let listFrag = this.buildList(insertItems, start);
-		// 更新变化部分
-		parent.insertBefore(listFrag, startChild);
+		// 更新新增部分
+		parent.insertBefore(listFrag, startItem);
 	}
 }
