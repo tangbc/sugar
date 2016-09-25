@@ -1,4 +1,4 @@
-import { isBool, removeSpace, getKeyValue, each } from './util';
+import { removeSpace, getKeyValue, each } from './util';
 
 /**
  * 是否是元素节点
@@ -55,10 +55,19 @@ export function removeAttr (node, name) {
  * @param   {String}   value
  */
 export function setAttr (node, name, value) {
-	if (isBool(value)) {
+	// 设为 null/undefined 和 false 移除该属性
+	if (value == null || value === false) {
+		return removeAttr(node, name);
+	}
+
+	if (value === true) {
 		node[name] = value;
-	} else if (value === null) {
-		removeAttr(node, name);
+
+		// 有些浏览器/情况下用 node[name] = true
+		// 是无法添加自定义属性的，此时设置一个空字符串
+		if (!hasAttr(node, name)) {
+			node.setAttribute(name, '');
+		}
 	} else if (value !== getAttr(node, name)) {
 		node.setAttribute(name, value);
 	}
