@@ -1,4 +1,4 @@
-import { formatValue, toNumber, _toString } from '../../../util';
+import { formatValue, toNumber, _toString } from './index';
 
 /**
  * 异步延迟函数
@@ -16,7 +16,7 @@ export default {
 	/**
 	 * 绑定 text 变化事件
 	 */
-	bind: function () {
+	bind () {
 		var self = this;
 		var lazy = this.lazy;
 		var number = this.number;
@@ -74,7 +74,7 @@ export default {
 	 * 更新 text 值
 	 * @param   {String}  value
 	 */
-	update: function (value) {
+	update (value) {
 		var el = this.el;
 		var val = _toString(value);
 		if (el.value !== val && !this.onDebounce) {

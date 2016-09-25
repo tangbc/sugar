@@ -1,10 +1,11 @@
-import { formatValue, isBool, isArray, warn } from '../../../util';
+import { formatValue, indexOf } from './index';
+import { isBool, isArray, warn } from '../../../util';
 
 export default {
 	/**
 	 * 绑定 checkbox 变化事件
 	 */
-	bind: function () {
+	bind () {
 		var number = this.number;
 		var directive = this.directive;
 
@@ -16,17 +17,12 @@ export default {
 				directive.set(checked);
 			} else if (isArray(value)) {
 				let val = formatValue(this.value, number);
-				let index = value.indexOf(val);
+				let index = indexOf(val, value);
 
-				// 勾选选项
-				if (checked) {
-					if (index === -1) {
-						value.push(val);
-					}
-				} else {
-					if (index > -1) {
-						value.splice(index, 1);
-					}
+				if (checked && index === -1) {
+					value.push(val);
+				} else if (index > -1) {
+					value.splice(index, 1);
 				}
 			}
 		});
@@ -36,7 +32,7 @@ export default {
 	 * 更新 checkbox 值
 	 * @param   {Boolean|Array}  values
 	 */
-	update: function (values) {
+	update (values) {
 		var el = this.el;
 		var value = formatValue(el.value, this.number);
 
@@ -44,6 +40,6 @@ export default {
 			return warn('Checkbox v-model value must be a type of Boolean or Array');
 		}
 
-		el.checked = isBool(values) ? values : (values.indexOf(value) > -1);
+		el.checked = isBool(values) ? values : (indexOf(value, values) > -1);
 	}
 }

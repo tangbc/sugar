@@ -1,4 +1,5 @@
-import { formatValue, isArray, warn } from '../../../util';
+import { isArray, warn } from '../../../util';
+import { formatValue, indexOf } from './index';
 
 /**
  * 获取 select 的选中值
@@ -25,7 +26,7 @@ export default {
 	/**
 	 * 绑定 select 变化事件
 	 */
-	bind: function () {
+	bind () {
 		var multi = this.multi;
 		var number = this.number;
 		var directive = this.directive;
@@ -48,7 +49,7 @@ export default {
 	 * 更新 select 值
 	 * @param   {Array|String}  values
 	 */
-	update: function (values) {
+	update (values) {
 		var el = this.el;
 		var options = el.options;
 		var multi = this.multi;
@@ -69,7 +70,7 @@ export default {
 		for (let i = 0; i < options.length; i++) {
 			let option = options[i];
 			let val = formatValue(option.value, this.number);
-			option.selected = multi ? values.indexOf(val) > -1 : values === val;
+			option.selected = multi ? indexOf(val, values) > -1 : values === val;
 		}
 	},
 
@@ -77,7 +78,7 @@ export default {
 	 * 强制更新 select 的值，用于动态的 option
 	 * @param   {Booleam}  reset  [是否清除默认选中状态]
 	 */
-	forceUpdate: function (reset) {
+	forceUpdate (reset) {
 		var directive = this.directive;
 
 		if (reset) {
