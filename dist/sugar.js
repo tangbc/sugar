@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Fri Sep 23 2016 18:38:02 GMT+0800 (CST)
+ * Sun Sep 25 2016 08:50:12 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -86,40 +86,6 @@
 	 */
 	function isEmptyObject (object) {
 		return Object.keys(object).length === 0;
-	}
-
-	/**
-	 * 将 value 转化为字符串
-	 * undefined 和 null 都转成空字符串
-	 * @param   {Mix}     value
-	 * @return  {String}
-	 */
-	function _toString (value) {
-		return value == null ? '' : value.toString();
-	}
-
-	/**
-	 * value 转成 Number 类型
-	 * @param   {String|Mix}  value
-	 * @return  {Number|Mix}
-	 */
-	function toNumber (value) {
-		if (isString(value)) {
-			var val = Number(value);
-			return isNumber(val) ? val : value;
-		} else {
-			return value;
-		}
-	}
-
-	/**
-	 * 可选的数据格式化
-	 * @param   {String}   value
-	 * @param   {Boolean}  convertToNumber
-	 * @return  {Number}
-	 */
-	function formatValue (value, convertToNumber) {
-		return convertToNumber ? toNumber(value) : value;
 	}
 
 	/**
@@ -1840,10 +1806,19 @@
 	 * @param   {String}   value
 	 */
 	function setAttr (node, name, value) {
-		if (isBool(value)) {
+		// 设为 null/undefined 和 false 移除该属性
+		if (value == null || value === false) {
+			return removeAttr(node, name);
+		}
+
+		if (value === true) {
 			node[name] = value;
-		} else if (value === null) {
-			removeAttr(node, name);
+
+			// 有些浏览器/情况下用 node[name] = true
+			// 是无法添加自定义属性的，此时设置一个空字符串
+			if (!hasAttr(node, name)) {
+				node.setAttribute(name, '');
+			}
 		} else if (value !== getAttr(node, name)) {
 			node.setAttribute(name, value);
 		}
@@ -3414,7 +3389,7 @@
 		/**
 		 * 绑定 text 变化事件
 		 */
-		bind: function () {
+		bind: function bind () {
 			var self = this;
 			var lazy = this.lazy;
 			var number = this.number;
@@ -3472,7 +3447,7 @@
 		 * 更新 text 值
 		 * @param   {String}  value
 		 */
-		update: function (value) {
+		update: function update (value) {
 			var el = this.el;
 			var val = _toString(value);
 			if (el.value !== val && !this.onDebounce) {
@@ -3485,7 +3460,7 @@
 		/**
 		 * 绑定 radio 变化事件
 		 */
-		bind: function () {
+		bind: function bind () {
 			var number = this.number;
 			var directive = this.directive;
 
@@ -3498,7 +3473,7 @@
 		 * 更新 radio 值
 		 * @param   {String}  value
 		 */
-		update: function (value) {
+		update: function update (value) {
 			var el = this.el;
 			el.checked = el.value === _toString(value);
 		}
@@ -3529,7 +3504,7 @@
 		/**
 		 * 绑定 select 变化事件
 		 */
-		bind: function () {
+		bind: function bind () {
 			var multi = this.multi;
 			var number = this.number;
 			var directive = this.directive;
@@ -3552,7 +3527,7 @@
 		 * 更新 select 值
 		 * @param   {Array|String}  values
 		 */
-		update: function (values) {
+		update: function update (values) {
 			var this$1 = this;
 
 			var el = this.el;
@@ -3575,7 +3550,7 @@
 			for (var i = 0; i < options.length; i++) {
 				var option = options[i];
 				var val = formatValue(option.value, this$1.number);
-				option.selected = multi ? values.indexOf(val) > -1 : values === val;
+				option.selected = multi ? indexOf(val, values) > -1 : values === val;
 			}
 		},
 
@@ -3583,7 +3558,7 @@
 		 * 强制更新 select 的值，用于动态的 option
 		 * @param   {Booleam}  reset  [是否清除默认选中状态]
 		 */
-		forceUpdate: function (reset) {
+		forceUpdate: function forceUpdate (reset) {
 			var directive = this.directive;
 
 			if (reset) {
@@ -3598,7 +3573,7 @@
 		/**
 		 * 绑定 checkbox 变化事件
 		 */
-		bind: function () {
+		bind: function bind () {
 			var number = this.number;
 			var directive = this.directive;
 
@@ -3610,17 +3585,12 @@
 					directive.set(checked);
 				} else if (isArray(value)) {
 					var val = formatValue(this.value, number);
-					var index = value.indexOf(val);
+					var index = indexOf(val, value);
 
-					// 勾选选项
-					if (checked) {
-						if (index === -1) {
-							value.push(val);
-						}
-					} else {
-						if (index > -1) {
-							value.splice(index, 1);
-						}
+					if (checked && index === -1) {
+						value.push(val);
+					} else if (index > -1) {
+						value.splice(index, 1);
 					}
 				}
 			});
@@ -3630,7 +3600,7 @@
 		 * 更新 checkbox 值
 		 * @param   {Boolean|Array}  values
 		 */
-		update: function (values) {
+		update: function update (values) {
 			var el = this.el;
 			var value = formatValue(el.value, this.number);
 
@@ -3638,8 +3608,61 @@
 				return warn('Checkbox v-model value must be a type of Boolean or Array');
 			}
 
-			el.checked = isBool(values) ? values : (values.indexOf(value) > -1);
+			el.checked = isBool(values) ? values : (indexOf(value, values) > -1);
 		}
+	}
+
+	/**
+	 * 将 value 转化为字符串
+	 * undefined 和 null 都转成空字符串
+	 * @param   {Mix}     value
+	 * @return  {String}
+	 */
+	function _toString (value) {
+		return value == null ? '' : value.toString();
+	}
+
+	/**
+	 * value 转成 Number 类型
+	 * 如转换失败原样返回
+	 * @param   {String|Mix}  value
+	 * @return  {Number|Mix}
+	 */
+	function toNumber (value) {
+		if (isString(value)) {
+			var val = Number(value);
+			return isNumber(val) ? val : value;
+		} else {
+			return value;
+		}
+	}
+
+	/**
+	 * 表单数据格式化
+	 * @param   {String}   value
+	 * @param   {Boolean}  convertToNumber
+	 * @return  {Number}
+	 */
+	function formatValue (value, convertToNumber) {
+		return convertToNumber ? toNumber(value) : value;
+	}
+
+	/**
+	 * 非全等比较的数组查找
+	 * @param   {Mix}     item
+	 * @param   {Array}   array
+	 * @return  {Number}
+	 */
+	function indexOf (item, array) {
+		for (var i = 0; i < array.length; i++) {
+			/* jshint ignore:start */
+			if (array[i] == item) {
+				return i;
+			}
+			/* jshint ignore:end */
+		}
+
+		return -1;
 	}
 
 	// 双向数据绑定限制的表单元素
@@ -3764,7 +3787,22 @@
 		this.bind();
 	}
 
-	var directiveParsers = { von: VOn, vel: VEl, vif: VIf, vfor: VFor, vtext: VText, vhtml: VHtml, vshow: VShow, vbind: VBind, vmodel: VModel, vcustom: VCustom };
+	/**
+	 * 导出指令编译模块
+	 * @type {Object}
+	 */
+	var directiveParsers = {
+		von: VOn,
+		vel: VEl,
+		vif: VIf,
+		vfor: VFor,
+		vtext: VText,
+		vhtml: VHtml,
+		vshow: VShow,
+		vbind: VBind,
+		vmodel: VModel,
+		vcustom: VCustom
+	};
 
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
