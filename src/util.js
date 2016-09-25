@@ -78,40 +78,6 @@ export function isEmptyObject (object) {
 }
 
 /**
- * 将 value 转化为字符串
- * undefined 和 null 都转成空字符串
- * @param   {Mix}     value
- * @return  {String}
- */
-export function _toString (value) {
-	return value == null ? '' : value.toString();
-}
-
-/**
- * value 转成 Number 类型
- * @param   {String|Mix}  value
- * @return  {Number|Mix}
- */
-export function toNumber (value) {
-	if (isString(value)) {
-		let val = Number(value);
-		return isNumber(val) ? val : value;
-	} else {
-		return value;
-	}
-}
-
-/**
- * 可选的数据格式化
- * @param   {String}   value
- * @param   {Boolean}  convertToNumber
- * @return  {Number}
- */
-export function formatValue (value, convertToNumber) {
-	return convertToNumber ? toNumber(value) : value;
-}
-
-/**
  * 空操作函数
  */
 export function noop () {}

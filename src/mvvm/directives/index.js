@@ -8,4 +8,20 @@ import { VShow as vshow } from './show';
 import { VBind as vbind } from './bind';
 import { VModel as vmodel } from './model';
 import { VCustom as vcustom } from './custom';
-export const directiveParsers = { von, vel, vif, vfor, vtext, vhtml, vshow, vbind, vmodel, vcustom };
+
+/**
+ * 导出指令编译模块
+ * @type {Object}
+ */
+export const directiveParsers = {
+	von,
+	vel,
+	vif,
+	vfor,
+	vtext,
+	vhtml,
+	vshow,
+	vbind,
+	vmodel,
+	vcustom
+};
