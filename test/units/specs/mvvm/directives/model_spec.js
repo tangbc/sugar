@@ -104,7 +104,7 @@ describe("v-model >", function () {
 	});
 
 
-	it('change and blur event', function () {
+	it('text change and blur event', function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test">';
 
 		var vm = new MVVM({
@@ -277,6 +277,141 @@ describe("v-model >", function () {
 	});
 
 
+	it('text in v-for bind for same model', function () {
+		element.innerHTML =
+			'<h1>{{ value }}</h1>' +
+			'<ul>' +
+				'<li v-for="item of items">' +
+					'<input type="text" v-model="value">' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'value': 'xxdk',
+				'items': [0, 0, 0]
+			}
+		});
+
+		var data = vm.$data;
+		var ul = element.querySelector('ul');
+		var h1 = element.querySelector('h1');
+		var lis = ul.querySelectorAll('li');
+
+		expect(h1.textContent).toBe('xxdk');
+		expect(lis[0].firstChild.value).toBe('xxdk');
+		expect(lis[1].firstChild.value).toBe('xxdk');
+		expect(lis[2].firstChild.value).toBe('xxdk');
+
+		// change data
+		data.value = 'txgc';
+		expect(h1.textContent).toBe('txgc');
+		expect(lis[0].firstChild.value).toBe('txgc');
+		expect(lis[1].firstChild.value).toBe('txgc');
+		expect(lis[2].firstChild.value).toBe('txgc');
+
+		// change one of inputs value
+		lis[1].firstChild.value = 'xx';
+		triggerEvent(lis[1].firstChild, 'change');
+
+		expect(h1.textContent).toBe('xx');
+		expect(lis[0].firstChild.value).toBe('xx');
+		expect(lis[1].firstChild.value).toBe('xx');
+		expect(lis[2].firstChild.value).toBe('xx');
+
+		// array method
+		data.items.unshift(1314);
+		lis = ul.querySelectorAll('li');
+		lis[0].firstChild.value = 'oo';
+		triggerEvent(lis[0].firstChild, 'input');
+
+		expect(h1.textContent).toBe('oo');
+		expect(lis[0].firstChild.value).toBe('oo');
+		expect(lis[1].firstChild.value).toBe('oo');
+		expect(lis[2].firstChild.value).toBe('oo');
+		expect(lis[3].firstChild.value).toBe('oo');
+
+		// remove the secound item
+		data.items.splice(1, 1);
+		lis = ul.querySelectorAll('li');
+		expect(lis.length).toBe(3);
+		lis[1].firstChild.value = 'ko';
+		triggerEvent(lis[1].firstChild, 'input');
+
+		expect(h1.textContent).toBe('ko');
+		expect(lis[0].firstChild.value).toBe('ko');
+		expect(lis[1].firstChild.value).toBe('ko');
+		expect(lis[2].firstChild.value).toBe('ko');
+	});
+
+
+	it('text in v-for bind for diffrent model', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item of items">' +
+					'<input type="text" v-model="item.value">' +
+					'<span>{{ item.value }}</span>' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'items': [
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'}
+				]
+			}
+		});
+
+		var data = vm.$data;
+		var ul = element.querySelector('ul');
+		var lis = ul.querySelectorAll('li');
+		var input;
+
+		expect(ul.textContent).toBe('abc');
+
+		// change item input value
+		input = lis[0].querySelector('input');
+		input.value = 'A';
+		triggerEvent(input, 'input');
+		expect(data.items[0].value).toBe('A');
+		expect(ul.textContent).toBe('Abc');
+
+		// change data item
+		input = lis[1].querySelector('input');
+		data.items[1].value = 'B';
+		expect(ul.textContent).toBe('ABc');
+		expect(input.value).toBe('B');
+
+		// array method
+		data.items.push({'value': 'd'});
+		lis = ul.querySelectorAll('li');
+		expect(ul.textContent).toBe('ABcd');
+		input = lis[3].querySelector('input');
+		expect(input.value).toBe('d');
+		input.value = 'D';
+		triggerEvent(input, 'change');
+		expect(ul.textContent).toBe('ABcD');
+		expect(data.items[3].value).toBe('D');
+
+		// splice, replace
+		data.items.$set(2, {'value': 'C'});
+		expect(ul.textContent).toBe('ABCD');
+		lis = ul.querySelectorAll('li');
+		input = lis[2].querySelector('input');
+		input.value = 'CC';
+		triggerEvent(input, 'blur');
+		expect(ul.textContent).toBe('ABCCD');
+		expect(data.items[2].value).toBe('CC');
+		data.items[2].value = 'cc';
+		expect(ul.textContent).toBe('ABccD');
+		expect(input.value).toBe('cc');
+	});
+
+
 	it('radio', function () {
 		element.innerHTML =
 			'<input type="radio" value="a" v-model="test">' +
@@ -335,6 +470,203 @@ describe("v-model >", function () {
 		expect(data.test).toBe('2');
 		expect(element.childNodes[0].checked).toBe(false);
 		expect(element.childNodes[1].checked).toBe(true);
+	});
+
+
+	it('radio in v-for', function () {
+		element.innerHTML =
+			'<h1>{{ selected }}</h1>' +
+			'<ul>' +
+				'<li v-for="item of items">' +
+					'<input type="radio" v-bind:value="item.value" v-model="selected">' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'selected': 'b',
+				'items': [
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'}
+				]
+			}
+		});
+
+		var data = vm.$data;
+		var ul = element.querySelector('ul');
+		var lis = ul.querySelectorAll('li');
+
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(false);
+
+		lis[2].firstChild.click();
+		expect(data.selected).toBe(lis[2].firstChild.value);
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		// array method
+		data.items.push({'value': 'd'});
+		lis = ul.querySelectorAll('li');
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(lis[3].firstChild.checked).toBe(false);
+
+		lis[3].firstChild.click();
+		expect(data.selected).toBe(lis[3].firstChild.value);
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(false);
+		expect(lis[3].firstChild.checked).toBe(true);
+	});
+
+
+	it('radio in nesting v-for', function () {
+		element.innerHTML =
+			'<div>' +
+				'<dl v-for="group of groups">' +
+					'<dt>{{ group.selected }}</dt>' +
+					'<dd v-for="radio in group.radios">' +
+						'<input type="radio" ' +
+							'v-bind="{value: radio.value, number: group.number}" ' +
+							'v-model="group.selected"' +
+						'>' +
+					'</dd>' +
+				'</dl>' +
+			'</div>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'groups': [
+					{
+						'selected': 11,
+						'number': false,
+						'radios': [
+							{'value': 11},
+							{'value': 12},
+							{'value': 13}
+						]
+					},
+					{
+						'selected': 22,
+						'number': true,
+						'radios': [
+							{'value': 21},
+							{'value': 22},
+							{'value': 23}
+						]
+					},
+					{
+						'selected': 'aa',
+						'number': true, // just try to toNumber
+						'radios': [
+							{'value': 'aa'},
+							{'value': 32},
+							{'value': 33}
+						]
+					}
+				]
+			}
+		});
+
+		var data = vm.$data;
+		var div = element.querySelector('div');
+		var dls = div.querySelectorAll('dl');
+		var dt, dds;
+
+		expect(div.textContent).toBe('1122aa');
+
+		// 1. test the first group, no specfy number
+		dt = dls[0].firstChild;
+		dds = dls[0].querySelectorAll('dd');
+		expect(dt.textContent).toBe('11');
+		expect(dds[0].firstChild.checked).toBe(true);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		dds[1].firstChild.click();
+		expect(dt.textContent).toBe('12');
+		expect(div.textContent).toBe('1222aa');
+		expect(dds[1].firstChild.hasAttribute('number')).toBe(false);
+		expect(data.groups[0].selected).toBe('12'); // string
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(true);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		data.groups[0].selected = 13;
+		expect(dt.textContent).toBe('13');
+		expect(div.textContent).toBe('1322aa');
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(true);
+
+		// 2. test the secound group, specfy number
+		dt = dls[1].firstChild;
+		dds = dls[1].querySelectorAll('dd');
+		expect(dt.textContent).toBe('22');
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(true);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		dds[0].firstChild.click();
+		expect(dt.textContent).toBe('21');
+		expect(div.textContent).toBe('1321aa');
+		expect(dds[1].firstChild.hasAttribute('number')).toBe(true);
+		expect(data.groups[1].selected).toBe(21); // number
+		expect(dds[0].firstChild.checked).toBe(true);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		data.groups[1].selected = 23;
+		expect(dt.textContent).toBe('23');
+		expect(div.textContent).toBe('1323aa');
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(true);
+
+		// we hope that data set to string also works
+		data.groups[1].selected = '22';
+		expect(dt.textContent).toBe('22');
+		expect(div.textContent).toBe('1322aa');
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(true);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		// 3. test the third group, specfy number but not all-number
+		dt = dls[2].firstChild;
+		dds = dls[2].querySelectorAll('dd');
+		expect(dt.textContent).toBe('aa');
+		expect(dds[0].firstChild.checked).toBe(true);
+		expect(dds[0].firstChild.hasAttribute('number')).toBe(true);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		dds[1].firstChild.click();
+		expect(dt.textContent).toBe('32');
+		expect(div.textContent).toBe('132232');
+		expect(data.groups[2].selected).toBe(32); // number
+		expect(dds[1].firstChild.hasAttribute('number')).toBe(true);
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(true);
+		expect(dds[2].firstChild.checked).toBe(false);
+
+		data.groups[2].selected = 33;
+		expect(dt.textContent).toBe('33');
+		expect(div.textContent).toBe('132233');
+		expect(dds[0].firstChild.checked).toBe(false);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(true);
+
+		dds[0].firstChild.click();
+		expect(data.groups[2].selected).toBe('aa'); // back to string
+		expect(dds[0].firstChild.checked).toBe(true);
+		expect(dds[1].firstChild.checked).toBe(false);
+		expect(dds[2].firstChild.checked).toBe(false);
 	});
 
 
@@ -478,6 +810,193 @@ describe("v-model >", function () {
 		childs[1].click();
 		childs[2].click();
 		expect(data.sels).toEqual([0, '1', 2]);
+	});
+
+
+	it('checkbox in v-for', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item of items">' +
+					'<input type="checkbox" v-bind:value="item.value" v-model="selects">' +
+				'</li>' +
+			'</ul>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'selects': ['a', 'c'],
+				'items': [
+					{'value': 'a'},
+					{'value': 'b'},
+					{'value': 'c'},
+				]
+			}
+		});
+
+		var data = vm.$data;
+		var ul = element.querySelector('ul');
+		var lis = ul.childNodes;
+
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		lis[1].firstChild.click();
+		expect(data.selects).toEqual(['a', 'c', 'b']);
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		data.selects.shift();
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		// array method
+		data.items.push({'value': 'd'});
+		lis = ul.childNodes;
+		expect(lis.length).toBe(4);
+		expect(lis[3].firstChild.checked).toBe(false);
+		lis[3].firstChild.click();
+		expect(data.selects).toEqual(['c', 'b', 'd']);
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(lis[3].firstChild.checked).toBe(true);
+	});
+
+
+	it('checkbox in nesting v-for', function () {
+		element.innerHTML =
+			'<div>' +
+				'<ul v-for="group of groups">' +
+					'<li v-for="checkbox of group.checkboxs">' +
+						'<input type="checkbox" ' +
+							'v-bind="{value: checkbox.value, number: group.number}" ' +
+							'v-model="group.selects">' +
+					'</li>' +
+				'</ul>' +
+			'</div>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'groups': [
+					{
+						'selects': [11, 12],
+						'number': false,
+						'checkboxs': [
+							{'value': 11},
+							{'value': 12},
+							{'value': 13},
+						]
+					},
+					{
+						'selects': [22, 23],
+						'number': true,
+						'checkboxs': [
+							{'value': 21},
+							{'value': 22},
+							{'value': 23},
+						]
+					},
+					{
+						'selects': [],
+						'number': true,
+						'checkboxs': [
+							{'value': 'aa'},
+							{'value': 'bb'},
+							{'value': 33},
+						]
+					}
+				]
+			}
+		});
+
+		var data = vm.$data;
+		var uls = element.firstChild.querySelectorAll('ul');
+		var lis;
+
+		// 1. test the first group, no specfy number
+		lis = uls[0].querySelectorAll('li');
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(false);
+
+		lis[2].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(data.groups[0].selects).toEqual([11, 12, '13']);
+
+		lis[0].firstChild.click();
+		lis[1].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(data.groups[0].selects).toEqual(['13']);
+
+		lis[0].firstChild.click();
+		lis[1].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(data.groups[0].selects).toEqual(['13', '11', '12']);
+
+		data.groups[0].selects.splice(1, 1);
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		// 2. test the secound group, specfy number
+		lis = uls[1].querySelectorAll('li');
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+
+		lis[0].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(data.groups[1].selects).toEqual([22, 23, 21]); // add number 21
+
+		lis[1].firstChild.click();
+		lis[2].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(false);
+		expect(data.groups[1].selects).toEqual([21]);
+
+		lis[2].firstChild.click();
+		lis[1].firstChild.click();
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
+		expect(data.groups[1].selects).toEqual([21, 23, 22]);
+
+		data.groups[1].selects.splice(1, 1);
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(false);
+
+		// 3. test the third group, not all number
+		lis = uls[2].querySelectorAll('li');
+		expect(lis[0].firstChild.checked).toBe(false);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(false);
+
+		lis[0].firstChild.click();
+		expect(data.groups[2].selects).toEqual(['aa']);
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(false);
+		expect(lis[2].firstChild.checked).toBe(false);
+
+		lis[2].firstChild.click();
+		lis[1].firstChild.click();
+		expect(data.groups[2].selects).toEqual(['aa', 33, 'bb']);
+		expect(lis[0].firstChild.checked).toBe(true);
+		expect(lis[1].firstChild.checked).toBe(true);
+		expect(lis[2].firstChild.checked).toBe(true);
 	});
 
 
