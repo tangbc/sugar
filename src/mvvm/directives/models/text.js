@@ -9,8 +9,11 @@ import { formatValue, toNumber, _toString } from './index';
 function debounceDelay (func, delay) {
 	return setTimeout(function () {
 		func.call(func);
-	}, toNumber(delay));
+	}, toNumber(delay) || 0);
 }
+
+const userAgent = window.navigator.userAgent.toLowerCase();
+const isMsie9 = userAgent && userAgent.indexOf('msie 9.0') > 0;
 
 export default {
 	/**
@@ -68,6 +71,20 @@ export default {
 		this.on('change', function () {
 			setModelValue(this.value);
 		});
+
+		// 在 IE9 中，backspace, delete 和剪切事件不会触发 input 事件
+		if (isMsie9) {
+			this.on('cut', function () {
+				debounceDelay(() => setModelValue(this.value));
+			});
+
+			this.on('keyup', function (e) {
+				var keyCode = e.keyCode;
+				if (keyCode === 8 || keyCode === 46) {
+					setModelValue(this.value);
+				}
+			});
+		}
 	},
 
 	/**

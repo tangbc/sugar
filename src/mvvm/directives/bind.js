@@ -191,6 +191,7 @@ vbind.single = function (type, newValue, oldValue) {
 			break;
 		default:
 			this.handleAttr(type, newValue);
+
 	}
 }
 
@@ -247,9 +248,9 @@ vbind.handleStyle = function (newStyle, oldStyle) {
 
 	// 数据更新
 	if (oldStyle) {
-		// 移除旧样式(设为 null)
+		// 移除旧样式(设为 '')
 		each(oldStyle, function (v, key) {
-			oldStyle[key] = null;
+			oldStyle[key] = '';
 		});
 
 		updateStyle(el, oldStyle);

@@ -69,6 +69,7 @@ function getDirectiveDesc (attribute) {
 	return { args, attr, directive, expression };
 }
 
+
 /**
  * ViewModel 编译模块
  * @param  {Object}  option  [参数对象]
@@ -181,19 +182,39 @@ cp.complieNode = function (info) {
 
 	if (isElement(node)) {
 		let vfor, attrs = [];
-		// node 节点集合转为数组
+		let hasModel, hasBind, index;
 		let nodeAttrs = node.attributes;
 
 		for (let i = 0; i < nodeAttrs.length; i++) {
-			let atr = nodeAttrs[i];
-			let name = atr.name;
+			let attr = nodeAttrs[i];
+			let name = attr.name;
 
+			// 收集合法指令
 			if (isDirective(name)) {
-				if (name === 'v-for') {
-					vfor = atr;
+				switch (name) {
+					case 'v-for':
+						vfor = attr;
+						break;
+					case 'v-bind':
+						hasBind = true;
+						break;
+					case 'v-model':
+						hasModel = true;
+						index = attrs.length;
+						break;
 				}
-				attrs.push(atr);
+
+				attrs.push(attr);
 			}
+		}
+
+		// 当 v-bind JSON 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
+		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
+		// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
+		if (hasModel && hasBind) {
+			let vmodel = attrs.splice(index, 1)[0];
+			attrs.push(vmodel);
+			vmodel = null;
 		}
 
 		// vfor 指令与其他指令共存时优先编译 vfor 指令
@@ -204,8 +225,8 @@ cp.complieNode = function (info) {
 		}
 
 		// 解析节点指令
-		each(attrs, function (attr) {
-			this.parse(node, attr, scope);
+		each(attrs, function (attribute) {
+			this.parse(node, attribute, scope);
 		}, this);
 
 	} else if (isTextNode(node)) {

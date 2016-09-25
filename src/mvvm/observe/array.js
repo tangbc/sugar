@@ -1,5 +1,5 @@
 import { observeArray } from './index';
-import { each, defRec } from '../../util';
+import { each, def } from '../../util';
 
 var arrayProto = Array.prototype;
 var arrayMethods = Object.create(arrayProto);
@@ -13,7 +13,7 @@ const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'
 each(rewrites, function (method) {
 	var original = arrayProto[method];
 
-	defRec(arrayMethods, method, function () {
+	def(arrayMethods, method, function () {
 		var args = [];
 		var ob = this.__ob__;
 
@@ -50,7 +50,7 @@ each(rewrites, function (method) {
  * 添加 $set 方法
  * 提供需要修改的数组项下标 index 和新值 value
  */
-defRec(arrayMethods, '$set', function (index, value) {
+def(arrayProto, '$set', function (index, value) {
 	// 超出数组长度默认追加到最后
 	if (index >= this.length) {
 		index = this.length;
@@ -61,7 +61,7 @@ defRec(arrayMethods, '$set', function (index, value) {
 /**
  * 添加 $remove 方法
  */
-defRec(arrayMethods, '$remove', function (item) {
+def(arrayProto, '$remove', function (item) {
 	var index = this.indexOf(item);
 	if (index > -1) {
 		return this.splice(index, 1);

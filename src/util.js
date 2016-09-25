@@ -120,12 +120,12 @@ export function hasOwn (obj, key) {
  * @param   {Boolean}  enumerable    [属性是否出现在枚举中]
  * @param   {Boolean}  configurable  [属性是否能够被改变或删除]
  */
-function def (object, property, value, writable, enumerable, configurable) {
+export function def (object, property, value, enumerable) {
 	return Object.defineProperty(object, property, {
 		'value'       : value,
-		'writable'    : !!writable,
+		'writable'    : true,
 		'enumerable'  : !!enumerable,
-		'configurable': !!configurable
+		'configurable': true
 	});
 }
 
@@ -133,7 +133,7 @@ function def (object, property, value, writable, enumerable, configurable) {
  * 将 object[property] 定义为一个不可枚举的属性
  */
 export function defRec (object, property, value) {
-	return def(object, property, value, true, false, true);
+	return def(object, property, value, false);
 }
 
 /**

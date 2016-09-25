@@ -84,7 +84,10 @@ describe("mvvm instance api >", function () {
 		expect(typeof data.__ob__).toBe('object');
 
 		// element has not been compile
-		expect(element.innerHTML).toBe(layout);
+		expect(element.querySelector('h1').hasAttribute('v-html')).toBe(true);
+		expect(element.querySelector('ul').textContent).toBe('{{ $index }}_{{ item.text }}.');
+		expect(element.querySelector('input').hasAttribute('v-model')).toBe(true);
+		expect(element.querySelector('input').value).toBe('');
 
 		// start compile by manual
 		vm.mount();
