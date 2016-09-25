@@ -191,17 +191,13 @@ cp.complieNode = function (info) {
 
 			// 收集合法指令
 			if (isDirective(name)) {
-				switch (name) {
-					case 'v-for':
-						vfor = attr;
-						break;
-					case 'v-bind':
-						hasBind = true;
-						break;
-					case 'v-model':
-						hasModel = true;
-						index = attrs.length;
-						break;
+				if (name === 'v-for') {
+					vfor = attr;
+				} else if (name === 'v-model') {
+					hasModel = true;
+					index = attrs.length;
+				} else if (name.indexOf('v-bind') === 0) {
+					hasBind = true;
 				}
 
 				attrs.push(attr);
@@ -211,7 +207,11 @@ cp.complieNode = function (info) {
 		// 当 v-bind JSON 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
 		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
 		// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
-		if (hasModel && hasBind) {
+		if (
+			attrs.length > 1 &&
+			hasModel && hasBind &&
+			index !== attrs.length - 1
+		) {
 			let vmodel = attrs.splice(index, 1)[0];
 			attrs.push(vmodel);
 			vmodel = null;
