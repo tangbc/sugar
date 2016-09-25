@@ -208,9 +208,11 @@ cp.complieNode = function (info) {
 		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
 		// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
 		if (
+			!vfor &&
+			hasBind &&
+			hasModel &&
 			attrs.length > 1 &&
-			hasModel && hasBind &&
-			index !== attrs.length - 1
+			(index !== attrs.length - 1)
 		) {
 			let vmodel = attrs.splice(index, 1)[0];
 			attrs.push(vmodel);
