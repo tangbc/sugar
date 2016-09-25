@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 25 2016 18:05:27 GMT+0800 (CST)
+ * Sun Sep 25 2016 22:22:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2665,8 +2665,8 @@
 		this.partly = false;
 		this.partlyArgs = [];
 		this.$parent = parent;
-		this.$next = el.nextSibling;
-		this.$prev = el.previousSibling;
+		this.$end = el.nextSibling;
+		this.$start = el.previousSibling;
 		this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 		desc.expression = iterator;
@@ -2695,7 +2695,7 @@
 	 * @param   {Object}   methodArg  [数组操作参数信息]
 	 */
 	vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
-		// 初次构建列表
+		// 初始化列表
 		if (this.init) {
 			this.initList(newArray);
 		} else {
@@ -2764,14 +2764,14 @@
 	 * @param   {Array}  list
 	 */
 	vfor.recompileList = function (list) {
-		var next = this.$next;
-		var prev = this.$prev;
+		var end = this.$end;
+		var start = this.$start;
 		var parent = this.$parent;
 
 		// 清空循环列表
 		var child;
-		while (child = (prev && prev.nextSibling || parent.firstChild)) {
-			if (next && child === next) {
+		while (child = (start && start.nextSibling || parent.firstChild)) {
+			if (end && child === end) {
 				break;
 			}
 			parent.removeChild(child);
@@ -2781,7 +2781,7 @@
 		this.scopes.length = 0;
 
 		var listFragment = this.buildList(list);
-		parent.insertBefore(listFragment, next);
+		parent.insertBefore(listFragment, end);
 	}
 
 	/**
@@ -2793,8 +2793,8 @@
 	vfor.buildList = function (list, startIndex) {
 		var vm = this.vm;
 		var el = this.el;
-		var start = startIndex || 0;
 		var bodyDirs = el.__dirs__;
+		var start = startIndex || 0;
 		var listFragment = createFragment();
 		var iterator = this.directive.watcher.value;
 
@@ -2862,8 +2862,8 @@
 	 * @return  {Element}
 	 */
 	vfor.getFirst = function () {
-		var prev = this.$prev;
-		return prev && prev.nextSibling || this.$parent.firstChild;
+		var start = this.$start;
+		return start && start.nextSibling || this.$parent.firstChild;
 	}
 
 	/**
@@ -2871,8 +2871,8 @@
 	 * @return  {Element}
 	 */
 	vfor.getLast = function () {
-		var next = this.$next;
-		return next && next.previousSibling || this.$parent.lastChild;
+		var end = this.$end;
+		return end && end.previousSibling || this.$parent.lastChild;
 	}
 
 	/**
@@ -2911,7 +2911,7 @@
 	 */
 	vfor.push = function (list, args) {
 		var item = this.buildList(args, list.length - 1);
-		this.$parent.insertBefore(item, this.$next);
+		this.$parent.insertBefore(item, this.$end);
 	}
 
 	/**
@@ -2958,7 +2958,7 @@
 		if (deleteOnly || deleAndInsert) {
 			var oldList = this.getChilds();
 			each(oldList, function (child, index) {
-				// 删除的范围内
+				// 删除范围内
 				if (index >= start && index < start + deleteCont) {
 					parent.removeChild(child);
 				}
@@ -2969,11 +2969,11 @@
 		// 只插入 或 删除并插入
 		if (insertOnly || deleAndInsert) {
 			// 开始的元素
-			var startChild = this.getChild(start);
+			var startItem = this.getChild(start);
 			// 新增列表
 			var listFrag = this.buildList(insertItems, start);
-			// 更新变化部分
-			parent.insertBefore(listFrag, startChild);
+			// 更新新增部分
+			parent.insertBefore(listFrag, startItem);
 		}
 	}
 
