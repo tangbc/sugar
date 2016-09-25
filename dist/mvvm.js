@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 25 2016 08:50:13 GMT+0800 (CST)
+ * Sun Sep 25 2016 18:05:28 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -124,27 +124,18 @@
 
 	/**
 	 * object 定义或修改 property 属性
-	 * @param   {Object}   object        [对象]
-	 * @param   {String}   property      [属性字段]
-	 * @param   {Mix}      value         [属性的修改值/新值]
-	 * @param   {Boolean}  writable      [属性是否能被赋值运算符改变]
-	 * @param   {Boolean}  enumerable    [属性是否出现在枚举中]
-	 * @param   {Boolean}  configurable  [属性是否能够被改变或删除]
+	 * @param   {Object}   object      [对象]
+	 * @param   {String}   property    [属性字段]
+	 * @param   {Mix}      value       [属性的修改值/新值]
+	 * @param   {Boolean}  enumerable  [属性是否出现在枚举中]
 	 */
-	function def (object, property, value, writable, enumerable, configurable) {
+	function def (object, property, value, enumerable) {
 		return Object.defineProperty(object, property, {
 			'value'       : value,
-			'writable'    : !!writable,
+			'writable'    : true,
 			'enumerable'  : !!enumerable,
-			'configurable': !!configurable
+			'configurable': true
 		});
-	}
-
-	/**
-	 * 将 object[property] 定义为一个不可枚举的属性
-	 */
-	function defRec (object, property, value) {
-		return def(object, property, value, true, false, true);
 	}
 
 	/**
@@ -1498,7 +1489,7 @@
 		var keyCode = ref.keyCode;
 
 		// 挂载 $event
-		defRec((this.$scope || this.vm.$data), '$event', '__e__');
+		def((this.$scope || this.vm.$data), '$event', '__e__');
 
 		// 处理回调参数以及依赖监测
 		var args = [];
@@ -1735,7 +1726,7 @@
 	each(rewrites, function (method) {
 		var original = arrayProto[method];
 
-		defRec(arrayMethods, method, function () {
+		def(arrayMethods, method, function () {
 			var arguments$1 = arguments;
 
 			var args = [];
@@ -1774,7 +1765,7 @@
 	 * 添加 $set 方法
 	 * 提供需要修改的数组项下标 index 和新值 value
 	 */
-	defRec(arrayMethods, '$set', function (index, value) {
+	def(arrayProto, '$set', function (index, value) {
 		// 超出数组长度默认追加到最后
 		if (index >= this.length) {
 			index = this.length;
@@ -1785,7 +1776,7 @@
 	/**
 	 * 添加 $remove 方法
 	 */
-	defRec(arrayMethods, '$remove', function (item) {
+	def(arrayProto, '$remove', function (item) {
 		var index = this.indexOf(item);
 		if (index > -1) {
 			return this.splice(index, 1);
@@ -1836,7 +1827,7 @@
 			observeObject(data);
 		}
 
-		defRec(data, '__ob__', this);
+		def(data, '__ob__', this);
 	}
 
 
@@ -2131,9 +2122,9 @@
 			observe(scope, '$index', index);
 
 			// 挂载别名
-			defRec(scope, '__alias__', alias);
+			def(scope, '__alias__', alias);
 			// 挂载迭代器
-			defRec(scope, '__viterator__', iterator);
+			def(scope, '__viterator__', iterator);
 
 			if (this.partly) {
 				this.partlyArgs.push(scope);
@@ -2147,7 +2138,7 @@
 			}
 
 			// 片段挂载别名
-			defRec(plate, vforAlias, alias);
+			def(plate, vforAlias, alias);
 
 			// 收集指令并编译板块
 			vm.compile(plate, true, scope);
@@ -2360,7 +2351,7 @@
 	function setVisibleDisplay (node) {
 		var display = getVisible(node);
 		if (display !== 'none') {
-			defRec(node, visibleDisplay, display || '');
+			def(node, visibleDisplay, display || '');
 		}
 	}
 
@@ -2665,9 +2656,9 @@
 
 		// 数据更新
 		if (oldStyle) {
-			// 移除旧样式(设为 null)
+			// 移除旧样式(设为 '')
 			each(oldStyle, function (v, key) {
-				oldStyle[key] = null;
+				oldStyle[key] = '';
 			});
 
 			updateStyle(el, oldStyle);
@@ -2694,8 +2685,11 @@
 	function debounceDelay (func, delay) {
 		return setTimeout(function () {
 			func.call(func);
-		}, toNumber(delay));
+		}, toNumber(delay) || 0);
 	}
+
+	var userAgent = window.navigator.userAgent.toLowerCase();
+	var isMsie9 = userAgent && userAgent.indexOf('msie 9.0') > 0;
 
 	var text = {
 		/**
@@ -2753,6 +2747,22 @@
 			this.on('change', function () {
 				setModelValue(this.value);
 			});
+
+			// 在 IE9 中，backspace, delete 和剪切事件不会触发 input 事件
+			if (isMsie9) {
+				this.on('cut', function () {
+					var this$1 = this;
+
+					debounceDelay(function () { return setModelValue(this$1.value); });
+				});
+
+				this.on('keyup', function (e) {
+					var keyCode = e.keyCode;
+					if (keyCode === 8 || keyCode === 46) {
+						setModelValue(this.value);
+					}
+				});
+			}
 		},
 
 		/**
@@ -3040,7 +3050,7 @@
 			case 'select':
 				form = select;
 				// select 需要将指令实例挂载到元素上
-				defRec(el, '__vmodel__', this);
+				def(el, '__vmodel__', this);
 				// 是否多选
 				this.multi = hasAttr(el, 'multiple');
 				// 动态 option 强制刷新取值方法
@@ -3182,6 +3192,7 @@
 		return { args: args, attr: attr, directive: directive, expression: expression };
 	}
 
+
 	/**
 	 * ViewModel 编译模块
 	 * @param  {Object}  option  [参数对象]
@@ -3206,7 +3217,7 @@
 		// 缓存根节点
 		this.$element = element;
 		// DOM 注册索引
-		defRec(this.$data, '$els', {});
+		def(this.$data, '$els', {});
 
 		// 指令实例缓存
 		this.$directives = [];
@@ -3296,31 +3307,53 @@
 
 		if (isElement(node)) {
 			var vfor, attrs = [];
-			// node 节点集合转为数组
+			var hasModel, hasBind, index;
 			var nodeAttrs = node.attributes;
 
 			for (var i = 0; i < nodeAttrs.length; i++) {
-				var atr = nodeAttrs[i];
-				var name = atr.name;
+				var attr = nodeAttrs[i];
+				var name = attr.name;
 
+				// 收集合法指令
 				if (isDirective(name)) {
 					if (name === 'v-for') {
-						vfor = atr;
+						vfor = attr;
+					} else if (name === 'v-model') {
+						hasModel = true;
+						index = attrs.length;
+					} else if (name.indexOf('v-bind') === 0) {
+						hasBind = true;
 					}
-					attrs.push(atr);
+
+					attrs.push(attr);
 				}
+			}
+
+			// 当 v-bind JSON 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
+			// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
+			// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
+			if (
+				!vfor &&
+				hasBind &&
+				hasModel &&
+				attrs.length > 1 &&
+				(index !== attrs.length - 1)
+			) {
+				var vmodel = attrs.splice(index, 1)[0];
+				attrs.push(vmodel);
+				vmodel = null;
 			}
 
 			// vfor 指令与其他指令共存时优先编译 vfor 指令
 			if (vfor) {
-				defRec(node, '__dirs__', attrs.length);
+				def(node, '__dirs__', attrs.length);
 				attrs = [vfor];
 				vfor = null;
 			}
 
 			// 解析节点指令
-			each(attrs, function (attr) {
-				this.parse(node, attr, scope);
+			each(attrs, function (attribute) {
+				this.parse(node, attribute, scope);
 			}, this);
 
 		} else if (isTextNode(node)) {
