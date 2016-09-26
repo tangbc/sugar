@@ -310,7 +310,8 @@ vfor.splice = function (list, args) {
 	// 如果 deleteCount 大于 start 之后的元素的总数，则从 start 后面的元素都将被删除（含第 start 位）。
 	var deleteCont = args[1];
 	// 要添加进数组的元素。如果不指定，则 splice() 只删除数组元素。
-	var insertItems = args.slice(2), insertLength = args.length;
+	var insertItems = args.slice(2);
+	var insertLength = insertItems.length;
 
 	// 不删除也不添加
 	if (deleteCont === 0 && !insertLength) {
