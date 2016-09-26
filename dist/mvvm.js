@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Sun Sep 25 2016 22:22:08 GMT+0800 (CST)
+ * Mon Sep 26 2016 09:55:25 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2250,7 +2250,8 @@
 		// 如果 deleteCount 大于 start 之后的元素的总数，则从 start 后面的元素都将被删除（含第 start 位）。
 		var deleteCont = args[1];
 		// 要添加进数组的元素。如果不指定，则 splice() 只删除数组元素。
-		var insertItems = args.slice(2), insertLength = args.length;
+		var insertItems = args.slice(2);
+		var insertLength = insertItems.length;
 
 		// 不删除也不添加
 		if (deleteCont === 0 && !insertLength) {
