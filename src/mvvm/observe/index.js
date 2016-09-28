@@ -1,6 +1,6 @@
 import Depend from '../depend';
 import Watcher from '../watcher';
-import { changeArrayProto } from './array';
+import { setMutationProto } from './array';
 import { def, isArray, each, isObject, hasOwn, isFunc, warn, noop } from '../../util';
 
 /**
@@ -19,7 +19,7 @@ function observeObject (object) {
  * @param   {String}  key
  */
 export function observeArray (array, key) {
-	changeArrayProto(array);
+	setMutationProto(array);
 	each(array, function (item) {
 		createObserver(item, key);
 	});

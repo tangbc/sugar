@@ -2,7 +2,8 @@ import { observeArray } from './index';
 import { each, def } from '../../util';
 
 var arrayProto = Array.prototype;
-var arrayMethods = Object.create(arrayProto);
+var setProto = Object.setPrototypeOf;
+var mutatedProto = Object.create(arrayProto);
 
 // 重写数组操作方法
 const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
@@ -13,7 +14,7 @@ const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'
 each(rewrites, function (method) {
 	var original = arrayProto[method];
 
-	def(arrayMethods, method, function () {
+	def(mutatedProto, method, function () {
 		var args = [];
 		var ob = this.__ob__;
 
@@ -69,9 +70,13 @@ def(arrayProto, '$remove', function (item) {
 });
 
 /**
- * 修改 array 的原型
+ * 修改 array 原型
  * @param   {Array}  array
  */
-export function changeArrayProto (array) {
-	array.__proto__ = arrayMethods;
+export function setMutationProto (array) {
+	if (setProto) {
+		setProto(array, mutatedProto);
+	} else {
+		array.__proto__ = mutatedProto;
+	}
 }
