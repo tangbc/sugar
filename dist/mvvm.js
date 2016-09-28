@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Mon Sep 26 2016 09:55:25 GMT+0800 (CST)
+ * Wed Sep 28 2016 17:14:10 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1715,7 +1715,8 @@
 	}
 
 	var arrayProto = Array.prototype;
-	var arrayMethods = Object.create(arrayProto);
+	var setProto = Object.setPrototypeOf;
+	var mutatedProto = Object.create(arrayProto);
 
 	// 重写数组操作方法
 	var rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
@@ -1726,7 +1727,7 @@
 	each(rewrites, function (method) {
 		var original = arrayProto[method];
 
-		def(arrayMethods, method, function () {
+		def(mutatedProto, method, function () {
 			var arguments$1 = arguments;
 
 			var args = [];
@@ -1784,11 +1785,15 @@
 	});
 
 	/**
-	 * 修改 array 的原型
+	 * 修改 array 原型
 	 * @param   {Array}  array
 	 */
-	function changeArrayProto (array) {
-		array.__proto__ = arrayMethods;
+	function setMutationProto (array) {
+		if (setProto) {
+			setProto(array, mutatedProto);
+		} else {
+			array.__proto__ = mutatedProto;
+		}
 	}
 
 	/**
@@ -1807,7 +1812,7 @@
 	 * @param   {String}  key
 	 */
 	function observeArray (array, key) {
-		changeArrayProto(array);
+		setMutationProto(array);
 		each(array, function (item) {
 			createObserver(item, key);
 		});
