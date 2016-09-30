@@ -11,7 +11,7 @@ const visibleDisplay = '__visible__';
  * @param  {Element}  node
  */
 function setVisibleDisplay (node) {
-	var display = getVisible(node);
+	let display = getVisible(node);
 	if (display !== 'none') {
 		def(node, visibleDisplay, display || '');
 	}
@@ -34,18 +34,18 @@ export function VShow () {
 	Parser.apply(this, arguments);
 }
 
-var vshow = linkParser(VShow);
+let vshow = linkParser(VShow);
 
 /**
  * 解析 v-show 指令
  */
 vshow.parse = function () {
-	var el = this.el;
+	let el = this.el;
 
 	setVisibleDisplay(el);
 
 	// else 片段
-	var elseEl = el.nextElementSibling;
+	let elseEl = el.nextElementSibling;
 	if (elseEl && hasAttr(elseEl, 'v-else')) {
 		this.elseEl = elseEl;
 		setVisibleDisplay(elseEl);
@@ -59,8 +59,8 @@ vshow.parse = function () {
  * @param   {Boolean}  isShow
  */
 vshow.update = function (isShow) {
-	var el = this.el;
-	var elseEl = this.elseEl;
+	let el = this.el;
+	let elseEl = this.elseEl;
 
 	setStyleDisplay(el, isShow ? el[visibleDisplay] : 'none');
 

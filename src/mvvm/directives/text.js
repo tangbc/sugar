@@ -7,7 +7,7 @@ export function VText () {
 	Parser.apply(this, arguments);
 }
 
-var vtext = linkParser(VText);
+let vtext = linkParser(VText);
 
 /**
  * 解析 v-text, {{ text }} 指令

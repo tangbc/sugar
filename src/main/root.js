@@ -27,7 +27,7 @@ function bindSuper (Super, method) {
  */
 function Root () {}
 Root.extend = function (proto) {
-	var parent = this.prototype;
+	let parent = this.prototype;
 
 	/**
 	 * 子类对父类的调用
@@ -35,7 +35,7 @@ Root.extend = function (proto) {
 	 * @param {Array}   args    [调用参数]
 	 */
 	function Super (method, args) {
-		var func = parent[method];
+		let func = parent[method];
 		if (isFunc(func)) {
 			func.apply(this, args);
 		}
@@ -45,7 +45,7 @@ Root.extend = function (proto) {
 	 * 返回(继承后)的类
 	 */
 	function Class () {}
-	var classProto = Class.prototype = Object.create(parent);
+	let classProto = Class.prototype = Object.create(parent);
 
 	each(proto, function (value, property) {
 		classProto[property] = bindSuper(Super, value);

@@ -90,7 +90,7 @@ export function hasAttr (node, name) {
  * @return {Boolean}
  */
 export function hasClass (node, classname) {
-	var current, list = node.classList;
+	let current, list = node.classList;
 
 	/* istanbul ignore else */
 	if (list) {
@@ -107,7 +107,7 @@ export function hasClass (node, classname) {
  * @param  {String}   classname
  */
 export function addClass (node, classname) {
-	var current, list = node.classList;
+	let current, list = node.classList;
 
 	if (!classname || hasClass(node, classname)) {
 		return;
@@ -131,7 +131,7 @@ export function addClass (node, classname) {
  * @param  {String}   classname
  */
 export function removeClass (node, classname) {
-	var current, target, list = node.classList;
+	let current, target, list = node.classList;
 
 	if (!classname || !hasClass(node, classname)) {
 		return;
@@ -185,8 +185,8 @@ export function removeEvent (node, evt, callback, capture) {
  * @param  {Element}  node
  */
 export function getVisible (node) {
-	var display;
-	var inlineStyle = removeSpace(getAttr(node, 'style'));
+	let display;
+	let inlineStyle = removeSpace(getAttr(node, 'style'));
 
 	if (inlineStyle && inlineStyle.indexOf('display') > -1) {
 		let styles = inlineStyle.split(';');

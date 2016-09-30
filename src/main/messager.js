@@ -14,7 +14,7 @@ function ucFirst (string) {
  * @param   {String}  name
  */
 function getComponentByName (name) {
-	var component = null;
+	let component = null;
 
 	each(cache, function (instance) {
 		if ((instance.__rd__ && instance.__rd__.name) === name) {
@@ -63,7 +63,7 @@ function createMessage (type, sender, name, param) {
  */
 function triggerReceiver (receiver, msg) {
 	// 接受者消息处理方法
-	var func = receiver[msg.method];
+	let func = receiver[msg.method];
 
 	// 触发接收者的消息处理方法
 	if (isFunc(func)) {
@@ -97,10 +97,10 @@ function feedbackSender (msg, callback, context) {
  */
 function fire (sender, name, param, callback, context) {
 	// 创建消息
-	var msg = createMessage('fire', sender, name, param);
+	let msg = createMessage('fire', sender, name, param);
 
 	// 消息接收者，先从上一层模块开始接收
-	var receiver = sender.getParent();
+	let receiver = sender.getParent();
 
 	while (receiver) {
 		let ret = triggerReceiver(receiver, msg);
@@ -128,10 +128,10 @@ function fire (sender, name, param, callback, context) {
  */
 function broadcast (sender, name, param, callback, context) {
 	// 创建消息
-	var msg = createMessage('broadcast', sender, name, param);
+	let msg = createMessage('broadcast', sender, name, param);
 
 	// 消息接收者集合，先从自身的子模块开始接收
-	var receivers = sender.getChilds(true).slice(0);
+	let receivers = sender.getChilds(true).slice(0);
 
 	while (receivers.length) {
 		let receiver = receivers.shift();
@@ -181,7 +181,7 @@ function notify (sender, receiver, name, param, callback, context) {
 		}
 	}
 
-	var msg = createMessage('notify', sender, name, param);
+	let msg = createMessage('notify', sender, name, param);
 
 	if (!isObject(receiver)) {
 		feedbackSender(msg, callback, context);
@@ -201,7 +201,7 @@ function notify (sender, receiver, name, param, callback, context) {
  * @param  {Object}    context   [执行环境]
  */
 function globalCast (name, param, callback, context) {
-	var msg = createMessage('globalCast', '__core__', name, param);
+	let msg = createMessage('globalCast', '__core__', name, param);
 
 	each(cache, function (receiver, index) {
 		if (isObject(receiver) && index !== '0') {

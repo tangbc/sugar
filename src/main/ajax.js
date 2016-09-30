@@ -11,16 +11,16 @@ import { isFunc, each } from '../util';
  * @return  {Object}
  */
 function execute (dataType, url, method, param, callback, context) {
-	var ct = context || this;
-	var xhr = new XMLHttpRequest();
+	let ct = context || this;
+	let xhr = new XMLHttpRequest();
 
 	// 初始化请求
 	xhr.open(method, url, true);
 
 	// 状态变化回调
 	xhr.onreadystatechange = function () {
-		var status = xhr.status;
-		var result = null, error = null;
+		let status = xhr.status;
+		let result = null, error = null;
 
 		// 请求完成
 		if (xhr.readyState === 4) {
@@ -65,7 +65,7 @@ function execute (dataType, url, method, param, callback, context) {
  * get 请求
  */
 function get (url, param, callback, context, dataType) {
-	var params = [];
+	let params = [];
 
 	if (isFunc(param)) {
 		dataType = context;

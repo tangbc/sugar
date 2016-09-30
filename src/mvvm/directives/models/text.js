@@ -20,18 +20,18 @@ export default {
 	 * 绑定 text 变化事件
 	 */
 	bind () {
-		var self = this;
-		var lazy = this.lazy;
-		var number = this.number;
-		var debounce = this.debounce;
-		var directive = this.directive;
+		let self = this;
+		let lazy = this.lazy;
+		let number = this.number;
+		let debounce = this.debounce;
+		let directive = this.directive;
 
 		/**
 		 * 表单值变化设置数据值
 		 * @param  {String}  value  [表单值]
 		 */
 		function setModelValue (value) {
-			var val = formatValue(value, number);
+			let val = formatValue(value, number);
 
 			if (debounce) {
 				debounceDelay(function () {
@@ -45,7 +45,7 @@ export default {
 
 		// 解决输入板在未选择词组时 input 事件的触发问题
 		// https://developer.mozilla.org/zh-CN/docs/Web/Events/compositionstart
-		var composeLock;
+		let composeLock;
 		this.on('compositionstart', function () {
 			composeLock = true;
 		});
@@ -79,7 +79,7 @@ export default {
 			});
 
 			this.on('keyup', function (e) {
-				var keyCode = e.keyCode;
+				let keyCode = e.keyCode;
 				if (keyCode === 8 || keyCode === 46) {
 					setModelValue(this.value);
 				}
@@ -92,8 +92,8 @@ export default {
 	 * @param   {String}  value
 	 */
 	update (value) {
-		var el = this.el;
-		var val = _toString(value);
+		let el = this.el;
+		let val = _toString(value);
 		if (el.value !== val && !this.onDebounce) {
 			el.value = val;
 		}

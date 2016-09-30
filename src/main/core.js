@@ -6,7 +6,7 @@ import messager from './messager';
 /**
  * Core 核心模块，用于顶层组件模块的创建
  */
-var Core = Module.extend({
+let Core = Module.extend({
 	/**
 	 * 获取顶级组件实例
 	 * @param  {String}  name  [组件实例名称]

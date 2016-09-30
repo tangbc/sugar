@@ -19,7 +19,7 @@ export default function Parser (vm, node, desc, scope) {
 	this.parse();
 }
 
-var pp = Parser.prototype;
+let pp = Parser.prototype;
 
 /**
  * 安装一个指令实例
@@ -33,7 +33,7 @@ pp.bind = function () {
  * 指令销毁函数
  */
 pp.destroy = function () {
-	var directive = this.directive;
+	let directive = this.directive;
 
 	// 有些指令没有实例化 Directive
 	// 所以需要调用额外定义的销毁函数

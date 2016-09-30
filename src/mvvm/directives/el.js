@@ -9,7 +9,7 @@ export function VEl () {
 	Parser.apply(this, arguments);
 }
 
-var vel = linkParser(VEl);
+let vel = linkParser(VEl);
 
 /**
  * 解析 v-el 指令

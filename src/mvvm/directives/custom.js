@@ -8,14 +8,14 @@ export function VCustom () {
 	Parser.apply(this, arguments);
 }
 
-var vcustom = linkParser(VCustom);
+let vcustom = linkParser(VCustom);
 
 /**
  * 解析 v-custom 指令
  */
 vcustom.parse = function () {
-	var desc = this.desc;
-	var update = this.vm.$customs[desc.args];
+	let desc = this.desc;
+	let update = this.vm.$customs[desc.args];
 
 	if (!isFunc(update)) {
 		return warn('Custom directive ['+ desc.attr +'] must define with a refresh function!');

@@ -7,10 +7,10 @@ import { createGetter, createSetter } from './expression/index';
  * @param   {Object|Array}  target  [遍历值/对象或数组]
  * @param   {Boolean}       root    [是否是根对象/数组]
  */
-var walkedObs = [];
+let walkedObs = [];
 function walkThrough (target, root) {
-	var ob = target && target.__ob__;
-	var guid = ob && ob.dep.guid;
+	let ob = target && target.__ob__;
+	let guid = ob && ob.dep.guid;
 
 	if (guid) {
 		if (walkedObs.indexOf(guid) > -1) {
@@ -50,8 +50,8 @@ export default function Watcher (vm, desc, callback, context) {
 	this.depends = [];
 	this.newDepends = [];
 
-	var expression = desc.expression;
-	var preSetFunc = isFunc(expression);
+	let expression = desc.expression;
+	let preSetFunc = isFunc(expression);
 
 	// 缓存取值函数
 	this.getter = preSetFunc ? expression : createGetter(expression);
@@ -64,7 +64,7 @@ export default function Watcher (vm, desc, callback, context) {
 	this.value = this.get();
 }
 
-var wp = Watcher.prototype;
+let wp = Watcher.prototype;
 
 /**
  * 获取取值域
@@ -78,7 +78,7 @@ wp.getScope = function () {
  * 获取表达式的取值
  */
 wp.getValue = function () {
-	var scope = this.getScope();
+	let scope = this.getScope();
 	return this.getter.call(scope, scope);
 }
 
@@ -87,7 +87,7 @@ wp.getValue = function () {
  * @param  {Mix}  value
  */
 wp.setValue = function (value) {
-	var scope = this.getScope();
+	let scope = this.getScope();
 	if (this.setter) {
 		this.setter.call(scope, scope, value);
 	}
@@ -97,7 +97,7 @@ wp.setValue = function (value) {
  * 获取表达式的取值 & 提取依赖
  */
 wp.get = function () {
-	var value;
+	let value;
 	this.beforeGet();
 
 	value = this.getValue();
@@ -124,8 +124,8 @@ wp.beforeGet = function () {
  * 将依赖订阅到该 watcher
  */
 wp.addDepend = function (depend) {
-	var guid = depend.guid;
-	var newIds = this.newDepIds;
+	let guid = depend.guid;
+	let newIds = this.newDepIds;
 
 	if (newIds.indexOf(guid) < 0) {
 		newIds.push(guid);
@@ -185,10 +185,10 @@ wp.beforeUpdate = function () {
  * @param   {Number}  guid  [变更依赖对象 id]
  */
 wp.update = function (args, guid) {
-	var oldVal = this.oldVal;
-	var newVal = this.value = this.get();
+	let oldVal = this.oldVal;
+	let newVal = this.value = this.get();
 
-	var callback = this.callback;
+	let callback = this.callback;
 	if (callback && (oldVal !== newVal)) {
 		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
 		callback.call(this.context, newVal, oldVal, fromDeep, args);

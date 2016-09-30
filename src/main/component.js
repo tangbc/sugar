@@ -27,7 +27,7 @@ let identifier = '__eventid__';
 /**
  * Component 基础视图组件
  */
-var Component = Module.extend({
+let Component = Module.extend({
 	/**
 	 * init 组件初始化
 	 * @param  {Object}  config  [组件参数配置]
@@ -95,11 +95,11 @@ var Component = Module.extend({
 	 * (Private) 加载模板布局文件
 	 */
 	_loadTemplate: function () {
-		var c = this.getConfig();
-		var uri = c.template;
+		let c = this.getConfig();
+		let uri = c.template;
 
 		ajax.load(uri, c.tplParam, function (err, data) {
-			var view;
+			let view;
 
 			if (err) {
 				view = err.status + ': ' + uri;
@@ -124,10 +124,10 @@ var Component = Module.extend({
 
 		this.__ready__ = true;
 
-		var c = this.getConfig();
+		let c = this.getConfig();
 
-		var target = c.target;
-		var isAppend = target instanceof HTMLElement;
+		let target = c.target;
+		let isAppend = target instanceof HTMLElement;
 
 		// 组件 el 创建
 		if (isAppend) {
@@ -137,7 +137,7 @@ var Component = Module.extend({
 		}
 
 		// 添加 class
-		var cls = c.class;
+		let cls = c.class;
 		if (cls && isString(cls)) {
 			each(cls.split(' '), function (classname) {
 				addClass(this.el, classname);
@@ -164,7 +164,7 @@ var Component = Module.extend({
 		}
 
 		// 初始化 mvvm 对象
-		var model = c.model;
+		let model = c.model;
 		if (isObject(model)) {
 			this.vm = new MVVM({
 				'view'    : this.el,
@@ -193,7 +193,7 @@ var Component = Module.extend({
 		}
 
 		// 组件视图渲染完成回调方法
-		var cb = this[c.cbRender];
+		let cb = this[c.cbRender];
 		if (isFunc(cb)) {
 			cb.call(this);
 		}
@@ -205,7 +205,7 @@ var Component = Module.extend({
 	 * @param   {String}    symbol     [子组件名称]
 	 */
 	_buildBatchChilds: function (ChildComp, symbol) {
-		var target = this.queryAll(symbol.toLowerCase());
+		let target = this.queryAll(symbol.toLowerCase());
 
 		if (!target.length) {
 			target = this.queryAll('[name='+ symbol +']');
@@ -234,7 +234,7 @@ var Component = Module.extend({
 	 */
 	_createChild: function (target, childName, ChildComp) {
 		// 默认全部替换子组件标记
-		var childConfig = { target, 'replace': true };
+		let childConfig = { target, 'replace': true };
 
 		// 直接传入子组件
 		if (isFunc(ChildComp)) {
@@ -250,9 +250,9 @@ var Component = Module.extend({
 	 * (Private) 组件销毁后的回调函数
 	 */
 	_afterDestroy: function () {
-		var vm = this.vm;
-		var el = this.el;
-		var parent = el.parentNode;
+		let vm = this.vm;
+		let el = this.el;
+		let parent = el.parentNode;
 
 		// 销毁 mvvm 实例
 		if (vm) {
@@ -336,15 +336,15 @@ var Component = Module.extend({
 	 * 元素添加绑定事件
 	 */
 	on: function (node, type, callback, capture) {
-		var self = this;
-		var guid = componentEventGuid++;
+		let self = this;
+		let guid = componentEventGuid++;
 
 		if (isString(callback)) {
 			callback = this[callback];
 		}
 
 		callback[identifier] = guid;
-		var eventAgent = function (e) {
+		let eventAgent = function (e) {
 			callback.call(self, e);
 		}
 
@@ -362,8 +362,8 @@ var Component = Module.extend({
 			callback = this[callback];
 		}
 
-		var guid = callback[identifier];
-		var eventAgent = this.__listeners__[guid];
+		let guid = callback[identifier];
+		let eventAgent = this.__listeners__[guid];
 		if (eventAgent) {
 			removeEvent(node, type, eventAgent, capture);
 		}

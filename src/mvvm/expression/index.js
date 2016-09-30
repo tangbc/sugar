@@ -24,9 +24,9 @@ const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') +
 
 
 // 保存常量，返回序号 "i"
-var consts = [];
+let consts = [];
 function saveConst (string) {
-	var i = consts.length;
+	let i = consts.length;
 	consts[i] = string;
 	return '"' + i + '"';
 }
@@ -47,8 +47,8 @@ function returnConst (string, i) {
  * @return  {String}
  */
 function replaceScope (string) {
-	var pad = string.charAt(0);
-	var path = string.slice(1);
+	let pad = string.charAt(0);
+	let path = string.slice(1);
 
 	if (regAllowKeyword.test(path)) {
 		return string;
@@ -107,7 +107,7 @@ export function createGetter (expression) {
  * @param   {String}  expression
  */
 export function createSetter (expression) {
-	var paths = createPath(expression);
+	let paths = createPath(expression);
 	if (paths.length) {
 		return function setter (scope, value) {
 			setValueByPath(scope, value, paths);

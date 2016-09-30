@@ -15,16 +15,16 @@ export function VModel () {
 	Parser.apply(this, arguments);
 }
 
-var vmodel = linkParser(VModel);
+let vmodel = linkParser(VModel);
 
 /**
  * 解析 v-model 指令
  */
 vmodel.parse = function () {
-	var el = this.el;
-	var desc = this.desc;
-	var tagName = el.tagName.toLowerCase();
-	var type = tagName === 'input' ? getAttr(el, 'type') : tagName;
+	let el = this.el;
+	let desc = this.desc;
+	let tagName = el.tagName.toLowerCase();
+	let type = tagName === 'input' ? getAttr(el, 'type') : tagName;
 
 	if (validForms.indexOf(tagName) < 0) {
 		return warn('v-model only for using in ' + validForms.join(', '));
@@ -45,8 +45,8 @@ vmodel.parse = function () {
  * @param   {String}  type
  */
 vmodel.bindDuplex = function (type) {
-	var form;
-	var el = this.el;
+	let form;
+	let el = this.el;
 
 	switch (type) {
 		case 'text':

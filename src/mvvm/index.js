@@ -15,7 +15,7 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
  */
 export default function MVVM (option) {
-	var context = option.context || option.model;
+	let context = option.context || option.model;
 
 	// 事件或 watch 函数作用域
 	this.__ct__ = context;
@@ -44,7 +44,7 @@ export default function MVVM (option) {
 	this._watchBatch(option.watches);
 }
 
-var mvp = MVVM.prototype;
+let mvp = MVVM.prototype;
 
 /**
  * 手动挂载/编译根元素
@@ -61,7 +61,7 @@ mvp.mount = function () {
  * @return  {Mix}
  */
 mvp.get = function (key) {
-	var data = this.$data;
+	let data = this.$data;
 	return isString(key) ? config(data, key) : data;
 }
 
@@ -82,7 +82,7 @@ mvp.getCopy = function (key) {
  * @param  {Mix}     value  [值]
  */
 mvp.set = function (key, value) {
-	var data = this.$data;
+	let data = this.$data;
 
 	// 设置单个
 	if (isString(key)) {
@@ -101,8 +101,8 @@ mvp.set = function (key, value) {
  * @param   {Array|String}  key  [<可选>数据模型字段，或字段数组，空则重置所有]
  */
 mvp.reset = function (key) {
-	var data = this.$data;
-	var backup = this.__bk__;
+	let data = this.$data;
+	let backup = this.__bk__;
 
 	// 重置单个
 	if (isString(key)) {

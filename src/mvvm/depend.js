@@ -1,6 +1,6 @@
 import { each } from '../util';
 
-var guid = 0;
+let guid = 0;
 
 /**
  * 依赖收集模块
@@ -18,7 +18,7 @@ export default function Depend (key) {
  */
 Depend.watcher = null;
 
-var dp = Depend.prototype;
+let dp = Depend.prototype;
 
 /**
  * 添加依赖订阅
@@ -33,7 +33,7 @@ dp.addWatcher = function (watcher) {
  * @param  {Object}  watcher
  */
 dp.removeWatcher = function (watcher) {
-	var index = this.watchers.indexOf(watcher);
+	let index = this.watchers.indexOf(watcher);
 	if (index > -1) {
 		this.watchers.splice(index, 1);
 	}
@@ -62,7 +62,7 @@ dp.beforeNotify = function () {
  * @param   {Object}  args  [数组操作参数信息]
  */
 dp.notify = function (args) {
-	var guid = this.guid;
+	let guid = this.guid;
 	each(this.watchers, function (watcher) {
 		watcher.update(args, guid);
 	});

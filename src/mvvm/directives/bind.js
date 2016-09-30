@@ -9,10 +9,10 @@ import { each, isString, isArray, isObject, isEmptyObject, warn } from '../../ut
  * @return  {Object}
  */
 function getUniqueObject (contrastObject, referObject) {
-	var unique = {};
+	let unique = {};
 
 	each(contrastObject, function (value, key) {
-		var _diff, oldItem = referObject[key];
+		let _diff, oldItem = referObject[key];
 
 		if (isObject(value)) {
 			_diff = getUniqueObject(value, oldItem);
@@ -20,10 +20,10 @@ function getUniqueObject (contrastObject, referObject) {
 				unique[key] = _diff;
 			}
 		} else if (isArray(value)) {
-			var newArray = [];
+			let newArray = [];
 
 			each(value, function (nItem, index) {
-				var _diff;
+				let _diff;
 
 				if (isObject(nItem)) {
 					_diff = getUniqueObject(nItem, oldItem[index]);
@@ -55,7 +55,7 @@ function getUniqueObject (contrastObject, referObject) {
  * @return  {Array}
  */
 function getUniqueArray (contrastArray, referArray) {
-	var uniques = [];
+	let uniques = [];
 
 	if (!isArray(contrastArray) || !isArray(referArray)) {
 		return contrastArray;
@@ -78,12 +78,12 @@ function getUniqueArray (contrastArray, referArray) {
  * @return  {Object}
  */
 function diff (newTarget, oldTarget) {
-	var isA = isArray(newTarget) && isArray(oldTarget);
-	var isO = isObject(newTarget) && isObject(oldTarget);
-	var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
+	let isA = isArray(newTarget) && isArray(oldTarget);
+	let isO = isObject(newTarget) && isObject(oldTarget);
+	let handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
 
-	var after = handler && handler(newTarget, oldTarget) || newTarget;
-	var before = handler && handler(oldTarget, newTarget) || oldTarget;
+	let after = handler && handler(newTarget, oldTarget) || newTarget;
+	let before = handler && handler(oldTarget, newTarget) || oldTarget;
 
 	return { after, before };
 }
@@ -94,7 +94,7 @@ function diff (newTarget, oldTarget) {
  * @param   {String}   styleObject
  */
 function updateStyle (element, styleObject) {
-	var style = element.style;
+	let style = element.style;
 
 	if (!isObject(styleObject)) {
 		return warn('v-bind for style must be a type of Object', styleObject);
@@ -151,7 +151,7 @@ export function VBind () {
 	Parser.apply(this, arguments);
 }
 
-var vbind = linkParser(VBind);
+let vbind = linkParser(VBind);
 
 /**
  * 解析 v-bind 指令
@@ -167,7 +167,7 @@ vbind.parse = function () {
  * @param   {Mix}  oldValue
  */
 vbind.update = function (newValue, oldValue) {
-	var type = this.desc.args;
+	let type = this.desc.args;
 	if (type) {
 		this.single(type, newValue, oldValue);
 	} else {
@@ -225,7 +225,7 @@ vbind.batch = function (newObj, oldObj) {
  * @param   {Mix}  oldClass
  */
 vbind.handleClass = function (newClass, oldClass) {
-	var el = this.el;
+	let el = this.el;
 
 	// 数据更新
 	if (oldClass) {
@@ -243,7 +243,7 @@ vbind.handleClass = function (newClass, oldClass) {
  * @param   {Mix}  oldStyle
  */
 vbind.handleStyle = function (newStyle, oldStyle) {
-	var el = this.el;
+	let el = this.el;
 
 	// 数据更新
 	if (oldStyle) {

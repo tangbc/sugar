@@ -56,7 +56,7 @@ export function formatValue (value, convertToNumber) {
  * @return  {Number}
  */
 export function indexOf (item, array) {
-	for (var i = 0; i < array.length; i++) {
+	for (let i = 0; i < array.length; i++) {
 		/* jshint ignore:start */
 		if (array[i] == item) {
 			return i;

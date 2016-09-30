@@ -10,15 +10,15 @@ export default function Directive (parser) {
 	this.$scope = parser.$scope;
 }
 
-var dp = Directive.prototype;
+let dp = Directive.prototype;
 
 /**
  * 安装/解析指令，订阅数据、更新视图
  */
 dp.mount = function () {
-	var parser = this.parser;
+	let parser = this.parser;
 	// 生成数据订阅实例
-	var watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
+	let watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
 	// 更新初始视图
 	this.update(watcher.value);
 }
@@ -39,7 +39,7 @@ dp.destroy = function () {
  * @param   {Object}   methodArg  [数组操作参数信息]
  */
 dp.update = function (newVal, oldVal, fromDeep, methodArg) {
-	var parser = this.parser;
+	let parser = this.parser;
 	parser.update.call(parser, newVal, oldVal, fromDeep, methodArg);
 }
 

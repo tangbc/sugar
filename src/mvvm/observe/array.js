@@ -1,9 +1,9 @@
 import { observeArray } from './index';
 import { each, def } from '../../util';
 
-var arrayProto = Array.prototype;
-var setProto = Object.setPrototypeOf;
-var mutatedProto = Object.create(arrayProto);
+let arrayProto = Array.prototype;
+let setProto = Object.setPrototypeOf;
+let mutatedProto = Object.create(arrayProto);
 
 // 重写数组操作方法
 const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
@@ -12,11 +12,11 @@ const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'
  * 重写 array 操作方法
  */
 each(rewrites, function (method) {
-	var original = arrayProto[method];
+	let original = arrayProto[method];
 
 	def(mutatedProto, method, function () {
-		var args = [];
-		var ob = this.__ob__;
+		let args = [];
+		let ob = this.__ob__;
 
 		for (let i = 0; i < arguments.length; i++) {
 			args.push(arguments[i]);
@@ -24,9 +24,9 @@ each(rewrites, function (method) {
 
 		ob.dep.beforeNotify();
 
-		var result = original.apply(this, args);
+		let result = original.apply(this, args);
 
-		var inserts;
+		let inserts;
 		switch (method) {
 			case 'push':
 			case 'unshift':
@@ -63,7 +63,7 @@ def(arrayProto, '$set', function (index, value) {
  * 添加 $remove 方法
  */
 def(arrayProto, '$remove', function (item) {
-	var index = this.indexOf(item);
+	let index = this.indexOf(item);
 	if (index > -1) {
 		return this.splice(index, 1);
 	}

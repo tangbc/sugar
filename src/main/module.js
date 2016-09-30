@@ -9,7 +9,7 @@ const childArray = 'array';
 /**
  * Module 系统组件模块基础类，实现所有模块的通用方法
  */
-var Module = Root.extend({
+let Module = Root.extend({
 	/**
 	 * __rd__ 记录模块信息
 	 * @type {Object}
@@ -31,7 +31,7 @@ var Module = Root.extend({
 			return warn('Module Class ['+ Class +'] must be a type of Component');
 		}
 
-		var record = this.__rd__;
+		let record = this.__rd__;
 
 		// 建立模块关系信息
 		if (!hasOwn(record, childArray)) {
@@ -47,10 +47,10 @@ var Module = Root.extend({
 		}
 
 		// 生成子模块实例
-		var instance = new Class(config);
+		let instance = new Class(config);
 
 		// 记录子模块实例信息和父模块实例的对应关系
-		var subRecord = {
+		let subRecord = {
 			// 子模块实例名称
 			'name': name,
 			// 子模块实例id
@@ -80,8 +80,8 @@ var Module = Root.extend({
 	 * 获取当前模块的父模块实例（模块创建者）
 	 */
 	getParent: function () {
-		var record = this.__rd__;
-		var pid = record && record.pid;
+		let record = this.__rd__;
+		let pid = record && record.pid;
 		return cache[pid] || null;
 	},
 
@@ -91,7 +91,7 @@ var Module = Root.extend({
 	 * @return {Object}
 	 */
 	getChild: function (name) {
-		var record = this.__rd__;
+		let record = this.__rd__;
 		return record && record[childMap] && record[childMap][name] || null;
 	},
 
@@ -101,7 +101,7 @@ var Module = Root.extend({
 	 * @return {Mix}
 	 */
 	getChilds: function (returnArray) {
-		var record = this.__rd__;
+		let record = this.__rd__;
 		returnArray = isBool(returnArray) && returnArray;
 		return returnArray ? (record[childArray] || []) : (record[childMap] || {});
 	},
@@ -112,12 +112,12 @@ var Module = Root.extend({
 	 * @return {Boolean}
 	 */
 	_removeChild: function (name) {
-		var record = this.__rd__;
-		var cMap = record[childMap] || {};
-		var cArray = record[childArray] || [];
-		var child = cMap[name];
+		let record = this.__rd__;
+		let cMap = record[childMap] || {};
+		let cArray = record[childArray] || [];
+		let child = cMap[name];
 
-		for (var i = 0, len = cArray.length; i < len; i++) {
+		for (let i = 0, len = cArray.length; i < len; i++) {
 			if (cArray[i].id === child.id) {
 				delete cMap[name];
 				cArray.splice(i, 1);
@@ -131,8 +131,8 @@ var Module = Root.extend({
 	 * @param  {Mix}  notify  [是否向父模块发送销毁消息]
 	 */
 	destroy: function (notify) {
-		var record = this.__rd__;
-		var name = record.name;
+		let record = this.__rd__;
+		let name = record.name;
 
 		// 调用销毁前函数，可进行必要的数据保存
 		if (isFunc(this.beforeDestroy)) {
@@ -140,7 +140,7 @@ var Module = Root.extend({
 		}
 
 		// 递归调用子模块的销毁函数
-		var childs = this.getChilds(true);
+		let childs = this.getChilds(true);
 		each(childs, function (child) {
 			if (isFunc(child.destroy)) {
 				child.destroy(1);
@@ -148,13 +148,13 @@ var Module = Root.extend({
 		});
 
 		// 从父模块删除（递归调用时不需要）
-		var parent = this.getParent();
+		let parent = this.getParent();
 		if (notify !== 1 && parent) {
 			parent._removeChild(name);
 		}
 
 		// 从系统缓存队列中销毁相关记录
-		var id = record.id;
+		let id = record.id;
 		if (hasOwn(cache, id)) {
 			delete cache[id];
 			cache.length--;

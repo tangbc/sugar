@@ -55,9 +55,9 @@ function hasDirective (node) {
  * @return  {Object}
  */
 function getDirectiveDesc (attribute) {
-	var attr = attribute.name;
-	var expression = attribute.value;
-	var directive, args, pos = attr.indexOf(':');
+	let attr = attribute.name;
+	let expression = attribute.value;
+	let directive, args, pos = attr.indexOf(':');
 
 	if (pos > -1) {
 		args = attr.substr(pos + 1);
@@ -75,9 +75,9 @@ function getDirectiveDesc (attribute) {
  * @param  {Object}  option  [参数对象]
  */
 function Compiler (option) {
-	var model = option.model;
-	var element = option.view;
-	var computed = option.computed;
+	let model = option.model;
+	let element = option.view;
+	let computed = option.computed;
 
 	if (!isElement(element)) {
 		return warn('view must be a type of DOMElement: ', element);
@@ -119,7 +119,7 @@ function Compiler (option) {
 	}
 }
 
-var cp = Compiler.prototype;
+let cp = Compiler.prototype;
 
 /**
  * 挂载/编译根元素
@@ -138,7 +138,7 @@ cp.mount = function () {
  * @param   {Object}   scope    [vfor 取值域]
  */
 cp.compile = function (element, root, scope) {
-	var childNodes = element.childNodes;
+	let childNodes = element.childNodes;
 
 	if (root && hasDirective(element)) {
 		this.$queue.push([element, scope]);
@@ -178,7 +178,7 @@ cp.compileAll = function () {
  * @param   {Array}  info  [node, scope]
  */
 cp.complieNode = function (info) {
-	var node = info[0], scope = info[1];
+	let node = info[0], scope = info[1];
 
 	if (isElement(node)) {
 		let vfor, attrs = [];
@@ -243,11 +243,11 @@ cp.complieNode = function (info) {
  * @param   {Object}   scope
  */
 cp.parse = function (node, attr, scope) {
-	var desc = getDirectiveDesc(attr);
-	var directive = desc.directive;
+	let desc = getDirectiveDesc(attr);
+	let directive = desc.directive;
 
-	var dir = 'v' + directive.substr(2);
-	var Parser = this.$parsers[dir];
+	let dir = 'v' + directive.substr(2);
+	let Parser = this.$parsers[dir];
 
 	// 移除指令标记
 	removeAttr(node, desc.attr);
@@ -270,8 +270,8 @@ cp.parse = function (node, attr, scope) {
  * @param   {Object}   scope
  */
 cp.parseText = function (node, scope) {
-	var exp, match, matches, pieces, tokens = [], desc = {};
-	var text = node.textContent.trim().replace(regNewline, '');
+	let exp, match, matches, pieces, tokens = [], desc = {};
+	let text = node.textContent.trim().replace(regNewline, '');
 
 	// html match
 	if (regHtml.test(text)) {

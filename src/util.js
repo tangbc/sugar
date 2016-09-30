@@ -1,5 +1,5 @@
-var OP = Object.prototype;
-var has = OP.hasOwnProperty;
+let OP = Object.prototype;
+let has = OP.hasOwnProperty;
 
 /**
  * typeof 类型检测
@@ -82,7 +82,7 @@ export function isEmptyObject (object) {
  */
 export function noop () {}
 
-var cons = window.console;
+let cons = window.console;
 
 /**
  * 打印警告信息
@@ -134,7 +134,7 @@ export function def (object, property, value, enumerable) {
  * @param  {Object}        context   [作用域]
  */
 export function each (iterator, callback, context) {
-	var i, ret;
+	let i, ret;
 
 	if (!context) {
 		context = this;
@@ -192,8 +192,8 @@ export function clearObject (object) {
  * 扩展合并对象，摘自 jQuery
  */
 export function extend () {
-	var options, name, src, copy, copyIsArray, clone;
-	var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
+	let options, name, src, copy, copyIsArray, clone;
+	let target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
 
 	// Handle a deep copy situation
 	if (isBool(target)) {
@@ -257,7 +257,7 @@ export function extend () {
  * @return  {Mix}
  */
 export function copy (target) {
-	var ret;
+	let ret;
 
 	if (isArray(target)) {
 		ret = target.slice(0);
@@ -275,7 +275,7 @@ export function copy (target) {
  * @return  {String|Array}
  */
 export function getKeyValue (expression, both) {
-	var array = expression.split(':');
+	let array = expression.split(':');
 	return both ? array : array.pop();
 }
 
@@ -302,8 +302,8 @@ export function createFragment () {
  * @param  {Element}  element
  */
 export function nodeToFragment (element) {
-	var child;
-	var fragment = createFragment();
+	let child;
+	let fragment = createFragment();
 
 	while (child = element.firstChild) {
 		fragment.appendChild(child);
@@ -318,7 +318,7 @@ export function nodeToFragment (element) {
  * @return  {Fragment}
  */
 export function stringToFragment (html) {
-	var fragment;
+	let fragment;
 
 	// 存在标签
 	if (/<[^>]+>/g.test(html)) {

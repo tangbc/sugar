@@ -14,10 +14,10 @@ const regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g;
  * @return  {Object}
  */
 function stringToParams (funcString) {
-	var args, func;
-	var exp = removeSpace(funcString);
-	var matches = exp.match(regSmallBrackets);
-	var result = matches && matches[0];
+	let args, func;
+	let exp = removeSpace(funcString);
+	let matches = exp.match(regSmallBrackets);
+	let result = matches && matches[0];
 
 	// 有函数名和参数
 	if (result) {
@@ -36,7 +36,7 @@ function stringToParams (funcString) {
  * @return  {Object}
  */
 function convertJson (jsonString) {
-	var json = {}, string = jsonString.trim();
+	let json = {}, string = jsonString.trim();
 
 	if (regBigBrackets.test(string)) {
 		let leng = string.length;
@@ -44,8 +44,8 @@ function convertJson (jsonString) {
 		let props = string.match(regJsonFormat);
 
 		each(props, function (prop) {
-			var vals = getKeyValue(prop, true);
-			var name = vals[0], value = vals[1];
+			let vals = getKeyValue(prop, true);
+			let name = vals[0], value = vals[1];
 			if (name && value) {
 				name = name.replace(regQuotes, '');
 				json[name] = value;
@@ -63,9 +63,9 @@ function convertJson (jsonString) {
  * @return  {Object}
  */
 function formatEvent (arg, expression) {
-	var pos = arg.indexOf('.');
+	let pos = arg.indexOf('.');
 
-	var type, dress = '';
+	let type, dress = '';
 	if (pos > -1) {
 		type = arg.substr(0, pos);
 		dress = arg.substr(pos + 1,  arg.length);
@@ -73,8 +73,8 @@ function formatEvent (arg, expression) {
 		type = arg;
 	}
 
-	var info = stringToParams(expression);
-	var func = info.func, args = info.args;
+	let info = stringToParams(expression);
+	let func = info.func, args = info.args;
 
 	return { type, dress, func, args };
 }
@@ -85,9 +85,9 @@ function formatEvent (arg, expression) {
  * @return  {Array}
  */
 function collectEvents (desc) {
-	var binds = [];
-	var args = desc.args;
-	var expression = desc.expression;
+	let binds = [];
+	let args = desc.args;
+	let expression = desc.expression;
 
 	if (args) {
 		binds.push(formatEvent(args, expression));
@@ -108,11 +108,11 @@ function collectEvents (desc) {
  * @param   {String}  dress
  */
 function getDress (type, dress) {
-	var self = dress.indexOf('self') > -1;
-	var stop = dress.indexOf('stop') > -1;
-	var prevent = dress.indexOf('prevent') > -1;
-	var capture = dress.indexOf('capture') > -1;
-	var keyCode = type.indexOf('key') === 0 ? +dress : null;
+	let self = dress.indexOf('self') > -1;
+	let stop = dress.indexOf('stop') > -1;
+	let prevent = dress.indexOf('prevent') > -1;
+	let capture = dress.indexOf('capture') > -1;
+	let keyCode = type.indexOf('key') === 0 ? +dress : null;
 	return { self, stop, prevent, capture, keyCode }
 }
 
@@ -135,7 +135,7 @@ export function VOn () {
 	Parser.apply(this, arguments);
 }
 
-var von = linkParser(VOn);
+let von = linkParser(VOn);
 
 /**
  * 解析 v-on 指令
@@ -162,18 +162,18 @@ von.getExpDesc = function (expression) {
  * @param   {Object}  bind
  */
 von.parseEvent = function (bind) {
-	var func = bind.func;
-	var args = bind.args;
-	var type = bind.type;
-	var dress = bind.dress;
-	var capture = dress.indexOf('capture') > -1;
+	let func = bind.func;
+	let args = bind.args;
+	let type = bind.type;
+	let dress = bind.dress;
+	let capture = dress.indexOf('capture') > -1;
 
 	if (func === '$remove') {
 		return this.removeItem(type, dress);
 	}
 
-	var desc = this.getExpDesc(func);
-	var funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
+	let desc = this.getExpDesc(func);
+	let funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
 		this.off(type, oldFunc, capture);
 		this.bindEvent(type, dress, newFunc, args);
 	}, this);
@@ -190,13 +190,13 @@ von.parseEvent = function (bind) {
  * @param   {String}  dress  [事件修饰符]
  */
 von.removeItem = function (type, dress) {
-	var scope = this.$scope;
+	let scope = this.$scope;
 
 	if (!scope) {
 		return warn('The specify event $remove must be used in v-for scope');
 	}
 
-	var alias = scope.__alias__;
+	let alias = scope.__alias__;
 	this.bindEvent(type, dress, function $remove () {
 		scope.__viterator__.$remove(scope[alias]);
 	}, '['+ alias +']');
@@ -210,13 +210,13 @@ von.removeItem = function (type, dress) {
  * @param   {String}    argString  [参数字符串]
  */
 von.bindEvent = function (type, dress, func, argString) {
-	var { self, stop, prevent, capture, keyCode } = getDress(type, dress);
+	let { self, stop, prevent, capture, keyCode } = getDress(type, dress);
 
 	// 挂载 $event
 	def((this.$scope || this.vm.$data), '$event', '__e__');
 
 	// 处理回调参数以及依赖监测
-	var args = [];
+	let args = [];
 	if (argString) {
 		let desc = this.getExpDesc(argString);
 		let argsWatcher = new Watcher(this.vm, desc, function (newArgs) {
@@ -227,8 +227,8 @@ von.bindEvent = function (type, dress, func, argString) {
 	}
 
 	// 事件代理函数
-	var el = this.el;
-	var eventAgent = function _eventAgent (e) {
+	let el = this.el;
+	let eventAgent = function _eventAgent (e) {
 		// 是否限定只能在当前节点触发事件
 		if (self && e.target !== el) {
 			return;
@@ -264,7 +264,7 @@ von.bindEvent = function (type, dress, func, argString) {
 		func.apply(this, args);
 	}
 
-	var guid = vonGuid++;
+	let guid = vonGuid++;
 	func[identifier] = guid;
 	this.agents[guid] = eventAgent;
 
@@ -289,9 +289,9 @@ von.on = function (type, callback, capture) {
  * @param   {Boolean}   capture
  */
 von.off = function (type, callback, capture) {
-	var agents = this.agents;
-	var guid = callback[identifier];
-	var eventAgent = agents[guid];
+	let agents = this.agents;
+	let guid = callback[identifier];
+	let eventAgent = agents[guid];
 
 	if (eventAgent) {
 		removeEvent(this.el, type, eventAgent, capture);

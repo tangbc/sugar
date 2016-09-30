@@ -14,24 +14,24 @@ export function VFor () {
 	Parser.apply(this, arguments);
 }
 
-var vfor = linkParser(VFor);
+let vfor = linkParser(VFor);
 
 /**
  * 解析 v-for 指令
  */
 vfor.parse = function () {
-	var el = this.el;
-	var desc = this.desc;
-	var parent = el.parentNode;
-	var expression = desc.expression;
-	var match = expression.match(regForExp);
+	let el = this.el;
+	let desc = this.desc;
+	let parent = el.parentNode;
+	let expression = desc.expression;
+	let match = expression.match(regForExp);
 
 	if (!match) {
 		return warn('The format of v-for must be like "item in/of items"!');
 	}
 
-	var alias = match[1];
-	var iterator = match[2];
+	let alias = match[1];
+	let iterator = match[2];
 
 	this.scopes = [];
 	this.init = true;
@@ -91,7 +91,7 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
  */
 vfor.initList = function (list) {
 	this.init = false;
-	var listFragment = this.buildList(list);
+	let listFragment = this.buildList(list);
 	this.$parent.replaceChild(listFragment, this.el);
 }
 
@@ -101,10 +101,10 @@ vfor.initList = function (list) {
  * @param   {Object}  arg
  */
 vfor.updatePartly = function (list, arg) {
-	var partlyArgs = [];
-	var args = arg.args;
-	var method = arg.method;
-	var scopes = this.scopes;
+	let partlyArgs = [];
+	let args = arg.args;
+	let method = arg.method;
+	let scopes = this.scopes;
 
 	// 更新处理 DOM 片段
 	this[method].call(this, list, args);
@@ -138,12 +138,12 @@ vfor.updatePartly = function (list, arg) {
  * @param   {Array}  list
  */
 vfor.recompileList = function (list) {
-	var end = this.$end;
-	var start = this.$start;
-	var parent = this.$parent;
+	let end = this.$end;
+	let start = this.$start;
+	let parent = this.$parent;
 
 	// 清空循环列表
-	var child;
+	let child;
 	while (child = (start && start.nextSibling || parent.firstChild)) {
 		if (end && child === end) {
 			break;
@@ -154,7 +154,7 @@ vfor.recompileList = function (list) {
 	// 移除所有取值域缓存
 	this.scopes.length = 0;
 
-	var listFragment = this.buildList(list);
+	let listFragment = this.buildList(list);
 	parent.insertBefore(listFragment, end);
 }
 
@@ -165,18 +165,18 @@ vfor.recompileList = function (list) {
  * @return  {Fragment}
  */
 vfor.buildList = function (list, startIndex) {
-	var vm = this.vm;
-	var el = this.el;
-	var bodyDirs = el.__dirs__;
-	var start = startIndex || 0;
-	var listFragment = createFragment();
-	var iterator = this.directive.watcher.value;
+	let vm = this.vm;
+	let el = this.el;
+	let bodyDirs = el.__dirs__;
+	let start = startIndex || 0;
+	let listFragment = createFragment();
+	let iterator = this.directive.watcher.value;
 
 	each(list, function (item, i) {
-		var index = start + i;
-		var alias = this.alias;
-		var plate = el.cloneNode(true);
-		var scope = Object.create(this.$scope || vm.$data);
+		let index = start + i;
+		let alias = this.alias;
+		let plate = el.cloneNode(true);
+		let scope = Object.create(this.$scope || vm.$data);
 
 		// 绑定别名
 		observe(scope, alias, item);
@@ -215,8 +215,8 @@ vfor.buildList = function (list, startIndex) {
  * @return  {Array}
  */
 vfor.getChilds = function () {
-	var list = [];
-	var childs = this.$parent.childNodes;
+	let list = [];
+	let childs = this.$parent.childNodes;
 
 	for (let i = 0; i < childs.length; i++) {
 		let child = childs[i];
@@ -234,7 +234,7 @@ vfor.getChilds = function () {
  * @return  {Element}
  */
 vfor.getFirst = function () {
-	var start = this.$start;
+	let start = this.$start;
 	return start && start.nextSibling || this.$parent.firstChild;
 }
 
@@ -243,7 +243,7 @@ vfor.getFirst = function () {
  * @return  {Element}
  */
 vfor.getLast = function () {
-	var end = this.$end;
+	let end = this.$end;
 	return end && end.previousSibling || this.$parent.lastChild;
 }
 
@@ -260,7 +260,7 @@ vfor.getChild = function (index) {
  * 删除循环列表的第一个元素 array.shift()
  */
 vfor.shift = function () {
-	var first = this.getFirst();
+	let first = this.getFirst();
 	if (first) {
 		this.$parent.removeChild(first);
 	}
@@ -270,7 +270,7 @@ vfor.shift = function () {
  * 删除循环列表的最后一个元素 array.pop()
  */
 vfor.pop = function () {
-	var last = this.getLast();
+	let last = this.getLast();
 	if (last) {
 		this.$parent.removeChild(last);
 	}
@@ -282,7 +282,7 @@ vfor.pop = function () {
  * @param   {Array}  args
  */
 vfor.push = function (list, args) {
-	var item = this.buildList(args, list.length - 1);
+	let item = this.buildList(args, list.length - 1);
 	this.$parent.insertBefore(item, this.$end);
 }
 
@@ -292,8 +292,8 @@ vfor.push = function (list, args) {
  * @param   {Array}  args
  */
 vfor.unshift = function (list, args) {
-	var first = this.getFirst();
-	var item = this.buildList(args, 0);
+	let first = this.getFirst();
+	let item = this.buildList(args, 0);
 	this.$parent.insertBefore(item, first);
 }
 
@@ -304,14 +304,14 @@ vfor.unshift = function (list, args) {
  */
 vfor.splice = function (list, args) {
 	// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
-	var start = args[0];
+	let start = args[0];
 	// 整数，表示要移除的数组元素的个数。
 	// 如果 deleteCount 是 0，则不移除元素。这种情况下，至少应添加一个新元素。
 	// 如果 deleteCount 大于 start 之后的元素的总数，则从 start 后面的元素都将被删除（含第 start 位）。
-	var deleteCont = args[1];
+	let deleteCont = args[1];
 	// 要添加进数组的元素。如果不指定，则 splice() 只删除数组元素。
-	var insertItems = args.slice(2);
-	var insertLength = insertItems.length;
+	let insertItems = args.slice(2);
+	let insertLength = insertItems.length;
 
 	// 不删除也不添加
 	if (deleteCont === 0 && !insertLength) {
@@ -319,13 +319,13 @@ vfor.splice = function (list, args) {
 	}
 
 	// 只删除 splice(2, 1);
-	var deleteOnly = deleteCont && !insertLength;
+	let deleteOnly = deleteCont && !insertLength;
 	// 只插入 splice(2, 0, 'xxx')
-	var insertOnly = !deleteCont && insertLength;
+	let insertOnly = !deleteCont && insertLength;
 	// 删除并插入 splice(2, 1, 'xxx')
-	var deleAndInsert = deleteCont && insertLength;
+	let deleAndInsert = deleteCont && insertLength;
 
-	var parent = this.$parent;
+	let parent = this.$parent;
 
 	// 删除指定选项
 	if (deleteOnly || deleAndInsert) {

@@ -6,12 +6,12 @@ export default {
 	 * 绑定 checkbox 变化事件
 	 */
 	bind () {
-		var number = this.number;
-		var directive = this.directive;
+		let number = this.number;
+		let directive = this.directive;
 
 		this.on('change', function () {
-			var value = directive.get();
-			var checked = this.checked;
+			let value = directive.get();
+			let checked = this.checked;
 
 			if (isBool(value)) {
 				directive.set(checked);
@@ -33,8 +33,8 @@ export default {
 	 * @param   {Boolean|Array}  values
 	 */
 	update (values) {
-		var el = this.el;
-		var value = formatValue(el.value, this.number);
+		let el = this.el;
+		let value = formatValue(el.value, this.number);
 
 		if (!isArray(values) && !isBool(values)) {
 			return warn('Checkbox v-model value must be a type of Boolean or Array');

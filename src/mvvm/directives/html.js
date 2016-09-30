@@ -9,7 +9,7 @@ export function VHtml () {
 	Parser.apply(this, arguments);
 }
 
-var vhtml = linkParser(VHtml);
+let vhtml = linkParser(VHtml);
 
 /**
  * 解析 v-html, {{{ html }}} 指令

@@ -8,8 +8,8 @@ import { isElement, hasAttr, empty } from '../../dom';
  * @param   {DOMElement}  element
  */
 function removeDOMRegister (vm, element) {
-	var registers = vm.$data.$els;
-	var childNodes = element.childNodes;
+	let registers = vm.$data.$els;
+	let childNodes = element.childNodes;
 
 	for (let i = 0; i < childNodes.length; i++) {
 		let node = childNodes[i];
@@ -45,14 +45,14 @@ export function VIf () {
 	Parser.apply(this, arguments);
 }
 
-var vif = linkParser(VIf);
+let vif = linkParser(VIf);
 
 /**
  * 解析 v-if 指令
  */
 vif.parse = function () {
-	var el = this.el;
-	var elseEl = el.nextElementSibling;
+	let el = this.el;
+	let elseEl = el.nextElementSibling;
 
 	// 缓存渲染内容
 	this.elFrag = nodeToFragment(el);
@@ -71,7 +71,7 @@ vif.parse = function () {
  * @param   {Boolean}  isRender
  */
 vif.update = function (isRender) {
-	var elseEl = this.elseEl;
+	let elseEl = this.elseEl;
 
 	this.toggle(this.el, this.elFrag, isRender);
 
@@ -87,8 +87,8 @@ vif.update = function (isRender) {
  * @param   {Boolean}   isRender
  */
 vif.toggle = function (renderEl, fragment, isRender) {
-	var vm = this.vm;
-	var frag = fragment.cloneNode(true);
+	let vm = this.vm;
+	let frag = fragment.cloneNode(true);
 
 	// 渲染 & 更新视图
 	if (isRender) {

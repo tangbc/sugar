@@ -8,8 +8,8 @@ import { formatValue, indexOf } from './index';
  * @return  {Array}
  */
 function getSelecteds (select, number) {
-	var sels = [];
-	var options = select.options;
+	let sels = [];
+	let options = select.options;
 
 	for (let i = 0; i < options.length; i++) {
 		let option = options[i];
@@ -27,12 +27,12 @@ export default {
 	 * 绑定 select 变化事件
 	 */
 	bind () {
-		var multi = this.multi;
-		var number = this.number;
-		var directive = this.directive;
+		let multi = this.multi;
+		let number = this.number;
+		let directive = this.directive;
 
 		this.on('change', function () {
-			var sels = getSelecteds(this, number);
+			let sels = getSelecteds(this, number);
 			directive.set(multi ? sels : sels[0]);
 		});
 
@@ -50,10 +50,10 @@ export default {
 	 * @param   {Array|String}  values
 	 */
 	update (values) {
-		var el = this.el;
-		var options = el.options;
-		var multi = this.multi;
-		var exp = this.desc.expression;
+		let el = this.el;
+		let options = el.options;
+		let multi = this.multi;
+		let exp = this.desc.expression;
 
 		// 初始选中项设为空（默认情况下会是第一项）
 		// 在 v-model 中 select 的选中项总是以数据(values)为准
@@ -79,7 +79,7 @@ export default {
 	 * @param   {Booleam}  reset  [是否清除默认选中状态]
 	 */
 	forceUpdate (reset) {
-		var directive = this.directive;
+		let directive = this.directive;
 
 		if (reset) {
 			directive.set(this.multi ? [] : '');

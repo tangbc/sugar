@@ -62,16 +62,16 @@ export function createObserver (target, key) {
  * @param   {Mix}     value
  */
 export function observe (object, key, value) {
-	var dep = new Depend(key);
-	var descriptor = Object.getOwnPropertyDescriptor(object, key);
-	var getter = descriptor && descriptor.get;
-	var setter = descriptor && descriptor.set;
+	let dep = new Depend(key);
+	let descriptor = Object.getOwnPropertyDescriptor(object, key);
+	let getter = descriptor && descriptor.get;
+	let setter = descriptor && descriptor.set;
 
-	var childOb = createObserver(value, key);
+	let childOb = createObserver(value, key);
 
 	Object.defineProperty(object, key, {
 		get: function Getter () {
-			var val = getter ? getter.call(object) : value;
+			let val = getter ? getter.call(object) : value;
 
 			if (Depend.watcher) {
 				dep.depend();
@@ -82,7 +82,7 @@ export function observe (object, key, value) {
 
 			if (isArray(val)) {
 				each(val, function (item) {
-					var ob = item && item.__ob__;
+					let ob = item && item.__ob__;
 					if (ob) {
 						ob.dep.depend();
 					}
@@ -92,7 +92,7 @@ export function observe (object, key, value) {
 			return val;
 		},
 		set: function Setter (newValue) {
-			var oldValue = getter ? getter.call(object) : value;
+			let oldValue = getter ? getter.call(object) : value;
 
 			if (newValue === oldValue) {
 				return;
@@ -120,7 +120,7 @@ export function observe (object, key, value) {
  * @return  {Function}
  */
 function createComputedGetter (vm, getter) {
-	var watcher = new Watcher(vm, {
+	let watcher = new Watcher(vm, {
 		'expression': getter.bind(vm)
 	});
 
