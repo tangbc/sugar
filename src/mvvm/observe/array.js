@@ -1,15 +1,16 @@
 import { observeArray } from './index';
 import { each, def } from '../../util';
 
+let hasProto = '__proto__' in {};
 let arrayProto = Array.prototype;
 let setProto = Object.setPrototypeOf;
 let mutatedProto = Object.create(arrayProto);
 
-// 重写数组操作方法
+// 重写数组变异方法
 const rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
 
 /**
- * 重写 array 操作方法
+ * 重写 array 变异方法
  */
 each(rewrites, function (method) {
 	let original = arrayProto[method];
@@ -70,13 +71,29 @@ def(arrayProto, '$remove', function (item) {
 });
 
 /**
+ * 修改 array 变异方法
+ * IE9, IE10 不支持修改 __proto__
+ * 所以需要逐个修改数组变异方法
+ * @param   {Array}  array
+ */
+let mutatedKeys = Object.getOwnPropertyNames(mutatedProto);
+function defMutationProto (array) {
+	for (let i = 0; i < mutatedKeys.length; i++) {
+		let key = mutatedKeys[i];
+		def(array, key, mutatedProto[key]);
+	}
+}
+
+/**
  * 修改 array 原型
  * @param   {Array}  array
  */
 export function setMutationProto (array) {
 	if (setProto) {
 		setProto(array, mutatedProto);
-	} else {
+	} else if (hasProto) {
 		array.__proto__ = mutatedProto;
+	} else {
+		defMutationProto(array);
 	}
 }
