@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Fri Sep 30 2016 09:49:18 GMT+0800 (CST)
+ * Sun Oct 02 2016 23:30:02 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1714,15 +1714,16 @@
 		}
 	}
 
+	var hasProto = '__proto__' in {};
 	var arrayProto = Array.prototype;
 	var setProto = Object.setPrototypeOf;
 	var mutatedProto = Object.create(arrayProto);
 
-	// 重写数组操作方法
+	// 重写数组变异方法
 	var rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
 
 	/**
-	 * 重写 array 操作方法
+	 * 重写 array 变异方法
 	 */
 	each(rewrites, function (method) {
 		var original = arrayProto[method];
@@ -1785,14 +1786,30 @@
 	});
 
 	/**
+	 * 修改 array 变异方法
+	 * IE9, IE10 不支持修改 __proto__
+	 * 所以需要逐个修改数组变异方法
+	 * @param   {Array}  array
+	 */
+	var mutatedKeys = Object.getOwnPropertyNames(mutatedProto);
+	function defMutationProto (array) {
+		for (var i = 0; i < mutatedKeys.length; i++) {
+			var key = mutatedKeys[i];
+			def(array, key, mutatedProto[key]);
+		}
+	}
+
+	/**
 	 * 修改 array 原型
 	 * @param   {Array}  array
 	 */
 	function setMutationProto (array) {
 		if (setProto) {
 			setProto(array, mutatedProto);
-		} else {
+		} else if (hasProto) {
 			array.__proto__ = mutatedProto;
+		} else {
+			defMutationProto(array);
 		}
 	}
 
