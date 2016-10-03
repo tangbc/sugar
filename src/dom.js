@@ -20,7 +20,7 @@ export function isTextNode (element) {
 
 /**
  * 清空 element 的所有子节点
- * @param   {Element}  element
+ * @param  {Element}  element
  */
 export function empty (element) {
 	while (element.firstChild) {
@@ -41,8 +41,8 @@ export function getAttr (node, name) {
 
 /**
  * 移除节点属性
- * @param   {Element}  node
- * @param   {String}   name
+ * @param  {Element}  node
+ * @param  {String}   name
  */
 export function removeAttr (node, name) {
 	node.removeAttribute(name);
@@ -50,9 +50,9 @@ export function removeAttr (node, name) {
 
 /**
  * 设置节点属性
- * @param   {Element}  node
- * @param   {String}   name
- * @param   {String}   value
+ * @param  {Element}  node
+ * @param  {String}   name
+ * @param  {String}   value
  */
 export function setAttr (node, name, value) {
 	// 设为 null/undefined 和 false 移除该属性
@@ -85,9 +85,9 @@ export function hasAttr (node, name) {
 
 /**
  * 节点是否存在 classname
- * @param  {Element}  node
- * @param  {String}   classname
- * @return {Boolean}
+ * @param   {Element}  node
+ * @param   {String}   classname
+ * @return  {Boolean}
  */
 export function hasClass (node, classname) {
 	let current, list = node.classList;
@@ -158,10 +158,10 @@ export function removeClass (node, classname) {
 
 /**
  * 节点事件绑定
- * @param   {Element}   node
- * @param   {String}    evt
- * @param   {Function}  callback
- * @param   {Boolean}   capture
+ * @param  {Element}   node
+ * @param  {String}    evt
+ * @param  {Function}  callback
+ * @param  {Boolean}   capture
  */
 export function addEvent (node, evt, callback, capture) {
 	node.addEventListener(evt, callback, capture);
@@ -169,10 +169,10 @@ export function addEvent (node, evt, callback, capture) {
 
 /**
  * 解除节点事件绑定
- * @param   {Element}   node
- * @param   {String}    evt
- * @param   {Function}  callback
- * @param   {Boolean}   capture
+ * @param  {Element}   node
+ * @param  {String}    evt
+ * @param  {Function}  callback
+ * @param  {Boolean}   capture
  */
 export function removeEvent (node, evt, callback, capture) {
 	node.removeEventListener(evt, callback, capture);

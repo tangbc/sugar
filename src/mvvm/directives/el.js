@@ -17,7 +17,7 @@ let vel = linkParser(VEl);
  */
 vel.parse = function () {
 	// 不能在 vfor 中使用
-	if (!this.$scope) {
+	if (!this.scope) {
 		let register = this.desc.expression;
 		this.vm.$data.$els[register] = this.el;
 	} else {

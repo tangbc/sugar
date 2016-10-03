@@ -5,10 +5,18 @@ const IDENT = 1;
 const QUOTE = 2;
 const OTHER = 1;
 
+/**
+ * 保留取词
+ * @param  {String}  value
+ */
 function ident (value) {
 	return value;
 }
 
+/**
+ * 舍弃取词
+ * @param  {String}  value
+ */
 function quote (value) {
 	return '';
 }
@@ -95,7 +103,7 @@ let StateMachine = {
 
 	/**
 	 * 更改状态
-	 * @param   {Number}  state
+	 * @param  {Number}  state
 	 */
 	change: function (state) {
 		this.state = state;

@@ -7,7 +7,7 @@ import Watcher from './watcher';
  */
 export default function Directive (parser) {
 	this.parser = parser;
-	this.$scope = parser.$scope;
+	this.scope = parser.scope;
 }
 
 let dp = Directive.prototype;
@@ -28,14 +28,14 @@ dp.mount = function () {
  */
 dp.destroy = function () {
 	this.watcher.destroy();
-	this.parser = this.$scope = null;
+	this.parser = this.scope = null;
 }
 
 /**
  * 更新指令视图
  * @param   {Mix}      newVal     [依赖数据新值]
  * @param   {Mix}      oldVal     [依赖数据旧值]
- * @param   {Boolean}  fromDeep   [是否是深层更新]
+ * @param   {Boolean}  fromDeep   [数组内部更新]
  * @param   {Object}   methodArg  [数组操作参数信息]
  */
 dp.update = function (newVal, oldVal, fromDeep, methodArg) {

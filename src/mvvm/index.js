@@ -98,7 +98,7 @@ mvp.set = function (key, value) {
 
 /**
  * 重置数据和视图为初始状态
- * @param   {Array|String}  key  [<可选>数据模型字段，或字段数组，空则重置所有]
+ * @param  {Array|String}  key  [<可选>数据模型字段，或字段数组，空则重置所有]
  */
 mvp.reset = function (key) {
 	let data = this.$data;
@@ -124,9 +124,9 @@ mvp.reset = function (key) {
 
 /**
  * 监测表达式值的变化
- * @param   {String}    expression  [监测的表达式]
- * @param   {Function}  callback    [监测变化回调]
- * @param   {Boolean}   deep        [<可选>深层依赖监测]
+ * @param  {String}    expression  [监测的表达式]
+ * @param  {Function}  callback    [监测变化回调]
+ * @param  {Boolean}   deep        [<可选>深层依赖监测]
  */
 mvp.watch = function (expression, callback, deep) {
 	return new Watcher(this, {
@@ -137,7 +137,7 @@ mvp.watch = function (expression, callback, deep) {
 
 /**
  * 批量 watch 配置的监测模型
- * @param   {Object}  watches
+ * @param  {Object}  watches
  */
 mvp._watchBatch = function (watches) {
 	each(watches, function (callback, expression) {

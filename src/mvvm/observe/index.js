@@ -5,7 +5,7 @@ import { def, isArray, each, isObject, hasOwn, isFunc, warn, noop } from '../../
 
 /**
  * 监测对象
- * @param   {Object}  object
+ * @param  {Object}  object
  */
 function observeObject (object) {
 	each(object, function (value, key) {
@@ -15,8 +15,8 @@ function observeObject (object) {
 
 /**
  * 监测数组
- * @param   {Array}   array
- * @param   {String}  key
+ * @param  {Array}   array
+ * @param  {String}  key
  */
 export function observeArray (array, key) {
 	setMutationProto(array);
@@ -57,9 +57,9 @@ export function createObserver (target, key) {
 
 /**
  * 监测 object[key] 的变化 & 依赖收集
- * @param   {Object}  object
- * @param   {String}  key
- * @param   {Mix}     value
+ * @param  {Object}  object
+ * @param  {String}  key
+ * @param  {Mix}     value
  */
 export function observe (object, key, value) {
 	let dep = new Depend(key);

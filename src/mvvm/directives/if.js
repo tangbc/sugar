@@ -4,8 +4,8 @@ import { isElement, hasAttr, empty } from '../../dom';
 
 /**
  * 移除 DOM 注册的引用
- * @param   {Object}      vm
- * @param   {DOMElement}  element
+ * @param  {Object}      vm
+ * @param  {DOMElement}  element
  */
 function removeDOMRegister (vm, element) {
 	let registers = vm.$data.$els;
@@ -68,7 +68,7 @@ vif.parse = function () {
 
 /**
  * 更新视图
- * @param   {Boolean}  isRender
+ * @param  {Boolean}  isRender
  */
 vif.update = function (isRender) {
 	let elseEl = this.elseEl;
@@ -82,9 +82,9 @@ vif.update = function (isRender) {
 
 /**
  * 切换节点内容渲染
- * @param   {Element}   renderEl
- * @param   {Fragment}  fragment
- * @param   {Boolean}   isRender
+ * @param  {Element}   renderEl
+ * @param  {Fragment}  fragment
+ * @param  {Boolean}   isRender
  */
 vif.toggle = function (renderEl, fragment, isRender) {
 	let vm = this.vm;
@@ -92,7 +92,7 @@ vif.toggle = function (renderEl, fragment, isRender) {
 
 	// 渲染 & 更新视图
 	if (isRender) {
-		vm.compile(frag, true, this.$scope);
+		vm.compile(frag, true, this.scope);
 		renderEl.appendChild(frag);
 	}
 	// 不渲染的情况需要移除 DOM 索引的引用

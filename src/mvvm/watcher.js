@@ -4,8 +4,8 @@ import { createGetter, createSetter } from './expression/index';
 
 /**
  * 遍历对象/数组每一个可枚举属性
- * @param   {Object|Array}  target  [遍历值/对象或数组]
- * @param   {Boolean}       root    [是否是根对象/数组]
+ * @param  {Object|Array}  target  [遍历值/对象或数组]
+ * @param  {Boolean}       root    [是否是根对象/数组]
  */
 let walkedObs = [];
 function walkThrough (target, root) {
@@ -71,7 +71,7 @@ let wp = Watcher.prototype;
  * @return  {Object}
  */
 wp.getScope = function () {
-	return this.context.$scope || this.vm.$data;
+	return this.context.scope || this.vm.$data;
 }
 
 /**
@@ -138,7 +138,7 @@ wp.addDepend = function (depend) {
 
 /**
  * 移除订阅的依赖监测
- * @param   {Function}  filter
+ * @param  {Function}  filter
  */
 wp.removeDepends = function (filter) {
 	each(this.depends, function (depend) {
@@ -181,8 +181,8 @@ wp.beforeUpdate = function () {
 
 /**
  * 依赖变化，更新取值
- * @param   {Object}  args  [数组操作参数信息]
- * @param   {Number}  guid  [变更依赖对象 id]
+ * @param  {Object}  args  [数组操作参数信息]
+ * @param  {Number}  guid  [变更依赖对象 id]
  */
 wp.update = function (args, guid) {
 	let oldVal = this.oldVal;

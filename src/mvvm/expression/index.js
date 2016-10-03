@@ -22,7 +22,6 @@ const avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.d
 					'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
-
 // 保存常量，返回序号 "i"
 let consts = [];
 function saveConst (string) {
@@ -104,7 +103,7 @@ export function createGetter (expression) {
 
 /**
  * 生成表达式设值函数
- * @param   {String}  expression
+ * @param  {String}  expression
  */
 export function createSetter (expression) {
 	let paths = createPath(expression);

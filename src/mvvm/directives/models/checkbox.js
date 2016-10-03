@@ -30,7 +30,7 @@ export default {
 
 	/**
 	 * 更新 checkbox 值
-	 * @param   {Boolean|Array}  values
+	 * @param  {Boolean|Array}  values
 	 */
 	update (values) {
 		let el = this.el;

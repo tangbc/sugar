@@ -56,7 +56,7 @@ vshow.parse = function () {
 
 /**
  * 更新视图
- * @param   {Boolean}  isShow
+ * @param  {Boolean}  isShow
  */
 vshow.update = function (isShow) {
 	let el = this.el;

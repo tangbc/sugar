@@ -1,4 +1,4 @@
-import { directiveParsers } from './directives/index';
+import { DirectiveParsers } from './directives/index';
 import { createObserver, setComputedProperty } from './observe/index';
 import { def, each, warn, isObject, nodeToFragment } from '../util';
 import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
@@ -98,8 +98,6 @@ function Compiler (option) {
 
 	// 指令实例缓存
 	this.$directives = [];
-	// 指令解析模块
-	this.$parsers = directiveParsers;
 
 	// 监测数据模型
 	this.$ob = createObserver(this.$data, '__MODEL__');
@@ -133,9 +131,9 @@ cp.mount = function () {
 /**
  * 收集节点所有需要编译的指令
  * 并在收集完成后编译指令队列
- * @param   {Element}  element  [编译节点]
- * @param   {Boolean}  root     [是否是根节点]
- * @param   {Object}   scope    [vfor 取值域]
+ * @param  {Element}  element  [编译节点]
+ * @param  {Boolean}  root     [是否是根节点]
+ * @param  {Object}   scope    [vfor 取值域]
  */
 cp.compile = function (element, root, scope) {
 	let childNodes = element.childNodes;
@@ -165,8 +163,8 @@ cp.compile = function (element, root, scope) {
  * 编译节点缓存队列
  */
 cp.compileAll = function () {
-	each(this.$queue, function (info) {
-		this.complieNode(info);
+	each(this.$queue, function (tuple) {
+		this.complieNode(tuple);
 		return null;
 	}, this);
 
@@ -175,10 +173,11 @@ cp.compileAll = function () {
 
 /**
  * 收集并编译节点指令
- * @param   {Array}  info  [node, scope]
+ * @param   {Array}  tuple  [node, scope]
  */
-cp.complieNode = function (info) {
-	let node = info[0], scope = info[1];
+cp.complieNode = function (tuple) {
+	let node = tuple[0];
+	let scope = tuple[1];
 
 	if (isElement(node)) {
 		let vfor, attrs = [];
@@ -204,8 +203,8 @@ cp.complieNode = function (info) {
 			}
 		}
 
-		// 当 v-bind JSON 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
-		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
+		// 当 v-bind 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
+		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind
 		// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
 		if (
 			!vfor &&
@@ -219,7 +218,7 @@ cp.complieNode = function (info) {
 			vmodel = null;
 		}
 
-		// vfor 指令与其他指令共存时优先编译 vfor 指令
+		// vfor 指令与其他指令共存时只需编译 vfor
 		if (vfor) {
 			def(node, '__dirs__', attrs.length);
 			attrs = [vfor];
@@ -247,7 +246,7 @@ cp.parse = function (node, attr, scope) {
 	let directive = desc.directive;
 
 	let dir = 'v' + directive.substr(2);
-	let Parser = this.$parsers[dir];
+	let Parser = DirectiveParsers[dir];
 
 	// 移除指令标记
 	removeAttr(node, desc.attr);
@@ -284,7 +283,7 @@ cp.parseText = function (node, scope) {
 		}
 
 		desc.expression = exp;
-		this.$directives.push(new directiveParsers.vhtml(this, node.parentNode, desc, scope));
+		this.$directives.push(new DirectiveParsers.vhtml(this, node.parentNode, desc, scope));
 
 	} else {
 		pieces = text.split(regText);
@@ -293,7 +292,6 @@ cp.parseText = function (node, scope) {
 		// 文本节点转化为常量和变量的组合表达式
 		// 'a {{b}} c' => '"a " + b + " c"'
 		each(pieces, function (piece) {
-			// {{text}}
 			if (matches.indexOf('{{' + piece + '}}') > -1) {
 				tokens.push('(' + piece + ')');
 			} else if (piece) {
@@ -302,7 +300,7 @@ cp.parseText = function (node, scope) {
 		});
 
 		desc.expression = tokens.join('+');
-		this.$directives.push(new directiveParsers.vtext(this, node, desc, scope));
+		this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
 	}
 }
 
@@ -310,11 +308,11 @@ cp.parseText = function (node, scope) {
  * 停止编译节点的剩余指令
  * 如含有其他指令的 vfor 节点
  * 应保留指令信息并放到循环列表中编译
- * @param   {Element}  node
+ * @param  {Element}  node
  */
 cp.block = function (node) {
-	each(this.$queue, function (info) {
-		if (node === info[0]) {
+	each(this.$queue, function (tuple) {
+		if (node === tuple[0]) {
 			return null;
 		}
 	});

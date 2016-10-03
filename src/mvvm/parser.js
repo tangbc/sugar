@@ -13,7 +13,7 @@ export default function Parser (vm, node, desc, scope) {
 	this.vm = vm;
 	this.el = node;
 	this.desc = desc;
-	this.$scope = scope;
+	this.scope = scope;
 
 	// 解析指令
 	this.parse();
@@ -22,7 +22,7 @@ export default function Parser (vm, node, desc, scope) {
 let pp = Parser.prototype;
 
 /**
- * 安装一个指令实例
+ * 安装指令实例
  */
 pp.bind = function () {
 	this.directive = new Directive(this);
@@ -43,7 +43,7 @@ pp.destroy = function () {
 		this._destroy();
 	}
 
-	this.vm = this.desc = this.$scope = null;
+	this.vm = this.desc = this.scope = null;
 }
 
 

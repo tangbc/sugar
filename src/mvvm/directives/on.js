@@ -103,9 +103,9 @@ function collectEvents (desc) {
 
 /**
  * 获取事件修饰符对象
- * 支持 4 种事件修饰符 .self .stop .prevent .capture
- * @param   {String}  type
- * @param   {String}  dress
+ * 支持 5 种事件修饰符 .self .stop .prevent .capture .keyCode
+ * @param  {String}  type
+ * @param  {String}  dress
  */
 function getDress (type, dress) {
 	let self = dress.indexOf('self') > -1;
@@ -159,7 +159,7 @@ von.getExpDesc = function (expression) {
 
 /**
  * 解析事件处理函数
- * @param   {Object}  bind
+ * @param  {Object}  bind
  */
 von.parseEvent = function (bind) {
 	let func = bind.func;
@@ -186,11 +186,11 @@ von.parseEvent = function (bind) {
 
 /**
  * 隐性绑定删除($remove) vfor 选项事件
- * @param   {String}  type   [事件类型]
- * @param   {String}  dress  [事件修饰符]
+ * @param  {String}  type   [事件类型]
+ * @param  {String}  dress  [事件修饰符]
  */
 von.removeItem = function (type, dress) {
-	let scope = this.$scope;
+	let scope = this.scope;
 
 	if (!scope) {
 		return warn('The specify event $remove must be used in v-for scope');
@@ -204,16 +204,16 @@ von.removeItem = function (type, dress) {
 
 /**
  * 添加一个事件绑定，同时处理参数的变更
- * @param   {String}    type       [事件类型]
- * @param   {String}    dress      [事件修饰符]
- * @param   {Function}  func       [回调函数]
- * @param   {String}    argString  [参数字符串]
+ * @param  {String}    type       [事件类型]
+ * @param  {String}    dress      [事件修饰符]
+ * @param  {Function}  func       [回调函数]
+ * @param  {String}    argString  [参数字符串]
  */
 von.bindEvent = function (type, dress, func, argString) {
 	let { self, stop, prevent, capture, keyCode } = getDress(type, dress);
 
 	// 挂载 $event
-	def((this.$scope || this.vm.$data), '$event', '__e__');
+	def((this.scope || this.vm.$data), '$event', '__e__');
 
 	// 处理回调参数以及依赖监测
 	let args = [];
@@ -274,9 +274,9 @@ von.bindEvent = function (type, dress, func, argString) {
 
 /**
  * 绑定一个事件
- * @param   {String}    type
- * @param   {Function}  callback
- * @param   {Boolean}   capture
+ * @param  {String}    type
+ * @param  {Function}  callback
+ * @param  {Boolean}   capture
  */
 von.on = function (type, callback, capture) {
 	addEvent(this.el, type, callback, capture);
@@ -284,9 +284,9 @@ von.on = function (type, callback, capture) {
 
 /**
  * 解绑一个事件
- * @param   {String}    type
- * @param   {Function}  callback
- * @param   {Boolean}   capture
+ * @param  {String}    type
+ * @param  {Function}  callback
+ * @param  {Boolean}   capture
  */
 von.off = function (type, callback, capture) {
 	let agents = this.agents;

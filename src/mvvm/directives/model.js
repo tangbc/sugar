@@ -42,7 +42,7 @@ vmodel.parse = function () {
 
 /**
  * 双向数据绑定
- * @param   {String}  type
+ * @param  {String}  type
  */
 vmodel.bindDuplex = function (type) {
 	let form;
@@ -95,8 +95,8 @@ vmodel.bindDuplex = function (type) {
 
 /**
  * 表单元素事件绑定
- * @param   {String}    type
- * @param   {Function}  callback
+ * @param  {String}    type
+ * @param  {Function}  callback
  */
 vmodel.on = function (type, callback) {
 	addEvent(this.el, type, callback, false);

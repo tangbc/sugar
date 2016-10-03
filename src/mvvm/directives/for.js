@@ -39,8 +39,8 @@ vfor.parse = function () {
 	this.partly = false;
 	this.partlyArgs = [];
 	this.$parent = parent;
-	this.$end = el.nextSibling;
-	this.$start = el.previousSibling;
+	this.end = el.nextSibling;
+	this.start = el.previousSibling;
 	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 	desc.expression = iterator;
@@ -50,23 +50,23 @@ vfor.parse = function () {
 
 /**
  * 更新 select 绑定
- * @param   {Boolean}  reset  [数组操作或覆盖]
+ * @param  {Boolean}  clear  [数组操作或重新赋值]
  */
-vfor.updateModel = function (reset) {
+vfor.updateModel = function (clear) {
 	if (this.isOption) {
-		let model = this.$parent.__vmodel__;
-		if (model) {
-			model.forceUpdate(reset);
+		let selectModel = this.$parent.__vmodel__;
+		if (selectModel) {
+			selectModel.forceUpdate(clear);
 		}
 	}
 }
 
 /**
  * 更新视图
- * @param   {Array}    newArray   [新数组]
- * @param   {Array}    oldArray   [旧数组]
- * @param   {Boolean}  fromDeep   [是否是深层更新]
- * @param   {Object}   methodArg  [数组操作参数信息]
+ * @param  {Array}    newArray   [新数组]
+ * @param  {Array}    oldArray   [旧数组]
+ * @param  {Boolean}  fromDeep   [数组内部更新]
+ * @param  {Object}   methodArg  [数组操作参数信息]
  */
 vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 	// 初始化列表
@@ -87,7 +87,7 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 
 /**
  * 初始化构建列表
- * @param   {Array}  list
+ * @param  {Array}  list
  */
 vfor.initList = function (list) {
 	this.init = false;
@@ -97,8 +97,8 @@ vfor.initList = function (list) {
 
 /**
  * 数组操作部分更新列表
- * @param   {Array}   list
- * @param   {Object}  arg
+ * @param  {Array}   list
+ * @param  {Object}  arg
  */
 vfor.updatePartly = function (list, arg) {
 	let partlyArgs = [];
@@ -135,11 +135,11 @@ vfor.updatePartly = function (list, arg) {
 
 /**
  * 重新构建列表
- * @param   {Array}  list
+ * @param  {Array}  list
  */
 vfor.recompileList = function (list) {
-	let end = this.$end;
-	let start = this.$start;
+	let end = this.end;
+	let start = this.start;
 	let parent = this.$parent;
 
 	// 清空循环列表
@@ -176,7 +176,7 @@ vfor.buildList = function (list, startIndex) {
 		let index = start + i;
 		let alias = this.alias;
 		let plate = el.cloneNode(true);
-		let scope = Object.create(this.$scope || vm.$data);
+		let scope = Object.create(this.scope || vm.$data);
 
 		// 绑定别名
 		observe(scope, alias, item);
@@ -202,7 +202,7 @@ vfor.buildList = function (list, startIndex) {
 		// 片段挂载别名
 		def(plate, vforAlias, alias);
 
-		// 收集指令并编译板块
+		// 编译板块
 		vm.compile(plate, true, scope);
 		listFragment.appendChild(plate);
 	}, this);
@@ -234,7 +234,7 @@ vfor.getChilds = function () {
  * @return  {Element}
  */
 vfor.getFirst = function () {
-	let start = this.$start;
+	let start = this.start;
 	return start && start.nextSibling || this.$parent.firstChild;
 }
 
@@ -243,7 +243,7 @@ vfor.getFirst = function () {
  * @return  {Element}
  */
 vfor.getLast = function () {
-	let end = this.$end;
+	let end = this.end;
 	return end && end.previousSibling || this.$parent.lastChild;
 }
 
@@ -278,18 +278,18 @@ vfor.pop = function () {
 
 /**
  * 在循环列表结尾追加元素 array.push(item)
- * @param   {Array}  list
- * @param   {Array}  args
+ * @param  {Array}  list
+ * @param  {Array}  args
  */
 vfor.push = function (list, args) {
 	let item = this.buildList(args, list.length - 1);
-	this.$parent.insertBefore(item, this.$end);
+	this.$parent.insertBefore(item, this.end);
 }
 
 /**
  * 在循环列表开头追加元素 array.unshift(item)
- * @param   {Array}  list
- * @param   {Array}  args
+ * @param  {Array}  list
+ * @param  {Array}  args
  */
 vfor.unshift = function (list, args) {
 	let first = this.getFirst();
@@ -299,8 +299,8 @@ vfor.unshift = function (list, args) {
 
 /**
  * 循环列表的增删改 splice(start, deleteCount, inserts)
- * @param   {Array}  list
- * @param   {Array}  args
+ * @param  {Array}  list
+ * @param  {Array}  args
  */
 vfor.splice = function (list, args) {
 	// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。

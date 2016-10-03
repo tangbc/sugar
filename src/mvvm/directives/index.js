@@ -10,10 +10,10 @@ import { VModel as vmodel } from './model';
 import { VCustom as vcustom } from './custom';
 
 /**
- * 导出指令编译模块
+ * 导出指令解析模块
  * @type {Object}
  */
-export const directiveParsers = {
+export const DirectiveParsers = {
 	von,
 	vel,
 	vif,
