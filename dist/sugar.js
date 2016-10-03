@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Sun Oct 02 2016 23:30:01 GMT+0800 (CST)
+ * Mon Oct 03 2016 10:00:06 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -89,6 +89,31 @@
 	}
 
 	/**
+	 * 将 value 转化为字符串
+	 * undefined 和 null 都转成空字符串
+	 * @param   {Mix}     value
+	 * @return  {String}
+	 */
+	function _toString (value) {
+		return value == null ? '' : value.toString();
+	}
+
+	/**
+	 * value 转成 Number 类型
+	 * 如转换失败原样返回
+	 * @param   {String|Mix}  value
+	 * @return  {Number|Mix}
+	 */
+	function toNumber (value) {
+		if (isString(value)) {
+			var val = Number(value);
+			return isNumber(val) ? val : value;
+		} else {
+			return value;
+		}
+	}
+
+	/**
 	 * 空操作函数
 	 */
 	function noop () {}
@@ -124,10 +149,10 @@
 
 	/**
 	 * object 定义或修改 property 属性
-	 * @param   {Object}   object      [对象]
-	 * @param   {String}   property    [属性字段]
-	 * @param   {Mix}      value       [属性的修改值/新值]
-	 * @param   {Boolean}  enumerable  [属性是否出现在枚举中]
+	 * @param  {Object}   object      [对象]
+	 * @param  {String}   property    [属性字段]
+	 * @param  {Mix}      value       [属性的修改值/新值]
+	 * @param  {Boolean}  enumerable  [属性是否出现在枚举中]
 	 */
 	function def (object, property, value, enumerable) {
 		return Object.defineProperty(object, property, {
@@ -191,7 +216,7 @@
 
 	/**
 	 * 删除 object 所有属性
-	 * @param   {Object}   object
+	 * @param  {Object}   object
 	 */
 	function clearObject (object) {
 		each(object, function () {
@@ -200,8 +225,9 @@
 	}
 
 	/**
-	 * 扩展合并对象，摘自 jQuery
+	 * 扩展合并对象
 	 */
+	/* istanbul ignore next */
 	function extend () {
 		var arguments$1 = arguments;
 
@@ -360,10 +386,10 @@
 
 	/**
 	 * 设置/读取数据配置对象
-	 * @param  {Object}   data   [配置对象]
-	 * @param  {String}   name   [配置名称, 支持/分隔层次]
-	 * @param  {Mix}      value  [不传为读取配置信息]
-	 * @return {Mix}             [返回读取的配置值]
+	 * @param   {Object}   data   [配置对象]
+	 * @param   {String}   name   [配置名称, 支持/分隔层次]
+	 * @param   {Mix}      value  [不传为读取配置信息]
+	 * @return  {Mix}             [返回读取的配置值]
 	 */
 	function config (data, name, value) {
 		if (name) {
@@ -386,7 +412,7 @@
 
 	/**
 	 * 挂载到 sugar 上的工具方法
-	 * @param   {Object}
+	 * @param  {Object}
 	 */
 	var util = {
 		def: def,
@@ -1112,7 +1138,7 @@
 
 	/**
 	 * 依赖变更，通知每一个订阅了该依赖的 watcher
-	 * @param   {Object}  args  [数组操作参数信息]
+	 * @param  {Object}  args  [数组操作参数信息]
 	 */
 	dp.notify = function (args) {
 		var guid = this.guid;
@@ -1126,10 +1152,18 @@
 	var QUOTE = 2;
 	var OTHER = 1;
 
+	/**
+	 * 保留取词
+	 * @param  {String}  value
+	 */
 	function ident (value) {
 		return value;
 	}
 
+	/**
+	 * 舍弃取词
+	 * @param  {String}  value
+	 */
 	function quote (value) {
 		return '';
 	}
@@ -1219,7 +1253,7 @@
 
 		/**
 		 * 更改状态
-		 * @param   {Number}  state
+		 * @param  {Number}  state
 		 */
 		change: function (state) {
 			this.state = state;
@@ -1329,7 +1363,6 @@
 						'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 	var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
-
 	// 保存常量，返回序号 "i"
 	var consts = [];
 	function saveConst (string) {
@@ -1411,7 +1444,7 @@
 
 	/**
 	 * 生成表达式设值函数
-	 * @param   {String}  expression
+	 * @param  {String}  expression
 	 */
 	function createSetter (expression) {
 		var paths = createPath(expression);
@@ -1427,8 +1460,8 @@
 
 	/**
 	 * 遍历对象/数组每一个可枚举属性
-	 * @param   {Object|Array}  target  [遍历值/对象或数组]
-	 * @param   {Boolean}       root    [是否是根对象/数组]
+	 * @param  {Object|Array}  target  [遍历值/对象或数组]
+	 * @param  {Boolean}       root    [是否是根对象/数组]
 	 */
 	var walkedObs = [];
 	function walkThrough (target, root) {
@@ -1494,7 +1527,7 @@
 	 * @return  {Object}
 	 */
 	wp.getScope = function () {
-		return this.context.$scope || this.vm.$data;
+		return this.context.scope || this.vm.$data;
 	}
 
 	/**
@@ -1561,7 +1594,7 @@
 
 	/**
 	 * 移除订阅的依赖监测
-	 * @param   {Function}  filter
+	 * @param  {Function}  filter
 	 */
 	wp.removeDepends = function (filter) {
 		each(this.depends, function (depend) {
@@ -1604,8 +1637,8 @@
 
 	/**
 	 * 依赖变化，更新取值
-	 * @param   {Object}  args  [数组操作参数信息]
-	 * @param   {Number}  guid  [变更依赖对象 id]
+	 * @param  {Object}  args  [数组操作参数信息]
+	 * @param  {Number}  guid  [变更依赖对象 id]
 	 */
 	wp.update = function (args, guid) {
 		var oldVal = this.oldVal;
@@ -1635,7 +1668,7 @@
 	 */
 	function Directive (parser) {
 		this.parser = parser;
-		this.$scope = parser.$scope;
+		this.scope = parser.scope;
 	}
 
 	var dp$1 = Directive.prototype;
@@ -1656,14 +1689,14 @@
 	 */
 	dp$1.destroy = function () {
 		this.watcher.destroy();
-		this.parser = this.$scope = null;
+		this.parser = this.scope = null;
 	}
 
 	/**
 	 * 更新指令视图
 	 * @param   {Mix}      newVal     [依赖数据新值]
 	 * @param   {Mix}      oldVal     [依赖数据旧值]
-	 * @param   {Boolean}  fromDeep   [是否是深层更新]
+	 * @param   {Boolean}  fromDeep   [数组内部更新]
 	 * @param   {Object}   methodArg  [数组操作参数信息]
 	 */
 	dp$1.update = function (newVal, oldVal, fromDeep, methodArg) {
@@ -1699,7 +1732,7 @@
 		this.vm = vm;
 		this.el = node;
 		this.desc = desc;
-		this.$scope = scope;
+		this.scope = scope;
 
 		// 解析指令
 		this.parse();
@@ -1708,7 +1741,7 @@
 	var pp = Parser.prototype;
 
 	/**
-	 * 安装一个指令实例
+	 * 安装指令实例
 	 */
 	pp.bind = function () {
 		this.directive = new Directive(this);
@@ -1729,7 +1762,7 @@
 			this._destroy();
 		}
 
-		this.vm = this.desc = this.$scope = null;
+		this.vm = this.desc = this.scope = null;
 	}
 
 
@@ -1762,7 +1795,7 @@
 
 	/**
 	 * 清空 element 的所有子节点
-	 * @param   {Element}  element
+	 * @param  {Element}  element
 	 */
 	function empty (element) {
 		while (element.firstChild) {
@@ -1783,8 +1816,8 @@
 
 	/**
 	 * 移除节点属性
-	 * @param   {Element}  node
-	 * @param   {String}   name
+	 * @param  {Element}  node
+	 * @param  {String}   name
 	 */
 	function removeAttr (node, name) {
 		node.removeAttribute(name);
@@ -1792,9 +1825,9 @@
 
 	/**
 	 * 设置节点属性
-	 * @param   {Element}  node
-	 * @param   {String}   name
-	 * @param   {String}   value
+	 * @param  {Element}  node
+	 * @param  {String}   name
+	 * @param  {String}   value
 	 */
 	function setAttr (node, name, value) {
 		// 设为 null/undefined 和 false 移除该属性
@@ -1827,9 +1860,9 @@
 
 	/**
 	 * 节点是否存在 classname
-	 * @param  {Element}  node
-	 * @param  {String}   classname
-	 * @return {Boolean}
+	 * @param   {Element}  node
+	 * @param   {String}   classname
+	 * @return  {Boolean}
 	 */
 	function hasClass (node, classname) {
 		var current, list = node.classList;
@@ -1900,10 +1933,10 @@
 
 	/**
 	 * 节点事件绑定
-	 * @param   {Element}   node
-	 * @param   {String}    evt
-	 * @param   {Function}  callback
-	 * @param   {Boolean}   capture
+	 * @param  {Element}   node
+	 * @param  {String}    evt
+	 * @param  {Function}  callback
+	 * @param  {Boolean}   capture
 	 */
 	function addEvent (node, evt, callback, capture) {
 		node.addEventListener(evt, callback, capture);
@@ -1911,10 +1944,10 @@
 
 	/**
 	 * 解除节点事件绑定
-	 * @param   {Element}   node
-	 * @param   {String}    evt
-	 * @param   {Function}  callback
-	 * @param   {Boolean}   capture
+	 * @param  {Element}   node
+	 * @param  {String}    evt
+	 * @param  {Function}  callback
+	 * @param  {Boolean}   capture
 	 */
 	function removeEvent (node, evt, callback, capture) {
 		node.removeEventListener(evt, callback, capture);
@@ -2062,9 +2095,9 @@
 
 	/**
 	 * 获取事件修饰符对象
-	 * 支持 4 种事件修饰符 .self .stop .prevent .capture
-	 * @param   {String}  type
-	 * @param   {String}  dress
+	 * 支持 5 种事件修饰符 .self .stop .prevent .capture .keyCode
+	 * @param  {String}  type
+	 * @param  {String}  dress
 	 */
 	function getDress (type, dress) {
 		var self = dress.indexOf('self') > -1;
@@ -2118,7 +2151,7 @@
 
 	/**
 	 * 解析事件处理函数
-	 * @param   {Object}  bind
+	 * @param  {Object}  bind
 	 */
 	von.parseEvent = function (bind) {
 		var func = bind.func;
@@ -2145,11 +2178,11 @@
 
 	/**
 	 * 隐性绑定删除($remove) vfor 选项事件
-	 * @param   {String}  type   [事件类型]
-	 * @param   {String}  dress  [事件修饰符]
+	 * @param  {String}  type   [事件类型]
+	 * @param  {String}  dress  [事件修饰符]
 	 */
 	von.removeItem = function (type, dress) {
-		var scope = this.$scope;
+		var scope = this.scope;
 
 		if (!scope) {
 			return warn('The specify event $remove must be used in v-for scope');
@@ -2163,10 +2196,10 @@
 
 	/**
 	 * 添加一个事件绑定，同时处理参数的变更
-	 * @param   {String}    type       [事件类型]
-	 * @param   {String}    dress      [事件修饰符]
-	 * @param   {Function}  func       [回调函数]
-	 * @param   {String}    argString  [参数字符串]
+	 * @param  {String}    type       [事件类型]
+	 * @param  {String}    dress      [事件修饰符]
+	 * @param  {Function}  func       [回调函数]
+	 * @param  {String}    argString  [参数字符串]
 	 */
 	von.bindEvent = function (type, dress, func, argString) {
 		var ref = getDress(type, dress);
@@ -2177,7 +2210,7 @@
 		var keyCode = ref.keyCode;
 
 		// 挂载 $event
-		def((this.$scope || this.vm.$data), '$event', '__e__');
+		def((this.scope || this.vm.$data), '$event', '__e__');
 
 		// 处理回调参数以及依赖监测
 		var args = [];
@@ -2238,9 +2271,9 @@
 
 	/**
 	 * 绑定一个事件
-	 * @param   {String}    type
-	 * @param   {Function}  callback
-	 * @param   {Boolean}   capture
+	 * @param  {String}    type
+	 * @param  {Function}  callback
+	 * @param  {Boolean}   capture
 	 */
 	von.on = function (type, callback, capture) {
 		addEvent(this.el, type, callback, capture);
@@ -2248,9 +2281,9 @@
 
 	/**
 	 * 解绑一个事件
-	 * @param   {String}    type
-	 * @param   {Function}  callback
-	 * @param   {Boolean}   capture
+	 * @param  {String}    type
+	 * @param  {Function}  callback
+	 * @param  {Boolean}   capture
 	 */
 	von.off = function (type, callback, capture) {
 		var agents = this.agents;
@@ -2294,7 +2327,7 @@
 	 */
 	vel.parse = function () {
 		// 不能在 vfor 中使用
-		if (!this.$scope) {
+		if (!this.scope) {
 			var register = this.desc.expression;
 			this.vm.$data.$els[register] = this.el;
 		} else {
@@ -2304,8 +2337,8 @@
 
 	/**
 	 * 移除 DOM 注册的引用
-	 * @param   {Object}      vm
-	 * @param   {DOMElement}  element
+	 * @param  {Object}      vm
+	 * @param  {DOMElement}  element
 	 */
 	function removeDOMRegister (vm, element) {
 		var registers = vm.$data.$els;
@@ -2368,7 +2401,7 @@
 
 	/**
 	 * 更新视图
-	 * @param   {Boolean}  isRender
+	 * @param  {Boolean}  isRender
 	 */
 	vif.update = function (isRender) {
 		var elseEl = this.elseEl;
@@ -2382,9 +2415,9 @@
 
 	/**
 	 * 切换节点内容渲染
-	 * @param   {Element}   renderEl
-	 * @param   {Fragment}  fragment
-	 * @param   {Boolean}   isRender
+	 * @param  {Element}   renderEl
+	 * @param  {Fragment}  fragment
+	 * @param  {Boolean}   isRender
 	 */
 	vif.toggle = function (renderEl, fragment, isRender) {
 		var vm = this.vm;
@@ -2392,7 +2425,7 @@
 
 		// 渲染 & 更新视图
 		if (isRender) {
-			vm.compile(frag, true, this.$scope);
+			vm.compile(frag, true, this.scope);
 			renderEl.appendChild(frag);
 		}
 		// 不渲染的情况需要移除 DOM 索引的引用
@@ -2404,16 +2437,20 @@
 
 	var hasProto = '__proto__' in {};
 	var arrayProto = Array.prototype;
-	var setProto = Object.setPrototypeOf;
 	var mutatedProto = Object.create(arrayProto);
 
-	// 重写数组变异方法
-	var rewrites = ['pop', 'push', 'sort', 'shift', 'splice', 'unshift', 'reverse'];
-
 	/**
-	 * 重写 array 变异方法
+	 * 重写/定义数组变异方法
 	 */
-	each(rewrites, function (method) {
+	each([
+		'pop',
+		'push',
+		'sort',
+		'shift',
+		'splice',
+		'unshift',
+		'reverse'
+	], function (method) {
 		var original = arrayProto[method];
 
 		def(mutatedProto, method, function () {
@@ -2452,7 +2489,7 @@
 	});
 
 	/**
-	 * 添加 $set 方法
+	 * 添加数组选项设置/替换方法
 	 * 提供需要修改的数组项下标 index 和新值 value
 	 */
 	def(arrayProto, '$set', function (index, value) {
@@ -2464,7 +2501,7 @@
 	});
 
 	/**
-	 * 添加 $remove 方法
+	 * 添加数组选项删除方法
 	 */
 	def(arrayProto, '$remove', function (item) {
 		var index = this.indexOf(item);
@@ -2474,12 +2511,12 @@
 	});
 
 	/**
-	 * 修改 array 变异方法
+	 * 逐个修改数组变异方法
 	 * IE9, IE10 不支持修改 __proto__
-	 * 所以需要逐个修改数组变异方法
 	 * @param   {Array}  array
 	 */
 	var mutatedKeys = Object.getOwnPropertyNames(mutatedProto);
+	/* istanbul ignore next */
 	function defMutationProto (array) {
 		for (var i = 0; i < mutatedKeys.length; i++) {
 			var key = mutatedKeys[i];
@@ -2488,13 +2525,12 @@
 	}
 
 	/**
-	 * 修改 array 原型
-	 * @param   {Array}  array
+	 * 修改数组原型，将变异方法挂载到数组上
+	 * @param  {Array}  array
 	 */
 	function setMutationProto (array) {
-		if (setProto) {
-			setProto(array, mutatedProto);
-		} else if (hasProto) {
+		/* istanbul ignore else */
+		if (hasProto) {
 			array.__proto__ = mutatedProto;
 		} else {
 			defMutationProto(array);
@@ -2503,7 +2539,7 @@
 
 	/**
 	 * 监测对象
-	 * @param   {Object}  object
+	 * @param  {Object}  object
 	 */
 	function observeObject (object) {
 		each(object, function (value, key) {
@@ -2513,8 +2549,8 @@
 
 	/**
 	 * 监测数组
-	 * @param   {Array}   array
-	 * @param   {String}  key
+	 * @param  {Array}   array
+	 * @param  {String}  key
 	 */
 	function observeArray (array, key) {
 		setMutationProto(array);
@@ -2555,9 +2591,9 @@
 
 	/**
 	 * 监测 object[key] 的变化 & 依赖收集
-	 * @param   {Object}  object
-	 * @param   {String}  key
-	 * @param   {Mix}     value
+	 * @param  {Object}  object
+	 * @param  {String}  key
+	 * @param  {Mix}     value
 	 */
 	function observe (object, key, value) {
 		var dep = new Depend(key);
@@ -2687,8 +2723,8 @@
 		this.partly = false;
 		this.partlyArgs = [];
 		this.$parent = parent;
-		this.$end = el.nextSibling;
-		this.$start = el.previousSibling;
+		this.end = el.nextSibling;
+		this.start = el.previousSibling;
 		this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 		desc.expression = iterator;
@@ -2698,23 +2734,23 @@
 
 	/**
 	 * 更新 select 绑定
-	 * @param   {Boolean}  reset  [数组操作或覆盖]
+	 * @param  {Boolean}  clear  [数组操作或重新赋值]
 	 */
-	vfor.updateModel = function (reset) {
+	vfor.updateModel = function (clear) {
 		if (this.isOption) {
-			var model = this.$parent.__vmodel__;
-			if (model) {
-				model.forceUpdate(reset);
+			var selectModel = this.$parent.__vmodel__;
+			if (selectModel) {
+				selectModel.forceUpdate(clear);
 			}
 		}
 	}
 
 	/**
 	 * 更新视图
-	 * @param   {Array}    newArray   [新数组]
-	 * @param   {Array}    oldArray   [旧数组]
-	 * @param   {Boolean}  fromDeep   [是否是深层更新]
-	 * @param   {Object}   methodArg  [数组操作参数信息]
+	 * @param  {Array}    newArray   [新数组]
+	 * @param  {Array}    oldArray   [旧数组]
+	 * @param  {Boolean}  fromDeep   [数组内部更新]
+	 * @param  {Object}   methodArg  [数组操作参数信息]
 	 */
 	vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 		// 初始化列表
@@ -2735,7 +2771,7 @@
 
 	/**
 	 * 初始化构建列表
-	 * @param   {Array}  list
+	 * @param  {Array}  list
 	 */
 	vfor.initList = function (list) {
 		this.init = false;
@@ -2745,8 +2781,8 @@
 
 	/**
 	 * 数组操作部分更新列表
-	 * @param   {Array}   list
-	 * @param   {Object}  arg
+	 * @param  {Array}   list
+	 * @param  {Object}  arg
 	 */
 	vfor.updatePartly = function (list, arg) {
 		var partlyArgs = [];
@@ -2783,11 +2819,11 @@
 
 	/**
 	 * 重新构建列表
-	 * @param   {Array}  list
+	 * @param  {Array}  list
 	 */
 	vfor.recompileList = function (list) {
-		var end = this.$end;
-		var start = this.$start;
+		var end = this.end;
+		var start = this.start;
 		var parent = this.$parent;
 
 		// 清空循环列表
@@ -2824,7 +2860,7 @@
 			var index = start + i;
 			var alias = this.alias;
 			var plate = el.cloneNode(true);
-			var scope = Object.create(this.$scope || vm.$data);
+			var scope = Object.create(this.scope || vm.$data);
 
 			// 绑定别名
 			observe(scope, alias, item);
@@ -2850,7 +2886,7 @@
 			// 片段挂载别名
 			def(plate, vforAlias, alias);
 
-			// 收集指令并编译板块
+			// 编译板块
 			vm.compile(plate, true, scope);
 			listFragment.appendChild(plate);
 		}, this);
@@ -2884,7 +2920,7 @@
 	 * @return  {Element}
 	 */
 	vfor.getFirst = function () {
-		var start = this.$start;
+		var start = this.start;
 		return start && start.nextSibling || this.$parent.firstChild;
 	}
 
@@ -2893,7 +2929,7 @@
 	 * @return  {Element}
 	 */
 	vfor.getLast = function () {
-		var end = this.$end;
+		var end = this.end;
 		return end && end.previousSibling || this.$parent.lastChild;
 	}
 
@@ -2928,18 +2964,18 @@
 
 	/**
 	 * 在循环列表结尾追加元素 array.push(item)
-	 * @param   {Array}  list
-	 * @param   {Array}  args
+	 * @param  {Array}  list
+	 * @param  {Array}  args
 	 */
 	vfor.push = function (list, args) {
 		var item = this.buildList(args, list.length - 1);
-		this.$parent.insertBefore(item, this.$end);
+		this.$parent.insertBefore(item, this.end);
 	}
 
 	/**
 	 * 在循环列表开头追加元素 array.unshift(item)
-	 * @param   {Array}  list
-	 * @param   {Array}  args
+	 * @param  {Array}  list
+	 * @param  {Array}  args
 	 */
 	vfor.unshift = function (list, args) {
 		var first = this.getFirst();
@@ -2949,8 +2985,8 @@
 
 	/**
 	 * 循环列表的增删改 splice(start, deleteCount, inserts)
-	 * @param   {Array}  list
-	 * @param   {Array}  args
+	 * @param  {Array}  list
+	 * @param  {Array}  args
 	 */
 	vfor.splice = function (list, args) {
 		// 从数组的哪一位开始修改内容。如果超出了数组的长度，则从数组末尾开始添加内容。
@@ -3011,9 +3047,6 @@
 
 	/**
 	 * 解析 v-text, {{ text }} 指令
-	 * @param   {Element}  node   [指令节点]
-	 * @param   {Object}   desc   [指令信息]
-	 * @param   {Object}   scope  [vfor 取值域]
 	 */
 	vtext.parse = function () {
 		this.bind();
@@ -3021,10 +3054,10 @@
 
 	/**
 	 * 更新视图
-	 * @param   {String}   textValue
+	 * @param  {String}  value
 	 */
-	vtext.update = function (textValue) {
-		this.el.textContent = String(textValue);
+	vtext.update = function (value) {
+		this.el.textContent = _toString(value);
 	}
 
 	/**
@@ -3045,10 +3078,10 @@
 
 	/**
 	 * 更新视图
-	 * @param   {String}   htmlString
+	 * @param  {String}  value
 	 */
-	vhtml.update = function (htmlString) {
-		empty(this.el).appendChild(stringToFragment(String(htmlString)));
+	vhtml.update = function (value) {
+		empty(this.el).appendChild(stringToFragment(_toString(value)));
 	}
 
 	var visibleDisplay = '__visible__';
@@ -3105,7 +3138,7 @@
 
 	/**
 	 * 更新视图
-	 * @param   {Boolean}  isShow
+	 * @param  {Boolean}  isShow
 	 */
 	vshow.update = function (isShow) {
 		var el = this.el;
@@ -3119,19 +3152,19 @@
 	}
 
 	/**
-	 * 返回 contrastObject 相对于 referObject 的差异对象
-	 * @param   {Object}  contrastObject  [对比对象]
-	 * @param   {Object}  referObject     [参照对象]
+	 * 返回 contrast 相对于 refer 的差异对象
+	 * @param   {Object}  contrast  [对比对象]
+	 * @param   {Object}  refer     [参照对象]
 	 * @return  {Object}
 	 */
-	function getUniqueObject (contrastObject, referObject) {
+	function getDiffObject (contrast, refer) {
 		var unique = {};
 
-		each(contrastObject, function (value, key) {
-			var _diff, oldItem = referObject[key];
+		each(contrast, function (value, key) {
+			var _diff, oldItem = refer[key];
 
 			if (isObject(value)) {
-				_diff = getUniqueObject(value, oldItem);
+				_diff = getDiffObject(value, oldItem);
 				if (!isEmptyObject(_diff)) {
 					unique[key] = _diff;
 				}
@@ -3142,7 +3175,7 @@
 					var _diff;
 
 					if (isObject(nItem)) {
-						_diff = getUniqueObject(nItem, oldItem[index]);
+						_diff = getDiffObject(nItem, oldItem[index]);
 						newArray.push(_diff);
 					}
 					else {
@@ -3165,20 +3198,20 @@
 	}
 
 	/**
-	 * 返回 contrastArray 相对于 referArray 的差异数组
-	 * @param   {Array}  contrastArray  [对比数组]
-	 * @param   {Array}  referArray     [参照数组]
+	 * 返回 contrast 相对于 refer 的差异数组
+	 * @param   {Array}  contrast  [对比数组]
+	 * @param   {Array}  refer     [参照数组]
 	 * @return  {Array}
 	 */
-	function getUniqueArray (contrastArray, referArray) {
+	function getDiffArray (contrast, refer) {
 		var uniques = [];
 
-		if (!isArray(contrastArray) || !isArray(referArray)) {
-			return contrastArray;
+		if (!isArray(contrast) || !isArray(refer)) {
+			return contrast;
 		}
 
-		each(contrastArray, function (item) {
-			if (referArray.indexOf(item) < 0) {
+		each(contrast, function (item) {
+			if (refer.indexOf(item) < 0) {
 				uniques.push(item);
 			}
 		});
@@ -3189,25 +3222,25 @@
 	/**
 	 * 返回两个比较值的差异
 	 * 获取绑定 object 和 array 的更新差异
-	 * @param   {Object|Array}  newTarget
-	 * @param   {Object|Array}  oldTarget
+	 * @param   {Object|Array}  newVal
+	 * @param   {Object|Array}  oldVal
 	 * @return  {Object}
 	 */
-	function diff (newTarget, oldTarget) {
-		var isA = isArray(newTarget) && isArray(oldTarget);
-		var isO = isObject(newTarget) && isObject(oldTarget);
-		var handler = isO ? getUniqueObject : (isA ? getUniqueArray : null);
+	function diff (newVal, oldVal) {
+		var isA = isArray(newVal) && isArray(oldVal);
+		var isO = isObject(newVal) && isObject(oldVal);
+		var handler = isO ? getDiffObject : (isA ? getDiffArray : null);
 
-		var after = handler && handler(newTarget, oldTarget) || newTarget;
-		var before = handler && handler(oldTarget, newTarget) || oldTarget;
+		var after = handler && handler(newVal, oldVal) || newVal;
+		var before = handler && handler(oldVal, newVal) || oldVal;
 
 		return { after: after, before: before };
 	}
 
 	/**
 	 * 处理 styleObject, 批量更新元素 style
-	 * @param   {Element}  element
-	 * @param   {String}   styleObject
+	 * @param  {Element}  element
+	 * @param  {String}   styleObject
 	 */
 	function updateStyle (element, styleObject) {
 		var style = element.style;
@@ -3225,9 +3258,9 @@
 
 	/**
 	 * 支持空格分割的 add/remove class
-	 * @param   {Element}  element
-	 * @param   {String}   className
-	 * @param   {Boolean}  remove
+	 * @param  {Element}  element
+	 * @param  {String}   className
+	 * @param  {Boolean}  remove
 	 */
 	function handleClass (element, className, remove) {
 		each(className.split(' '), function (cls) {
@@ -3241,9 +3274,9 @@
 
 	/**
 	 * 根据绑定值更新元素的 className
-	 * @param   {Element}  element
-	 * @param   {Mix}      classValue
-	 * @param   {Boolean}  remove
+	 * @param  {Element}  element
+	 * @param  {Mix}      classValue
+	 * @param  {Boolean}  remove
 	 */
 	function updateClass (element, classValue, remove) {
 		if (isString(classValue)) {
@@ -3279,8 +3312,8 @@
 
 	/**
 	 * 视图更新
-	 * @param   {Mix}  newValue
-	 * @param   {Mix}  oldValue
+	 * @param  {Mix}  newValue
+	 * @param  {Mix}  oldValue
 	 */
 	vbind.update = function (newValue, oldValue) {
 		var type = this.desc.args;
@@ -3293,43 +3326,43 @@
 
 	/**
 	 * 解析单个 attribute
-	 * @param   {String}  type
-	 * @param   {Mix}     newValue
-	 * @param   {Mix}     oldValue
+	 * @param  {String}  type
+	 * @param  {Mix}     newValue
+	 * @param  {Mix}     oldValue
 	 */
 	vbind.single = function (type, newValue, oldValue) {
 		switch (type) {
 			case 'class':
-				this.handleClass(newValue, oldValue);
+				this.processClass(newValue, oldValue);
 				break;
 			case 'style':
-				this.handleStyle(newValue, oldValue);
+				this.processStyle(newValue, oldValue);
 				break;
 			default:
-				this.handleAttr(type, newValue);
+				this.processAttr(type, newValue);
 		}
 	}
 
 	/**
 	 * 解析 attribute, class, style 组合
-	 * @param   {Object}  newJson
-	 * @param   {Object}  oldJson
+	 * @param  {Object}  newObj
+	 * @param  {Object}  oldObj
 	 */
-	vbind.multi = function (newJson, oldJson) {
-		if (oldJson) {
-			var ref = diff(newJson, oldJson);
+	vbind.multi = function (newObj, oldObj) {
+		if (oldObj) {
+			var ref = diff(newObj, oldObj);
 			var after = ref.after;
 			var before = ref.before;
 			this.batch(after, before);
 		}
 
-		this.batch(newJson);
+		this.batch(newObj);
 	}
 
 	/**
 	 * 绑定属性批处理
-	 * @param   {Object}  newObj
-	 * @param   {Object}  oldObj
+	 * @param  {Object}  newObj
+	 * @param  {Object}  oldObj
 	 */
 	vbind.batch = function (newObj, oldObj) {
 		each(newObj, function (value, key) {
@@ -3339,10 +3372,10 @@
 
 	/**
 	 * 更新处理 className
-	 * @param   {Mix}  newClass
-	 * @param   {Mix}  oldClass
+	 * @param  {Mix}  newClass
+	 * @param  {Mix}  oldClass
 	 */
-	vbind.handleClass = function (newClass, oldClass) {
+	vbind.processClass = function (newClass, oldClass) {
 		var el = this.el;
 
 		// 数据更新
@@ -3359,10 +3392,10 @@
 
 	/**
 	 * 更新处理 style
-	 * @param   {Mix}  newStyle
-	 * @param   {Mix}  oldStyle
+	 * @param  {Mix}  newStyle
+	 * @param  {Mix}  oldStyle
 	 */
-	vbind.handleStyle = function (newStyle, oldStyle) {
+	vbind.processStyle = function (newStyle, oldStyle) {
 		var el = this.el;
 
 		// 数据更新
@@ -3380,10 +3413,10 @@
 
 	/**
 	 * 更新处理 attribute
-	 * @param   {String}   attr
-	 * @param   {String}   value
+	 * @param  {String}   attr
+	 * @param  {String}   value
 	 */
-	vbind.handleAttr = function (attr, value) {
+	vbind.processAttr = function (attr, value) {
 		setAttr(this.el, attr, value);
 	}
 
@@ -3460,6 +3493,7 @@
 			});
 
 			// 在 IE9 中，backspace, delete 和剪切事件不会触发 input 事件
+			/* istanbul ignore next */
 			if (isMsie9) {
 				this.on('cut', function () {
 					var this$1 = this;
@@ -3478,7 +3512,7 @@
 
 		/**
 		 * 更新 text 值
-		 * @param   {String}  value
+		 * @param  {String}  value
 		 */
 		update: function update (value) {
 			var el = this.el;
@@ -3504,7 +3538,7 @@
 
 		/**
 		 * 更新 radio 值
-		 * @param   {String}  value
+		 * @param  {String}  value
 		 */
 		update: function update (value) {
 			var el = this.el;
@@ -3558,7 +3592,7 @@
 
 		/**
 		 * 更新 select 值
-		 * @param   {Array|String}  values
+		 * @param  {Array|String}  values
 		 */
 		update: function update (values) {
 			var this$1 = this;
@@ -3589,12 +3623,12 @@
 
 		/**
 		 * 强制更新 select 的值，用于动态的 option
-		 * @param   {Booleam}  reset  [是否清除默认选中状态]
+		 * @param  {Boolean}  clear  [是否清除默认选中状态]
 		 */
-		forceUpdate: function forceUpdate (reset) {
+		forceUpdate: function forceUpdate (clear) {
 			var directive = this.directive;
 
-			if (reset) {
+			if (clear) {
 				directive.set(this.multi ? [] : '');
 			} else {
 				this.update(directive.get());
@@ -3631,7 +3665,7 @@
 
 		/**
 		 * 更新 checkbox 值
-		 * @param   {Boolean|Array}  values
+		 * @param  {Boolean|Array}  values
 		 */
 		update: function update (values) {
 			var el = this.el;
@@ -3642,31 +3676,6 @@
 			}
 
 			el.checked = isBool(values) ? values : (indexOf(value, values) > -1);
-		}
-	}
-
-	/**
-	 * 将 value 转化为字符串
-	 * undefined 和 null 都转成空字符串
-	 * @param   {Mix}     value
-	 * @return  {String}
-	 */
-	function _toString (value) {
-		return value == null ? '' : value.toString();
-	}
-
-	/**
-	 * value 转成 Number 类型
-	 * 如转换失败原样返回
-	 * @param   {String|Mix}  value
-	 * @return  {Number|Mix}
-	 */
-	function toNumber (value) {
-		if (isString(value)) {
-			var val = Number(value);
-			return isNumber(val) ? val : value;
-		} else {
-			return value;
 		}
 	}
 
@@ -3736,7 +3745,7 @@
 
 	/**
 	 * 双向数据绑定
-	 * @param   {String}  type
+	 * @param  {String}  type
 	 */
 	vmodel.bindDuplex = function (type) {
 		var form;
@@ -3789,8 +3798,8 @@
 
 	/**
 	 * 表单元素事件绑定
-	 * @param   {String}    type
-	 * @param   {Function}  callback
+	 * @param  {String}    type
+	 * @param  {Function}  callback
 	 */
 	vmodel.on = function (type, callback) {
 		addEvent(this.el, type, callback, false);
@@ -3821,10 +3830,10 @@
 	}
 
 	/**
-	 * 导出指令编译模块
+	 * 导出指令解析模块
 	 * @type {Object}
 	 */
-	var directiveParsers = {
+	var DirectiveParsers = {
 		von: VOn,
 		vel: VEl,
 		vif: VIf,
@@ -3932,8 +3941,6 @@
 
 		// 指令实例缓存
 		this.$directives = [];
-		// 指令解析模块
-		this.$parsers = directiveParsers;
 
 		// 监测数据模型
 		this.$ob = createObserver(this.$data, '__MODEL__');
@@ -3967,9 +3974,9 @@
 	/**
 	 * 收集节点所有需要编译的指令
 	 * 并在收集完成后编译指令队列
-	 * @param   {Element}  element  [编译节点]
-	 * @param   {Boolean}  root     [是否是根节点]
-	 * @param   {Object}   scope    [vfor 取值域]
+	 * @param  {Element}  element  [编译节点]
+	 * @param  {Boolean}  root     [是否是根节点]
+	 * @param  {Object}   scope    [vfor 取值域]
 	 */
 	cp.compile = function (element, root, scope) {
 		var this$1 = this;
@@ -4001,8 +4008,8 @@
 	 * 编译节点缓存队列
 	 */
 	cp.compileAll = function () {
-		each(this.$queue, function (info) {
-			this.complieNode(info);
+		each(this.$queue, function (tuple) {
+			this.complieNode(tuple);
 			return null;
 		}, this);
 
@@ -4011,10 +4018,11 @@
 
 	/**
 	 * 收集并编译节点指令
-	 * @param   {Array}  info  [node, scope]
+	 * @param   {Array}  tuple  [node, scope]
 	 */
-	cp.complieNode = function (info) {
-		var node = info[0], scope = info[1];
+	cp.complieNode = function (tuple) {
+		var node = tuple[0];
+		var scope = tuple[1];
 
 		if (isElement(node)) {
 			var vfor, attrs = [];
@@ -4040,8 +4048,8 @@
 				}
 			}
 
-			// 当 v-bind JSON 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
-			// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind JSON
+			// 当 v-bind 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
+			// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind
 			// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
 			if (
 				!vfor &&
@@ -4055,7 +4063,7 @@
 				vmodel = null;
 			}
 
-			// vfor 指令与其他指令共存时优先编译 vfor 指令
+			// vfor 指令与其他指令共存时只需编译 vfor
 			if (vfor) {
 				def(node, '__dirs__', attrs.length);
 				attrs = [vfor];
@@ -4083,7 +4091,7 @@
 		var directive = desc.directive;
 
 		var dir = 'v' + directive.substr(2);
-		var Parser = this.$parsers[dir];
+		var Parser = DirectiveParsers[dir];
 
 		// 移除指令标记
 		removeAttr(node, desc.attr);
@@ -4120,7 +4128,7 @@
 			}
 
 			desc.expression = exp;
-			this.$directives.push(new directiveParsers.vhtml(this, node.parentNode, desc, scope));
+			this.$directives.push(new DirectiveParsers.vhtml(this, node.parentNode, desc, scope));
 
 		} else {
 			pieces = text.split(regText);
@@ -4129,7 +4137,6 @@
 			// 文本节点转化为常量和变量的组合表达式
 			// 'a {{b}} c' => '"a " + b + " c"'
 			each(pieces, function (piece) {
-				// {{text}}
 				if (matches.indexOf('{{' + piece + '}}') > -1) {
 					tokens.push('(' + piece + ')');
 				} else if (piece) {
@@ -4138,7 +4145,7 @@
 			});
 
 			desc.expression = tokens.join('+');
-			this.$directives.push(new directiveParsers.vtext(this, node, desc, scope));
+			this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
 		}
 	}
 
@@ -4146,11 +4153,11 @@
 	 * 停止编译节点的剩余指令
 	 * 如含有其他指令的 vfor 节点
 	 * 应保留指令信息并放到循环列表中编译
-	 * @param   {Element}  node
+	 * @param  {Element}  node
 	 */
 	cp.block = function (node) {
-		each(this.$queue, function (info) {
-			if (node === info[0]) {
+		each(this.$queue, function (tuple) {
+			if (node === tuple[0]) {
 				return null;
 			}
 		});
@@ -4289,7 +4296,7 @@
 
 	/**
 	 * 重置数据和视图为初始状态
-	 * @param   {Array|String}  key  [<可选>数据模型字段，或字段数组，空则重置所有]
+	 * @param  {Array|String}  key  [<可选>数据模型字段，或字段数组，空则重置所有]
 	 */
 	mvp.reset = function (key) {
 		var data = this.$data;
@@ -4315,9 +4322,9 @@
 
 	/**
 	 * 监测表达式值的变化
-	 * @param   {String}    expression  [监测的表达式]
-	 * @param   {Function}  callback    [监测变化回调]
-	 * @param   {Boolean}   deep        [<可选>深层依赖监测]
+	 * @param  {String}    expression  [监测的表达式]
+	 * @param  {Function}  callback    [监测变化回调]
+	 * @param  {Boolean}   deep        [<可选>深层依赖监测]
 	 */
 	mvp.watch = function (expression, callback, deep) {
 		return new Watcher(this, {
@@ -4328,7 +4335,7 @@
 
 	/**
 	 * 批量 watch 配置的监测模型
-	 * @param   {Object}  watches
+	 * @param  {Object}  watches
 	 */
 	mvp._watchBatch = function (watches) {
 		each(watches, function (callback, expression) {
