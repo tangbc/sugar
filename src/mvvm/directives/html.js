@@ -1,6 +1,6 @@
 import { empty } from '../../dom';
-import { stringToFragment } from '../../util';
 import Parser, { linkParser } from '../parser';
+import { stringToFragment, _toString } from '../../util';
 
 /**
  * v-html 指令解析模块
@@ -20,8 +20,8 @@ vhtml.parse = function () {
 
 /**
  * 更新视图
- * @param   {String}   htmlString
+ * @param  {String}  value
  */
-vhtml.update = function (htmlString) {
-	empty(this.el).appendChild(stringToFragment(String(htmlString)));
+vhtml.update = function (value) {
+	empty(this.el).appendChild(stringToFragment(_toString(value)));
 }

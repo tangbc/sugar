@@ -78,6 +78,31 @@ export function isEmptyObject (object) {
 }
 
 /**
+ * 将 value 转化为字符串
+ * undefined 和 null 都转成空字符串
+ * @param   {Mix}     value
+ * @return  {String}
+ */
+export function _toString (value) {
+	return value == null ? '' : value.toString();
+}
+
+/**
+ * value 转成 Number 类型
+ * 如转换失败原样返回
+ * @param   {String|Mix}  value
+ * @return  {Number|Mix}
+ */
+export function toNumber (value) {
+	if (isString(value)) {
+		let val = Number(value);
+		return isNumber(val) ? val : value;
+	} else {
+		return value;
+	}
+}
+
+/**
  * 空操作函数
  */
 export function noop () {}
@@ -113,10 +138,10 @@ export function hasOwn (obj, key) {
 
 /**
  * object 定义或修改 property 属性
- * @param   {Object}   object      [对象]
- * @param   {String}   property    [属性字段]
- * @param   {Mix}      value       [属性的修改值/新值]
- * @param   {Boolean}  enumerable  [属性是否出现在枚举中]
+ * @param  {Object}   object      [对象]
+ * @param  {String}   property    [属性字段]
+ * @param  {Mix}      value       [属性的修改值/新值]
+ * @param  {Boolean}  enumerable  [属性是否出现在枚举中]
  */
 export function def (object, property, value, enumerable) {
 	return Object.defineProperty(object, property, {
@@ -180,7 +205,7 @@ export function each (iterator, callback, context) {
 
 /**
  * 删除 object 所有属性
- * @param   {Object}   object
+ * @param  {Object}   object
  */
 export function clearObject (object) {
 	each(object, function () {
@@ -189,8 +214,9 @@ export function clearObject (object) {
 }
 
 /**
- * 扩展合并对象，摘自 jQuery
+ * 扩展合并对象
  */
+/* istanbul ignore next */
 export function extend () {
 	let options, name, src, copy, copyIsArray, clone;
 	let target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
@@ -347,10 +373,10 @@ export function removeSpace (string) {
 
 /**
  * 设置/读取数据配置对象
- * @param  {Object}   data   [配置对象]
- * @param  {String}   name   [配置名称, 支持/分隔层次]
- * @param  {Mix}      value  [不传为读取配置信息]
- * @return {Mix}             [返回读取的配置值]
+ * @param   {Object}   data   [配置对象]
+ * @param   {String}   name   [配置名称, 支持/分隔层次]
+ * @param   {Mix}      value  [不传为读取配置信息]
+ * @return  {Mix}             [返回读取的配置值]
  */
 export function config (data, name, value) {
 	if (name) {
@@ -373,7 +399,7 @@ export function config (data, name, value) {
 
 /**
  * 挂载到 sugar 上的工具方法
- * @param   {Object}
+ * @param  {Object}
  */
 export default {
 	def,

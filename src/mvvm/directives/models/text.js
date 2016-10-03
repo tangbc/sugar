@@ -1,4 +1,5 @@
-import { formatValue, toNumber, _toString } from './index';
+import { formatValue } from './index';
+import { toNumber, _toString } from '../../../util';
 
 /**
  * 异步延迟函数
@@ -73,6 +74,7 @@ export default {
 		});
 
 		// 在 IE9 中，backspace, delete 和剪切事件不会触发 input 事件
+		/* istanbul ignore next */
 		if (isMsie9) {
 			this.on('cut', function () {
 				debounceDelay(() => setModelValue(this.value));
@@ -89,7 +91,7 @@ export default {
 
 	/**
 	 * 更新 text 值
-	 * @param   {String}  value
+	 * @param  {String}  value
 	 */
 	update (value) {
 		let el = this.el;

@@ -1,4 +1,5 @@
-import { formatValue, _toString } from './index';
+import { formatValue } from './index';
+import { _toString } from '../../../util';
 
 export default {
 	/**
@@ -15,7 +16,7 @@ export default {
 
 	/**
 	 * 更新 radio 值
-	 * @param   {String}  value
+	 * @param  {String}  value
 	 */
 	update (value) {
 		let el = this.el;

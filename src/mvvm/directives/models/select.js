@@ -47,7 +47,7 @@ export default {
 
 	/**
 	 * 更新 select 值
-	 * @param   {Array|String}  values
+	 * @param  {Array|String}  values
 	 */
 	update (values) {
 		let el = this.el;
@@ -76,12 +76,12 @@ export default {
 
 	/**
 	 * 强制更新 select 的值，用于动态的 option
-	 * @param   {Booleam}  reset  [是否清除默认选中状态]
+	 * @param  {Boolean}  clear  [是否清除默认选中状态]
 	 */
-	forceUpdate (reset) {
+	forceUpdate (clear) {
 		let directive = this.directive;
 
-		if (reset) {
+		if (clear) {
 			directive.set(this.multi ? [] : '');
 		} else {
 			this.update(directive.get());
