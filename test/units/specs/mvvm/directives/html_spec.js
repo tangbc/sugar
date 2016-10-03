@@ -33,6 +33,13 @@ describe("v-html >", function () {
 
 		data.layout = 'This is a plain text string';
 		expect(div.innerHTML).toBe('This is a plain text string');
+
+		// undefine and null will transfer to ''
+		data.layout = undefined;
+		expect(div.innerHTML).toBe('');
+
+		data.layout = {};
+		expect(div.innerHTML).toBe('[object Object]');
 	});
 
 

@@ -28,6 +28,13 @@ describe("v-text >", function () {
 
 		data.text = '321 123';
 		expect(element.querySelector('#test1').textContent).toBe('321 123');
+
+		// undefine and null will transfer to ''
+		data.text = null;
+		expect(element.querySelector('#test1').textContent).toBe('');
+
+		data.text = {};
+		expect(element.querySelector('#test1').textContent).toBe('[object Object]');
 	});
 
 
