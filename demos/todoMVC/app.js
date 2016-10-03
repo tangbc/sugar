@@ -25,19 +25,51 @@
 					'clearCompleted': this.clearCompleted
 				},
 				'computed': {
-					'left': function computedLeft () {
+					'left': function () {
 						return filter.active(this.allTodos).length;
 					},
-					'showClear': function computedShowClear () {
+					'showClear': function () {
 						return filter.completed(this.allTodos).length > 0;
 					}
 				},
 				'customs': {
 					// make edit-input get focus
 					// define custom directive refresh function
-					'focus': function focusEdit (editing) {
+					'focus': function (editing) {
 						if (editing) {
 							this.el.focus();
+						}
+					}
+				},
+				'watches': {
+					// watch for `type` change
+					'type': this.updateList,
+					// watch for `toggleAll` manual change
+					// by the `allTodos` change, `toggleAll` will be updated checking-all
+					'toggleAll': function (checked) {
+						if (!this.$checking) {
+							this.vm.get('todos').forEach(function (todo) {
+								todo.completed = checked;
+							});
+						}
+					},
+					// watch for `allTodos` deep change
+					'allTodos': {
+						'deep': true,
+						'handler': function () {
+							var data = this.vm.$data
+							var allTodos = data.allTodos;
+
+							// check checking status for `toggleAll`
+							this.$checking = true;
+							data.toggleAll = filter.active(allTodos).length === 0;
+							this.$checking = false;
+
+							if (this.ready) {
+								this.updateList();
+							}
+
+							storage.save(allTodos);
 						}
 					}
 				}
@@ -47,37 +79,6 @@
 		},
 
 		afterRender: function () {
-			// watch for `toggleAll` manual change
-			// by the `allTodos` change, `toggleAll` will be updated checking-all
-			this.vm.watch('toggleAll', function (checked) {
-				if (!this.$checking) {
-					this.vm.get('todos').forEach(function (todo) {
-						todo.completed = checked;
-					});
-				}
-			});
-
-			// watch for `allTodos` deep change
-			this.vm.watch('allTodos', function () {
-				var data = this.vm.$data
-				var allTodos = data.allTodos;
-
-				// check checking status for `toggleAll`
-				this.$checking = true;
-				data.toggleAll = filter.active(allTodos).length === 0;
-				this.$checking = false;
-
-				if (this.ready) {
-					this.updateList();
-				}
-
-				storage.save(allTodos);
-			}, true);
-
-			// watch for `type` change
-			this.vm.watch('type', this.updateList);
-
-			// build init for list data
 			this.updateList();
 		},
 
@@ -162,7 +163,7 @@
 	});
 
 	/**
-	 * Create todoMVC instanc
+	 * Create todoMVC instance
 	 * @type  {Object}
 	 */
 	exports.todoMVC = Sugar.core.create('todoMVC', TodoMVC);
