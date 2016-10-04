@@ -22,20 +22,6 @@ function getSelecteds (select, number) {
 	return sels;
 }
 
-/**
- * 设置多选 select 的选中值
- * @param  {Select}   select
- * @param  {Array}    values
- */
-function setSelecteds (select, values) {
-	let options = select.options;
-
-	for (let i = 0; i < options.length; i++) {
-		let option = options[i];
-		option.selected = indexOf(option.value, values) > -1;
-	}
-}
-
 export default {
 	/**
 	 * 绑定 select 变化事件
@@ -82,10 +68,11 @@ export default {
 			return warn('The model ['+ exp +'] cannot set as Array when <select> has no multiple propperty');
 		}
 
-		if (multi) {
-			setSelecteds(el, data);
-		} else {
-			el.value = _toString(data);
+		let options = el.options;
+		for (let i = 0; i < options.length; i++) {
+			let option = options[i];
+			let value = option.value;
+			option.selected = multi ? indexOf(value, data) > -1 : value === _toString(data);
 		}
 	},
 
