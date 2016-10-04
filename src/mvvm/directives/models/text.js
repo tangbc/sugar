@@ -90,12 +90,12 @@ export default {
 	},
 
 	/**
-	 * 更新 text 值
-	 * @param  {String}  value
+	 * 根据数据更新更新 text 值
+	 * @param  {String}  data
 	 */
-	update (value) {
+	update (data) {
 		let el = this.el;
-		let val = _toString(value);
+		let val = _toString(data);
 		if (el.value !== val && !this.onDebounce) {
 			el.value = val;
 		}

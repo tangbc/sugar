@@ -29,17 +29,17 @@ export default {
 	},
 
 	/**
-	 * 更新 checkbox 值
-	 * @param  {Boolean|Array}  values
+	 * 根据数据更新更新 checkbox 值
+	 * @param  {Boolean|Array}  data
 	 */
-	update (values) {
+	update (data) {
 		let el = this.el;
 		let value = formatValue(el.value, this.number);
 
-		if (!isArray(values) && !isBool(values)) {
+		if (!isArray(data) && !isBool(data)) {
 			return warn('Checkbox v-model value must be a type of Boolean or Array');
 		}
 
-		el.checked = isBool(values) ? values : (indexOf(value, values) > -1);
+		el.checked = isBool(data) ? data : (indexOf(value, data) > -1);
 	}
 }

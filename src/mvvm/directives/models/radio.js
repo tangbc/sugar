@@ -15,11 +15,11 @@ export default {
 	},
 
 	/**
-	 * 更新 radio 值
-	 * @param  {String}  value
+	 * 根据数据更新更新 radio 值
+	 * @param  {String}  data
 	 */
-	update (value) {
+	update (data) {
 		let el = this.el;
-		el.checked = el.value === _toString(value);
+		el.checked = el.value === _toString(data);
 	}
 }
