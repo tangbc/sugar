@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Mon Oct 03 2016 10:00:07 GMT+0800 (CST)
+ * Tue Oct 04 2016 09:01:20 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2823,12 +2823,12 @@
 		},
 
 		/**
-		 * 更新 text 值
-		 * @param  {String}  value
+		 * 根据数据更新更新 text 值
+		 * @param  {String}  data
 		 */
-		update: function update (value) {
+		update: function update (data) {
 			var el = this.el;
-			var val = _toString(value);
+			var val = _toString(data);
 			if (el.value !== val && !this.onDebounce) {
 				el.value = val;
 			}
@@ -2849,17 +2849,17 @@
 		},
 
 		/**
-		 * 更新 radio 值
-		 * @param  {String}  value
+		 * 根据数据更新更新 radio 值
+		 * @param  {String}  data
 		 */
-		update: function update (value) {
+		update: function update (data) {
 			var el = this.el;
-			el.checked = el.value === _toString(value);
+			el.checked = el.value === _toString(data);
 		}
 	}
 
 	/**
-	 * 获取 select 的选中值
+	 * 获取多选 select 的选中值
 	 * @param   {Select}   select
 	 * @param   {Boolean}  number
 	 * @return  {Array}
@@ -2879,6 +2879,20 @@
 		return sels;
 	}
 
+	/**
+	 * 设置多选 select 的选中值
+	 * @param  {Select}   select
+	 * @param  {Array}    values
+	 */
+	function setSelecteds (select, values) {
+		var options = select.options;
+
+		for (var i = 0; i < options.length; i++) {
+			var option = options[i];
+			option.selected = indexOf(option.value, values) > -1;
+		}
+	}
+
 	var select = {
 		/**
 		 * 绑定 select 变化事件
@@ -2889,47 +2903,46 @@
 			var directive = this.directive;
 
 			this.on('change', function () {
-				var sels = getSelecteds(this, number);
-				directive.set(multi ? sels : sels[0]);
+				var setVal = multi ?
+					getSelecteds(this, number) :
+					formatValue(this.value, number);
+
+				directive.set(setVal);
 			});
 
-			// 避免 selectedIndex 设为 -1 时再被重置回 0
-			// 从而导致 select.value 重新强制选中第一项，
-			// 在部分浏览器如 IE9, PhantomJS 等 selectedIndex 设为 -1 的情况下，
-			// 假如当前 select 片段的父元素被移动到其他地方的时候，
-			// selectedIndex 将会从 -1 又变回 0, 因为编译阶段都是在文档碎片上执行，
-			// 所以必须在片段编译完成并添加到文档后再次强制更新初始值
+			// 在 更新 select 时将 selectedIndex 设为 -1 的情况下
+			// 假如当前 select dom 片段的父元素被移动(append)到文档或其他节点之后
+			// 在部分浏览器如 IE9, PhantomJS 中，selectedIndex 将会从 -1 又变回 0
+			// 这将导致 v-for option 在列表渲染完成后无法正确的设置 select 的选中值
+			// 因为编译阶段都是在文档碎片上执行，所以必须在编译完成后再次强制初始选中状态
 			this.vm.after(this.forceUpdate, this);
 		},
 
 		/**
-		 * 更新 select 值
-		 * @param  {Array|String}  values
+		 * 根据数据更新 select 选中值
+		 * @param  {Array|String}  data
 		 */
-		update: function update (values) {
-			var this$1 = this;
-
+		update: function update (data) {
 			var el = this.el;
-			var options = el.options;
 			var multi = this.multi;
 			var exp = this.desc.expression;
 
 			// 初始选中项设为空（默认情况下会是第一项）
-			// 在 v-model 中 select 的选中项总是以数据(values)为准
+			// 在 v-model 中 select 的选中项总是以数据(data)为准
 			el.selectedIndex = -1;
 
-			if (multi && !isArray(values)) {
+			if (multi && !isArray(data)) {
 				return warn('<select> cannot be multiple when the model set ['+ exp +'] as not Array');
 			}
 
-			if (!multi && isArray(values)) {
+			if (!multi && isArray(data)) {
 				return warn('The model ['+ exp +'] cannot set as Array when <select> has no multiple propperty');
 			}
 
-			for (var i = 0; i < options.length; i++) {
-				var option = options[i];
-				var val = formatValue(option.value, this$1.number);
-				option.selected = multi ? indexOf(val, values) > -1 : values === val;
+			if (multi) {
+				setSelecteds(el, data);
+			} else {
+				el.value = _toString(data);
 			}
 		},
 
@@ -2976,18 +2989,18 @@
 		},
 
 		/**
-		 * 更新 checkbox 值
-		 * @param  {Boolean|Array}  values
+		 * 根据数据更新更新 checkbox 值
+		 * @param  {Boolean|Array}  data
 		 */
-		update: function update (values) {
+		update: function update (data) {
 			var el = this.el;
 			var value = formatValue(el.value, this.number);
 
-			if (!isArray(values) && !isBool(values)) {
+			if (!isArray(data) && !isBool(data)) {
 				return warn('Checkbox v-model value must be a type of Boolean or Array');
 			}
 
-			el.checked = isBool(values) ? values : (indexOf(value, values) > -1);
+			el.checked = isBool(data) ? data : (indexOf(value, data) > -1);
 		}
 	}
 
