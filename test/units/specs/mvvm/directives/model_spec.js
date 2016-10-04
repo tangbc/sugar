@@ -1190,9 +1190,9 @@ describe("v-model >", function () {
 		var options = select.childNodes;
 
 		// here we hope that if specify number attribute
-		// not only return data, but also input data both require a number
+		// input data type is nonessential number, it support pass string
 		expect(data.test).toBe('1');
-		expect(select.value).toBe('');
+		expect(select.value).toBe('1');
 
 		// set value by event
 		setSelect(select, '2');
@@ -1668,6 +1668,39 @@ describe("v-model >", function () {
 		options[1].selected = true;
 		triggerEvent(select, 'change');
 		expect(data.test).toEqual([1, 2, 3]);
+	});
+
+
+	it('multiple select return all number & specify some not-number default selected', function () {
+		element.innerHTML =
+			'<select v-model="test" multiple number>' +
+				'<option value="1">A</option>' +
+				'<option value="2">B</option>' +
+				'<option value="3">C</option>' +
+			'</select>'
+
+		var vm = new MVVM({
+			'view': element,
+			'model': {
+				'test': ['1', '3'] // pass string default values, it still works
+			}
+		});
+		var data = vm.$data;
+		var select = element.querySelector('select');
+		var options = select.childNodes;
+
+		expect(options[0].selected).toBe(true);
+		expect(options[1].selected).toBe(false);
+		expect(options[2].selected).toBe(true);
+
+		options[1].selected = true;
+		triggerEvent(select, 'change'); // when change one, all option will go througn and format data
+		expect(data.test).toEqual([1, 2, 3]);
+
+		data.test = ['2', '3']; // pass string values, it still works
+		expect(options[0].selected).toBe(false);
+		expect(options[1].selected).toBe(true);
+		expect(options[2].selected).toBe(true);
 	});
 
 
