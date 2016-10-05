@@ -294,17 +294,6 @@ export function copy (target) {
 	return ret || target;
 }
 
-/**
- * 拆解字符键值对，返回键值数组
- * @param   {String}        expression
- * @param   {Boolean}       both
- * @return  {String|Array}
- */
-export function getKeyValue (expression, both) {
-	let array = expression.split(':');
-	return both ? array : array.pop();
-}
-
 
 /**
  * 创建一个空的 dom 元素

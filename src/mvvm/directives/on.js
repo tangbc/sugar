@@ -1,7 +1,7 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, def, extend, clearObject, warn, isFunc } from '../../util';
+import { removeSpace, each, def, extend, clearObject, warn, isFunc } from '../../util';
 
 const regKeyCode = /^(\d)*$/;
 const regBigBrackets = /^\{.*\}$/;
@@ -45,7 +45,7 @@ function convertJson (jsonString) {
 		let props = string.match(regJsonFormat);
 
 		each(props, function (prop) {
-			let vals = getKeyValue(prop, true);
+			let vals = prop.split(':');
 			let name = vals[0], value = vals[1];
 			if (name && value) {
 				name = name.replace(regQuotes, '');

@@ -1,4 +1,7 @@
-import { removeSpace, getKeyValue, each } from './util';
+import {
+	each,
+	removeSpace
+} from './util';
 
 /**
  * 是否是元素节点
@@ -193,7 +196,7 @@ export function getVisible (node) {
 
 		each(styles, function (style) {
 			if (style.indexOf('display') > -1) {
-				display = getKeyValue(style);
+				display = style.split(':').pop();
 			}
 		});
 	}
