@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Tue Oct 04 2016 09:01:19 GMT+0800 (CST)
+ * Wed Oct 05 2016 10:15:40 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1995,6 +1995,7 @@
 		// this.getVisible = getVisible;
 	}
 
+	var regKeyCode = /^(\d)*$/;
 	var regBigBrackets = /^\{.*\}$/;
 	var regSmallBrackets = /(\(.*\))/;
 	var regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
@@ -2095,17 +2096,31 @@
 
 	/**
 	 * 获取事件修饰符对象
-	 * 支持 5 种事件修饰符 .self .stop .prevent .capture .keyCode
+	 * 支持 6 种事件修饰符
+	 * .self .stop .prevent .capture .keyCode .once
 	 * @param  {String}  type
 	 * @param  {String}  dress
 	 */
 	function getDress (type, dress) {
-		var self = dress.indexOf('self') > -1;
-		var stop = dress.indexOf('stop') > -1;
-		var prevent = dress.indexOf('prevent') > -1;
-		var capture = dress.indexOf('capture') > -1;
-		var keyCode = type.indexOf('key') === 0 ? +dress : null;
-		return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode }
+		var dresses = dress.split('.');
+
+		var self = dresses.indexOf('self') > -1;
+		var stop = dresses.indexOf('stop') > -1;
+		var once = dresses.indexOf('once') > -1;
+		var prevent = dresses.indexOf('prevent') > -1;
+		var capture = dresses.indexOf('capture') > -1;
+
+		var keyCode;
+		if (type.indexOf('key') === 0) {
+			each(dresses, function (value) {
+				if (regKeyCode.test(value)) {
+					keyCode = +value;
+					return false;
+				}
+			});
+		}
+
+		return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode, once: once };
 	}
 
 	/**
@@ -2121,7 +2136,7 @@
 	 * 不需要实例化 Directive
 	 */
 	function VOn () {
-		this.agents = {};
+		this.cache = {};
 		this.funcWatchers = [];
 		this.argsWatchers = [];
 		Parser.apply(this, arguments);
@@ -2161,7 +2176,7 @@
 		var capture = dress.indexOf('capture') > -1;
 
 		if (func === '$remove') {
-			return this.removeItem(type, dress);
+			return this.bindRemoveEvent(type, dress);
 		}
 
 		var desc = this.getExpDesc(func);
@@ -2170,7 +2185,14 @@
 			this.bindEvent(type, dress, newFunc, args);
 		}, this);
 
-		this.bindEvent(type, dress, funcWatcher.value, args);
+		var listener = funcWatcher.value;
+
+		if (!isFunc(listener)) {
+			funcWatcher.destroy();
+			return warn('Directive ['+ this.desc.attr +'] must be a type of Function');
+		}
+
+		this.bindEvent(type, dress, listener, args);
 
 		// 缓存数据订阅对象
 		this.funcWatchers.push(funcWatcher);
@@ -2181,7 +2203,7 @@
 	 * @param  {String}  type   [事件类型]
 	 * @param  {String}  dress  [事件修饰符]
 	 */
-	von.removeItem = function (type, dress) {
+	von.bindRemoveEvent = function (type, dress) {
 		var scope = this.scope;
 
 		if (!scope) {
@@ -2208,6 +2230,7 @@
 		var prevent = ref.prevent;
 		var capture = ref.capture;
 		var keyCode = ref.keyCode;
+		var once = ref.once;
 
 		// 挂载 $event
 		def((this.scope || this.vm.$data), '$event', '__e__');
@@ -2225,16 +2248,14 @@
 
 		// 事件代理函数
 		var el = this.el;
-		var eventAgent = function _eventAgent (e) {
-			// 是否限定只能在当前节点触发事件
-			if (self && e.target !== el) {
+		var listenerAgent = function _listenerAgent (e) {
+			if (
+				(self && e.target !== el) || // 是否限定只能在当前节点触发事件
+				(keyCode && keyCode !== e.keyCode) // 键盘事件时是否指定键码触发
+			) {
 				return;
 			}
 
-			// 是否指定按键触发
-			if (keyCode && keyCode !== e.keyCode) {
-				return;
-			}
 
 			// 未指定参数，则原生事件对象作为唯一参数
 			if (!args.length) {
@@ -2261,12 +2282,28 @@
 			func.apply(this, args);
 		}
 
+		var listener;
 		var guid = vonGuid++;
-		func[identifier$1] = guid;
-		this.agents[guid] = eventAgent;
+
+		// 回调函数是否只需触发一次
+		var that = this;
+		if (once) {
+			listener = function _onceListener (e) {
+				listenerAgent(e);
+				that.off(type, listener, capture);
+			}
+
+			listener[identifier$1] = guid;
+		} else {
+			func[identifier$1] = guid;
+			listener = listenerAgent;
+		}
+
+		// 缓存事件
+		this.cache[guid] = listener;
 
 		// 添加绑定
-		this.on(type, eventAgent, capture);
+		this.on(type, listener, capture);
 	}
 
 	/**
@@ -2286,13 +2323,13 @@
 	 * @param  {Boolean}   capture
 	 */
 	von.off = function (type, callback, capture) {
-		var agents = this.agents;
+		var cache = this.cache;
 		var guid = callback[identifier$1];
-		var eventAgent = agents[guid];
+		var listenerAgent = cache[guid];
 
-		if (eventAgent) {
-			removeEvent(this.el, type, eventAgent, capture);
-			delete agents[guid];
+		if (listenerAgent) {
+			removeEvent(this.el, type, listenerAgent, capture);
+			delete cache[guid];
 		}
 	}
 
@@ -2300,7 +2337,7 @@
 	 * von 指令特定的销毁函数
 	 */
 	von._destroy = function () {
-		clearObject(this.agents);
+		clearObject(this.cache);
 
 		each(this.funcWatchers, function (watcher) {
 			watcher.destroy();
@@ -3567,20 +3604,6 @@
 		return sels;
 	}
 
-	/**
-	 * 设置多选 select 的选中值
-	 * @param  {Select}   select
-	 * @param  {Array}    values
-	 */
-	function setSelecteds (select, values) {
-		var options = select.options;
-
-		for (var i = 0; i < options.length; i++) {
-			var option = options[i];
-			option.selected = indexOf(option.value, values) > -1;
-		}
-	}
-
 	var select = {
 		/**
 		 * 绑定 select 变化事件
@@ -3627,10 +3650,11 @@
 				return warn('The model ['+ exp +'] cannot set as Array when <select> has no multiple propperty');
 			}
 
-			if (multi) {
-				setSelecteds(el, data);
-			} else {
-				el.value = _toString(data);
+			var options = el.options;
+			for (var i = 0; i < options.length; i++) {
+				var option = options[i];
+				var value = option.value;
+				option.selected = multi ? indexOf(value, data) > -1 : value === _toString(data);
 			}
 		},
 
