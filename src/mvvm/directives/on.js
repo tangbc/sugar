@@ -1,8 +1,9 @@
 import Watcher from '../watcher';
 import Parser, { linkParser } from '../parser';
 import { addEvent, removeEvent } from '../../dom';
-import { removeSpace, each, getKeyValue, def, extend, clearObject, warn } from '../../util';
+import { removeSpace, each, getKeyValue, def, extend, clearObject, warn, isFunc } from '../../util';
 
+const regKeyCode = /^(\d)*$/;
 const regBigBrackets = /^\{.*\}$/;
 const regSmallBrackets = /(\(.*\))/;
 const regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g;
@@ -103,17 +104,31 @@ function collectEvents (desc) {
 
 /**
  * 获取事件修饰符对象
- * 支持 5 种事件修饰符 .self .stop .prevent .capture .keyCode
+ * 支持 6 种事件修饰符
+ * .self .stop .prevent .capture .keyCode .once
  * @param  {String}  type
  * @param  {String}  dress
  */
 function getDress (type, dress) {
-	let self = dress.indexOf('self') > -1;
-	let stop = dress.indexOf('stop') > -1;
-	let prevent = dress.indexOf('prevent') > -1;
-	let capture = dress.indexOf('capture') > -1;
-	let keyCode = type.indexOf('key') === 0 ? +dress : null;
-	return { self, stop, prevent, capture, keyCode }
+	let dresses = dress.split('.');
+
+	let self = dresses.indexOf('self') > -1;
+	let stop = dresses.indexOf('stop') > -1;
+	let once = dresses.indexOf('once') > -1;
+	let prevent = dresses.indexOf('prevent') > -1;
+	let capture = dresses.indexOf('capture') > -1;
+
+	let keyCode;
+	if (type.indexOf('key') === 0) {
+		each(dresses, function (value) {
+			if (regKeyCode.test(value)) {
+				keyCode = +value;
+				return false;
+			}
+		});
+	}
+
+	return { self, stop, prevent, capture, keyCode, once };
 }
 
 /**
@@ -129,7 +144,7 @@ let identifier = '__vonid__';
  * 不需要实例化 Directive
  */
 export function VOn () {
-	this.agents = {};
+	this.cache = {};
 	this.funcWatchers = [];
 	this.argsWatchers = [];
 	Parser.apply(this, arguments);
@@ -169,7 +184,7 @@ von.parseEvent = function (bind) {
 	let capture = dress.indexOf('capture') > -1;
 
 	if (func === '$remove') {
-		return this.removeItem(type, dress);
+		return this.bindRemoveEvent(type, dress);
 	}
 
 	let desc = this.getExpDesc(func);
@@ -178,7 +193,14 @@ von.parseEvent = function (bind) {
 		this.bindEvent(type, dress, newFunc, args);
 	}, this);
 
-	this.bindEvent(type, dress, funcWatcher.value, args);
+	let listener = funcWatcher.value;
+
+	if (!isFunc(listener)) {
+		funcWatcher.destroy();
+		return warn('Directive ['+ this.desc.attr +'] must be a type of Function');
+	}
+
+	this.bindEvent(type, dress, listener, args);
 
 	// 缓存数据订阅对象
 	this.funcWatchers.push(funcWatcher);
@@ -189,7 +211,7 @@ von.parseEvent = function (bind) {
  * @param  {String}  type   [事件类型]
  * @param  {String}  dress  [事件修饰符]
  */
-von.removeItem = function (type, dress) {
+von.bindRemoveEvent = function (type, dress) {
 	let scope = this.scope;
 
 	if (!scope) {
@@ -210,7 +232,7 @@ von.removeItem = function (type, dress) {
  * @param  {String}    argString  [参数字符串]
  */
 von.bindEvent = function (type, dress, func, argString) {
-	let { self, stop, prevent, capture, keyCode } = getDress(type, dress);
+	let { self, stop, prevent, capture, keyCode, once } = getDress(type, dress);
 
 	// 挂载 $event
 	def((this.scope || this.vm.$data), '$event', '__e__');
@@ -228,16 +250,14 @@ von.bindEvent = function (type, dress, func, argString) {
 
 	// 事件代理函数
 	let el = this.el;
-	let eventAgent = function _eventAgent (e) {
-		// 是否限定只能在当前节点触发事件
-		if (self && e.target !== el) {
+	let listenerAgent = function _listenerAgent (e) {
+		if (
+			(self && e.target !== el) || // 是否限定只能在当前节点触发事件
+			(keyCode && keyCode !== e.keyCode) // 键盘事件时是否指定键码触发
+		) {
 			return;
 		}
 
-		// 是否指定按键触发
-		if (keyCode && keyCode !== e.keyCode) {
-			return;
-		}
 
 		// 未指定参数，则原生事件对象作为唯一参数
 		if (!args.length) {
@@ -264,12 +284,28 @@ von.bindEvent = function (type, dress, func, argString) {
 		func.apply(this, args);
 	}
 
+	let listener;
 	let guid = vonGuid++;
-	func[identifier] = guid;
-	this.agents[guid] = eventAgent;
+
+	// 回调函数是否只需触发一次
+	let that = this;
+	if (once) {
+		listener = function _onceListener (e) {
+			listenerAgent(e);
+			that.off(type, listener, capture);
+		}
+
+		listener[identifier] = guid;
+	} else {
+		func[identifier] = guid;
+		listener = listenerAgent;
+	}
+
+	// 缓存事件
+	this.cache[guid] = listener;
 
 	// 添加绑定
-	this.on(type, eventAgent, capture);
+	this.on(type, listener, capture);
 }
 
 /**
@@ -289,13 +325,13 @@ von.on = function (type, callback, capture) {
  * @param  {Boolean}   capture
  */
 von.off = function (type, callback, capture) {
-	let agents = this.agents;
+	let cache = this.cache;
 	let guid = callback[identifier];
-	let eventAgent = agents[guid];
+	let listenerAgent = cache[guid];
 
-	if (eventAgent) {
-		removeEvent(this.el, type, eventAgent, capture);
-		delete agents[guid];
+	if (listenerAgent) {
+		removeEvent(this.el, type, listenerAgent, capture);
+		delete cache[guid];
 	}
 }
 
@@ -303,7 +339,7 @@ von.off = function (type, callback, capture) {
  * von 指令特定的销毁函数
  */
 von._destroy = function () {
-	clearObject(this.agents);
+	clearObject(this.cache);
 
 	each(this.funcWatchers, function (watcher) {
 		watcher.destroy();
