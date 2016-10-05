@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Wed Oct 05 2016 10:15:40 GMT+0800 (CST)
+ * Wed Oct 05 2016 21:09:45 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -305,17 +305,6 @@
 		}
 
 		return ret || target;
-	}
-
-	/**
-	 * 拆解字符键值对，返回键值数组
-	 * @param   {String}        expression
-	 * @param   {Boolean}       both
-	 * @return  {String|Array}
-	 */
-	function getKeyValue (expression, both) {
-		var array = expression.split(':');
-		return both ? array : array.pop();
 	}
 
 
@@ -1968,7 +1957,7 @@
 
 			each(styles, function (style) {
 				if (style.indexOf('display') > -1) {
-					display = getKeyValue(style);
+					display = style.split(':').pop();
 				}
 			});
 		}
@@ -2037,7 +2026,7 @@
 			var props = string.match(regJsonFormat);
 
 			each(props, function (prop) {
-				var vals = getKeyValue(prop, true);
+				var vals = prop.split(':');
 				var name = vals[0], value = vals[1];
 				if (name && value) {
 					name = name.replace(regQuotes, '');
