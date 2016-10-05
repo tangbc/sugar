@@ -15,6 +15,19 @@ describe("v-on >", function () {
 		document.body.removeChild(element);
 	});
 
+	it('invalid listener', function () {
+		element.innerHTML = '<span v-on:click="test"></span>';
+
+		new MVVM({
+			'view': element,
+			'model': {
+				'test': '123'
+			}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('Directive [v-on:click] must be a type of Function');
+	});
+
 
 	it('normal', function () {
 		var count = 0;
@@ -475,5 +488,53 @@ describe("v-on >", function () {
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('The specify event $remove must be used in v-for scope');
+	});
+
+
+	it('use .once to handler event only first trigger', function () {
+		element.innerHTML =
+			'<a id="test" v-on:click="test"></a>' +
+			'<a id="once" v-on:click.once="testOnce"></a>'
+
+		var testCount = 0;
+		var onceCount = 0;
+
+		new MVVM({
+			'view': element,
+			'model': {},
+			'methods': {
+				'test': function () {
+					testCount++;
+				},
+				'testOnce': function () {
+					onceCount++;
+				}
+			}
+		});
+
+		var testEl = element.querySelector('#test');
+		var onceEl = element.querySelector('#once');
+
+		triggerEvent(testEl, 'click');
+		expect(testCount).toBe(1);
+
+		triggerEvent(testEl, 'click'); // 2
+		triggerEvent(testEl, 'click'); // 3
+		triggerEvent(testEl, 'click'); // 4
+		expect(testCount).toBe(4);
+
+		// when use .once dress, event just trigger once, then auto unbind
+		expect(onceCount).toBe(0);
+		triggerEvent(onceEl, 'click');
+		expect(onceCount).toBe(1);
+
+		triggerEvent(onceEl, 'click');
+		expect(onceCount).toBe(1);
+
+		triggerEvent(onceEl, 'click');
+		triggerEvent(onceEl, 'click');
+		triggerEvent(onceEl, 'click');
+		triggerEvent(onceEl, 'click');
+		expect(onceCount).toBe(1);
 	});
 });
