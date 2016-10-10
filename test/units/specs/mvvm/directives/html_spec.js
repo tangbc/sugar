@@ -1,5 +1,4 @@
 var MVVM = require('mvvm').default;
-var util = require('src/util');
 
 describe("v-html >", function () {
 	var element;
@@ -40,42 +39,6 @@ describe("v-html >", function () {
 
 		data.layout = {};
 		expect(div.innerHTML).toBe('[object Object]');
-	});
-
-
-	it('mustache', function () {
-		element.innerHTML = '<div id="test2">{{{ layout }}}</div>';
-
-		var vm = new MVVM({
-			'view': element,
-			'model': {
-				'layout': ''
-			}
-		});
-		var data = vm.$data;
-		var div = element.querySelector('#test2');
-
-		expect(div.innerHTML).toBe('');
-
-		data.layout = '<h2>title</h2><p>This is a paragraph</p>';
-		expect(div.innerHTML).toBe('<h2>title</h2><p>This is a paragraph</p>');
-
-		data.layout = 'This is a plain text string';
-		expect(div.innerHTML).toBe('This is a plain text string');
-	});
-
-
-	it('invalid mustache', function () {
-		element.innerHTML = '<div>xxx{{{ layout }}}</div>';
-
-		new MVVM({
-			'view': element,
-			'model': {
-				'layout': '<b>123</b>'
-			}
-		});
-
-		expect(util.warn).toHaveBeenCalledWith('[xxx{{{ layout }}}] compile for HTML can not have a prefix or suffix');
 	});
 
 
@@ -126,7 +89,7 @@ describe("v-html >", function () {
 		element.innerHTML =
 			'<ul>' +
 				'<li v-for="item in items">' +
-					'<p class="pp">{{{ item.layout }}}</p>' +
+					'<p class="pp" v-html="item.layout"></p>' +
 				'</li>' +
 			'</ul>'
 

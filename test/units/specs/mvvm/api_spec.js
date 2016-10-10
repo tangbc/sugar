@@ -110,7 +110,7 @@ describe("mvvm instance api >", function () {
 		expect(data.title).toBe('abc');
 
 		// change innerHTML and mount again
-		element.innerHTML = '<h1>{{ title }}</h1><p>{{{ html }}}</p>';
+		element.innerHTML = '<h1>{{ title }}</h1><p v-html="html"></p>';
 		vm.mount();
 		expect(element.innerHTML).toBe('<h1>abc</h1><p><i>xxdk</i></p>');
 		data.html = '<b>xxoo</b>';
@@ -506,7 +506,6 @@ describe("mvvm instance api >", function () {
 			'<div>{{ title }}</div>' +
 			'<div v-text="title"></div>' +
 
-			'<div>{{ html }}</div>' +
 			'<div v-html="html"></div>' +
 
 			'<div v-show="show"></div>' +
@@ -542,7 +541,9 @@ describe("mvvm instance api >", function () {
 				'</li>' +
 			'</ul>' +
 
-			'<div v-pre>{{ title }}</div>'
+			'<div v-pre>{{ title }}</div>' +
+
+			'<div v-custom:xx="cso"></div>'
 
 		var data = {
 			'title': 'xxdk',
@@ -563,12 +564,16 @@ describe("mvvm instance api >", function () {
 				{'text': 111},
 				{'text': 222},
 				{'text': 333}
-			]
+			],
+			'cso': 123
 		}
 
 		var vm = new MVVM({
 			'view': element,
-			'model': data
+			'model': data,
+			'customs': {
+				'xx': function () {}
+			}
 		});
 
 		// destroy instance
