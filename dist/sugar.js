@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Wed Oct 05 2016 21:09:45 GMT+0800 (CST)
+ * Mon Oct 10 2016 14:23:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3096,7 +3096,7 @@
 	var vhtml = linkParser(VHtml);
 
 	/**
-	 * 解析 v-html, {{{ html }}} 指令
+	 * 解析 v-html 指令
 	 */
 	vhtml.parse = function () {
 		this.bind();
@@ -3874,10 +3874,8 @@
 
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
-	var regHtml = /\{\{\{(.+?)\}\}\}/g;
-	var regMustacheSpace = /\s\{|\{|\{|\}|\}|\}/g;
+	var regMustache = /(\{\{.*\}\})/;
 	var noNeedParsers = ['velse', 'vpre', 'vcloak'];
-	var regMustache = /(\{\{.*\}\})|(\{\{\{.*\}\}\})/;
 
 	/**
 	 * 是否是合法指令
@@ -4135,44 +4133,28 @@
 	}
 
 	/**
-	 * 解析文本指令 {{ text }} 和 {{{ html }}}
+	 * 解析文本指令 {{ text }}
 	 * @param   {Element}  node
 	 * @param   {Object}   scope
 	 */
 	cp.parseText = function (node, scope) {
-		var exp, match, matches, pieces, tokens = [], desc = {};
+		var tokens = [], desc = {};
 		var text = node.textContent.trim().replace(regNewline, '');
+		var pieces = text.split(regText);
+		var matches = text.match(regText);
 
-		// html match
-		if (regHtml.test(text)) {
-			matches = text.match(regHtml);
-			match = matches[0];
-			exp = match.replace(regMustacheSpace, '');
-
-			if (match.length !== text.length) {
-				return warn('[' + text + '] compile for HTML can not have a prefix or suffix');
+		// 文本节点转化为常量和变量的组合表达式
+		// 'a {{b}} c' => '"a " + b + " c"'
+		each(pieces, function (piece) {
+			if (matches.indexOf('{{' + piece + '}}') > -1) {
+				tokens.push('(' + piece + ')');
+			} else if (piece) {
+				tokens.push('"' + piece + '"');
 			}
+		});
 
-			desc.expression = exp;
-			this.$directives.push(new DirectiveParsers.vhtml(this, node.parentNode, desc, scope));
-
-		} else {
-			pieces = text.split(regText);
-			matches = text.match(regText);
-
-			// 文本节点转化为常量和变量的组合表达式
-			// 'a {{b}} c' => '"a " + b + " c"'
-			each(pieces, function (piece) {
-				if (matches.indexOf('{{' + piece + '}}') > -1) {
-					tokens.push('(' + piece + ')');
-				} else if (piece) {
-					tokens.push('"' + piece + '"');
-				}
-			});
-
-			desc.expression = tokens.join('+');
-			this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
-		}
+		desc.expression = tokens.join('+');
+		this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
 	}
 
 	/**
