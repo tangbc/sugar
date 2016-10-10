@@ -12,7 +12,7 @@ export function VHtml () {
 let vhtml = linkParser(VHtml);
 
 /**
- * 解析 v-html, {{{ html }}} 指令
+ * 解析 v-html 指令
  */
 vhtml.parse = function () {
 	this.bind();
