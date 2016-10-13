@@ -3,7 +3,16 @@ var Component = sugar.Component;
 var util = require('src/util');
 
 describe('sugar message >', function () {
-	var body = document.body;
+	var wraper;
+
+	beforeEach(function () {
+		wraper = document.createElement('div');
+		document.body.appendChild(wraper);
+	});
+
+	afterEach(function () {
+		document.body.removeChild(wraper);
+	});
 
 
 	it('fire message, from bottom to top', function () {
@@ -120,7 +129,7 @@ describe('sugar message >', function () {
 		});
 
 		var view = sugar.core.create('view', View, {
-			'target': body
+			'target': wraper
 		});
 
 		expect(flag).toBe('xxdk');
@@ -226,7 +235,7 @@ describe('sugar message >', function () {
 		});
 
 		var view = sugar.core.create('view', View, {
-			'target': body
+			'target': wraper
 		});
 
 		expect(flag).toBe('level_2');
@@ -286,7 +295,7 @@ describe('sugar message >', function () {
 			}
 		});
 		var view1 = sugar.core.create('view1', View1, {
-			'target': body
+			'target': wraper
 		});
 
 		// View2 has no any relationship with others components
@@ -317,7 +326,7 @@ describe('sugar message >', function () {
 			}
 		});
 		var view2 = sugar.core.create('view2', View2, {
-			'target': body
+			'target': wraper
 		});
 
 		view1.destroy();
@@ -366,7 +375,7 @@ describe('sugar message >', function () {
 			}
 		});
 		var view1 = sugar.core.create('view1', View1, {
-			'target': body
+			'target': wraper
 		});
 
 		var View2 = Component.extend({
@@ -389,7 +398,7 @@ describe('sugar message >', function () {
 			}
 		});
 		var view2 = sugar.core.create('view2', View2, {
-			'target': body
+			'target': wraper
 		});
 
 		// globalCast should be only send by sugar.core

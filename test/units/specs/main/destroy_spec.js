@@ -1,12 +1,17 @@
 var sugar = require('src/main/index').default;
 var Component = sugar.Component;
-var Cache = require('src/main/cache').default;
-
-var triggerEvent = require('../../test_util').triggerEvent;
 
 describe('sugar module api >', function () {
-	var wraper = document.createElement('div');
-	document.body.appendChild(wraper);
+	var wraper;
+
+	beforeEach(function () {
+		wraper = document.createElement('div');
+		document.body.appendChild(wraper);
+	});
+
+	afterEach(function () {
+		document.body.removeChild(wraper);
+	});
 
 
 	it('destroy all sub components', function () {
@@ -53,7 +58,6 @@ describe('sugar module api >', function () {
 				expect(this.el.innerHTML).toBe('');
 				expect(this.getChild('comp1')).toBe(null);
 				expect(this.getChilds(true).length).toBe(0);
-				expect(Cache.length).toBe(1);
 
 				// not allow to render again
 				this._render();
@@ -77,12 +81,6 @@ describe('sugar module api >', function () {
 					'view': '<h1>Comp</h1>'
 				});
 				this.Super('init', arguments);
-			},
-			afterRender: function () {
-				this.on(this.el, 'click', function () {
-					// pass true means fire a message to parent after this component is destroyed
-					this.destroy(true);
-				});
 			}
 		});
 
@@ -107,7 +105,9 @@ describe('sugar module api >', function () {
 
 		expect(wraper.innerHTML).toBe('<div><div><h1>Comp</h1></div></div>');
 
-		triggerEvent(view.getChild('comp').el, 'click');
+		var subComp = view.getChild('comp');
+		// pass true will fire a message to parent (view) after this component is destroyed
+		subComp.destroy(true);
 
 		view.destroy();
 	});
