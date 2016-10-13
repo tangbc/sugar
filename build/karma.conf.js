@@ -1,8 +1,10 @@
 var path = require('path');
 
-// karma-webpack config
+/**
+ * karma-webpack config
+ */
 var webpackConfig = {
-	devtool: 'source-map',
+	devtool: '#inline-source-map',
 	resolve: {
 		alias: {
 			src: path.resolve(__dirname, '../src'),
@@ -26,8 +28,11 @@ var webpackConfig = {
 	}
 }
 
-// karma base config
-var karmaBase = {
+/**
+ * karma base config
+ * @type  {Object}
+ */
+var KARMABASE = {
 	// base path, that will be used to resolve files and exclude
 	basePath: '../test/',
 
@@ -46,7 +51,7 @@ var karmaBase = {
 
 	// test results reporter to use
 	// possible values: 'spec', 'dots', 'progress', 'coverage'
-	// reprters: [],
+	// reporters: [],
 
 	// list of files to load in the browser
 	files: [
@@ -71,16 +76,20 @@ var karmaBase = {
 	}
 }
 
-// unit test config
-var testConfig = Object.assign({}, karmaBase, {
+
+/**
+ * unit test config
+ */
+var UNITCONIG = Object.assign({}, KARMABASE, {
 	browsers: ['Chrome'],
 	// browsers: ['Firefox'],
 	// browsers: ['Safari'],
 	webpack: webpackConfig,
-	reprters: ['progress']
+	reporters: ['progress']
 });
 
-// istanbul loader for webpack config
+
+// webpack config for istanbul loader
 var coverWebpackConfig = Object.assign({}, webpackConfig);
 coverWebpackConfig.module.postLoaders = [
 	{
@@ -89,7 +98,11 @@ coverWebpackConfig.module.postLoaders = [
 		loader: 'istanbul-instrumenter'
 	}
 ];
-var coverConfig = Object.assign({}, karmaBase, {
+
+/**
+ * coverage report config
+ */
+var COVERCONFIG = Object.assign({}, KARMABASE, {
 	browsers: ['PhantomJS'],
 	webpack: coverWebpackConfig,
 	reporters: ['spec', 'coverage'],
@@ -101,7 +114,50 @@ var coverConfig = Object.assign({}, karmaBase, {
 	}
 });
 
+
+// create an object for a customLauncher about sauceLabs
+function createCustomLauncher (browser, platform, version) {
+	return {
+		base: 'SauceLabs',
+		browserName: browser,
+		platform: platform,
+		version: version
+	};
+}
+
+// browsers to run on Sauce Labs
+// check out https://saucelabs.com/platforms for all browser/OS combos
+var customLaunchers = {
+	// modern browsers
+	sl_chrome: createCustomLauncher('chrome', 'Windows 7'),
+	sl_firefox: createCustomLauncher('firefox', 'Windows 7'),
+	sl_mac_safari: createCustomLauncher('safari', 'OS X 10.10'),
+	// ie series
+	sl_ie_9: createCustomLauncher('internet explorer', 'Windows 7', '9'),
+	sl_ie_10: createCustomLauncher('internet explorer', 'Windows 8', '10'),
+	sl_ie_11: createCustomLauncher('internet explorer', 'Windows 10', '11'),
+	sl_ie_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10')
+};
+
+/**
+ * sauceLabs config
+ */
+var SAUCECONFIG = Object.assign({}, KARMABASE, {
+	sauceLabs: {
+		recordScreenshots: false,
+		testName: 'sugar.js sauceLabs test'
+	},
+	customLaunchers: customLaunchers,
+	browsers: Object.keys(customLaunchers),
+	captureTimeout: 120000,
+	webpack: webpackConfig,
+	reporters: ['progress', 'saucelabs']
+});
+
+
+// output the unit, cover, sauceLabs karma config
 module.exports = {
-	test: testConfig,
-	cover: coverConfig
+	unit: UNITCONIG,
+	cover: COVERCONFIG,
+	sauce: SAUCECONFIG
 }

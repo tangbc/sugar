@@ -3,3 +3,5 @@ temp
 bundle
 node_modules
 test/coverage
+sauce.json
+npm-debug.log
