@@ -1,13 +1,14 @@
-var util = require('src/util');
-var exp = require('src/mvvm/expression/index');
-var isNormal = exp.isNormal;
-var createGetter = exp.createGetter;
-var createSetter = exp.createSetter;
-var createPath = require('src/mvvm/expression/path').createPath;
+import * as util from 'src/util';
+import {
+	isNormal,
+	createGetter,
+	createSetter
+} from 'src/mvvm/expression/index';
+import { createPath } from 'src/mvvm/expression/path';
 
 
 describe('directive expression >', function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -35,7 +36,7 @@ describe('directive expression >', function () {
 
 
 	it('createGetter', function () {
-		var scope, getter;
+		let scope, getter;
 
 		// shallow value
 		scope = {
@@ -130,7 +131,7 @@ describe('directive expression >', function () {
 
 
 	it('createSetter', function () {
-		var setter, scope;
+		let setter, scope;
 
 		// normal set
 		setter = createSetter('a');

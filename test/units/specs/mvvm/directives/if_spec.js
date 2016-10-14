@@ -1,7 +1,7 @@
-var MVVM = require('mvvm').default;
+import MVVM from 'mvvm';
 
 describe("v-if >", function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -16,14 +16,14 @@ describe("v-if >", function () {
 	it('normal render first', function () {
 		element.innerHTML = '<div id="test1" v-if="render"><b>123</b></div>';
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'render': true
 			}
 		});
-		var data = vm.$data;
-		var div = element.querySelector('#test1');
+		let data = vm.$data;
+		let div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('<b>123</b>');
 
@@ -38,14 +38,14 @@ describe("v-if >", function () {
 	it('normal no-render first', function () {
 		element.innerHTML = '<div id="test2" v-if="render"><b>123</b></div>';
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'render': false
 			}
 		});
-		var data = vm.$data;
-		var div = element.querySelector('#test2');
+		let data = vm.$data;
+		let div = element.querySelector('#test2');
 
 		expect(div.innerHTML).toBe('');
 
@@ -63,15 +63,15 @@ describe("v-if >", function () {
 				'<p>--{{ text }}--</p>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'render': true,
 				'text'  : 'aaa'
 			}
 		});
-		var data = vm.$data;
-		var div = element.querySelector('#test3');
+		let data = vm.$data;
+		let div = element.querySelector('#test3');
 
 		expect(div.innerHTML).toBe('<p>--aaa--</p>');
 
@@ -96,15 +96,15 @@ describe("v-if >", function () {
 				'<p>--{{ text }}--</p>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'render': false,
 				'text'  : 'aaa'
 			}
 		});
-		var data = vm.$data;
-		var div = element.querySelector('#test4');
+		let data = vm.$data;
+		let div = element.querySelector('#test4');
 
 		expect(div.innerHTML).toBe('');
 
@@ -135,15 +135,15 @@ describe("v-if >", function () {
 				'<b>Not OK</b>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'ok': true
 			}
 		});
-		var data = vm.$data;
-		var ok = element.querySelector('#ok');
-		var notok = element.querySelector('#notok');
+		let data = vm.$data;
+		let ok = element.querySelector('#ok');
+		let notok = element.querySelector('#notok');
 
 		expect(ok.innerHTML).toBe('<i>OK</i>');
 		expect(notok.innerHTML).toBe('');
@@ -165,7 +165,7 @@ describe("v-if >", function () {
 				'<b v-if="inB">{{ b }}</b>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'out': true,
@@ -176,8 +176,8 @@ describe("v-if >", function () {
 			}
 		});
 
-		var data = vm.$data;
-		var div = element.firstChild;
+		let data = vm.$data;
+		let div = element.firstChild;
 
 		// initial render result
 		expect(div.textContent).toBe('aaabbb');
@@ -235,7 +235,7 @@ describe("v-if >", function () {
 				'<b v-if="inB">{{ b }}</b>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'out': false,
@@ -246,8 +246,8 @@ describe("v-if >", function () {
 			}
 		});
 
-		var data = vm.$data;
-		var div = element.firstChild;
+		let data = vm.$data;
+		let div = element.firstChild;
 
 		// initial render result
 		expect(div.textContent).toBe('');
@@ -306,7 +306,7 @@ describe("v-if >", function () {
 				'</ul>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'show': true,
@@ -315,8 +315,8 @@ describe("v-if >", function () {
 			}
 		});
 
-		var data = vm.$data;
-		var div = element.firstChild;
+		let data = vm.$data;
+		let div = element.firstChild;
 
 		expect(div.textContent).toBe('xxdk-0.a_1.b_2.c_');
 
@@ -352,7 +352,7 @@ describe("v-if >", function () {
 				'</ul>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'show': false,
@@ -361,8 +361,8 @@ describe("v-if >", function () {
 			}
 		});
 
-		var data = vm.$data;
-		var div = element.firstChild;
+		let data = vm.$data;
+		let div = element.firstChild;
 
 		expect(div.textContent).toBe('');
 

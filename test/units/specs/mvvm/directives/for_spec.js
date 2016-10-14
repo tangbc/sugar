@@ -1,8 +1,8 @@
-var MVVM = require('mvvm').default;
-var util = require('src/util');
+import MVVM from 'mvvm';
+import * as util from 'src/util';
 
 describe("v-for >", function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -45,7 +45,7 @@ describe("v-for >", function () {
 				'items': null
 			}
 		});
-		var ul = element.querySelector('#test8');
+		let ul = element.querySelector('#test8');
 
 		expect(ul.textContent).toBe('');
 	});
@@ -59,15 +59,15 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': []
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test8');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test8');
 
 		expect(ul.textContent).toBe('');
 
@@ -84,15 +84,15 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': ['a', 'b']
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test1');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test1');
 
 		expect(ul.textContent).toBe('ab');
 
@@ -185,7 +185,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -194,9 +194,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test2');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test2');
 
 		expect(ul.textContent).toBe('ab');
 
@@ -277,15 +277,15 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': ['a', 'b']
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test3');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test3');
 
 		expect(ul.textContent).toBe('0_a1_b');
 
@@ -327,7 +327,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -336,9 +336,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test4');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test4');
 
 		expect(ul.textContent).toBe('0_a1_b');
 
@@ -380,7 +380,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -389,9 +389,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test5');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test5');
 
 		expect(ul.textContent).toBe('ab');
 
@@ -424,7 +424,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -433,9 +433,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test6');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test6');
 
 		expect(ul.textContent).toBe('ab');
 
@@ -481,7 +481,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -490,9 +490,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test7');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test7');
 
 		expect(ul.textContent).toBe('A-A_a B-B_b ');
 
@@ -545,7 +545,7 @@ describe("v-for >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -555,9 +555,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test');
 
 		expect(ul.textContent).toBe('abc');
 
@@ -572,7 +572,7 @@ describe("v-for >", function () {
 		expect(ul.textContent).toBe('obo');
 
 		// all the same
-		var obj = {'text': 'x'};
+		let obj = {'text': 'x'};
 		data.items = [obj, obj, obj];
 		expect(ul.textContent).toBe('xxx');
 
@@ -595,7 +595,7 @@ describe("v-for >", function () {
 				'<b>OO</b>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -605,9 +605,9 @@ describe("v-for >", function () {
 				]
 			}
 		});
-		var data = vm.$data;
-		var items = data.items;
-		var ul = element.querySelector('#test');
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test');
 
 		expect(ul.textContent).toBe('XXabcOO');
 

@@ -1,7 +1,7 @@
-var MVVM = require('mvvm').default;
+import MVVM from 'mvvm';
 
 describe("v-pre >", function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -24,7 +24,7 @@ describe("v-pre >", function () {
 			'view': element,
 			'model': {}
 		});
-		var div = element.querySelector('#test1');
+		let div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('<b v-show="show"></b><i>{{ text }}</i>');
 	});
@@ -44,7 +44,7 @@ describe("v-pre >", function () {
 				'items': [{}, {}, {}]
 			}
 		});
-		var ul = element.querySelector('#test2');
+		let ul = element.querySelector('#test2');
 
 		expect(ul.textContent).toBe('{{ item.text }}{{ item.text }}{{ item.text }}');
 	});

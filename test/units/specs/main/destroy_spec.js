@@ -1,8 +1,9 @@
-var sugar = require('src/main/index').default;
-var Component = sugar.Component;
+import sugar from 'src/main/index';
+
+let Component = sugar.Component;
 
 describe('sugar module api >', function () {
-	var wraper;
+	let wraper;
 
 	beforeEach(function () {
 		wraper = document.createElement('div');
@@ -15,24 +16,24 @@ describe('sugar module api >', function () {
 
 
 	it('destroy all sub components', function () {
-		var Comp2 = Component.extend({
+		let Comp2 = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
 					'view': '<h2>Comp2</h2>'
 				});
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			}
 		});
 
-		var Comp1 = Component.extend({
+		let Comp1 = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
 					'view': '<h1>Comp1</h1>'
 				});
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			},
 			afterRender: function () {
-				var comp2 = this.create('comp2', Comp2, {
+				let comp2 = this.create('comp2', Comp2, {
 					'target': this.el
 				});
 
@@ -41,12 +42,12 @@ describe('sugar module api >', function () {
 			}
 		});
 
-		var View = Component.extend({
+		let View = Component.extend({
 			init: function (config) {
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			},
 			afterRender: function () {
-				var comp1 = this.create('comp1', Comp1, {
+				let comp1 = this.create('comp1', Comp1, {
 					'target': this.el
 				});
 
@@ -66,7 +67,7 @@ describe('sugar module api >', function () {
 			}
 		});
 
-		var view = sugar.core.create('view', View, {
+		let view = sugar.core.create('view', View, {
 			'target': wraper
 		});
 
@@ -75,18 +76,18 @@ describe('sugar module api >', function () {
 
 
 	it('receive destroy message', function () {
-		var Comp = Component.extend({
+		let Comp = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
 					'view': '<h1>Comp</h1>'
 				});
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			}
 		});
 
-		var View = Component.extend({
-			init: function () {
-				this.Super('init', arguments);
+		let View = Component.extend({
+			init: function (config) {
+				this.Super('init', [config]);
 			},
 			afterRender: function () {
 				this.create('comp', Comp, {
@@ -99,13 +100,13 @@ describe('sugar module api >', function () {
 				expect(this.el.innerHTML).toBe('');
 			}
 		});
-		var view = sugar.core.create('view', View, {
+		let view = sugar.core.create('view', View, {
 			'target': wraper
 		});
 
 		expect(wraper.innerHTML).toBe('<div><div><h1>Comp</h1></div></div>');
 
-		var subComp = view.getChild('comp');
+		let subComp = view.getChild('comp');
 		// pass true will fire a message to parent (view) after this component is destroyed
 		subComp.destroy(true);
 
@@ -114,12 +115,12 @@ describe('sugar module api >', function () {
 
 
 	it('use beforeDestroy save component data', function () {
-		var myMoney = null;
+		let myMoney = null;
 
-		var View = Component.extend({
-			init: function () {
+		let View = Component.extend({
+			init: function (config) {
 				this.$data = {'money': '$699'};
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			},
 			afterRender: function () {
 				this.$data.money = '$998';
@@ -129,7 +130,7 @@ describe('sugar module api >', function () {
 			}
 		});
 
-		var view = sugar.core.create('view', View, {
+		let view = sugar.core.create('view', View, {
 			'target': wraper
 		});
 
@@ -143,16 +144,16 @@ describe('sugar module api >', function () {
 
 
 	it('do not use sugar.core.destroy', function () {
-		var Comp = Component.extend({
+		let Comp = Component.extend({
 			init: function (config) {
 				config = this.cover(config, {
 					'target': wraper,
 					'view': 'Comp'
 				});
-				this.Super('init', arguments);
+				this.Super('init', [config]);
 			}
 		});
-		var comp = sugar.core.create('comp', Comp, {
+		let comp = sugar.core.create('comp', Comp, {
 			'target': wraper
 		});
 

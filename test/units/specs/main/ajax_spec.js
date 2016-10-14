@@ -1,11 +1,12 @@
-var sugar = require('src/main/index').default;
-var ajax = sugar.ajax;
+import suagr from 'src/main/index';
+
+let ajax = suagr.ajax;
 
 // via the jasmine.Ajax global
 require('jasmine-ajax');
 
 describe('sugar ajax api >', function () {
-	var doneFn;
+	let doneFn;
 
 	beforeEach(function () {
 		jasmine.Ajax.install();
@@ -26,7 +27,7 @@ describe('sugar ajax api >', function () {
 			expect(data.result).toBe('This is what you need query');
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 
 		expect(request.method).toBe('GET');
 		expect(request.url).toBe('/api/to/get');
@@ -44,7 +45,7 @@ describe('sugar ajax api >', function () {
 
 
 	it('ajax get with query param', function () {
-		var query = {
+		let query = {
 			'id': 1314,
 			'status': 1
 		};
@@ -57,7 +58,7 @@ describe('sugar ajax api >', function () {
 			expect(data.result).toBe('This is what you need query');
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 
 		expect(request.method).toBe('GET');
 		expect(request.url).toBe('/api/to/get?id=1314&status=1');
@@ -83,7 +84,7 @@ describe('sugar ajax api >', function () {
 			expect(err.status).toBe(404);
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 		expect(doneFn).not.toHaveBeenCalled();
 
 		// setup response
@@ -96,7 +97,7 @@ describe('sugar ajax api >', function () {
 
 
 	it('ajax post', function () {
-		var postData = {
+		let postData = {
 			'id': 1314,
 			'status': 0,
 			'name': 'xxdk'
@@ -115,7 +116,7 @@ describe('sugar ajax api >', function () {
 			});
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 
 		expect(request.method).toBe('POST');
 		expect(request.url).toBe('/api/to/post');
@@ -135,7 +136,7 @@ describe('sugar ajax api >', function () {
 
 
 	it('ajax post with error', function () {
-		var postData = {
+		let postData = {
 			'id': 1314,
 			'status': 0,
 			'name': 'xxdk'
@@ -150,7 +151,7 @@ describe('sugar ajax api >', function () {
 			expect(err.status).toBe(403);
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 
 		expect(request.method).toBe('POST');
 		expect(request.url).toBe('/api/to/post');
@@ -168,7 +169,7 @@ describe('sugar ajax api >', function () {
 
 
 	it('load plain text', function () {
-		var query = {
+		let query = {
 			'timeStamp': 1467453891023
 		}
 
@@ -180,7 +181,7 @@ describe('sugar ajax api >', function () {
 			expect(data.result).toBe('{"id":1314,"status":1,"name":"xxdk","update":1467453891023}');
 		});
 
-		var request = jasmine.Ajax.requests.mostRecent();
+		let request = jasmine.Ajax.requests.mostRecent();
 
 		expect(request.method).toBe('GET');
 		expect(request.url).toBe('/api/to/load?timeStamp=1467453891023');

@@ -1,7 +1,7 @@
-var MVVM = require('mvvm').default;
+import MVVM from 'mvvm';
 
 describe("v-html >", function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -16,14 +16,14 @@ describe("v-html >", function () {
 	it('normal', function () {
 		element.innerHTML = '<div id="test1" v-html="layout"></div>';
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'layout': ''
 			}
 		});
-		var data = vm.$data;
-		var div = element.querySelector('#test1');
+		let data = vm.$data;
+		let div = element.querySelector('#test1');
 
 		expect(div.innerHTML).toBe('');
 
@@ -50,7 +50,7 @@ describe("v-html >", function () {
 				'</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'items': [
@@ -61,8 +61,8 @@ describe("v-html >", function () {
 			}
 
 		});
-		var items = vm.$data.items;
-		var ps = element.querySelectorAll('.pp');
+		let items = vm.$data.items;
+		let ps = element.querySelectorAll('.pp');
 
 		expect(ps[0].innerHTML).toBe('<i>aaa</i>');
 		expect(ps[1].innerHTML).toBe('<b>bbb</b>');

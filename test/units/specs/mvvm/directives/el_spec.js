@@ -1,8 +1,8 @@
-var MVVM = require('mvvm').default;
-var util = require('src/util');
+import MVVM from 'mvvm';
+import * as util from 'src/util';
 
 describe("v-el >", function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -17,11 +17,11 @@ describe("v-el >", function () {
 	it('normal', function () {
 		element.innerHTML = '<span id="test1" v-el="elSpan">123</span>';
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {}
 		});
-		var data = vm.$data;
+		let data = vm.$data;
 
 		expect(data.$els.elSpan.textContent).toBe('123');
 		expect(data.$els.elSpan).toBe(element.querySelector('#test1'));
@@ -35,13 +35,13 @@ describe("v-el >", function () {
 				'<span id="test2" v-el="elSpan">1234</span>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'isRender': true
 			}
 		});
-		var data = vm.$data;
+		let data = vm.$data;
 
 		expect(data.$els.elSpan.textContent).toBe('1234');
 		expect(data.$els.elSpan).toBe(element.querySelector('#test2'));
@@ -61,13 +61,13 @@ describe("v-el >", function () {
 				'<span id="test3" v-el="elSpan">12345</span>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'isRender': false
 			}
 		});
-		var data = vm.$data;
+		let data = vm.$data;
 
 		expect(data.$els.elSpan).toBeUndefined();
 

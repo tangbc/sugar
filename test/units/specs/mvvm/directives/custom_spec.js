@@ -1,8 +1,8 @@
-var MVVM = require('mvvm').default;
-var util = require('src/util');
+import MVVM from 'mvvm';
+import * as util from 'src/util';
 
 describe('v-custom >', function () {
-	var element;
+	let element;
 
 	beforeEach(function () {
 		element = document.createElement('div');
@@ -34,8 +34,8 @@ describe('v-custom >', function () {
 	it('normal', function () {
 		element.innerHTML = '<div v-custom:xxdk="test"></div>';
 
-		var flagNew, flagOld, flagEl;
-		var vm = new MVVM({
+		let flagNew, flagOld, flagEl;
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'test': 123
@@ -51,7 +51,7 @@ describe('v-custom >', function () {
 				}
 			}
 		});
-		var data = vm.$data;
+		let data = vm.$data;
 
 		expect(flagEl).toBe(element.firstChild);
 
@@ -67,8 +67,8 @@ describe('v-custom >', function () {
 	it('complex expression', function () {
 		element.innerHTML = '<div v-custom:xxdk="isInt ? int : decimal"></div>';
 
-		var flagNew, flagOld;
-		var vm = new MVVM({
+		let flagNew, flagOld;
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'isInt': true,
@@ -82,7 +82,7 @@ describe('v-custom >', function () {
 				}
 			}
 		});
-		var data = vm.$data;
+		let data = vm.$data;
 
 		expect(flagNew).toBe(123);
 		expect(flagOld).toBeUndefined();
@@ -112,7 +112,7 @@ describe('v-custom >', function () {
 			'</ul>' +
 			'<h1 v-custom:text="title"></h1>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			'view': element,
 			'model': {
 				'title': 'txgc',
@@ -126,9 +126,9 @@ describe('v-custom >', function () {
 			}
 		});
 
-		var data = vm.$data;
-		var ul = element.firstChild;
-		var h1 = element.childNodes[1];
+		let data = vm.$data;
+		let ul = element.firstChild;
+		let h1 = element.childNodes[1];
 
 		expect(ul.textContent).toBe('abc');
 		expect(h1.textContent).toBe('txgc');
