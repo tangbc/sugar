@@ -130,6 +130,8 @@ var customLaunchers = {
 	// Modern browsers
 	sl_chrome: createCustomLauncher('chrome', 'Windows 7'),
 	sl_firefox: createCustomLauncher('firefox', 'Windows 7'),
+	sl_mac_chrome: createCustomLauncher('chrome', 'OS X 10.10'),
+	sl_mac_firefox: createCustomLauncher('firefox', 'OS X 10.10'),
 	// sl_mac_safari: createCustomLauncher('safari', 'OS X 10.10'),
 	// Microsoft Edge
 	// sl_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10'),
@@ -145,9 +147,10 @@ var customLaunchers = {
 var maxExecuteTime = 5*60*1000;
 var SAUCECONFIG = Object.assign({}, KARMABASE, {
 	sauceLabs: {
+		public: 'public',
 		recordScreenshots: false,
 		testName: 'sugar.js sauceLabs test',
-		build: Date.now()
+		build: process.env.TRAVIS_JOB_ID || 'build-' + Date.now()
 	},
 	customLaunchers: customLaunchers,
 	captureTimeout: maxExecuteTime,
