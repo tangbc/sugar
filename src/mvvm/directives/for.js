@@ -253,7 +253,7 @@ vfor.getLast = function () {
  * @return  {Element}
  */
 vfor.getChild = function (index) {
-	return this.getChilds()[index];
+	return this.getChilds()[index] || null;
 }
 
 /**
