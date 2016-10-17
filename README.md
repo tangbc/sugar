@@ -1,11 +1,19 @@
 ## sugar
+
 [![NPM version](https://img.shields.io/npm/v/sugar-js.svg?style=flat)](https://npmjs.com/package/sugar-js)
 [![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
 [![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
+[![Sauce Test Status](https://saucelabs.com/buildstatus/tangbc)](https://saucelabs.com/u/tangbc)
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/tangbc.svg)](https://saucelabs.com/u/tangbc)
 
 
-A lightweight and powerfull MVVM library for building web UI component. Simple api and without any dependence.
-Consists of two independent parts: **`sugar`** ( *support component system* ) and **`mvvm`** ( *support data binding & view refresh* )
+> A lightweight and powerful MVVM library for building web UI component.
+
+Simple api and without any dependence.
+Consists of two independent libraries:
+* **`sugar.js`** *Component system + MVVM , for building flexible web component*.
+* **`mvvm.js`** *Achived the MVVM* , **it doesn't rely on sugar, it can be used independently**.
 
 
 ## Diagram
@@ -13,74 +21,80 @@ Consists of two independent parts: **`sugar`** ( *support component system* ) an
 <img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="600">
 
 
-## Directory
+## Directories
 
-* `test/` Unit test files and API test.
+* **`build/`** Development, production and test configurations.
 
-* `build/` Development and production config files.
+* **`demos/`** Several complete examples/demos developed by `sugar.js`.
 
-* `demos/` Several complete demos developed by sugar.js.
+* **`dist/`** Product files of `sugar.js` and `mvvm.js`, and their compressed.
 
-* `dist/` Bundle files of sugar.js and mvvm.js, and their compressed.
+* **`src/`** Source code module files:
 
-* `src/` Source code files:
+	* `src/main/`<sup>20%</sup> A simple component system. [API & Doc](https://github.com/tangbc/sugar/wiki/API)
 
-	* `src/main/` Component system modules, all the module files in this directory are serving for component.js.
-	Components can be included each other, nested and have message communication.
-	[API & Doc](https://github.com/tangbc/sugar/wiki/API)
+	* **`src/mvvm/`**<sup>80%</sup> A powerful and easy-using MVVM library. [API & Doc](https://github.com/tangbc/sugar/wiki/MVVM)
 
-	* **`src/mvvm/`** A simple MVVM library, directive support bind text, two-way data binding,
-	bind attribute, bind event, repeat list and more. **mvvm doesn't rely on sugar, it can be used independently**.
-	[API & Doc](https://github.com/tangbc/sugar/wiki/MVVM)
+* **`test/`** Unit test specs writing by karma + jasmine.
 
 
 ## HelloWorld
+```html
+...
+<body>
+	<div id="app">
+		<h1>{{ title }}</h1>
+	</div>
+</body>
+...
+```
 ```javascript
 // define HelloWorld component:
 var HelloWorld = sugar.Component.extend({
 	init: function (config) {
 		config = this.cover(config, {
-			'class': 'demo',
-			'view': '<h1>{{ title }}</h1>',
-			'model': {
-				'title': 'Hello world!'
+			target: '#app',
+			model: {
+				title: 'Hello world!'
 			}
 		});
-		this.Super('init', arguments);
+		this.Super('init', [config]);
 	}
 });
 
-// create to body:
-sugar.core.create('hello-world', HelloWord, {
-	'target': document.body
-});
+// create component instance:
+var app = sugar.core.create('hello-world', HelloWord);
 ```
-And then the HTML structure will be:
+And then the HTML structure was rendered to be:
 ```html
 ...
 <body>
-	<div class="demo">
+	<div class="app">
 		<h1>Hello world!</h1>
 	</div>
 </body>
 ...
 ```
+Data reactive:
+```javascript
+app.vm.$data.title = 'Change the title!'; // <h1>Change the title!</h1>
+```
 
 
-## Document
+## Documentation
 
-[Get start and check document on Wiki.](https://github.com/tangbc/sugar/wiki)
+[Get start and check documentation on Wiki.](https://github.com/tangbc/sugar/wiki)
 
 
 ## Demos
 
-There are several demos in **`demos/`** directory, check it out and preview them in the following links:
+There are several simple demos in **`demos/`**, check it out and preview them in the following links:
 
 * [StarRating](https://tangbc.github.io/sugar/demos/starRating)
 * [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
 
-You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
+You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
 
 
 ## Usage
@@ -88,8 +102,8 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 * Use by nodejs package: `npm install sugar-js`
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
-	* `mvvm.js (about 25 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
-	* `sugar.js (about 32 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
+	* `mvvm.js (about 26 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
+	* `sugar.js (about 33 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
 
 * Browsers: **not support IE8 and below**, used `Object.defineProperty`, `Object.create`.
 
@@ -101,7 +115,7 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 ## Contribution
 
-1. Fork or clone repository
+1. Fork repository
 
 2. Install nodejs package devtools: **`npm install`**
 
@@ -109,7 +123,7 @@ You can experience or preview `sugar.js` by a *RadioComponent* in [jsfiddle](htt
 
 4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**
 
-5. Generate the test coverage report, jshint check-up and compress source code: **`npm run build`**
+5. Generate the test coverage report and jshint checking up: **`npm run build`**
 
 
 ## License
