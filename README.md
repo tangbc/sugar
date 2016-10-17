@@ -1,12 +1,24 @@
+<p align="center">
+	<a href="https://npmjs.com/package/sugar-js">
+		<img src="https://img.shields.io/npm/v/sugar-js.svg?style=flat" alt="NPM version"/>
+	</a>
+	<a href="https://travis-ci.org/tangbc/sugar">
+		<img src="https://travis-ci.org/tangbc/sugar.svg?branch=master" alt="Travis CI Status"/>
+	</a>
+	<a href="https://codecov.io/gh/tangbc/sugar">
+		<img src="https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg" alt="codecov"/>
+	</a>
+	<a href="https://saucelabs.com/u/tangbc">
+		<img src="https://saucelabs.com/buildstatus/tangbc" alt="Sauce Test Status"/>
+	</a>
+	<br>
+	<a href="https://saucelabs.com/u/tangbc">
+		<img src="https://saucelabs.com/browser-matrix/tangbc.svg" alt="Sauce Browser Matrix"/>
+	</a>
+</p>
+
+
 ## sugar
-
-[![NPM version](https://img.shields.io/npm/v/sugar-js.svg?style=flat)](https://npmjs.com/package/sugar-js)
-[![Travis CI Status](https://travis-ci.org/tangbc/sugar.svg?branch=master)](https://travis-ci.org/tangbc/sugar)
-[![codecov](https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/tangbc/sugar)
-[![Sauce Test Status](https://saucelabs.com/buildstatus/tangbc)](https://saucelabs.com/u/tangbc)
-
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/tangbc.svg)](https://saucelabs.com/u/tangbc)
-
 
 > A lightweight and powerful MVVM library for building web UI component.
 
@@ -18,7 +30,7 @@ Consists of two independent libraries:
 
 ## Diagram
 
-<img src="http://7xodrz.com1.z0.glb.clouddn.com/sugar-constructor-en" width="600">
+<img src="https://tangbc.github.io/github-images/sugar-diagram-en.png" width="600">
 
 
 ## Directories
