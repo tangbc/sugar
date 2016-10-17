@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.7 (c) 2016 TANG
  * Released under the MIT license
- * Wed Oct 12 2016 17:51:33 GMT+0800 (CST)
+ * Mon Oct 17 2016 17:55:35 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2277,7 +2277,7 @@
 	 * @return  {Element}
 	 */
 	vfor.getChild = function (index) {
-		return this.getChilds()[index];
+		return this.getChilds()[index] || null;
 	}
 
 	/**
