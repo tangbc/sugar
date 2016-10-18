@@ -51,11 +51,12 @@ let Component = Module.extend({
 			'tplParam': null, // 模板拉取请求参数 <Object>
 
 			/********* 组件 MVVM 定义 *********/
-			'model'   : null, // mvvm 数据模型对象 <Object>
-			'methods' : null, // 事件声明函数对象  <Object>
-			'watches' : null, // 批量 watch 数据对象  <Object>
-			'computed': null, // mvvm 计算属性对象 <Object>
-			'customs' : null, // 自定义指令刷新函数对象 <Object>
+			'model'   : null,  // mvvm 数据模型对象 <Object>
+			'methods' : null,  // 事件声明函数对象  <Object>
+			'watches' : null,  // 批量 watch 数据对象  <Object>
+			'computed': null,  // mvvm 计算属性对象 <Object>
+			'customs' : null,  // 自定义指令刷新函数对象 <Object>
+			'lazy'    : false, // 是否手动编译根元素 <Boolean>
 
 			/********* 声明式嵌套子组件定义 *********/
 			'childs': null, // <Object>
@@ -173,7 +174,8 @@ let Component = Module.extend({
 				'watches' : c.watches,
 				'computed': c.computed,
 				'customs' : c.customs,
-				'context' : this
+				'context' : this,
+				'lazy'    : c.lazy
 			});
 		}
 
