@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.8 (c) 2016 TANG
  * Released under the MIT license
- * Mon Oct 17 2016 19:57:40 GMT+0800 (CST)
+ * Tue Oct 18 2016 14:18:16 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
