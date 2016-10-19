@@ -18,7 +18,7 @@ var webpackConfig = {
 				exclude: [
 					path.resolve(__dirname, '../node_modules')
 				],
-				loader: 'babel', // 'babel-loader' is also a legal name to reference
+				loader: 'babel',
 				query: {
 					presets: ['es2015']
 				}
@@ -31,44 +31,33 @@ var webpackConfig = {
  * karma base/common config
  */
 var KARMABASE = {
-	// base path, that will be used to resolve files and exclude
+	// base path
 	basePath: '../test/',
 
 	// frameworks to use
 	frameworks: ['jasmine'],
 
-	// // start these browsers, currently available:
-	// // - Chrome
-	// // - ChromeCanary
-	// // - Firefox
-	// // - Opera (has to be installed with `npm install karma-opera-launcher`)
-	// // - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
-	// // - PhantomJS
-	// // - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
+	// launch browsers (declare in specific case)
 	// browsers: ['Chrome'],
 
-	// // test results reporter to use
-	// // possible values: 'spec', 'dots', 'progress', 'coverage'
+	// result reporters (declare in specific case)
 	// reporters: [],
 
-	// // webpack config
+	// karma-webpack config (declare in specific case)
 	// webpack: {},
 
 	// list of files to load in the browser
-	files: [
-		'./units/index.js'
-	],
+	files: ['./units/index.js'],
 
-	// Continuous Integration mode
-	// if true, it capture browsers, run tests and exit
+	// continuous integration mode
 	singleRun: true,
 
-	// list of preprocessors
+	// list of preprocessors before test
 	preprocessors: {
 		'./units/index.js': ['webpack', 'sourcemap']
 	},
 
-	// webpack middleware config, not show bundle status
+	// webpack middleware config
 	webpackMiddleware: {
 		noInfo: true
 	}
@@ -128,13 +117,24 @@ function createCustomLauncher (browser, platform, version) {
 // check out https://saucelabs.com/platforms for all browser/OS combos
 var customLaunchers = {
 	// Modern browsers
-	sl_chrome: createCustomLauncher('chrome', 'Windows 7'),
-	sl_firefox: createCustomLauncher('firefox', 'Windows 7'),
+	sl_win_chrome: createCustomLauncher('chrome', 'Windows 7'),
 	sl_mac_chrome: createCustomLauncher('chrome', 'OS X 10.10'),
+
+	sl_win_firefox: createCustomLauncher('firefox', 'Windows 7'),
 	sl_mac_firefox: createCustomLauncher('firefox', 'OS X 10.10'),
-	// sl_mac_safari: createCustomLauncher('safari', 'OS X 10.10'),
+
+	sl_mac_safari: createCustomLauncher('safari', 'OS X 10.10'),
+
+	// Mobile side
+	sl_ios_8_safari: createCustomLauncher('iphone', null, '8.4'),
+	sl_ios_9_safari: createCustomLauncher('iphone', null, '9.3'),
+
+	sl_android_4_2: createCustomLauncher('android', null, '4.2'),
+	sl_android_5_1: createCustomLauncher('android', null, '5.1'),
+
 	// Microsoft Edge
-	// sl_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10'),
+	sl_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10'),
+
 	// Internet explorer
 	sl_ie_9: createCustomLauncher('internet explorer', 'Windows 7', '9'),
 	sl_ie_10: createCustomLauncher('internet explorer', 'Windows 8', '10'),
@@ -148,8 +148,9 @@ var maxExecuteTime = 5*60*1000;
 var SAUCECONFIG = Object.assign({}, KARMABASE, {
 	sauceLabs: {
 		public: 'public',
+		recordVideo: false,
 		recordScreenshots: false,
-		testName: 'sugar.js sauceLabs test',
+		testName: 'sugar unit test',
 		build: process.env.TRAVIS_JOB_ID || 'build-' + Date.now()
 	},
 	customLaunchers: customLaunchers,
