@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.8 (c) 2016 TANG
  * Released under the MIT license
- * Tue Oct 18 2016 14:18:16 GMT+0800 (CST)
+ * Thu Oct 20 2016 15:45:50 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2093,7 +2093,8 @@
 	vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 		// 初始化列表
 		if (this.init) {
-			this.initList(newArray);
+			this.$parent.replaceChild(this.buildList(newArray), this.el);
+			this.init = false;
 		} else {
 			// 数组操作部分更新
 			if (methodArg && partlyMethods.indexOf(methodArg.method) > -1) {
@@ -2105,16 +2106,6 @@
 				this.updateModel(true);
 			}
 		}
-	}
-
-	/**
-	 * 初始化构建列表
-	 * @param  {Array}  list
-	 */
-	vfor.initList = function (list) {
-		this.init = false;
-		var listFragment = this.buildList(list);
-		this.$parent.replaceChild(listFragment, this.el);
 	}
 
 	/**
@@ -2217,7 +2208,7 @@
 			}
 
 			// 阻止重复编译除 vfor 以外的指令
-			if (bodyDirs > 1) {
+			if (this.init && bodyDirs > 1) {
 				vm.block(el);
 			}
 
