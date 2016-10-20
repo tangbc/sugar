@@ -123,17 +123,20 @@ var customLaunchers = {
 	sl_win_firefox: createCustomLauncher('firefox', 'Windows 7'),
 	sl_mac_firefox: createCustomLauncher('firefox', 'OS X 10.10'),
 
-	sl_mac_safari: createCustomLauncher('safari', 'OS X 10.10'),
+	// @todo. Pass locally but shut down by SauceLabs Disconnect.
+	// sl_mac_safari: createCustomLauncher('safari', 'OS X 10.11'),
 
 	// Mobile side
-	sl_ios_8_safari: createCustomLauncher('iphone', null, '8.4'),
-	sl_ios_9_safari: createCustomLauncher('iphone', null, '9.3'),
-
 	sl_android_4_2: createCustomLauncher('android', null, '4.2'),
 	sl_android_5_1: createCustomLauncher('android', null, '5.1'),
 
+	// @todo. Pass locally but shut down by SauceLabs Disconnect.
+	// sl_ios_8_safari: createCustomLauncher('iphone', null, '8.4'),
+	// sl_ios_9_safari: createCustomLauncher('iphone', null, '9.3'),
+
 	// Microsoft Edge
-	sl_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10'),
+	// @todo. Pass locally but shut down by SauceLabs Disconnect.
+	// sl_edge: createCustomLauncher('MicrosoftEdge', 'Windows 10'),
 
 	// Internet explorer
 	sl_ie_9: createCustomLauncher('internet explorer', 'Windows 7', '9'),
@@ -152,11 +155,13 @@ var SAUCECONFIG = Object.assign({}, KARMABASE, {
 		recordScreenshots: false,
 		testName: 'sugar unit test',
 		build: process.env.TRAVIS_JOB_ID || 'build-' + Date.now()
+		// public: 'private',
+		// testName: 'private test'
 	},
 	customLaunchers: customLaunchers,
+	browsers: Object.keys(customLaunchers),
 	captureTimeout: maxExecuteTime,
 	browserNoActivityTimeout: maxExecuteTime,
-	browsers: Object.keys(customLaunchers),
 	webpack: webpackConfig,
 	reporters: ['progress', 'saucelabs']
 });
