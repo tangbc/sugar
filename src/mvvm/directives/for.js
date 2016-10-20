@@ -71,7 +71,8 @@ vfor.updateModel = function (clear) {
 vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 	// 初始化列表
 	if (this.init) {
-		this.initList(newArray);
+		this.$parent.replaceChild(this.buildList(newArray), this.el);
+		this.init = false;
 	} else {
 		// 数组操作部分更新
 		if (methodArg && partlyMethods.indexOf(methodArg.method) > -1) {
@@ -83,16 +84,6 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 			this.updateModel(true);
 		}
 	}
-}
-
-/**
- * 初始化构建列表
- * @param  {Array}  list
- */
-vfor.initList = function (list) {
-	this.init = false;
-	let listFragment = this.buildList(list);
-	this.$parent.replaceChild(listFragment, this.el);
 }
 
 /**
@@ -195,7 +186,7 @@ vfor.buildList = function (list, startIndex) {
 		}
 
 		// 阻止重复编译除 vfor 以外的指令
-		if (bodyDirs > 1) {
+		if (this.init && bodyDirs > 1) {
 			vm.block(el);
 		}
 
