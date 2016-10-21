@@ -8,7 +8,7 @@ import { isElement, hasAttr, empty } from '../../dom';
  * @param  {DOMElement}  element
  */
 function removeDOMRegister (vm, element) {
-	let registers = vm.$data.$els;
+	let registers = vm.$regElements;
 	let childNodes = element.childNodes;
 
 	for (let i = 0; i < childNodes.length; i++) {

@@ -40,6 +40,9 @@ export default function MVVM (option) {
 	// 数据模型
 	this.$data = this.__vm__.$data;
 
+	// DOM 注册索引
+	this.$els = this.__vm__.$regElements;
+
 	// 批量 watch
 	this._watchBatch(option.watches);
 }
@@ -154,5 +157,5 @@ mvp._watchBatch = function (watches) {
  */
 mvp.destroy = function () {
 	this.__vm__.destroy();
-	this.__vm__ = this.__ct__ = this.__bk__ = this.$data = null;
+	this.__vm__ = this.__ct__ = this.__bk__ = this.$data = this.$els = null;
 }

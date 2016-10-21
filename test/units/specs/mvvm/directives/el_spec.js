@@ -21,10 +21,9 @@ describe("v-el >", function () {
 			'view': element,
 			'model': {}
 		});
-		let data = vm.$data;
 
-		expect(data.$els.elSpan.textContent).toBe('123');
-		expect(data.$els.elSpan).toBe(element.querySelector('#test1'));
+		expect(vm.$els.elSpan.textContent).toBe('123');
+		expect(vm.$els.elSpan).toBe(element.querySelector('#test1'));
 
 	});
 
@@ -43,15 +42,15 @@ describe("v-el >", function () {
 		});
 		let data = vm.$data;
 
-		expect(data.$els.elSpan.textContent).toBe('1234');
-		expect(data.$els.elSpan).toBe(element.querySelector('#test2'));
+		expect(vm.$els.elSpan.textContent).toBe('1234');
+		expect(vm.$els.elSpan).toBe(element.querySelector('#test2'));
 
 		data.isRender = false;
-		expect(data.$els.elSpan).toBeNull();
+		expect(vm.$els.elSpan).toBeNull();
 
 		data.isRender = true;
-		expect(data.$els.elSpan.textContent).toBe('1234');
-		expect(data.$els.elSpan).toBe(element.querySelector('#test2'));
+		expect(vm.$els.elSpan.textContent).toBe('1234');
+		expect(vm.$els.elSpan).toBe(element.querySelector('#test2'));
 	});
 
 
@@ -69,14 +68,14 @@ describe("v-el >", function () {
 		});
 		let data = vm.$data;
 
-		expect(data.$els.elSpan).toBeUndefined();
+		expect(vm.$els.elSpan).toBeUndefined();
 
 		data.isRender = true;
-		expect(data.$els.elSpan.textContent).toBe('12345');
-		expect(data.$els.elSpan).toBe(element.querySelector('#test3'));
+		expect(vm.$els.elSpan.textContent).toBe('12345');
+		expect(vm.$els.elSpan).toBe(element.querySelector('#test3'));
 
 		data.isRender = false;
-		expect(data.$els.elSpan).toBeNull();
+		expect(vm.$els.elSpan).toBeNull();
 	});
 
 

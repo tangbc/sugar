@@ -19,7 +19,7 @@ vel.parse = function () {
 	// 不能在 vfor 中使用
 	if (!this.scope) {
 		let register = this.desc.expression;
-		this.vm.$data.$els[register] = this.el;
+		this.vm.$regElements[register] = this.el;
 	} else {
 		warn('v-el can not be used inside v-for!');
 	}
