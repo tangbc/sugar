@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.8 (c) 2016 TANG
  * Released under the MIT license
- * Thu Oct 20 2016 15:45:50 GMT+0800 (CST)
+ * Fri Oct 21 2016 15:20:15 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1667,7 +1667,7 @@
 		// 不能在 vfor 中使用
 		if (!this.scope) {
 			var register = this.desc.expression;
-			this.vm.$data.$els[register] = this.el;
+			this.vm.$regElements[register] = this.el;
 		} else {
 			warn('v-el can not be used inside v-for!');
 		}
@@ -1679,7 +1679,7 @@
 	 * @param  {DOMElement}  element
 	 */
 	function removeDOMRegister (vm, element) {
-		var registers = vm.$data.$els;
+		var registers = vm.$regElements;
 		var childNodes = element.childNodes;
 
 		for (var i = 0; i < childNodes.length; i++) {
@@ -3264,7 +3264,7 @@
 		// 缓存根节点
 		this.$element = element;
 		// DOM 注册索引
-		def(this.$data, '$els', {});
+		this.$regElements = {};
 
 		// 指令实例缓存
 		this.$directives = [];
@@ -3549,6 +3549,9 @@
 		// 数据模型
 		this.$data = this.__vm__.$data;
 
+		// DOM 注册索引
+		this.$els = this.__vm__.$regElements;
+
 		// 批量 watch
 		this._watchBatch(option.watches);
 	}
@@ -3663,7 +3666,7 @@
 	 */
 	mvp.destroy = function () {
 		this.__vm__.destroy();
-		this.__vm__ = this.__ct__ = this.__bk__ = this.$data = null;
+		this.__vm__ = this.__ct__ = this.__bk__ = this.$data = this.$els = null;
 	}
 
 	return MVVM;
