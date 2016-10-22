@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.9 (c) 2016 TANG
  * Released under the MIT license
- * Fri Oct 21 2016 20:28:04 GMT+0800 (CST)
+ * Sat Oct 22 2016 09:06:09 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3458,6 +3458,7 @@
 		 */
 		bind: function bind () {
 			var self = this;
+			var trim = this.trim;
 			var lazy = this.lazy;
 			var number = this.number;
 			var debounce = this.debounce;
@@ -3468,6 +3469,10 @@
 			 * @param  {String}  value  [表单值]
 			 */
 			function setModelValue (value) {
+				if (trim) {
+					value = value.trim();
+				}
+
 				var val = formatValue(value, number);
 
 				if (debounce) {
@@ -3773,6 +3778,8 @@
 			case 'password':
 			case 'textarea':
 				form = text;
+				// 可以使用 trim 属性来清除首尾空格
+				this.trim = hasAttr(el, 'trim');
 				// 可以使用 lazy 属性来控制 input 事件是否同步数据
 				this.lazy = hasAttr(el, 'lazy');
 				// 可以使用 debounce 来设置更新数据的延迟时间
