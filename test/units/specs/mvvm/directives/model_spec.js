@@ -213,6 +213,43 @@ describe("v-model >", function () {
 	});
 
 
+	it('text use trim param', function () {
+		element.innerHTML =
+			'<pre id="noTrim">-{{ test1 }}-</pre>' +
+			'<input id="noTrimIpt" type="text" v-model="test1">' +
+
+			'<pre id="toTrim">-{{ test2 }}-</pre>' +
+			'<input id="toTrimIpt" type="text" v-model="test2" trim>'
+
+		new MVVM({
+			'view': element,
+			'model': {
+				'test1': '',
+				'test2': ''
+			}
+		});
+
+		let noTrim = element.querySelector('#noTrim');
+		let noTrimIpt = element.querySelector('#noTrimIpt');
+
+		let toTrim = element.querySelector('#toTrim');
+		let toTrimIpt = element.querySelector('#toTrimIpt');
+
+		expect(noTrim.textContent).toBe('--');
+		expect(toTrim.textContent).toBe('--');
+
+		// keep the head and the tail spaces
+		noTrimIpt.value = '  cba  ';
+		triggerEvent(noTrimIpt, 'change');
+		expect(noTrim.textContent).toBe('-  cba  -');
+
+		// trim input string
+		toTrimIpt.value = '  nba  ';
+		triggerEvent(toTrimIpt, 'change');
+		expect(toTrim.textContent).toBe('-nba-');
+	});
+
+
 	it('textarea use lazy param', function () {
 		element.innerHTML = '<textarea id="text" v-model="test" lazy></textarea>';
 

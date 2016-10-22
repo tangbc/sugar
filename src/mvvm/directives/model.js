@@ -53,6 +53,8 @@ vmodel.bindDuplex = function (type) {
 		case 'password':
 		case 'textarea':
 			form = text;
+			// 可以使用 trim 属性来清除首尾空格
+			this.trim = hasAttr(el, 'trim');
 			// 可以使用 lazy 属性来控制 input 事件是否同步数据
 			this.lazy = hasAttr(el, 'lazy');
 			// 可以使用 debounce 来设置更新数据的延迟时间

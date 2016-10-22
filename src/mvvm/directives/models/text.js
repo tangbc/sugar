@@ -22,6 +22,7 @@ export default {
 	 */
 	bind () {
 		let self = this;
+		let trim = this.trim;
 		let lazy = this.lazy;
 		let number = this.number;
 		let debounce = this.debounce;
@@ -32,6 +33,10 @@ export default {
 		 * @param  {String}  value  [表单值]
 		 */
 		function setModelValue (value) {
+			if (trim) {
+				value = value.trim();
+			}
+
 			let val = formatValue(value, number);
 
 			if (debounce) {
