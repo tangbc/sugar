@@ -30,3 +30,26 @@ export function setSelect (select, value) {
 		/* jshint ignore:end */
 	}
 }
+
+/**
+ * compare two class string is equal
+ * @param   {[type]}  classString  [description]
+ * @param   {[type]}  stringClass  [description]
+ * @return  {[type]}
+ */
+export function equalClass (classString, stringClass) {
+	let fronts = classString.split(' ');
+	let backs = stringClass.split(' ');
+
+	if (fronts.length !== backs.length) {
+		return false;
+	}
+
+	for (let i = 0; i < fronts.length; i++) {
+		if (backs.indexOf(fronts[i]) === -1) {
+			return false;
+		}
+	}
+
+	return true;
+}

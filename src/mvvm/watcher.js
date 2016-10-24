@@ -50,18 +50,19 @@ export default function Watcher (vm, desc, callback, context) {
 	this.depends = [];
 	this.newDepends = [];
 
+	let once = desc.once;
 	let expression = desc.expression;
 	let preSetFunc = isFunc(expression);
 
 	// 缓存取值函数
 	this.getter = preSetFunc ? expression : createGetter(expression);
 	// 缓存设值函数（双向数据绑定）
-	this.setter = desc.duplex ? createSetter(expression) : null;
+	this.setter = !once && desc.duplex ? createSetter(expression) : null;
 
 	// 缓存表达式旧值
 	this.oldVal = null;
 	// 表达式初始值 & 提取依赖
-	this.value = this.get();
+	this.value = once ? this.getValue() : this.get();
 }
 
 let wp = Watcher.prototype;

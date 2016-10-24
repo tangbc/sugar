@@ -6,7 +6,7 @@ import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
 const regMustache = /(\{\{.*\}\})/;
-const noNeedParsers = ['velse', 'vpre', 'vcloak'];
+const noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce'];
 
 /**
  * 是否是合法指令
@@ -15,6 +15,16 @@ const noNeedParsers = ['velse', 'vpre', 'vcloak'];
  */
 function isDirective (directive) {
 	return directive.indexOf('v-') === 0;
+}
+
+/**
+ * 是否是 v-once 指令
+ * 节点以及所有子节点的指令只渲染，无数据绑定
+ * @param   {Element}  node
+ * @return  {Boolean}
+ */
+function isOnceNode (node) {
+	return isElement(node) && hasAttr(node, 'v-once');
 }
 
 /**
@@ -132,23 +142,36 @@ cp.mount = function () {
  * @param  {Element}  element  [编译节点]
  * @param  {Boolean}  root     [是否是根节点]
  * @param  {Object}   scope    [vfor 取值域]
+ * @param  {Boolean}  once     [是否只渲染首次]
  */
-cp.compile = function (element, root, scope) {
-	let childNodes = element.childNodes;
+cp.compile = function (element, root, scope, once) {
+	let children = element.childNodes;
+	let parentOnce = !!once || isOnceNode(element);
 
 	if (root && hasDirective(element)) {
 		this.$queue.push([element, scope]);
 	}
 
-	for (let i = 0; i < childNodes.length; i++) {
-		let node = childNodes[i];
+	def(element, '__vonce__', parentOnce);
+
+	for (let i = 0; i < children.length; i++) {
+		let node = children[i];
+		let nodeType = node.nodeType;
+
+		// 指令只能应用在文本或元素节点
+		if (nodeType !== 1 && nodeType !== 3) {
+			continue;
+		}
+
+		let selfOnce = parentOnce || isOnceNode(node);
 
 		if (hasDirective(node)) {
 			this.$queue.push([node, scope]);
+			def(node, '__vonce__', selfOnce);
 		}
 
 		if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
-			this.compile(node, false, scope);
+			this.compile(node, false, scope, selfOnce);
 		}
 	}
 
@@ -240,6 +263,7 @@ cp.complieNode = function (tuple) {
  * @param   {Object}   scope
  */
 cp.parse = function (node, attr, scope) {
+	let once = node.__vonce__;
 	let desc = getDirectiveDesc(attr);
 	let directive = desc.directive;
 
@@ -255,7 +279,15 @@ cp.parse = function (node, attr, scope) {
 	}
 
 	if (Parser) {
-		this.$directives.push(new Parser(this, node, desc, scope));
+		desc.once = once;
+		let directive = new Parser(this, node, desc, scope);
+
+		if (once) {
+			directive.destroy();
+		} else {
+			this.$directives.push(directive);
+		}
+
 	} else {
 		warn('[' + directive + '] is an unknown directive!');
 	}
@@ -268,7 +300,9 @@ cp.parse = function (node, attr, scope) {
  */
 cp.parseText = function (node, scope) {
 	let tokens = [], desc = {};
+	let once = node.parentNode && node.parentNode.__vonce__;
 	let text = node.textContent.trim().replace(regNewline, '');
+
 	let pieces = text.split(regText);
 	let matches = text.match(regText);
 
@@ -282,8 +316,16 @@ cp.parseText = function (node, scope) {
 		}
 	});
 
+	desc.once = once;
 	desc.expression = tokens.join('+');
-	this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
+
+	let directive = new DirectiveParsers.vtext(this, node, desc, scope);
+
+	if (once) {
+		directive.destroy();
+	} else {
+		this.$directives.push(directive);
+	}
 }
 
 /**

@@ -202,8 +202,11 @@ von.parseEvent = function (bind) {
 
 	this.bindEvent(type, dress, listener, args);
 
-	// 缓存数据订阅对象
-	this.funcWatchers.push(funcWatcher);
+	if (desc.once) {
+		funcWatcher.destroy();
+	} else {
+		this.funcWatchers.push(funcWatcher);
+	}
 }
 
 /**
@@ -244,8 +247,15 @@ von.bindEvent = function (type, dress, func, argString) {
 		let argsWatcher = new Watcher(this.vm, desc, function (newArgs) {
 			args = newArgs;
 		}, this);
+
 		args = argsWatcher.value;
-		this.argsWatchers.push(argsWatcher);
+
+		if (desc.once) {
+			argsWatcher.destroy();
+		} else {
+			this.argsWatchers.push(argsWatcher);
+		}
+
 	}
 
 	// 事件代理函数

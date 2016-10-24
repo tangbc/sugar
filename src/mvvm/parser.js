@@ -43,7 +43,7 @@ pp.destroy = function () {
 		this._destroy();
 	}
 
-	this.vm = this.desc = this.scope = null;
+	this.vm = this.el = this.desc = this.scope = null;
 }
 
 

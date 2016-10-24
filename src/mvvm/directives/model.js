@@ -92,7 +92,9 @@ vmodel.bindDuplex = function (type) {
 	this.bind();
 
 	// 绑定表单变化事件
-	form.bind.call(this);
+	if (!this.desc.once) {
+		form.bind.call(this);
+	}
 }
 
 /**

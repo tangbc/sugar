@@ -1,6 +1,7 @@
 import MVVM from 'mvvm';
 import * as dom from 'src/dom';
 import * as util from 'src/util';
+import { equalClass } from '../../../test_util';
 
 describe("v-bind >", function () {
 	let element;
@@ -14,22 +15,6 @@ describe("v-bind >", function () {
 		document.body.removeChild(element);
 	});
 
-	function equalClass (classString, stringClass) {
-		let fronts = classString.split(' ');
-		let backs = stringClass.split(' ');
-
-		if (fronts.length !== backs.length) {
-			return false;
-		}
-
-		for (let i = 0; i < fronts.length; i++) {
-			if (backs.indexOf(fronts[i]) === -1) {
-				return false;
-			}
-		}
-
-		return true;
-	}
 
 	it('test equalClass', function () {
 		expect(equalClass('a', 'a b')).toBeFalsy();

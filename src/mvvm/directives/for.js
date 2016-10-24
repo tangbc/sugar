@@ -194,7 +194,7 @@ vfor.buildList = function (list, startIndex) {
 		def(plate, vforAlias, alias);
 
 		// 编译板块
-		vm.compile(plate, true, scope);
+		vm.compile(plate, true, scope, this.desc.once);
 		listFragment.appendChild(plate);
 	}, this);
 
