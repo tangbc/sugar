@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.9 (c) 2016 TANG
  * Released under the MIT license
- * Sat Oct 22 2016 09:06:10 GMT+0800 (CST)
+ * Mon Oct 24 2016 16:51:53 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -826,18 +826,19 @@
 		this.depends = [];
 		this.newDepends = [];
 
+		var once = desc.once;
 		var expression = desc.expression;
 		var preSetFunc = isFunc(expression);
 
 		// 缓存取值函数
 		this.getter = preSetFunc ? expression : createGetter(expression);
 		// 缓存设值函数（双向数据绑定）
-		this.setter = desc.duplex ? createSetter(expression) : null;
+		this.setter = !once && desc.duplex ? createSetter(expression) : null;
 
 		// 缓存表达式旧值
 		this.oldVal = null;
 		// 表达式初始值 & 提取依赖
-		this.value = this.get();
+		this.value = once ? this.getValue() : this.get();
 	}
 
 	var wp = Watcher.prototype;
@@ -1082,7 +1083,7 @@
 			this._destroy();
 		}
 
-		this.vm = this.desc = this.scope = null;
+		this.vm = this.el = this.desc = this.scope = null;
 	}
 
 
@@ -1495,8 +1496,11 @@
 
 		this.bindEvent(type, dress, listener, args);
 
-		// 缓存数据订阅对象
-		this.funcWatchers.push(funcWatcher);
+		if (desc.once) {
+			funcWatcher.destroy();
+		} else {
+			this.funcWatchers.push(funcWatcher);
+		}
 	}
 
 	/**
@@ -1543,8 +1547,14 @@
 			var argsWatcher = new Watcher(this.vm, desc, function (newArgs) {
 				args = newArgs;
 			}, this);
+
 			args = argsWatcher.value;
-			this.argsWatchers.push(argsWatcher);
+
+			if (desc.once) {
+				argsWatcher.destroy();
+			} else {
+				this.argsWatchers.push(argsWatcher);
+			}
 		}
 
 		// 事件代理函数
@@ -1763,7 +1773,7 @@
 
 		// 渲染 & 更新视图
 		if (isRender) {
-			vm.compile(frag, true, this.scope);
+			vm.compile(frag, true, this.scope, this.desc.once);
 			renderEl.appendChild(frag);
 		}
 		// 不渲染的情况需要移除 DOM 索引的引用
@@ -2216,7 +2226,7 @@
 			def(plate, vforAlias, alias);
 
 			// 编译板块
-			vm.compile(plate, true, scope);
+			vm.compile(plate, true, scope, this.desc.once);
 			listFragment.appendChild(plate);
 		}, this);
 
@@ -3129,7 +3139,9 @@
 		this.bind();
 
 		// 绑定表单变化事件
-		form.bind.call(this);
+		if (!this.desc.once) {
+			form.bind.call(this);
+		}
 	}
 
 	/**
@@ -3185,7 +3197,7 @@
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
 	var regMustache = /(\{\{.*\}\})/;
-	var noNeedParsers = ['velse', 'vpre', 'vcloak'];
+	var noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce'];
 
 	/**
 	 * 是否是合法指令
@@ -3194,6 +3206,16 @@
 	 */
 	function isDirective (directive) {
 		return directive.indexOf('v-') === 0;
+	}
+
+	/**
+	 * 是否是 v-once 指令
+	 * 节点以及所有子节点的指令只渲染，无数据绑定
+	 * @param   {Element}  node
+	 * @return  {Boolean}
+	 */
+	function isOnceNode (node) {
+		return isElement(node) && hasAttr(node, 'v-once');
 	}
 
 	/**
@@ -3311,25 +3333,38 @@
 	 * @param  {Element}  element  [编译节点]
 	 * @param  {Boolean}  root     [是否是根节点]
 	 * @param  {Object}   scope    [vfor 取值域]
+	 * @param  {Boolean}  once     [是否只渲染首次]
 	 */
-	cp.compile = function (element, root, scope) {
+	cp.compile = function (element, root, scope, once) {
 		var this$1 = this;
 
-		var childNodes = element.childNodes;
+		var children = element.childNodes;
+		var parentOnce = !!once || isOnceNode(element);
 
 		if (root && hasDirective(element)) {
 			this.$queue.push([element, scope]);
 		}
 
-		for (var i = 0; i < childNodes.length; i++) {
-			var node = childNodes[i];
+		def(element, '__vonce__', parentOnce);
+
+		for (var i = 0; i < children.length; i++) {
+			var node = children[i];
+			var nodeType = node.nodeType;
+
+			// 指令只能应用在文本或元素节点
+			if (nodeType !== 1 && nodeType !== 3) {
+				continue;
+			}
+
+			var selfOnce = parentOnce || isOnceNode(node);
 
 			if (hasDirective(node)) {
 				this$1.$queue.push([node, scope]);
+				def(node, '__vonce__', selfOnce);
 			}
 
 			if (node.hasChildNodes() && !hasLateCompileChilds(node)) {
-				this$1.compile(node, false, scope);
+				this$1.compile(node, false, scope, selfOnce);
 			}
 		}
 
@@ -3421,6 +3456,7 @@
 	 * @param   {Object}   scope
 	 */
 	cp.parse = function (node, attr, scope) {
+		var once = node.__vonce__;
 		var desc = getDirectiveDesc(attr);
 		var directive = desc.directive;
 
@@ -3436,7 +3472,14 @@
 		}
 
 		if (Parser) {
-			this.$directives.push(new Parser(this, node, desc, scope));
+			desc.once = once;
+			var dirParser = new Parser(this, node, desc, scope);
+
+			if (once) {
+				dirParser.destroy();
+			} else {
+				this.$directives.push(dirParser);
+			}
 		} else {
 			warn('[' + directive + '] is an unknown directive!');
 		}
@@ -3449,7 +3492,9 @@
 	 */
 	cp.parseText = function (node, scope) {
 		var tokens = [], desc = {};
+		var once = node.parentNode && node.parentNode.__vonce__;
 		var text = node.textContent.trim().replace(regNewline, '');
+
 		var pieces = text.split(regText);
 		var matches = text.match(regText);
 
@@ -3463,8 +3508,16 @@
 			}
 		});
 
+		desc.once = once;
 		desc.expression = tokens.join('+');
-		this.$directives.push(new DirectiveParsers.vtext(this, node, desc, scope));
+
+		var directive = new DirectiveParsers.vtext(this, node, desc, scope);
+
+		if (once) {
+			directive.destroy();
+		} else {
+			this.$directives.push(directive);
+		}
 	}
 
 	/**
