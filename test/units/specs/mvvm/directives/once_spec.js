@@ -63,6 +63,8 @@ describe("v-once >", function () {
 
 		let data = vm.$data;
 
+		expect(vm.__vm__.$directives.length).toBe(0);
+
 		expect(element.textContent).toBe('abc');
 
 		data.items.push('d');
@@ -93,6 +95,8 @@ describe("v-once >", function () {
 		let data = vm.$data;
 		let div = element.firstChild;
 
+		expect(vm.__vm__.$directives.length).toBe(0);
+
 		expect(div.textContent).toBe('xxdk');
 
 		data.show = false;
@@ -120,6 +124,8 @@ describe("v-once >", function () {
 		let data = vm.$data;
 		let div = element.firstChild;
 
+		expect(vm.__vm__.$directives.length).toBe(0);
+
 		expect(div.textContent).toBe('');
 
 		data.show = true;
@@ -133,7 +139,7 @@ describe("v-once >", function () {
 				'<span>{{ title }}</span>' +
 			'</div>'
 
-		new MVVM({
+		let vm = new MVVM({
 			view: element,
 			model: {
 				title: 'xxdk'
@@ -141,6 +147,8 @@ describe("v-once >", function () {
 		});
 
 		let div = element.firstChild;
+
+		expect(vm.__vm__.$directives.length).toBe(0);
 
 		expect(div.textContent).toBe('{{ title }}');
 	});
@@ -171,6 +179,8 @@ describe("v-once >", function () {
 		let data = vm.$data;
 		let h1 = element.querySelector('h1');
 		let h2 = element.querySelector('h2');
+
+		expect(vm.__vm__.$directives.length).toBe(0);
 
 		triggerEvent(h1, 'click');
 		expect(flag1).toBe(123);
@@ -225,6 +235,8 @@ describe("v-once >", function () {
 		let checkbox1 = div.childNodes[3];
 		let checkbox2 = div.childNodes[4];
 		let select = div.childNodes[5];
+
+		expect(vm.__vm__.$directives.length).toBe(0);
 
 		// two-way data-binding will not effect
 		// text
@@ -311,6 +323,8 @@ describe("v-once >", function () {
 		let b = div.childNodes[6];
 		let span = div.childNodes[7];
 
+		expect(vm.__vm__.$directives.length).toBe(0);
+
 		expect(h1.getAttribute('id')).toBe('123');
 		data.vid = '321';
 		expect(h1.getAttribute('id')).toBe('123');
@@ -387,6 +401,8 @@ describe("v-once >", function () {
 		let h1 = element.querySelector('h1');
 		let h2 = element.querySelector('h2');
 
+		expect(vm.__vm__.$directives.length).toBe(0);
+
 		expect(h1.textContent).toBe('<111>');
 		expect(h2.textContent).toBe('<222>');
 
@@ -419,6 +435,8 @@ describe("v-once >", function () {
 		let h1 = element.querySelector('h1');
 		let h2 = element.querySelector('h2');
 		let h3 = element.querySelector('h3');
+
+		expect(vm.__vm__.$directives.length).toBe(0);
 
 		expect(h1.style.display).toBe('none');
 		expect(h2.style.display).toBe('');

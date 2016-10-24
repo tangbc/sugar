@@ -255,7 +255,6 @@ von.bindEvent = function (type, dress, func, argString) {
 		} else {
 			this.argsWatchers.push(argsWatcher);
 		}
-
 	}
 
 	// 事件代理函数

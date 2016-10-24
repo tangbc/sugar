@@ -280,14 +280,13 @@ cp.parse = function (node, attr, scope) {
 
 	if (Parser) {
 		desc.once = once;
-		let directive = new Parser(this, node, desc, scope);
+		let dirParser = new Parser(this, node, desc, scope);
 
 		if (once) {
-			directive.destroy();
+			dirParser.destroy();
 		} else {
-			this.$directives.push(directive);
+			this.$directives.push(dirParser);
 		}
-
 	} else {
 		warn('[' + directive + '] is an unknown directive!');
 	}
