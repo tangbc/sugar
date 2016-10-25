@@ -8,7 +8,7 @@ var DatePicker = Sugar.Component.extend({
 		this.updateDateValue(now.getFullYear(), now.getMonth(), now.getDate());
 
 		// 定义模块配置
-		config = this.cover(config, {
+		this.Super('init', config, {
 			'css'     : {'padding': '20px'},
 			'template': 'datePicker.tpl',
 			'model'   : {
@@ -29,7 +29,6 @@ var DatePicker = Sugar.Component.extend({
 				'clickSelectDate': this.clickSelectDate
 			}
 		});
-		this.Super('init', arguments);
 	},
 
 	// 视图渲染完毕

@@ -6,7 +6,8 @@
 		init: function (config) {
 			var allTodos = storage.getAll();
 
-			config = this.cover(config, {
+			this.ready = true;
+			this.Super('init', config, {
 				'target': '.todoapp',
 				'model': {
 					'type'       : 'all',
@@ -74,8 +75,6 @@
 					}
 				}
 			});
-			this.ready = true;
-			this.Super('init', arguments);
 		},
 
 		afterRender: function () {

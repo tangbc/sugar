@@ -66,7 +66,8 @@
 			}
 
 			// 定义组件配置
-			config = this.cover(config, {
+			// 调用父类 Sugar.Component 的 init 方法进行视图渲染
+			this.Super('init', config, {
 				// 渲染布局
 				'view' : [
 					'<ul>',
@@ -83,9 +84,6 @@
 					'clickStar': this.eventClickStar
 				}
 			});
-
-			// 调用父类 Sugar.Component 的 init 方法进行视图渲染
-			this.Super('init', arguments);
 		},
 
 		/**
