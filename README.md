@@ -64,13 +64,12 @@ Consists of two independent libraries:
 // define HelloWorld component:
 var HelloWorld = sugar.Component.extend({
 	init: function (config) {
-		config = this.cover(config, {
+		this.Super('init', config, {
 			target: '#app',
 			model: {
 				title: 'Hello world!'
 			}
 		});
-		this.Super('init', [config]);
 	}
 });
 
@@ -106,7 +105,7 @@ There are several simple demos in **`demos/`**, check it out and preview them in
 * [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
 
-You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/7/).
+You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
 
 
 ## Usage
