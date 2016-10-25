@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.9 (c) 2016 TANG
  * Released under the MIT license
- * Mon Oct 24 2016 16:51:52 GMT+0800 (CST)
+ * Tue Oct 25 2016 14:48:56 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -534,7 +534,10 @@
 	 * @return  {Mix}
 	 */
 	function bindSuper (Super, method) {
-		if (isFunc(method) && regSuper.test(toString.call(method))) {
+		if (
+			isFunc(method) &&
+			regSuper.test(toString.call(method))
+		) {
 			return function () {
 				this.Super = Super;
 				method.apply(this, arguments);
@@ -546,22 +549,23 @@
 
 	/*
 	 * Root 实现类式继承
-	 * @param  {Object}    proto  [生成类的新原型属性或方法]
-	 * @return {Function}  Class  [继承后的类]
+	 * @param   {Object}    proto  [生成类的属性或方法]
+	 * @return  {Function}  Class  [继承后的类]
 	 */
 	function Root () {}
 	Root.extend = function (proto) {
 		var parent = this.prototype;
 
 		/**
-		 * 子类对父类的调用
-		 * @param {String}  method  [调用的父类方法]
-		 * @param {Array}   args    [调用参数]
+		 * 子类对父类方法的调用
+		 * @param  {String}  method     [父类方法]
+		 * @param  {Object}  oldConfig  [原配置参数]
+		 * @param  {Object}  newConfig  [新配置参数]
 		 */
-		function Super (method, args) {
+		function Super (method, oldConfig, newConfig) {
 			var func = parent[method];
 			if (isFunc(func)) {
-				func.apply(this, args);
+				func.call(this, extend(true, newConfig, oldConfig));
 			}
 		}
 
@@ -4434,8 +4438,8 @@
 		 * @param  {Object}  config  [组件参数配置]
 		 * @param  {Object}  parent  [父组件对象]
 		 */
-		init: function (config, parent) {
-			this.__config__ = this.cover(config, {
+		init: function (config) {
+			this.__config__ = extend(true, {
 				/********* 组件位置定义 *********/
 				'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
 				'replace': false, // 组件是否替换目标容器 <Boolean>
@@ -4464,7 +4468,7 @@
 
 				// 视图渲染完成后的回调函数
 				'cbRender': 'afterRender'
-			});
+			}, config);
 
 			// 组件元素
 			this.el = null;
@@ -4671,19 +4675,6 @@
 
 			this.el = this.vm = null;
 			clearObject(this.__listeners__);
-		},
-
-		/**
-		 * 组件配置参数合并、覆盖
-		 * @param  {Object}  child   [子类组件配置参数]
-		 * @param  {Object}  parent  [父类组件配置参数]
-		 * @return {Object}          [合并后的配置参数]
-		 */
-		cover: function (child, parent) {
-			if (!parent) {
-				warn('Failed to cover config, 2 arguments required');
-			}
-			return extend(true, parent, child);
 		},
 
 		/**
