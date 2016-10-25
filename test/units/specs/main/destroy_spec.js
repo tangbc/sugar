@@ -18,19 +18,17 @@ describe('sugar module api >', function () {
 	it('destroy all sub components', function () {
 		let Comp2 = Component.extend({
 			init: function (config) {
-				config = this.cover(config, {
+				this.Super('init', config, {
 					'view': '<h2>Comp2</h2>'
 				});
-				this.Super('init', [config]);
 			}
 		});
 
 		let Comp1 = Component.extend({
 			init: function (config) {
-				config = this.cover(config, {
+				this.Super('init', config, {
 					'view': '<h1>Comp1</h1>'
 				});
-				this.Super('init', [config]);
 			},
 			afterRender: function () {
 				let comp2 = this.create('comp2', Comp2, {
@@ -44,7 +42,7 @@ describe('sugar module api >', function () {
 
 		let View = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				let comp1 = this.create('comp1', Comp1, {
@@ -78,16 +76,15 @@ describe('sugar module api >', function () {
 	it('receive destroy message', function () {
 		let Comp = Component.extend({
 			init: function (config) {
-				config = this.cover(config, {
+				this.Super('init', config, {
 					'view': '<h1>Comp</h1>'
 				});
-				this.Super('init', [config]);
 			}
 		});
 
 		let View = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.create('comp', Comp, {
@@ -120,7 +117,7 @@ describe('sugar module api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.$data = {'money': '$699'};
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.$data.money = '$998';
@@ -146,11 +143,10 @@ describe('sugar module api >', function () {
 	it('do not use sugar.core.destroy', function () {
 		let Comp = Component.extend({
 			init: function (config) {
-				config = this.cover(config, {
+				this.Super('init', config, {
 					'target': wraper,
 					'view': 'Comp'
 				});
-				this.Super('init', [config]);
 			}
 		});
 		let comp = sugar.core.create('comp', Comp, {

@@ -25,7 +25,7 @@ describe('sugar message >', function () {
 
 		let CompLevel3 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.fire('messageLevel3', 123);
@@ -34,7 +34,7 @@ describe('sugar message >', function () {
 
 		let CompLevel2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel3
@@ -64,7 +64,7 @@ describe('sugar message >', function () {
 
 		let CompLevel1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel2
@@ -99,7 +99,7 @@ describe('sugar message >', function () {
 
 		let View = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel1
@@ -144,7 +144,7 @@ describe('sugar message >', function () {
 
 		let CompLevel3 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			onViewOk: function (msg) {
 				expect(msg.count).toBe(3);
@@ -165,7 +165,7 @@ describe('sugar message >', function () {
 
 		let CompLevel2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel3
@@ -195,7 +195,7 @@ describe('sugar message >', function () {
 
 		let CompLevel1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel2
@@ -220,7 +220,7 @@ describe('sugar message >', function () {
 
 		let View = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// create Component CompLevel1
@@ -248,7 +248,7 @@ describe('sugar message >', function () {
 	it('notify message, between any two components', function () {
 		let CompLevel2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			onMsgSendToComp2: function (msg) {
 				expect(msg.to).toBe(this);
@@ -261,7 +261,7 @@ describe('sugar message >', function () {
 
 		let CompLevel1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel2, {
@@ -279,7 +279,7 @@ describe('sugar message >', function () {
 
 		let View1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.create('comp1', CompLevel1, {
@@ -303,7 +303,7 @@ describe('sugar message >', function () {
 		// but it can communicate with any one by `notify`
 		let View2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// notify by component instance
@@ -338,7 +338,7 @@ describe('sugar message >', function () {
 	it('globalCast message, every component create by sugar will be received', function () {
 		let CompLevel2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			onCast: function (msg) {
 				expect(msg.param).toBe(789);
@@ -347,7 +347,7 @@ describe('sugar message >', function () {
 
 		let CompLevel1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel2, {
@@ -361,7 +361,7 @@ describe('sugar message >', function () {
 
 		let View1 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel1, {
@@ -381,7 +381,7 @@ describe('sugar message >', function () {
 
 		let View2 = Component.extend({
 			init: function (config) {
-				this.Super('init', [config]);
+				this.Super('init', config);
 			},
 			afterRender: function () {
 				// cast inside componet, but it's same to everywhere

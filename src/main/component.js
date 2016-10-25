@@ -33,8 +33,8 @@ let Component = Module.extend({
 	 * @param  {Object}  config  [组件参数配置]
 	 * @param  {Object}  parent  [父组件对象]
 	 */
-	init: function (config, parent) {
-		this.__config__ = this.cover(config, {
+	init: function (config) {
+		this.__config__ = extend(true, {
 			/********* 组件位置定义 *********/
 			'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
 			'replace': false, // 组件是否替换目标容器 <Boolean>
@@ -63,7 +63,7 @@ let Component = Module.extend({
 
 			// 视图渲染完成后的回调函数
 			'cbRender': 'afterRender'
-		});
+		}, config);
 
 		// 组件元素
 		this.el = null;
@@ -268,19 +268,6 @@ let Component = Module.extend({
 
 		this.el = this.vm = null;
 		clearObject(this.__listeners__);
-	},
-
-	/**
-	 * 组件配置参数合并、覆盖
-	 * @param  {Object}  child   [子类组件配置参数]
-	 * @param  {Object}  parent  [父类组件配置参数]
-	 * @return {Object}          [合并后的配置参数]
-	 */
-	cover: function (child, parent) {
-		if (!parent) {
-			warn('Failed to cover config, 2 arguments required');
-		}
-		return extend(true, parent, child);
 	},
 
 	/**
