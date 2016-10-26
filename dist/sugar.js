@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.2.9 (c) 2016 TANG
  * Released under the MIT license
- * Tue Oct 25 2016 14:48:56 GMT+0800 (CST)
+ * Wed Oct 26 2016 17:16:21 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -156,10 +156,10 @@
 	 */
 	function def (object, property, value, enumerable) {
 		return Object.defineProperty(object, property, {
-			'value'       : value,
-			'writable'    : true,
-			'enumerable'  : !!enumerable,
-			'configurable': true
+			value: value,
+			writable: true,
+			enumerable: !!enumerable,
+			configurable: true
 		});
 	}
 
@@ -457,14 +457,14 @@
 				// 请求响应成功
 				if (status === 200) {
 					result = {
-						'success': true,
-						'result' : response
+						success: true,
+						result: response
 					}
 				} else {
 					error = {
-						'result' : null,
-						'success': false,
-						'status' : status
+						result: null,
+						success: false,
+						status: status
 					}
 				}
 
@@ -522,7 +522,7 @@
 
 	var ajax = { get: get, post: post, load: load }
 
-	var cache = {'id': 1, 'length': 0}
+	var cache = { id: 1, length: 0 }
 
 	var regSuper = /\b\.Super\b/;
 	var toString = Function.prototype.toString;
@@ -622,21 +622,21 @@
 	function createMessage (type, sender, name, param) {
 		return {
 			// 消息类型
-			'type'   : type,
+			type: type,
 			// 消息发起组件实例
-			'from'   : sender,
+			from: sender,
 			// 消息目标组件实例
-			'to'     : null,
+			to: null,
 			// 消息被传递的次数
-			'count'  : 0,
+			count: 0,
 			// 消息名称
-			'name'   : name,
+			name: name,
 			// 消息参数
-			'param'  : param,
+			param: param,
 			// 接收消息组件的调用方法 on + 首字母大写
-			'method' : 'on' + ucFirst(name),
+			method: 'on' + ucFirst(name),
 			// 消息接收者的返回数据
-			'returns': null
+			returns: null
 		}
 	}
 
@@ -848,11 +848,11 @@
 			// 记录子模块实例信息和父模块实例的对应关系
 			var subRecord = {
 				// 子模块实例名称
-				'name': name,
+				name: name,
 				// 子模块实例id
-				'id'  : cache.id++,
+				id: cache.id++,
 				// 父模块实例 id，0 为顶级模块实例
-				'pid' : record.id || 0
+				pid: record.id || 0
 			}
 			instance.__rd__ = subRecord;
 
@@ -2154,7 +2154,7 @@
 	 */
 	von.getExpDesc = function (expression) {
 		return extend({}, this.desc, {
-			'expression': expression
+			expression: expression
 		});
 	}
 
@@ -2695,7 +2695,7 @@
 	 */
 	function createComputedGetter (vm, getter) {
 		var watcher = new Watcher(vm, {
-			'expression': getter.bind(vm)
+			expression: getter.bind(vm)
 		});
 
 		return function computedGetter () {
@@ -3659,12 +3659,12 @@
 
 		/**
 		 * 强制更新 select 的值，用于动态的 option
-		 * @param  {Boolean}  clear  [是否清除默认选中状态]
+		 * @param  {Boolean}  clean  [是否清除默认选中状态]
 		 */
-		forceUpdate: function forceUpdate (clear) {
+		forceUpdate: function forceUpdate (clean) {
 			var directive = this.directive;
 
-			if (clear) {
+			if (clean) {
 				directive.set(this.multi ? [] : '');
 			} else {
 				this.update(directive.get());
@@ -4394,8 +4394,8 @@
 	 */
 	mvp.watch = function (expression, callback, deep) {
 		return new Watcher(this, {
-			'deep': deep,
-			'expression': expression
+			deep: deep,
+			expression: expression
 		}, callback.bind(this.__ct__));
 	}
 
@@ -4441,33 +4441,33 @@
 		init: function (config) {
 			this.__config__ = extend(true, {
 				/********* 组件位置定义 *********/
-				'target' : null,  // 组件目标容器 <DOM|CssStringSelector>
-				'replace': false, // 组件是否替换目标容器 <Boolean>
+				target: null, // 组件目标容器 <DOM|CssStringSelector>
+				replace: false, // 组件是否替换目标容器 <Boolean>
 
 				/********* 组件属性定义 *********/
-				'tag'  : 'div', // dom 元素的标签
-				'css'  : null,  // 元素的 css <Object>
-				'attr' : null,  // 元素的 attr <Object>
-				'class': '',    // 元素的 class <String>
+				tag: 'div', // dom 元素的标签
+				css: null, // 元素的 css <Object>
+				attr: null, // 元素的 attr <Object>
+				class: '', // 元素的 class <String>
 
 				/********* 组件布局定义 *********/
-				'view'    : '',   // 视图布局内容 <HTMLString>
-				'template': '',   // 静态模板 uri <UrlString>
-				'tplParam': null, // 模板拉取请求参数 <Object>
+				view: '', // 视图布局内容 <HTMLString>
+				template: '', // 静态模板 uri <UrlString>
+				tplParam: null, // 模板拉取请求参数 <Object>
 
 				/********* 组件 MVVM 定义 *********/
-				'model'   : null,  // mvvm 数据模型对象 <Object>
-				'methods' : null,  // 事件声明函数对象  <Object>
-				'watches' : null,  // 批量 watch 数据对象  <Object>
-				'computed': null,  // mvvm 计算属性对象 <Object>
-				'customs' : null,  // 自定义指令刷新函数对象 <Object>
-				'lazy'    : false, // 是否手动编译根元素 <Boolean>
+				model: null,  // mvvm 数据模型对象 <Object>
+				methods: null,  // 事件声明函数对象  <Object>
+				watches: null,  // 批量 watch 数据对象  <Object>
+				computed: null,  // mvvm 计算属性对象 <Object>
+				customs: null,  // 自定义指令刷新函数对象 <Object>
+				lazy: false, // 是否手动编译根元素 <Boolean>
 
 				/********* 声明式嵌套子组件定义 *********/
-				'childs': null, // <Object>
+				childs: null, // <Object>
 
 				// 视图渲染完成后的回调函数
-				'cbRender': 'afterRender'
+				cbRender: 'afterRender'
 			}, config);
 
 			// 组件元素
@@ -4573,14 +4573,14 @@
 			var model = c.model;
 			if (isObject(model)) {
 				this.vm = new MVVM({
-					'view'    : this.el,
-					'model'   : model,
-					'methods' : c.methods,
-					'watches' : c.watches,
-					'computed': c.computed,
-					'customs' : c.customs,
-					'context' : this,
-					'lazy'    : c.lazy
+					view: this.el,
+					model: model,
+					methods: c.methods,
+					watches: c.watches,
+					computed: c.computed,
+					customs: c.customs,
+					context: this,
+					lazy: c.lazy
 				});
 			}
 

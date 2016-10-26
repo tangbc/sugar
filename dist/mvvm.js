@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.2.9 (c) 2016 TANG
  * Released under the MIT license
- * Tue Oct 25 2016 14:48:57 GMT+0800 (CST)
+ * Wed Oct 26 2016 17:16:22 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -156,10 +156,10 @@
 	 */
 	function def (object, property, value, enumerable) {
 		return Object.defineProperty(object, property, {
-			'value'       : value,
-			'writable'    : true,
-			'enumerable'  : !!enumerable,
-			'configurable': true
+			value: value,
+			writable: true,
+			enumerable: !!enumerable,
+			configurable: true
 		});
 	}
 
@@ -1462,7 +1462,7 @@
 	 */
 	von.getExpDesc = function (expression) {
 		return extend({}, this.desc, {
-			'expression': expression
+			expression: expression
 		});
 	}
 
@@ -2003,7 +2003,7 @@
 	 */
 	function createComputedGetter (vm, getter) {
 		var watcher = new Watcher(vm, {
-			'expression': getter.bind(vm)
+			expression: getter.bind(vm)
 		});
 
 		return function computedGetter () {
@@ -2967,12 +2967,12 @@
 
 		/**
 		 * 强制更新 select 的值，用于动态的 option
-		 * @param  {Boolean}  clear  [是否清除默认选中状态]
+		 * @param  {Boolean}  clean  [是否清除默认选中状态]
 		 */
-		forceUpdate: function forceUpdate (clear) {
+		forceUpdate: function forceUpdate (clean) {
 			var directive = this.directive;
 
-			if (clear) {
+			if (clean) {
 				directive.set(this.multi ? [] : '');
 			} else {
 				this.update(directive.get());
@@ -3702,8 +3702,8 @@
 	 */
 	mvp.watch = function (expression, callback, deep) {
 		return new Watcher(this, {
-			'deep': deep,
-			'expression': expression
+			deep: deep,
+			expression: expression
 		}, callback.bind(this.__ct__));
 	}
 
