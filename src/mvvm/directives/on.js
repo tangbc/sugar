@@ -168,7 +168,7 @@ von.parse = function () {
  */
 von.getExpDesc = function (expression) {
 	return extend({}, this.desc, {
-		'expression': expression
+		expression: expression
 	});
 }
 

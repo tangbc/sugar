@@ -1,7 +1,7 @@
 import MVVM from 'mvvm';
 import * as util from 'src/util';
 
-describe("v-el >", function () {
+describe('v-el >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -18,8 +18,8 @@ describe("v-el >", function () {
 		element.innerHTML = '<span id="test1" v-el="elSpan">123</span>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {}
+			view: element,
+			model: {}
 		});
 
 		expect(vm.$els.elSpan.textContent).toBe('123');
@@ -35,9 +35,9 @@ describe("v-el >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isRender': true
+			view: element,
+			model: {
+				isRender: true
 			}
 		});
 		let data = vm.$data;
@@ -61,9 +61,9 @@ describe("v-el >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isRender': false
+			view: element,
+			model: {
+				isRender: false
 			}
 		});
 		let data = vm.$data;
@@ -88,12 +88,12 @@ describe("v-el >", function () {
 			'</ul>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'text': 'a111'},
-					{'text': 'b222'},
-					{'text': 'c333'}
+			view: element,
+			model: {
+				items: [
+					{ text: 'a111' },
+					{ text: 'b222' },
+					{ text: 'c333' }
 				]
 			}
 		});

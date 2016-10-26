@@ -121,7 +121,7 @@ export function observe (object, key, value) {
  */
 function createComputedGetter (vm, getter) {
 	let watcher = new Watcher(vm, {
-		'expression': getter.bind(vm)
+		expression: getter.bind(vm)
 	});
 
 	return function computedGetter () {

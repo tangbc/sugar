@@ -1,6 +1,6 @@
 import MVVM from 'mvvm';
 
-describe("v-text >", function () {
+describe('v-text >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -17,9 +17,9 @@ describe("v-text >", function () {
 		element.innerHTML = '<div id="test1" v-text="text"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'text': '123'
+			view: element,
+			model: {
+				text: '123'
 			}
 		});
 		let data = vm.$data;
@@ -42,9 +42,9 @@ describe("v-text >", function () {
 		element.innerHTML = '<div id="test2">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'text': '123'
+			view: element,
+			model: {
+				text: '123'
 			}
 		});
 		let data = vm.$data;
@@ -60,9 +60,9 @@ describe("v-text >", function () {
 		element.innerHTML = '<div id="test3" v-text="\'hello! \' + name"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'name': 'Stephen'
+			view: element,
+			model: {
+				name: 'Stephen'
 			}
 		});
 		let data = vm.$data;
@@ -78,9 +78,9 @@ describe("v-text >", function () {
 		element.innerHTML = '<div id="test4">hello! {{ name }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'name': 'Stephen'
+			view: element,
+			model: {
+				name: 'Stephen'
 			}
 		});
 		let data = vm.$data;
@@ -101,12 +101,12 @@ describe("v-text >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'text': 'a111'},
-					{'text': 'b222'},
-					{'text': 'c333'}
+			view: element,
+			model: {
+				items: [
+					{ text: 'a111' },
+					{ text: 'b222' },
+					{ text: 'c333' }
 				]
 			}
 		});
@@ -135,12 +135,12 @@ describe("v-text >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'text': 'a111'},
-					{'text': 'b222'},
-					{'text': 'c333'}
+			view: element,
+			model: {
+				items: [
+					{ text: 'a111' },
+					{ text: 'b222' },
+					{ text: 'c333' }
 				]
 			}
 		});
@@ -169,12 +169,12 @@ describe("v-text >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'text': 'a111', 'name': 'A'},
-					{'text': 'b222', 'name': 'B'},
-					{'text': 'c333', 'name': 'C'}
+			view: element,
+			model: {
+				items: [
+					{ text: 'a111', name: 'A' },
+					{ text: 'b222', name: 'B' },
+					{ text: 'c333', name: 'C' }
 				]
 			}
 		});
@@ -189,13 +189,13 @@ describe("v-text >", function () {
 		items[1].name = 'BB';
 		expect(ul.textContent).toBe('a111_A222b_BBc333_C');
 
-		items.$set(0, {'text': 'aaa', 'name': 'AAA'});
+		items.$set(0, { text: 'aaa', name: 'AAA' });
 		expect(ul.textContent).toBe('aaa_AAA222b_BBc333_C');
 
 		items.$remove(items[2]);
 		expect(ul.textContent).toBe('aaa_AAA222b_BB');
 
-		items.push({'text': '333c', 'name': 'CC'});
+		items.push({ text: '333c', name: 'CC' });
 		expect(ul.textContent).toBe('aaa_AAA222b_BB333c_CC');
 
 		items.shift();
@@ -204,7 +204,7 @@ describe("v-text >", function () {
 		items[0].text = 'b222';
 		expect(ul.textContent).toBe('b222_BB333c_CC');
 
-		items.unshift({'text': 'aaa', 'name': 'AAA'});
+		items.unshift({ text: 'aaa', name: 'AAA' });
 		expect(ul.textContent).toBe('aaa_AAAb222_BB333c_CC');
 
 		items[1].name = '2B';
@@ -221,12 +221,12 @@ describe("v-text >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'text': 'a111', 'name': 'A'},
-					{'text': 'b222', 'name': 'B'},
-					{'text': 'c333', 'name': 'C'}
+			view: element,
+			model: {
+				items: [
+					{ text: 'a111', name: 'A' },
+					{ text: 'b222', name: 'B' },
+					{ text: 'c333', name: 'C' }
 				]
 			}
 		});
@@ -241,13 +241,13 @@ describe("v-text >", function () {
 		items[1].name = 'BB';
 		expect(ul.textContent).toBe('a111_A222b_BBc333_C');
 
-		items.$set(0, {'text': 'aaa', 'name': 'AAA'});
+		items.$set(0, { text: 'aaa', name: 'AAA' });
 		expect(ul.textContent).toBe('aaa_AAA222b_BBc333_C');
 
 		items.$remove(items[2]);
 		expect(ul.textContent).toBe('aaa_AAA222b_BB');
 
-		items.push({'text': '333c', 'name': 'CC'});
+		items.push({ text: '333c', name: 'CC' });
 		expect(ul.textContent).toBe('aaa_AAA222b_BB333c_CC');
 
 		items.shift();
@@ -256,7 +256,7 @@ describe("v-text >", function () {
 		items[0].text = 'b222';
 		expect(ul.textContent).toBe('b222_BB333c_CC');
 
-		items.unshift({'text': 'aaa', 'name': 'AAA'});
+		items.unshift({ text: 'aaa', name: 'AAA' });
 		expect(ul.textContent).toBe('aaa_AAAb222_BB333c_CC');
 
 		items[1].name = '2B';

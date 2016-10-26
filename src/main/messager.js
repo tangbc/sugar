@@ -37,21 +37,21 @@ function getComponentByName (name) {
 function createMessage (type, sender, name, param) {
 	return {
 		// 消息类型
-		'type'   : type,
+		type: type,
 		// 消息发起组件实例
-		'from'   : sender,
+		from: sender,
 		// 消息目标组件实例
-		'to'     : null,
+		to: null,
 		// 消息被传递的次数
-		'count'  : 0,
+		count: 0,
 		// 消息名称
-		'name'   : name,
+		name: name,
 		// 消息参数
-		'param'  : param,
+		param: param,
 		// 接收消息组件的调用方法 on + 首字母大写
-		'method' : 'on' + ucFirst(name),
+		method: 'on' + ucFirst(name),
 		// 消息接收者的返回数据
-		'returns': null
+		returns: null
 	}
 }
 

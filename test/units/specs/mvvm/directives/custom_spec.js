@@ -18,12 +18,12 @@ describe('v-custom >', function () {
 		element.innerHTML = '<div v-custom:xxdk="test"></div>';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': 123
+			view: element,
+			model: {
+				test: 123
 			},
-			'customs': {
-				'xxdk': 11111
+			customs: {
+				xxdk: 11111
 			}
 		});
 
@@ -36,15 +36,15 @@ describe('v-custom >', function () {
 
 		let flagNew, flagOld, flagEl;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 123
+			view: element,
+			model: {
+				test: 123
 			},
-			'customs': {
+			customs: {
 				// that will use as directive refresh function
 				// which is called by watcher init and depends change
 				// and `this` will point at the current Parser instance
-				'xxdk': function (newValue, oldValue) {
+				xxdk: function (newValue, oldValue) {
 					flagNew = newValue;
 					flagOld = oldValue;
 					flagEl = this.el;
@@ -69,14 +69,14 @@ describe('v-custom >', function () {
 
 		let flagNew, flagOld;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isInt': true,
-				'int': 123,
-				'decimal': 1.23
+			view: element,
+			model: {
+				isInt: true,
+				int: 123,
+				decimal: 1.23
 			},
-			'customs': {
-				'xxdk': function (newValue, oldValue) {
+			customs: {
+				xxdk: function (newValue, oldValue) {
 					flagNew = newValue;
 					flagOld = oldValue;
 				}
@@ -113,14 +113,14 @@ describe('v-custom >', function () {
 			'<h1 v-custom:text="title"></h1>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'title': 'txgc',
-				'items': ['a', 'b', 'c']
+			view: element,
+			model: {
+				title: 'txgc',
+				items: ['a', 'b', 'c']
 			},
-			'customs': {
+			customs: {
 				// mock for v-text directive use v-custom
-				'text': function (text) {
+				text: function (text) {
 					this.el.textContent = text;
 				}
 			}

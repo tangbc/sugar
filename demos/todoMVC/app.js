@@ -8,46 +8,46 @@
 
 			this.ready = true;
 			this.Super('init', config, {
-				'target': '.todoapp',
-				'model': {
-					'type'       : 'all',
-					'todos'      : [],
-					'newTodo'    : '',
-					'allTodos'   : allTodos,
-					'toggleAll'  : allTodos.length === filter.completed(allTodos).length,
-					'editingTodo': null,
+				target: '.todoapp',
+				model: {
+					type: 'all',
+					todos: [],
+					newTodo: '',
+					allTodos: allTodos,
+					toggleAll: allTodos.length === filter.completed(allTodos).length,
+					editingTodo: null,
 				},
-				'methods': {
-					'addTodo'       : this.addTodo,
-					'editTodo'      : this.editTodo,
-					'doneEdit'      : this.doneEdit,
-					'cancelEdit'    : this.cancelEdit,
-					'removeTodo'    : this.removeTodo,
-					'clearCompleted': this.clearCompleted
+				methods: {
+					addTodo: this.addTodo,
+					editTodo: this.editTodo,
+					doneEdit: this.doneEdit,
+					cancelEdit: this.cancelEdit,
+					removeTodo: this.removeTodo,
+					clearCompleted: this.clearCompleted
 				},
-				'computed': {
-					'left': function () {
+				computed: {
+					left: function () {
 						return filter.active(this.allTodos).length;
 					},
-					'showClear': function () {
+					showClear: function () {
 						return filter.completed(this.allTodos).length > 0;
 					}
 				},
-				'customs': {
+				customs: {
 					// make edit-input get focus
 					// define custom directive refresh function
-					'focus': function (editing) {
+					focus: function (editing) {
 						if (editing) {
 							this.el.focus();
 						}
 					}
 				},
-				'watches': {
+				watches: {
 					// watch for `type` change
-					'type': this.updateList,
+					type: this.updateList,
 					// watch for `toggleAll` manual change
 					// by the `allTodos` change, `toggleAll` will be updated checking-all
-					'toggleAll': function (checked) {
+					toggleAll: function (checked) {
 						if (!this.$checking) {
 							this.vm.get('todos').forEach(function (todo) {
 								todo.completed = checked;
@@ -55,9 +55,9 @@
 						}
 					},
 					// watch for `allTodos` deep change
-					'allTodos': {
-						'deep': true,
-						'handler': function () {
+					allTodos: {
+						deep: true,
+						handler: function () {
 							var data = this.vm.$data
 							var allTodos = data.allTodos;
 
@@ -102,8 +102,8 @@
 
 			data.newTodo = '';
 			data.allTodos.push({
-				'title': todo,
-				'completed': false
+				title: todo,
+				completed: false
 			});
 		},
 

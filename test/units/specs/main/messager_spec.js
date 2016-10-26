@@ -39,7 +39,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
-					'target': this.el
+					target: this.el
 				});
 
 				this.fire('messageLevel2', {'id': 123}, 'afterSent');
@@ -69,7 +69,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
-					'target': this.el
+					target: this.el
 				});
 
 				// just a message, no content no sent back
@@ -104,7 +104,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onMessageLevel3: function (msg) {
@@ -130,7 +130,7 @@ describe('sugar message >', function () {
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		expect(flag).toBe('xxdk');
@@ -170,7 +170,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel3
 				this.create('comp3', CompLevel3, {
-					'target': this.el
+					target: this.el
 				});
 
 				this.broadcast('level_2_ok', this.afterSentLevel_2_ok);
@@ -200,7 +200,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel2
 				this.create('comp2', CompLevel2, {
-					'target': this.el
+					target: this.el
 				});
 
 				this.broadcast('level_1_ok', 12, 'afterSentLevel_1_ok');
@@ -225,7 +225,7 @@ describe('sugar message >', function () {
 			afterRender: function () {
 				// create Component CompLevel1
 				this.create('comp1', CompLevel1, {
-					'target': this.el
+					target: this.el
 				});
 
 				this.broadcast('viewOk', [1, 2, 3], this.afterSent);
@@ -236,7 +236,7 @@ describe('sugar message >', function () {
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		expect(flag).toBe('level_2');
@@ -265,7 +265,7 @@ describe('sugar message >', function () {
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel2, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onMsgSendToComp1: function (msg) {
@@ -283,7 +283,7 @@ describe('sugar message >', function () {
 			},
 			afterRender: function () {
 				this.create('comp1', CompLevel1, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onMsgSendToView1: function (msg) {
@@ -296,7 +296,7 @@ describe('sugar message >', function () {
 			}
 		});
 		let view1 = sugar.core.create('view1', View1, {
-			'target': wraper
+			target: wraper
 		});
 
 		// View2 has no any relationship with others components
@@ -327,7 +327,7 @@ describe('sugar message >', function () {
 			}
 		});
 		let view2 = sugar.core.create('view2', View2, {
-			'target': wraper
+			target: wraper
 		});
 
 		view1.destroy();
@@ -351,7 +351,7 @@ describe('sugar message >', function () {
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel2, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onCast: function (msg) {
@@ -365,7 +365,7 @@ describe('sugar message >', function () {
 			},
 			afterRender: function () {
 				this.create('comp2', CompLevel1, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onCast: function (msg) {
@@ -376,7 +376,7 @@ describe('sugar message >', function () {
 			}
 		});
 		let view1 = sugar.core.create('view1', View1, {
-			'target': wraper
+			target: wraper
 		});
 
 		let View2 = Component.extend({
@@ -399,7 +399,7 @@ describe('sugar message >', function () {
 			}
 		});
 		let view2 = sugar.core.create('view2', View2, {
-			'target': wraper
+			target: wraper
 		});
 
 		// globalCast should be only send by sugar.core

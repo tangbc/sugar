@@ -1,11 +1,10 @@
 import sugar from 'src/main/index';
-import * as dom from 'src/dom';
 import * as util from 'src/util';
 import { triggerEvent } from '../../test_util';
 
 let Component = sugar.Component;
 
-describe('sugar Component api >', function () {
+describe('sugar component api >', function () {
 	let wraper;
 
 	beforeEach(function () {
@@ -23,23 +22,23 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'simple-view',
-					'tag'  : 'p',
-					'css'  : {
-						'width': '100px',
-						'display': 'inline'
+					class: 'simple-view',
+					tag: 'p',
+					css: {
+						width: '100px',
+						display: 'inline'
 					},
-					'attr' : {
-						'id': 'su-view'
+					attr: {
+						id: 'su-view'
 					},
-					'view' : '<h1 class="aa">a component</h1><h2 class="aa">a title</h2>',
+					view: '<h1 class="aa">a component</h1><h2 class="aa">a title</h2>',
 					// this is custom configuration
-					'aaa': {
-						'bbb': {
-							'ccc': 'so deep'
+					aaa: {
+						bbb: {
+							ccc: 'so deep'
 						}
 					},
-					'xxx': 123
+					xxx: 123
 				});
 			},
 			afterRender: function () {
@@ -57,7 +56,7 @@ describe('sugar Component api >', function () {
 
 				expect(el.className).toBe('simple-view');
 				expect(el.tagName).toBe('P');
-				expect(dom.getAttr(el, 'id')).toBe('su-view');
+				expect(this.$.getAttr(el, 'id')).toBe('su-view');
 				expect(el.style.width).toBe('100px');
 				expect(el.innerHTML).toBe('<h1 class="aa">a component</h1><h2 class="aa">a title</h2>');
 
@@ -68,13 +67,13 @@ describe('sugar Component api >', function () {
 
 				expect(c.view).toBe('<h1 class="aa">a component</h1><h2 class="aa">a title</h2>');
 				expect(c.css).toEqual({
-					'width': '100px',
-					'display': 'inline'
+					width: '100px',
+					display: 'inline'
 				});
 
 				// test getConfig single
 				expect(this.getConfig('attr')).toEqual({
-					'id': 'su-view'
+					id: 'su-view'
 				});
 
 				// test getConfig path
@@ -169,9 +168,9 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<h1>{{ title }}</h1>',
-					'model': {
-						'title': 'hello sugar~'
+					view: '<h1>{{ title }}</h1>',
+					model: {
+						title: 'hello sugar~'
 					}
 				});
 			},
@@ -201,15 +200,15 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'model': {
-						'title': 'xxdk'
+					model: {
+						title: 'xxdk'
 					}
 				});
 			}
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': '#app'
+			target: '#app'
 		});
 
 		expect(wraper.querySelector('h1').textContent).toBe('xxdk');
@@ -224,8 +223,8 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view': '<p>xxdk</p>'
+					target: wraper,
+					view: '<p>xxdk</p>'
 				});
 			},
 			beforeRender: function () {
@@ -249,12 +248,12 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper.querySelector('.target'),
+					target: wraper.querySelector('.target'),
 					// this component will replace .target
-					'replace': true,
-					'tag': 'span',
-					'class': 'comp',
-					'view': 'component-replace-target'
+					replace: true,
+					tag: 'span',
+					class: 'comp',
+					view: 'component-replace-target'
 				});
 			}
 		});
@@ -275,11 +274,11 @@ describe('sugar Component api >', function () {
 		let SubComponent = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'tag': 'p',
-					'class': 'aa bb',
-					'view': '<h2>{{ title }}</h2>',
-					'model': {
-						'title': config.title
+					tag: 'p',
+					class: 'aa bb',
+					view: '<h2>{{ title }}</h2>',
+					model: {
+						title: config.title
 					}
 				});
 			},
@@ -297,7 +296,7 @@ describe('sugar Component api >', function () {
 		let AnotherSub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<h3>AnotherSub</h3>'
+					view: '<h3>AnotherSub</h3>'
 				});
 			}
 		});
@@ -305,7 +304,7 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<div class="box"></div><p></p>'
+					view: '<div class="box"></div><p></p>'
 				});
 			},
 			afterRender: function () {
@@ -314,8 +313,8 @@ describe('sugar Component api >', function () {
 
 				// create subComponent to current component
 				subInstance = this.create('sub', SubComponent, {
-					'target': box,
-					'title': 'I am subComponent'
+					target: box,
+					title: 'I am subComponent'
 				});
 
 				// already append to view
@@ -328,7 +327,7 @@ describe('sugar Component api >', function () {
 
 				// create another subComponent
 				anotherSubInstance = this.create('sub_another', AnotherSub, {
-					'target': p
+					target: p
 				});
 
 				// already append to view
@@ -364,7 +363,7 @@ describe('sugar Component api >', function () {
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		view.destroy();
@@ -375,8 +374,8 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp',
-					'view': '<p>SUB</p>'
+					class: 'subComp',
+					view: '<p>SUB</p>'
 				});
 			}
 		});
@@ -384,13 +383,13 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
-					'childs': {
-						'SubComponent': Sub
+					childs: {
+						SubComponent: Sub
 					}
 				});
 			}
@@ -415,7 +414,7 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp'
+					class: 'subComp'
 				});
 			}
 		});
@@ -423,13 +422,13 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
-					'childs': {
-						'SubComponent': [Sub, {'view': 'SSS'}]
+					childs: {
+						SubComponent: [Sub, { view: 'SSS' }]
 					}
 				});
 			}
@@ -452,8 +451,8 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp',
-					'view': '<p>SUB</p>'
+					class: 'subComp',
+					view: '<p>SUB</p>'
 				});
 			}
 		});
@@ -461,15 +460,15 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
-					'childs': {
-						'SubComponent': Sub
+					childs: {
+						SubComponent: Sub
 					}
 				});
 			}
@@ -494,7 +493,7 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp'
+					class: 'subComp'
 				});
 			}
 		});
@@ -502,15 +501,15 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>' +
 						'<SubComponent></SubComponent>',
 					// declare subComponent
-					'childs': {
-						'SubComponent': [Sub, {'view': 'BBB'}]
+					childs: {
+						SubComponent: [Sub, { view: 'BBB' }]
 					}
 				});
 			}
@@ -535,8 +534,8 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp',
-					'view': '<p>SUB</p>'
+					class: 'subComp',
+					view: '<p>SUB</p>'
 				});
 			}
 		});
@@ -544,13 +543,13 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<SubComponent name="xxdk"></SubComponent>',
 					// declare subComponent
-					'childs': {
-						'xxdk': Sub
+					childs: {
+						xxdk: Sub
 					}
 				});
 			}
@@ -575,8 +574,8 @@ describe('sugar Component api >', function () {
 		let Sub = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'class': 'subComp',
-					'view': '<p>SUB</p>'
+					class: 'subComp',
+					view: '<p>SUB</p>'
 				});
 			}
 		});
@@ -584,13 +583,13 @@ describe('sugar Component api >', function () {
 		let View = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view':
+					target: wraper,
+					view:
 						'<h1>title</h1>' +
 						'<Sub></Sub>',
 					// declare subComponent
-					'childs': {
-						'xxdk': Sub
+					childs: {
+						xxdk: Sub
 					}
 				});
 			}
@@ -608,9 +607,9 @@ describe('sugar Component api >', function () {
 		let Son = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'all': 123,
-					'a': 'base_a'
+					target: wraper,
+					all: 123,
+					a: 'base_a'
 				});
 			},
 			getA: function () {
@@ -621,9 +620,9 @@ describe('sugar Component api >', function () {
 		let Son1 = Son.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'a': 'son_1_a',
-					'b': {
-						'c': 'son_1_c'
+					a: 'son_1_a',
+					b: {
+						c: 'son_1_c'
 					}
 				});
 			},
@@ -635,9 +634,9 @@ describe('sugar Component api >', function () {
 		let Son2 = Son1.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'b': {
-						'c': 'son_2_c',
-						'd': 'son_2_d'
+					b: {
+						c: 'son_2_c',
+						d: 'son_2_d'
 					}
 				});
 			},

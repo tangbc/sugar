@@ -5,7 +5,7 @@ import {
 	triggerEvent
 } from '../../../test_util';
 
-describe("v-model >", function () {
+describe('v-model >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -22,9 +22,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<div v-model="model"></div>';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'model': 'xxxxxxxx'
+			view: element,
+			model: {
+				model: 'xxxxxxxx'
 			}
 		});
 
@@ -36,9 +36,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input v-model="model">'; // miss type="text"
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'model': 'xxxxxxxx'
+			view: element,
+			model: {
+				model: 'xxxxxxxx'
 			}
 		});
 
@@ -50,8 +50,8 @@ describe("v-model >", function () {
 		element.innerHTML = '<input type="text" v-model="isA ? aaa : bbb">';
 
 		new MVVM({
-			'view': element,
-			'model': {}
+			view: element,
+			model: {}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('v-model directive value can be use by static expression');
@@ -64,9 +64,9 @@ describe("v-model >", function () {
 			'<textarea id="area" v-model="test"></textarea>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'abc'
+			view: element,
+			model: {
+				test: 'abc'
 			}
 		});
 		let data = vm.$data;
@@ -107,9 +107,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test">';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'abc'
+			view: element,
+			model: {
+				test: 'abc'
 			}
 		});
 		let data = vm.$data;
@@ -129,9 +129,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test">';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'abc'
+			view: element,
+			model: {
+				test: 'abc'
 			}
 		});
 		let data = vm.$data;
@@ -154,9 +154,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test" lazy>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ''
+			view: element,
+			model: {
+				test: ''
 			}
 		});
 		let data = vm.$data;
@@ -192,9 +192,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input id="text" type="text" v-model="test" debounce="300">';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ''
+			view: element,
+			model: {
+				test: ''
 			}
 		});
 		let data = vm.$data;
@@ -222,10 +222,10 @@ describe("v-model >", function () {
 			'<input id="toTrimIpt" type="text" v-model="test2" trim>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test1': '',
-				'test2': ''
+			view: element,
+			model: {
+				test1: '',
+				test2: ''
 			}
 		});
 
@@ -254,9 +254,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<textarea id="text" v-model="test" lazy></textarea>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ''
+			view: element,
+			model: {
+				test: ''
 			}
 		});
 		let data = vm.$data;
@@ -292,9 +292,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<textarea id="text" v-model="test" debounce="500"></textarea>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ''
+			view: element,
+			model: {
+				test: ''
 			}
 		});
 		let data = vm.$data;
@@ -323,10 +323,10 @@ describe("v-model >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'value': 'xxdk',
-				'items': [0, 0, 0]
+			view: element,
+			model: {
+				value: 'xxdk',
+				items: [0, 0, 0]
 			}
 		});
 
@@ -392,12 +392,12 @@ describe("v-model >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'}
+			view: element,
+			model: {
+				items: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' }
 				]
 			}
 		});
@@ -423,7 +423,7 @@ describe("v-model >", function () {
 		expect(input.value).toBe('B');
 
 		// array method
-		data.items.push({'value': 'd'});
+		data.items.push({ value: 'd' });
 		lis = ul.querySelectorAll('li');
 		expect(ul.textContent).toBe('ABcd');
 		input = lis[3].querySelector('input');
@@ -434,7 +434,7 @@ describe("v-model >", function () {
 		expect(data.items[3].value).toBe('D');
 
 		// splice, replace
-		data.items.$set(2, {'value': 'C'});
+		data.items.$set(2, { value: 'C' });
 		expect(ul.textContent).toBe('ABCD');
 		lis = ul.querySelectorAll('li');
 		input = lis[2].querySelector('input');
@@ -454,9 +454,9 @@ describe("v-model >", function () {
 			'<input type="radio" value="b" v-model="test">'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'a'
+			view: element,
+			model: {
+				test: 'a'
 			}
 		});
 		let data = vm.$data;
@@ -482,9 +482,9 @@ describe("v-model >", function () {
 			'<input type="radio" value="2" v-model="test">'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 1
+			view: element,
+			model: {
+				test: 1
 			}
 		});
 		let data = vm.$data;
@@ -519,13 +519,13 @@ describe("v-model >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'selected': 'b',
-				'items': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'}
+			view: element,
+			model: {
+				selected: 'b',
+				items: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' }
 				]
 			}
 		});
@@ -576,34 +576,34 @@ describe("v-model >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'groups': [
+			view: element,
+			model: {
+				groups: [
 					{
-						'selected': 11,
-						'number': false,
-						'radios': [
-							{'value': 11},
-							{'value': 12},
-							{'value': 13}
+						selected: 11,
+						number: false,
+						radios: [
+							{ value: 11 },
+							{ value: 12 },
+							{ value: 13 }
 						]
 					},
 					{
-						'selected': 22,
-						'number': true,
-						'radios': [
-							{'value': 21},
-							{'value': 22},
-							{'value': 23}
+						selected: 22,
+						number: true,
+						radios: [
+							{ value: 21 },
+							{ value: 22 },
+							{ value: 23 }
 						]
 					},
 					{
-						'selected': 'aa',
-						'number': true, // just try to toNumber
-						'radios': [
-							{'value': 'aa'},
-							{'value': 32},
-							{'value': 33}
+						selected: 'aa',
+						number: true, // just try to toNumber
+						radios: [
+							{ value: 'aa' },
+							{ value: 32 },
+							{ value: 33 }
 						]
 					}
 				]
@@ -710,9 +710,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isCheck': true
+			view: element,
+			model: {
+				isCheck: true
 			}
 		});
 		let data = vm.$data;
@@ -735,9 +735,9 @@ describe("v-model >", function () {
 		element.innerHTML = '<input type="checkbox" v-model="isCheck">';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'isCheck': 1
+			view: element,
+			model: {
+				isCheck: 1
 			}
 		});
 
@@ -752,9 +752,9 @@ describe("v-model >", function () {
 			'<input type="checkbox" value="c" v-model="sels">'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'sels': []
+			view: element,
+			model: {
+				sels: []
 			}
 		});
 		let data = vm.$data;
@@ -804,9 +804,9 @@ describe("v-model >", function () {
 			'<input type="checkbox" value="2" v-model="sels" number>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'sels': []
+			view: element,
+			model: {
+				sels: []
 			}
 		});
 		let data = vm.$data;
@@ -858,13 +858,13 @@ describe("v-model >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'selects': ['a', 'c'],
-				'items': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'},
+			view: element,
+			model: {
+				selects: ['a', 'c'],
+				items: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' },
 				]
 			}
 		});
@@ -915,34 +915,34 @@ describe("v-model >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'groups': [
+			view: element,
+			model: {
+				groups: [
 					{
-						'selects': [11, 12],
-						'number': false,
-						'checkboxs': [
-							{'value': 11},
-							{'value': 12},
-							{'value': 13},
+						selects: [11, 12],
+						number: false,
+						checkboxs: [
+							{ value: 11 },
+							{ value: 12 },
+							{ value: 13 },
 						]
 					},
 					{
-						'selects': [22, 23],
-						'number': true,
-						'checkboxs': [
-							{'value': 21},
-							{'value': 22},
-							{'value': 23},
+						selects: [22, 23],
+						number: true,
+						checkboxs: [
+							{ value: 21 },
+							{ value: 22 },
+							{ value: 23 },
 						]
 					},
 					{
-						'selects': [],
-						'number': true,
-						'checkboxs': [
-							{'value': 'aa'},
-							{'value': 'bb'},
-							{'value': 33},
+						selects: [],
+						number: true,
+						checkboxs: [
+							{ value: 'aa' },
+							{ value: 'bb' },
+							{ value: 33 },
 						]
 					}
 				]
@@ -1045,9 +1045,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'b'
+			view: element,
+			model: {
+				test: 'b'
 			}
 		});
 		let data = vm.$data;
@@ -1086,9 +1086,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ''
+			view: element,
+			model: {
+				test: ''
 			}
 		});
 		let data = vm.$data;
@@ -1128,9 +1128,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'b'
+			view: element,
+			model: {
+				test: 'b'
 			}
 		});
 		let data = vm.$data;
@@ -1169,9 +1169,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 3
+			view: element,
+			model: {
+				test: 3
 			}
 		});
 		let data = vm.$data;
@@ -1216,9 +1216,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': '1'
+			view: element,
+			model: {
+				test: '1'
 			}
 		});
 		let data = vm.$data;
@@ -1257,13 +1257,13 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'b',
-				'options': [
-					{'value': 'a', 'text': 'AAA'},
-					{'value': 'b', 'text': 'BBB'},
-					{'value': 'c', 'text': 'CCC'}
+			view: element,
+			model: {
+				test: 'b',
+				options: [
+					{ value: 'a', text: 'AAA' },
+					{ value: 'b', text: 'BBB' },
+					{ value: 'c', text: 'CCC' }
 				]
 			}
 		});
@@ -1300,13 +1300,13 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': '',
-				'options': [
-					{'value': 'a', 'text': 'AAA'},
-					{'value': 'b', 'text': 'BBB'},
-					{'value': 'c', 'text': 'CCC'}
+			view: element,
+			model: {
+				test: '',
+				options: [
+					{ value: 'a', text: 'AAA' },
+					{ value: 'b', text: 'BBB' },
+					{ value: 'c', text: 'CCC' }
 				]
 			}
 		});
@@ -1347,13 +1347,13 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': 'c',
-				'options': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'}
+			view: element,
+			model: {
+				test: 'c',
+				options: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' }
 				]
 			}
 		});
@@ -1370,9 +1370,9 @@ describe("v-model >", function () {
 		// becasue we are not sure if new options has previous selected value
 		// so we clear the default selected value when options were rebuild
 		data.options = [
-			{'value': 'aa'},
-			{'value': 'bb'},
-			{'value': 'cc'}
+			{ value: 'aa' },
+			{ value: 'bb' },
+			{ value: 'cc' }
 		];
 		expect(data.test).toBe('');
 		expect(select.value).toBe('');
@@ -1394,21 +1394,21 @@ describe("v-model >", function () {
 		expect(options[2].selected).toBe(false);
 
 		// test for array method
-		data.options.push({'value': 'dd'});
+		data.options.push({ value: 'dd' });
 		options = select.childNodes;
 		expect(select.value).toBe('aa');
 		expect(options.length).toBe(4);
 		expect(options[0].selected).toBe(true);
 		expect(options[3].value).toBe('dd');
 
-		data.options.unshift({'value': 'xx'});
+		data.options.unshift({ value: 'xx' });
 		options = select.childNodes;
 		expect(select.value).toBe('aa');
 		expect(options.length).toBe(5);
 		expect(options[1].selected).toBe(true);
 		expect(options[0].value).toBe('xx');
 
-		data.options.splice(1, 0, {'value': 'oo'});
+		data.options.splice(1, 0, { value: 'oo' });
 		options = select.childNodes;
 		expect(select.value).toBe('aa');
 		expect(options.length).toBe(6);
@@ -1472,7 +1472,7 @@ describe("v-model >", function () {
 
 		// if not specify a new select value after remove
 		// it will be wrong and confused! DO NOT HAPPEN THIS!
-		data.options.$set(1, {'value': 'BB'});
+		data.options.$set(1, { value: 'BB' });
 		options = select.childNodes;
 		expect(data.test).toBe('bb');
 		expect(select.value).toBe('aa');
@@ -1505,32 +1505,32 @@ describe("v-model >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'selects': [
+			view: element,
+			model: {
+				selects: [
 					{
-						'selected': 11,
-						'options': [
-							{'value': 11},
-							{'value': 12},
-							{'value': 13}
+						selected: 11,
+						options: [
+							{ value: 11 },
+							{ value: 12 },
+							{ value: 13 }
 						]
 					},
 					{
-						'selected': 22,
-						'options': [
-							{'value': 21},
-							{'value': 22},
-							{'value': 23}
+						selected: 22,
+						options: [
+							{ value: 21 },
+							{ value: 22 },
+							{ value: 23 }
 						]
 					},
 					{
-						'selected': 33,
-						'options': [
-							{'value': 31},
-							{'value': 32},
-							{'value': 33},
-							{'value': 34}
+						selected: 33,
+						options: [
+							{ value: 31 },
+							{ value: 32 },
+							{ value: 33 },
+							{ value: 34 }
 						]
 					}
 				]
@@ -1595,9 +1595,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': ['b']
+			view: element,
+			model: {
+				test: ['b']
 			}
 		});
 
@@ -1615,9 +1615,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ['b', 'c']
+			view: element,
+			model: {
+				test: ['b', 'c']
 			}
 		});
 		let data = vm.$data;
@@ -1662,9 +1662,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': []
+			view: element,
+			model: {
+				test: []
 			}
 		});
 		let data = vm.$data;
@@ -1716,9 +1716,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ['1', '3'] // pass string default values, it still works
+			view: element,
+			model: {
+				test: ['1', '3'] // pass string default values, it still works
 			}
 		});
 		let data = vm.$data;
@@ -1749,13 +1749,13 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': ['a', 'b'],
-				'options': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'}
+			view: element,
+			model: {
+				test: ['a', 'b'],
+				options: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' }
 				]
 			}
 		});
@@ -1798,13 +1798,13 @@ describe("v-model >", function () {
 			'</select>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': [],
-				'options': [
-					{'value': 'a'},
-					{'value': 'b'},
-					{'value': 'c'}
+			view: element,
+			model: {
+				test: [],
+				options: [
+					{ value: 'a' },
+					{ value: 'b' },
+					{ value: 'c' }
 				]
 			}
 		});
@@ -1821,7 +1821,7 @@ describe("v-model >", function () {
 		triggerEvent(select, 'change');
 		expect(data.test).toEqual(['b', 'c']);
 
-		data.options.push({'value': 'd'});
+		data.options.push({ value: 'd' });
 		options = select.childNodes;
 		expect(options.length).toBe(4);
 		expect(options[3].value).toBe('d');
@@ -1846,9 +1846,9 @@ describe("v-model >", function () {
 		expect(options[2].selected).toBe(false);
 
 		data.options = [
-			{'value': 'aa'},
-			{'value': 'bb'},
-			{'value': 'cc'}
+			{ value: 'aa' },
+			{ value: 'bb' },
+			{ value: 'cc' }
 		];
 		options = select.childNodes;
 		expect(options[0].value).toBe('aa');
@@ -1873,32 +1873,32 @@ describe("v-model >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'selects': [
+			view: element,
+			model: {
+				selects: [
 					{
-						'selected': [11, 12],
-						'options': [
-							{'value': 11},
-							{'value': 12},
-							{'value': 13}
+						selected: [11, 12],
+						options: [
+							{ value: 11 },
+							{ value: 12 },
+							{ value: 13 }
 						]
 					},
 					{
-						'selected': [22, 23],
-						'options': [
-							{'value': 21},
-							{'value': 22},
-							{'value': 23}
+						selected: [22, 23],
+						options: [
+							{ value: 21 },
+							{ value: 22 },
+							{ value: 23 }
 						]
 					},
 					{
-						'selected': [33, 34],
-						'options': [
-							{'value': 31},
-							{'value': 32},
-							{'value': 33},
-							{'value': 34}
+						selected: [33, 34],
+						options: [
+							{ value: 31 },
+							{ value: 32 },
+							{ value: 33 },
+							{ value: 34 }
 						]
 					}
 				]
@@ -1970,9 +1970,9 @@ describe("v-model >", function () {
 			'</select>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': 'b'
+			view: element,
+			model: {
+				test: 'b'
 			}
 		});
 

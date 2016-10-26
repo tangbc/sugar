@@ -37,14 +37,14 @@ function execute (dataType, url, method, param, callback, context) {
 			// 请求响应成功
 			if (status === 200) {
 				result = {
-					'success': true,
-					'result' : response
+					success: true,
+					result: response
 				}
 			} else {
 				error = {
-					'result' : null,
-					'success': false,
-					'status' : status
+					result: null,
+					success: false,
+					status: status
 				}
 			}
 

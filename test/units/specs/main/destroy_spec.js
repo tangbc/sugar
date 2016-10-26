@@ -2,7 +2,7 @@ import sugar from 'src/main/index';
 
 let Component = sugar.Component;
 
-describe('sugar module api >', function () {
+describe('sugar component destroy >', function () {
 	let wraper;
 
 	beforeEach(function () {
@@ -19,7 +19,7 @@ describe('sugar module api >', function () {
 		let Comp2 = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<h2>Comp2</h2>'
+					view: '<h2>Comp2</h2>'
 				});
 			}
 		});
@@ -27,12 +27,12 @@ describe('sugar module api >', function () {
 		let Comp1 = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<h1>Comp1</h1>'
+					view: '<h1>Comp1</h1>'
 				});
 			},
 			afterRender: function () {
 				let comp2 = this.create('comp2', Comp2, {
-					'target': this.el
+					target: this.el
 				});
 
 				expect(this.el.innerHTML).toBe('<h1>Comp1</h1><div><h2>Comp2</h2></div>');
@@ -46,7 +46,7 @@ describe('sugar module api >', function () {
 			},
 			afterRender: function () {
 				let comp1 = this.create('comp1', Comp1, {
-					'target': this.el
+					target: this.el
 				});
 
 				expect(this.el.innerHTML).toBe('<div><h1>Comp1</h1><div><h2>Comp2</h2></div></div>');
@@ -66,7 +66,7 @@ describe('sugar module api >', function () {
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		view.destroy();
@@ -77,7 +77,7 @@ describe('sugar module api >', function () {
 		let Comp = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'view': '<h1>Comp</h1>'
+					view: '<h1>Comp</h1>'
 				});
 			}
 		});
@@ -88,7 +88,7 @@ describe('sugar module api >', function () {
 			},
 			afterRender: function () {
 				this.create('comp', Comp, {
-					'target': this.el
+					target: this.el
 				});
 			},
 			onSubDestroyed: function (msg) {
@@ -98,7 +98,7 @@ describe('sugar module api >', function () {
 			}
 		});
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		expect(wraper.innerHTML).toBe('<div><div><h1>Comp</h1></div></div>');
@@ -116,7 +116,7 @@ describe('sugar module api >', function () {
 
 		let View = Component.extend({
 			init: function (config) {
-				this.$data = {'money': '$699'};
+				this.$data = { money: '$699' };
 				this.Super('init', config);
 			},
 			afterRender: function () {
@@ -128,14 +128,14 @@ describe('sugar module api >', function () {
 		});
 
 		let view = sugar.core.create('view', View, {
-			'target': wraper
+			target: wraper
 		});
 
 		expect(myMoney).toBe(null);
-		expect(view.$data).toEqual({'money': '$998'});
+		expect(view.$data).toEqual({ money: '$998' });
 
 		view.destroy();
-		expect(myMoney).toEqual({'money': '$998'});
+		expect(myMoney).toEqual({ money: '$998' });
 		expect(view.$data).toBe(undefined);
 	});
 
@@ -144,13 +144,13 @@ describe('sugar module api >', function () {
 		let Comp = Component.extend({
 			init: function (config) {
 				this.Super('init', config, {
-					'target': wraper,
-					'view': 'Comp'
+					target: wraper,
+					view: 'Comp'
 				});
 			}
 		});
 		let comp = sugar.core.create('comp', Comp, {
-			'target': wraper
+			target: wraper
 		});
 
 		expect(wraper.innerHTML).toBe('<div>Comp</div>');

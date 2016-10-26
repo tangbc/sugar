@@ -40,29 +40,29 @@ describe('directive expression >', function () {
 
 		// shallow value
 		scope = {
-			'a': 123
+			a: 123
 		}
 		getter = createGetter('a');
 		expect(getter.call(scope, scope)).toBe(123);
 
 		// deep value
 		scope = {
-			'a': {
-				'b': {
-					'c': 321
+			a: {
+				b: {
+					c: 321
 				}
 			}
 		}
 		getter = createGetter('a');
 		expect(getter.call(scope, scope)).toEqual({
-			'b': {
-				'c': 321
+			b: {
+				c: 321
 			}
 		});
 
 		getter = createGetter('a.b');
 		expect(getter.call(scope, scope)).toEqual({
-			'c': 321
+			c: 321
 		});
 
 		getter = createGetter('a.b.c');
@@ -73,23 +73,23 @@ describe('directive expression >', function () {
 
 		// complex expression
 		scope = {
-			'a': true,
-			'b': 11.11,
-			'c': 8.18
+			a: true,
+			b: 11.11,
+			c: 8.18
 		}
 		getter = createGetter('a ? b : c');
 		expect(getter.call(scope, scope)).toBe(11.11);
 
 		// with const string and number
 		scope = {
-			'a': 456
+			a: 456
 		}
 		getter = createGetter('a + "_" + 789');
 		expect(getter.call(scope, scope)).toBe('456_789');
 
 		// javascript keyword
 		scope = {
-			'n': 1.23
+			n: 1.23
 		}
 		getter = createGetter('parseInt(n)');
 		expect(getter.call(scope, scope)).toBe(1);
@@ -135,16 +135,16 @@ describe('directive expression >', function () {
 
 		// normal set
 		setter = createSetter('a');
-		scope = {'a': 123}
+		scope = { a: 123 };
 		setter.call(scope, scope, 321);
 		expect(scope.a).toBe(321);
 
 		// deep set
 		setter = createSetter('a.b.c');
 		scope = {
-			'a': {
-				'b': {
-					'c': 456
+			a: {
+				b: {
+					c: 456
 				}
 			}
 		}

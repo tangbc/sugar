@@ -2,7 +2,7 @@ import MVVM from 'mvvm';
 import * as util from 'src/util';
 import { triggerEvent } from '../../test_util';
 
-describe("mvvm instance api >", function () {
+describe('mvvm instance api >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -17,18 +17,22 @@ describe("mvvm instance api >", function () {
 
 	it('invalid build', function () {
 		let text = document.createTextNode('plain text');
-		let model = {'a': 1};
+		let model = { a: 1 };
+
 		new MVVM({
-			'view': text,
-			'model': model
+			view: text,
+			model: model
 		});
+
 		expect(util.warn).toHaveBeenCalledWith('view must be a type of DOMElement: ', text);
 
 		let el = document.createElement('div');
+
 		new MVVM({
-			'view': el,
-			'model': 'not-an-object'
+			view: el,
+			model: 'not-an-object'
 		});
+
 		expect(util.warn).toHaveBeenCalledWith('model must be a type of Object: ', 'not-an-object');
 	});
 
@@ -38,12 +42,14 @@ describe("mvvm instance api >", function () {
 		el.innerHTML =
 			'<h1 v-text="title"></h1>' +
 			'<h2 v-beta="title"></h2>'
+
 		let model = {'title': 'xxdk'};
 
 		new MVVM({
-			'view': el,
-			'model': model
+			view: el,
+			model: model
 		});
+
 		expect(el.childNodes[0].textContent).toBe('xxdk');
 		expect(el.childNodes[1].hasAttribute('v-beta')).toBe(false);
 		expect(util.warn).toHaveBeenCalledWith('[v-beta] is an unknown directive!');
@@ -63,18 +69,18 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = layout;
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'html': '<i>xxdk</i>',
-				'items': [
-					{'text': 'aaa'},
-					{'text': 'bbb'},
-					{'text': 'ccc'},
+			view: element,
+			model: {
+				html: '<i>xxdk</i>',
+				items: [
+					{text: 'aaa'},
+					{text: 'bbb'},
+					{text: 'ccc'},
 				],
-				'title': 'txgc'
+				title: 'txgc'
 			},
 			// if lazy is true, MVVM will not start complie until `mount` is called
-			'lazy': true
+			lazy: true
 		});
 
 		let data = vm.$data;
@@ -121,13 +127,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -147,11 +153,11 @@ describe("mvvm instance api >", function () {
 
 		// get all
 		expect(vm.get()).toEqual({
-			'vid': 'aaa',
-			'text': 'bbb',
-			'obj': {
-				'a': 1,
-				'b': 2
+			vid: 'aaa',
+			text: 'bbb',
+			obj: {
+				a: 1,
+				b: 2
 			}
 		});
 	});
@@ -161,13 +167,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -181,13 +187,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -209,13 +215,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -228,16 +234,16 @@ describe("mvvm instance api >", function () {
 
 		// set object
 		vm.set({
-			'vid': 'AAA',
-			'text': 'bbb',
-			'obj': {
-				'x': 123
+			vid: 'AAA',
+			text: 'bbb',
+			obj: {
+				x: 123
 			}
 		});
 		expect(data.vid).toBe('AAA');
 		expect(data.text).toBe('bbb');
 		expect(data.obj).toEqual({
-			'x': 123
+			x: 123
 		});
 	});
 
@@ -246,13 +252,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -263,8 +269,8 @@ describe("mvvm instance api >", function () {
 		vm.set('obj.b', 1314);
 
 		expect(data.obj).toEqual({
-			'a': 520,
-			'b': 1314
+			a: 520,
+			b: 1314
 		});
 	});
 
@@ -273,13 +279,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -288,7 +294,7 @@ describe("mvvm instance api >", function () {
 
 		data.vid = 23333;
 		data.text = 94949494;
-		data.obj = {'x': 456};
+		data.obj = { x: 456 };
 
 		// reset one
 		vm.reset('vid');
@@ -298,8 +304,8 @@ describe("mvvm instance api >", function () {
 		vm.reset(['text', 'obj']);
 		expect(data.text).toBe('bbb');
 		expect(data.obj).toEqual({
-			'a': 1,
-			'b': 2
+			a: 1,
+			b: 2
 		});
 
 		// reset all
@@ -310,8 +316,8 @@ describe("mvvm instance api >", function () {
 		expect(data.vid).toBe('aaa');
 		expect(data.text).toBe('bbb');
 		expect(data.obj).toEqual({
-			'a': 1,
-			'b': 2
+			a: 1,
+			b: 2
 		});
 	});
 
@@ -320,13 +326,13 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<div v-bind:id="vid">{{ text }}</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'aaa',
-				'text': 'bbb',
-				'obj': {
-					'a': 1,
-					'b': 2
+			view: element,
+			model: {
+				vid: 'aaa',
+				text: 'bbb',
+				obj: {
+					a: 1,
+					b: 2
 				}
 			}
 		});
@@ -353,16 +359,16 @@ describe("mvvm instance api >", function () {
 			'</ul>'
 
 		let data = {
-			'items': [
-				{'text': 111},
-				{'text': 222},
-				{'text': 333}
+			items: [
+				{ text: 111 },
+				{ text: 222 },
+				{ text: 333 }
 			]
 		}
 
 		let vm = new MVVM({
-			'view': element,
-			'model': data
+			view: element,
+			model: data
 		});
 
 		let length, count = 0;
@@ -394,16 +400,16 @@ describe("mvvm instance api >", function () {
 			'</ul>'
 
 		let data = {
-			'items': [
-				{'text': 111},
-				{'text': 222},
-				{'text': 333}
+			items: [
+				{ text: 111 },
+				{ text: 222 },
+				{ text: 333 }
 			]
 		}
 
 		let vm = new MVVM({
-			'view': element,
-			'model': data
+			view: element,
+			model: data
 		});
 
 		let val, count = 0;
@@ -429,14 +435,14 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<h1>{{ info.title }}</h1>';
 
 		let data = {
-			'info': {
-				'title': 'xxdk'
+			info: {
+				title: 'xxdk'
 			}
 		}
 
 		let vm = new MVVM({
-			'view': element,
-			'model': data
+			view: element,
+			model: data
 		});
 
 		let h1 = element.firstChild;
@@ -454,7 +460,7 @@ describe("mvvm instance api >", function () {
 
 		// change for watched model(shallow)
 		vm.$data.info = {
-			'title': 'lindan'
+			title: 'lindan'
 		}
 		// interface will change and watch function can be triggered
 		expect(h1.textContent).toBe('lindan');
@@ -466,14 +472,14 @@ describe("mvvm instance api >", function () {
 		element.innerHTML = '<h1>{{ info.title }}</h1>';
 
 		let data = {
-			'info': {
-				'title': 'xxdk'
+			info: {
+				title: 'xxdk'
 			}
 		}
 
 		let vm = new MVVM({
-			'view': element,
-			'model': data
+			view: element,
+			model: data
 		});
 
 		let h1 = element.firstChild;
@@ -492,7 +498,7 @@ describe("mvvm instance api >", function () {
 
 		// the same to shallow
 		vm.$data.info = {
-			'title': 'lindan'
+			title: 'lindan'
 		}
 		expect(h1.textContent).toBe('lindan');
 		expect(count).toBe(2);
@@ -545,33 +551,33 @@ describe("mvvm instance api >", function () {
 			'<div v-custom:xx="cso"></div>'
 
 		let data = {
-			'title': 'xxdk',
-			'html': '<b>123</b>',
-			'show': true,
-			'render': false,
-			'click': function () {},
-			'sex': 'girl',
-			'isCheck': false,
-			'sports': ['a', 'c'],
-			'sel': 'bbb',
-			'cls': 'xxx',
-			'styObj': {
-				'color': 'red'
+			title: 'xxdk',
+			html: '<b>123</b>',
+			show: true,
+			render: false,
+			click: function () {},
+			sex: 'girl',
+			isCheck: false,
+			sports: ['a', 'c'],
+			sel: 'bbb',
+			cls: 'xxx',
+			styObj: {
+				color: 'red'
 			},
-			'id': 'txgc',
-			'items': [
-				{'text': 111},
-				{'text': 222},
-				{'text': 333}
+			id: 'txgc',
+			items: [
+				{ text: 111 },
+				{ text: 222 },
+				{ text: 333 }
 			],
-			'cso': 123
+			cso: 123
 		}
 
 		let vm = new MVVM({
-			'view': element,
-			'model': data,
-			'customs': {
-				'xx': function () {}
+			view: element,
+			model: data,
+			customs: {
+				xx: function () {}
 			}
 		});
 
@@ -593,19 +599,19 @@ describe("mvvm instance api >", function () {
 			'<div>{{ e }}</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'a': 520,
-				'c': 1314
+			view: element,
+			model: {
+				a: 520,
+				c: 1314
 			},
-			'computed': {
-				'b': function () {
+			computed: {
+				b: function () {
 					return this.a + 1;
 				},
-				'd': function () {
+				d: function () {
 					return this.c - 1;
 				},
-				'e': function () {
+				e: function () {
 					// also can use other computed properties
 					// but must use the computed properties before
 					return this.b + this.d;
@@ -642,12 +648,12 @@ describe("mvvm instance api >", function () {
 			'<div>{{ b }}</div>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'a': 123
+			view: element,
+			model: {
+				a: 123
 			},
-			'computed': {
-				'b': 'this.a + 1'
+			computed: {
+				b: 'this.a + 1'
 			}
 		});
 
@@ -660,20 +666,20 @@ describe("mvvm instance api >", function () {
 			'<div v-on:click="evClick"></div>'
 
 		let scope = {
-			'a': 123
+			a: 123
 		};
 
 		let context;
 		new MVVM({
-			'view': element,
-			'model': {},
-			'methods': {
-				'evClick': function cb () {
+			view: element,
+			model: {},
+			methods: {
+				evClick: function cb () {
 					context = this;
 				}
 			},
 			// when specify context, methods will bind for context
-			'context': scope
+			context: scope
 		});
 
 		triggerEvent(element.firstChild, 'click');
@@ -687,10 +693,10 @@ describe("mvvm instance api >", function () {
 
 		let context;
 		let vm = new MVVM({
-			'view': element,
-			'model': {},
-			'methods': {
-				'evClick': function cb () {
+			view: element,
+			model: {},
+			methods: {
+				evClick: function cb () {
 					context = this;
 				}
 			}
@@ -717,7 +723,7 @@ describe("mvvm instance api >", function () {
 			'</ul>'
 
 		let scope = {
-			'a': 123
+			a: 123
 		};
 
 		let context;
@@ -726,39 +732,39 @@ describe("mvvm instance api >", function () {
 		let flag_list_deep;
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'title': 'xxdk',
-				'items': [
-					{'text': 'aaa'},
-					{'text': 'bbb'},
+			view: element,
+			model: {
+				title: 'xxdk',
+				items: [
+					{ text: 'aaa' },
+					{ text: 'bbb' },
 				],
-				'list': [
-					{'name': 'AAA'},
-					{'name': 'BBB'},
+				list: [
+					{ name: 'AAA' },
+					{ name: 'BBB' },
 				]
 			},
-			'watches': {
+			watches: {
 				// normal/shallow watch, just pass a watch callback
-				'title': function (newVal, oldValue) {
+				title: function (newVal, oldValue) {
 					context = this;
 					flag_title = newVal;
 				},
-				'items': function () {
+				items: function () {
 					context = this;
 					flag_items_shallow = true;
 				},
 				// for deep watch, pass a object contains handler and deep
-				'list': {
-					'handler': function () {
+				list: {
+					handler: function () {
 						context = this;
 						flag_list_deep = true;
 					},
-					'deep': true
+					deep: true
 				}
 			},
 			// when specify context, each watch callback will bind for context
-			'context': scope
+			context: scope
 		});
 
 		let data = vm.$data;
@@ -778,7 +784,7 @@ describe("mvvm instance api >", function () {
 		expect(flag_items_shallow).toBe(undefined);
 
 		// change for items, shallow changes, and it works
-		data.items.push({'text': 'ccc'});
+		data.items.push({ text: 'ccc' });
 		expect(ulItems.textContent).toBe('abbbccc');
 		expect(context).toBe(scope);
 		expect(flag_items_shallow).toBe(true);
@@ -793,7 +799,7 @@ describe("mvvm instance api >", function () {
 		// reset flag, and change for list, shallow changes, it also works
 		context = null;
 		flag_list_deep = false;
-		data.list.unshift({'name': 'OOO'});
+		data.list.unshift({ name: 'OOO' });
 		expect(ulLists.textContent).toBe('OOOAAAB');
 		expect(context).toBe(scope);
 		expect(flag_list_deep).toBe(true);
@@ -811,25 +817,25 @@ describe("mvvm instance api >", function () {
 
 		let context;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'title': 'xxdk',
-				'items': [
-					{'text': 'aaa'},
-					{'text': 'bbb'},
+			view: element,
+			model: {
+				title: 'xxdk',
+				items: [
+					{ text: 'aaa' },
+					{ text: 'bbb' }
 				]
 			},
-			'watches': {
+			watches: {
 				// normal/shallow watch, just pass a watch callback
-				'title': function (newVal, oldValue) {
+				title: function (newVal, oldValue) {
 					context = this;
 				},
 				// for deep watch, pass a object contains handler and deep
-				'items': {
-					'handler': function () {
+				items: {
+					handler: function () {
 						context = this;
 					},
-					'deep': true
+					deep: true
 				}
 			}
 			// when no-specify context, watch callback will bind for vm.$data
@@ -848,7 +854,7 @@ describe("mvvm instance api >", function () {
 
 		// change for items, shallow changes
 		context = null;
-		data.items.push({'text': 'ccc'});
+		data.items.push({ text: 'ccc' });
 		expect(context).toBe(data);
 	});
 });

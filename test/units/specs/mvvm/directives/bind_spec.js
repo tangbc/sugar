@@ -3,7 +3,7 @@ import * as dom from 'src/dom';
 import * as util from 'src/util';
 import { equalClass } from '../../../test_util';
 
-describe("v-bind >", function () {
+describe('v-bind >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -31,9 +31,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:class="cls"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'cls': ''
+			view: element,
+			model: {
+				cls: ''
 			}
 		});
 		let data = vm.$data;
@@ -61,9 +61,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div class="static1 static2" v-bind:class="cls"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'cls': 'xxdk'
+			view: element,
+			model: {
+				cls: 'xxdk'
 			}
 		});
 		let data = vm.$data;
@@ -83,10 +83,10 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div class="static1" v-bind:class="[cls1, cls2, \'static2\']"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'cls1': 'aaa',
-				'cls2': 'bbb'
+			view: element,
+			model: {
+				cls1: 'aaa',
+				cls2: 'bbb'
 			}
 		});
 		let data = vm.$data;
@@ -108,12 +108,12 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:class="obj"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'obj': {
-					'aaa': true,
-					'bbb': false,
-					'ccc': true
+			view: element,
+			model: {
+				obj: {
+					aaa: true,
+					bbb: false,
+					ccc: true
 				}
 			}
 		});
@@ -128,9 +128,9 @@ describe("v-bind >", function () {
 
 		// cover obj
 		data.obj = {
-			'ddd': true,
-			'eee': true,
-			'fff': false
+			ddd: true,
+			eee: true,
+			fff: false
 		}
 		expect(equalClass(div.className, 'ddd eee')).toBe(true);
 
@@ -145,10 +145,10 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:class="{classA: isA, classB: isB}"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isA': true,
-				'isB': false,
+			view: element,
+			model: {
+				isA: true,
+				isB: false,
 			}
 		});
 		let data = vm.$data;
@@ -175,13 +175,13 @@ describe("v-bind >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'hasG': true,
-				'items': [
-					{'hasA': true},
-					{'hasA': false},
-					{'hasA': true}
+			view: element,
+			model: {
+				hasG: true,
+				items: [
+					{ hasA: true },
+					{ hasA: false },
+					{ hasA: true }
 				]
 			}
 		});
@@ -213,9 +213,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'obj': {
+			view: element,
+			model: {
+				obj: {
 					'color': 'red',
 					'margin-top': '10px'
 				}
@@ -254,9 +254,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:style="obj"></div>';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'obj': 'color: red'
+			view: element,
+			model: {
+				obj: 'color: red'
 			}
 		});
 
@@ -268,10 +268,10 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:style="{color: color, \'font-size\': size}"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'color': 'red',
-				'size': '12px'
+			view: element,
+			model: {
+				color: 'red',
+				size: '12px'
 			}
 		});
 		let data = vm.$data;
@@ -297,13 +297,13 @@ describe("v-bind >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'margin': '10px',
-				'items': [
-					{'color': 'red'},
-					{'color': 'green'},
-					{'color': 'blue'}
+			view: element,
+			model: {
+				margin: '10px',
+				items: [
+					{ color: 'red' },
+					{ color: 'green' },
+					{ color: 'blue' }
 				]
 			}
 		});
@@ -335,9 +335,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind:id="vid"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'xxdk'
+			view: element,
+			model: {
+				vid: 'xxdk'
 			}
 		});
 		let data = vm.$data;
@@ -358,10 +358,10 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind="{id: vid, \'data-type\': dtype}"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'xxdk',
-				'dtype': 'aaa'
+			view: element,
+			model: {
+				vid: 'xxdk',
+				dtype: 'aaa'
 			}
 		});
 		let data = vm.$data;
@@ -383,14 +383,14 @@ describe("v-bind >", function () {
 			'<div v-bind="{id: vid, class: clsObj, style: styObj}"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'xxdk',
-				'clsObj': {
-					'classA': true,
-					'classB': true
+			view: element,
+			model: {
+				vid: 'xxdk',
+				clsObj: {
+					classA: true,
+					classB: true
 				},
-				'styObj': {
+				styObj: {
 					'color': 'red',
 					'font-size': '13px'
 				}
@@ -414,7 +414,7 @@ describe("v-bind >", function () {
 		expect(div.className).toBe('classA');
 
 		// cover
-		data.styObj = {'margin-top': '15px'};
+		data.styObj = { 'margin-top': '15px' };
 		expect(div.style.color).toBe('');
 		expect(div.style.fontSize).toBe('');
 		expect(div.style.marginTop).toBe('15px');
@@ -422,7 +422,7 @@ describe("v-bind >", function () {
 		data.styObj['margin-top'] = '50px';
 		expect(div.style.marginTop).toBe('50px');
 
-		data.clsObj = {'aaa': true, 'bbb': false};
+		data.clsObj = { aaa: true, bbb: false };
 		expect(div.className).toBe('aaa');
 
 		data.clsObj.bbb = true;
@@ -434,11 +434,11 @@ describe("v-bind >", function () {
 		element.innerHTML = '<div v-bind="{id: vid, class: [cls1, cls2]}"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'vid': 'xxdk',
-				'cls1': 'aaa',
-				'cls2': 'bbb'
+			view: element,
+			model: {
+				vid: 'xxdk',
+				cls1: 'aaa',
+				cls2: 'bbb'
 			}
 		});
 		let data = vm.$data;
@@ -459,9 +459,9 @@ describe("v-bind >", function () {
 		element.innerHTML = '<input v-bind:disabled="dis">';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'dis': true
+			view: element,
+			model: {
+				dis: true
 			}
 		});
 		let data = vm.$data;
@@ -484,13 +484,13 @@ describe("v-bind >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'type': 'xxdk',
-				'items': [
-					{'id': 'aaa'},
-					{'id': 'bbb'},
-					{'id': 'ccc'}
+			view: element,
+			model: {
+				type: 'xxdk',
+				items: [
+					{ id: 'aaa' },
+					{ id: 'bbb' },
+					{ id: 'ccc' }
 				]
 			}
 		});

@@ -1,6 +1,6 @@
 import MVVM from 'mvvm';
 
-describe("v-pre >", function () {
+describe('v-pre >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -21,8 +21,8 @@ describe("v-pre >", function () {
 			'</div>'
 
 		new MVVM({
-			'view': element,
-			'model': {}
+			view: element,
+			model: {}
 		});
 		let div = element.querySelector('#test1');
 
@@ -39,9 +39,9 @@ describe("v-pre >", function () {
 			'</ul>'
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'items': [{}, {}, {}]
+			view: element,
+			model: {
+				items: [{}, {}, {}]
 			}
 		});
 		let ul = element.querySelector('#test2');

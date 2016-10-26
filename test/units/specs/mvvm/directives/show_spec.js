@@ -1,6 +1,6 @@
 import MVVM from 'mvvm';
 
-describe("v-show >", function () {
+describe('v-show >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -17,9 +17,9 @@ describe("v-show >", function () {
 		element.innerHTML = '<div id="test1" v-show="isShow">title</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isShow': false
+			view: element,
+			model: {
+				isShow: false
 			}
 		});
 		let data = vm.$data;
@@ -36,9 +36,9 @@ describe("v-show >", function () {
 		element.innerHTML = '<div id="test2" v-show="isShow">title</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isShow': true
+			view: element,
+			model: {
+				isShow: true
 			}
 		});
 		let data = vm.$data;
@@ -55,9 +55,9 @@ describe("v-show >", function () {
 		element.innerHTML = '<div id="test3" v-show="isShow" style="display: inline">title</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isShow': true
+			view: element,
+			model: {
+				isShow: true
 			}
 		});
 		let data = vm.$data;
@@ -77,9 +77,9 @@ describe("v-show >", function () {
 		element.innerHTML = '<div id="test4" v-show="isShow" style="display: inline-block">title</div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'isShow': false
+			view: element,
+			model: {
+				isShow: false
 			}
 		});
 		let data = vm.$data;
@@ -99,9 +99,9 @@ describe("v-show >", function () {
 			'<div id="notok" v-else>Not OK</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'ok': true
+			view: element,
+			model: {
+				ok: true
 			}
 		});
 		let data = vm.$data;
@@ -123,9 +123,9 @@ describe("v-show >", function () {
 			'<div id="notok" v-else style="display: inline-block">Not OK</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'ok': true
+			view: element,
+			model: {
+				ok: true
 			}
 		});
 		let data = vm.$data;
@@ -154,12 +154,12 @@ describe("v-show >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'show': true},
-					{'show': true},
-					{'show': false}
+			view: element,
+			model: {
+				items: [
+					{ show: true },
+					{ show: true },
+					{ show: false }
 				]
 			}
 		});
@@ -175,11 +175,11 @@ describe("v-show >", function () {
 		expect(sps[1].style.display).toBe('none');
 		expect(sps[2].style.display).toBe('block');
 
-		items.$set(1, {'show': true});
+		items.$set(1, { show: true });
 		sps = element.querySelectorAll('.sp');
 		expect(sps[1].style.display).toBe('block');
 
-		items.unshift({'show': false});
+		items.unshift({ show: false });
 		sps = element.querySelectorAll('.sp');
 		expect(sps[0].style.display).toBe('none');
 		expect(sps[1].style.display).toBe('block');

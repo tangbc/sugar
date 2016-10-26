@@ -78,12 +78,12 @@ export default {
 
 	/**
 	 * 强制更新 select 的值，用于动态的 option
-	 * @param  {Boolean}  clear  [是否清除默认选中状态]
+	 * @param  {Boolean}  clean  [是否清除默认选中状态]
 	 */
-	forceUpdate (clear) {
+	forceUpdate (clean) {
 		let directive = this.directive;
 
-		if (clear) {
+		if (clean) {
 			directive.set(this.multi ? [] : '');
 		} else {
 			this.update(directive.get());

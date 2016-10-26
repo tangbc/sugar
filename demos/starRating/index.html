@@ -69,7 +69,7 @@
 			// 调用父类 Sugar.Component 的 init 方法进行视图渲染
 			this.Super('init', config, {
 				// 渲染布局
-				'view' : [
+				view : [
 					'<ul>',
 						'<li v-for="star in stars">',
 							'<i class="fa" v-on:click="clickStar($index)" v-bind="{\'class\': star, \'data-index\': $index}"></i>',
@@ -78,10 +78,10 @@
 					'<h4 class="result">{{ score }} 分</h4>'
 				].join(''),
 				// 定义 MVVM 数据模型
-				'model': {
-					'score'    : def,
-					'stars'    : items,
-					'clickStar': this.eventClickStar
+				model: {
+					score: def,
+					stars: items,
+					clickStar: this.eventClickStar
 				}
 			});
 		},
@@ -110,15 +110,15 @@
 
 	// 创建五星组件实例，Star 组件里有默认值，所以不需要配置 full 和 def
 	Sugar.core.create('fiveStars', Star, {
-		'target': document.querySelector('#star-five')
+		target: document.querySelector('#star-five')
 	});
 
 
 	// 创建十星组件实例，复用 Star 类，只需配置不同的参数即可生成独立的实例组件
 	Sugar.core.create('tenStars', Star, {
-		'target': document.querySelector('#star-ten'),
-		'full'  : 10,
-		'def'   : 6.5
+		def: 6.5,
+		full: 10,
+		target: document.querySelector('#star-ten')
 	});
 	</script>
 </body>

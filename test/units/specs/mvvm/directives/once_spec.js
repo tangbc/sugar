@@ -5,7 +5,7 @@ import {
 	triggerEvent
 } from '../../../test_util';
 
-describe("v-once >", function () {
+describe('v-once >', function () {
 	let element;
 
 	beforeEach(function () {

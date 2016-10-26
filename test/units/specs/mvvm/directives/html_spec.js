@@ -1,6 +1,6 @@
 import MVVM from 'mvvm';
 
-describe("v-html >", function () {
+describe('v-html >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -17,9 +17,9 @@ describe("v-html >", function () {
 		element.innerHTML = '<div id="test1" v-html="layout"></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'layout': ''
+			view: element,
+			model: {
+				layout: ''
 			}
 		});
 		let data = vm.$data;
@@ -51,12 +51,12 @@ describe("v-html >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
-					{'layout': '<i>aaa</i>'},
-					{'layout': '<b>bbb</b>'},
-					{'layout': '<span>ccc</span>'},
+			view: element,
+			model: {
+				items: [
+					{ layout: '<i>aaa</i>' },
+					{ layout: '<b>bbb</b>' },
+					{ layout: '<span>ccc</span>' },
 				]
 			}
 
@@ -74,7 +74,7 @@ describe("v-html >", function () {
 		items[1].layout = 'plain text bbb';
 		expect(ps[1].innerHTML).toBe('plain text bbb');
 
-		items.$set(2, {'layout': '<div>CC</div>'});
+		items.$set(2, { layout: '<div>CC</div>' });
 		ps = element.querySelectorAll('.pp');
 		expect(ps[2].innerHTML).toBe('<div>CC</div>');
 

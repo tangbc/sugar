@@ -1,1 +1,1 @@
-export default {'id': 1, 'length': 0}
+export default { id: 1, length: 0 }

@@ -133,8 +133,8 @@ mvp.reset = function (key) {
  */
 mvp.watch = function (expression, callback, deep) {
 	return new Watcher(this, {
-		'deep': deep,
-		'expression': expression
+		deep: deep,
+		expression: expression
 	}, callback.bind(this.__ct__));
 }
 

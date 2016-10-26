@@ -33,9 +33,9 @@ export function setSelect (select, value) {
 
 /**
  * compare two class string is equal
- * @param   {[type]}  classString  [description]
- * @param   {[type]}  stringClass  [description]
- * @return  {[type]}
+ * @param   {String}  classString
+ * @param   {String}  stringClass
+ * @return  {Boolean}
  */
 export function equalClass (classString, stringClass) {
 	let fronts = classString.split(' ');

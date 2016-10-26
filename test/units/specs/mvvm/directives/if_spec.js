@@ -1,6 +1,6 @@
 import MVVM from 'mvvm';
 
-describe("v-if >", function () {
+describe('v-if >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -17,9 +17,9 @@ describe("v-if >", function () {
 		element.innerHTML = '<div id="test1" v-if="render"><b>123</b></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'render': true
+			view: element,
+			model: {
+				render: true
 			}
 		});
 		let data = vm.$data;
@@ -39,9 +39,9 @@ describe("v-if >", function () {
 		element.innerHTML = '<div id="test2" v-if="render"><b>123</b></div>';
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'render': false
+			view: element,
+			model: {
+				render: false
 			}
 		});
 		let data = vm.$data;
@@ -64,10 +64,10 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'render': true,
-				'text'  : 'aaa'
+			view: element,
+			model: {
+				render: true,
+				text: 'aaa'
 			}
 		});
 		let data = vm.$data;
@@ -97,10 +97,10 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'render': false,
-				'text'  : 'aaa'
+			view: element,
+			model: {
+				render: false,
+				text: 'aaa'
 			}
 		});
 		let data = vm.$data;
@@ -136,9 +136,9 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'ok': true
+			view: element,
+			model: {
+				ok: true
 			}
 		});
 		let data = vm.$data;
@@ -166,13 +166,13 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'out': true,
-				'inA': true,
-				'inB': true,
-				'a': 'aaa',
-				'b': 'bbb'
+			view: element,
+			model: {
+				out: true,
+				inA: true,
+				inB: true,
+				a: 'aaa',
+				b: 'bbb'
 			}
 		});
 
@@ -236,13 +236,13 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'out': false,
-				'inA': false,
-				'inB': false,
-				'a': 'aaa',
-				'b': 'bbb'
+			view: element,
+			model: {
+				out: false,
+				inA: false,
+				inB: false,
+				a: 'aaa',
+				b: 'bbb'
 			}
 		});
 
@@ -307,11 +307,11 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'show': true,
-				'title': 'xxdk',
-				'items': ['a', 'b', 'c']
+			view: element,
+			model: {
+				show: true,
+				title: 'xxdk',
+				items: ['a', 'b', 'c']
 			}
 		});
 
@@ -353,11 +353,11 @@ describe("v-if >", function () {
 			'</div>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'show': false,
-				'title': 'xxdk',
-				'items': ['a', 'b', 'c']
+			view: element,
+			model: {
+				show: false,
+				title: 'xxdk',
+				items: ['a', 'b', 'c']
 			}
 		});
 

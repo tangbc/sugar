@@ -9,24 +9,24 @@ var DatePicker = Sugar.Component.extend({
 
 		// 定义模块配置
 		this.Super('init', config, {
-			'css'     : {'padding': '20px'},
-			'template': 'datePicker.tpl',
-			'model'   : {
+			css: { padding: '20px' },
+			template: 'datePicker.tpl',
+			model: {
 				// 是否显示日历版面
-				'showPannel': false,
+				showPannel: false,
 				// 选择结果
-				'select' : this.getResult(),
+				select: this.getResult(),
 				// 当前年月
-				'current': this.getCurrent(),
-				'weeks'  : ['一', '二', '三', '四', '五', '六', '日'],
+				current: this.getCurrent(),
+				weeks: ['一', '二', '三', '四', '五', '六', '日'],
 				// 日期数据
-				'dates'  : this.createDays(),
+				dates: this.createDays(),
 				// 点击事件
-				'clickResultBtn' : this.clickResultBtn,
-				'clickPannel'    : this.clickPannel,
-				'clickPrevMonth' : this.clickPrevMonth,
-				'clickNextMonth' : this.clickNextMonth,
-				'clickSelectDate': this.clickSelectDate
+				clickResultBtn: this.clickResultBtn,
+				clickPannel: this.clickPannel,
+				clickPrevMonth: this.clickPrevMonth,
+				clickNextMonth: this.clickNextMonth,
+				clickSelectDate: this.clickSelectDate
 			}
 		});
 	},
@@ -102,11 +102,11 @@ var DatePicker = Sugar.Component.extend({
 			isSeize = i <= seizes;
 			day = isSeize ? '-' : i - seizes;
 			days.push({
-				'seize': isSeize,
-				'year' : year,
-				'month': month,
-				'date' : day,
-				'today': this.isToday(day)
+				seize: isSeize,
+				year: year,
+				month: month,
+				date: day,
+				today: this.isToday(day)
 			});
 		}
 
@@ -121,8 +121,8 @@ var DatePicker = Sugar.Component.extend({
 		this.updateDateValue(selectDate.year, selectDate.month, selectDate.date).highlightSelectDate();
 
 		this.vm.set({
-			'showPannel': false,
-			'select': this.getResult()
+			showPannel: false,
+			select: this.getResult()
 		});
 	},
 
@@ -144,8 +144,8 @@ var DatePicker = Sugar.Component.extend({
 	// 更新当前值和日期数组
 	updateCurrentValue: function () {
 		this.vm.set({
-			'current': this.getCurrent(),
-			'dates'  : this.createDays()
+			current: this.getCurrent(),
+			dates: this.createDays()
 		});
 		return this;
 	},
@@ -177,13 +177,13 @@ var DatePicker = Sugar.Component.extend({
 // 用同一个日期选择模块创建 3 个不同的实例：
 
 Sugar.core.create('date1', DatePicker, {
-	'target': document.querySelector('#date1')
+	target: document.querySelector('#date1')
 });
 
 Sugar.core.create('date2', DatePicker, {
-	'target': document.querySelector('#date2')
+	target: document.querySelector('#date2')
 });
 
 Sugar.core.create('date3', DatePicker, {
-	'target': document.querySelector('#date3')
+	target: document.querySelector('#date3')
 });

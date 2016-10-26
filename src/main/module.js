@@ -52,11 +52,11 @@ let Module = Root.extend({
 		// 记录子模块实例信息和父模块实例的对应关系
 		let subRecord = {
 			// 子模块实例名称
-			'name': name,
+			name: name,
 			// 子模块实例id
-			'id'  : cache.id++,
+			id: cache.id++,
 			// 父模块实例 id，0 为顶级模块实例
-			'pid' : record.id || 0
+			pid: record.id || 0
 		}
 		instance.__rd__ = subRecord;
 

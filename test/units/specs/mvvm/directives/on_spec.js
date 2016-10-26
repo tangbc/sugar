@@ -2,7 +2,7 @@ import MVVM from 'mvvm';
 import * as util from 'src/util';
 import { triggerEvent } from '../../../test_util';
 
-describe("v-on >", function () {
+describe('v-on >', function () {
 	let element;
 
 	beforeEach(function () {
@@ -18,9 +18,9 @@ describe("v-on >", function () {
 		element.innerHTML = '<span v-on:click="test"></span>';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': '123'
+			view: element,
+			model: {
+				test: '123'
 			}
 		});
 
@@ -37,9 +37,9 @@ describe("v-on >", function () {
 		element.innerHTML = '<span id="el" v-on:click="test"></span>';
 
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': cb
+			view: element,
+			model: {
+				test: cb
 			}
 		});
 		let el = element.querySelector('#el');
@@ -62,12 +62,12 @@ describe("v-on >", function () {
 
 		let outerCount = 0, innerCount = 0;
 		new MVVM({
-			'view': element,
-			'model': {
-				'outer': function () {
+			view: element,
+			model: {
+				outer: function () {
 					outerCount++;
 				},
-				'inner': function () {
+				inner: function () {
 					innerCount++;
 				}
 			}
@@ -102,12 +102,12 @@ describe("v-on >", function () {
 
 		let outerCount = 0, innerCount = 0;
 		new MVVM({
-			'view': element,
-			'model': {
-				'outer': function () {
+			view: element,
+			model: {
+				outer: function () {
 					outerCount++;
 				},
-				'inner': function () {
+				inner: function () {
 					innerCount++;
 				}
 			}
@@ -146,12 +146,12 @@ describe("v-on >", function () {
 
 		let outerCount = 0, innerCount = 0;
 		new MVVM({
-			'view': element,
-			'model': {
-				'outer': function () {
+			view: element,
+			model: {
+				outer: function () {
 					outerCount++;
 				},
-				'inner': function () {
+				inner: function () {
 					innerCount++;
 				}
 			}
@@ -174,9 +174,9 @@ describe("v-on >", function () {
 
 		let hasPrevent;
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': function (e) {
+			view: element,
+			model: {
+				test: function (e) {
 					// this feature is base on greater than or equal to ie9
 					hasPrevent = e.defaultPrevented;
 				}
@@ -198,9 +198,9 @@ describe("v-on >", function () {
 
 		let hasPrevent;
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': function (e) {
+			view: element,
+			model: {
+				test: function (e) {
 					hasPrevent = e.defaultPrevented;
 				}
 			}
@@ -219,9 +219,9 @@ describe("v-on >", function () {
 
 		let isEnter13 = false;
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': function (e) {
+			view: element,
+			model: {
+				test: function (e) {
 					isEnter13 = e.keyCode === 13;
 				}
 			}
@@ -250,9 +250,9 @@ describe("v-on >", function () {
 
 		let args;
 		new MVVM({
-			'view': element,
-			'model': {
-				'test': function () {
+			view: element,
+			model: {
+				test: function () {
 					args = Array.prototype.slice.call(arguments);
 				}
 			}
@@ -272,9 +272,9 @@ describe("v-on >", function () {
 
 		let flag;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'test': function () {
+			view: element,
+			model: {
+				test: function () {
 					flag = 'first callback';
 				}
 			}
@@ -300,10 +300,10 @@ describe("v-on >", function () {
 			args = Array.prototype.slice.call(arguments);
 		}
 		new MVVM({
-			'view': element,
-			'model': {
-				'clickTest': storeArgs,
-				'mouseoutTest': storeArgs
+			view: element,
+			model: {
+				clickTest: storeArgs,
+				mouseoutTest: storeArgs
 			}
 		});
 		let el = element.querySelector('#el');
@@ -324,10 +324,10 @@ describe("v-on >", function () {
 
 		let args;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'text': 'aaa',
-				'test': function (txt, num) {
+			view: element,
+			model: {
+				text: 'aaa',
+				test: function (txt, num) {
 					args = Array.prototype.slice.call(arguments);
 				}
 			}
@@ -358,14 +358,14 @@ describe("v-on >", function () {
 
 		let index, evt;
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': [
+			view: element,
+			model: {
+				items: [
 					'aaa',
 					'bbb',
 					'ccc'
 				],
-				'test': function (i, e) {
+				test: function (i, e) {
 					index = i;
 					evt = e;
 				}
@@ -417,9 +417,9 @@ describe("v-on >", function () {
 			'</ul>'
 
 		let vm = new MVVM({
-			'view': element,
-			'model': {
-				'items': ['a', 'b', 'c']
+			view: element,
+			model: {
+				items: ['a', 'b', 'c']
 			}
 		});
 
@@ -482,8 +482,8 @@ describe("v-on >", function () {
 		element.innerHTML = '<div v-on="{click: $remove}"></div>';
 
 		new MVVM({
-			'view': element,
-			'model': {}
+			view: element,
+			model: {}
 		});
 
 		expect(util.warn).toHaveBeenCalledWith('The specify event $remove must be used in v-for scope');
@@ -499,13 +499,13 @@ describe("v-on >", function () {
 		let onceCount = 0;
 
 		new MVVM({
-			'view': element,
-			'model': {},
-			'methods': {
-				'test': function () {
+			view: element,
+			model: {},
+			methods: {
+				test: function () {
 					testCount++;
 				},
-				'testOnce': function () {
+				testOnce: function () {
 					onceCount++;
 				}
 			}

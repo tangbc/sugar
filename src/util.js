@@ -145,10 +145,10 @@ export function hasOwn (obj, key) {
  */
 export function def (object, property, value, enumerable) {
 	return Object.defineProperty(object, property, {
-		'value'       : value,
-		'writable'    : true,
-		'enumerable'  : !!enumerable,
-		'configurable': true
+		value: value,
+		writable: true,
+		enumerable: !!enumerable,
+		configurable: true
 	});
 }
 
