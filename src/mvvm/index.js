@@ -105,7 +105,7 @@ mvp.set = function (key, value) {
  */
 mvp.reset = function (key) {
 	let data = this.$data;
-	let backup = this.__bk__;
+	let backup = copy(this.__bk__);
 
 	// 重置单个
 	if (isString(key)) {
