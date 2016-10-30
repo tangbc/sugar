@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.0 (c) 2016 TANG
  * Released under the MIT license
- * Wed Oct 26 2016 17:46:36 GMT+0800 (CST)
+ * Sun Oct 30 2016 10:25:58 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4366,7 +4366,7 @@
 	 */
 	mvp.reset = function (key) {
 		var data = this.$data;
-		var backup = this.__bk__;
+		var backup = copy(this.__bk__);
 
 		// 重置单个
 		if (isString(key)) {
