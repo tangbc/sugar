@@ -1,0 +1,40 @@
+<html>
+<head>
+	<title>Snake eat apples</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/normalize.css">
+	<link rel="stylesheet" type="text/css" href="resource/style.css">
+	<script type="text/javascript" src="require.js"></script>
+	<script type="text/javascript">
+	requirejs.config({
+		paths: {
+			dist: '../../dist/'
+		},
+		waitSeconds: 15
+	});
+
+	require([
+		'js/app',
+		'dist/sugar'
+	], function (App, Sugar) {
+		Sugar.core.create('app', App);
+	});
+	</script>
+</head>
+<body>
+	<div style="display: none;">
+		<img src="resource/images/head.png">
+		<img src="resource/images/head-dead.png">
+		<img src="resource/images/fruit.png">
+		<img src="resource/images/fruit-eaten.png">
+	</div>
+	<div id="app">
+		<h1>SNAKE EAT APPLES</h1>
+		<AppHeader></AppHeader>
+		<AppPlayground></AppPlayground>
+		<footer v-pre>
+			<p>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
+		</footer>
+	</div>
+</body>
+</html>

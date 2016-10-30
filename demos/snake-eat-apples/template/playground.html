@@ -1,0 +1,44 @@
+<div class="curtain" v-show="!running">
+	<ul class="tips">
+		<li>
+			Press <code>SPACE</code> to start/pause game.
+		</li>
+		<li>Press <code>↑</code> <code>↓</code> <code>←</code> <code>→</code> or
+			<code>W</code> <code>A</code> <code>S</code> <code>D</code> to control direct.
+		</li>
+		<li>
+			Snake will die and finish when touch the edge or apple leftover !
+		</li>
+	</ul>
+</div>
+<div class="screen" v-else>
+	<!-- snake list -->
+	<a class="snake"
+		v-for="snake in snakes"
+		v-bind:class="[snake.type, snake.direct, snake.life]"
+		v-bind:style="{
+			width: scale,
+			height: scale,
+			'background-size': bgsize,
+			top: (snake.line * unit) + 'px',
+			left: (snake.row * unit) + 'px'
+		}"
+	></a>
+	<!-- fruit list -->
+	<b class="fruit"
+		v-for="fruit in fruits"
+		v-bind:class="fruit.eaten ? 'eaten' : 'fresh'"
+		v-bind:style="{
+			width: scale,
+			height: scale,
+			'background-size': bgsize,
+			top: (fruit.line * unit) + 'px',
+			left: (fruit.row * unit) + 'px'
+		}"
+	></b>
+</div>
+<div class="grid" v-el="grid"></div>
+<div class="over" v-show="showResult">
+	<h2>Game Over ! You lose life !</h2>
+	<p>Press <i>ESC</i> to restart a new game.</p>
+</div>

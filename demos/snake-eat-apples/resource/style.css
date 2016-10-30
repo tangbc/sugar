@@ -1,0 +1,228 @@
+body {
+	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	color: #4d4d4d;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-weight: 300;
+}
+
+:focus {
+	outline: 0;
+}
+
+h1 {
+	margin: 0 auto;
+	padding: 30px 0;
+	text-align: center;
+	font-weight: 100;
+    font-size: 44px;
+    color: #8fbc8f;
+}
+code {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 3px;
+	color: #c7254e;
+	background-color: #f9f2f4;
+}
+
+#app {
+	margin: 0 auto;
+}
+
+/********* Header ***********/
+.header {
+	width: 100%;
+	position: relative;;
+	font-size: 16px;
+	color: floralwhite;
+	background: darkseagreen;
+	border: 20px solid rgba(119,136,153,0.6);
+	border-bottom: none;
+}
+.header .info {
+	margin: 0;
+	padding: 10px;
+}
+.header .info li {
+	display: inline-block;
+	font-weight: 500;
+	padding: 5px 20px 5px 5px;
+}
+.header .info li .large {
+	display: inline-block;
+	margin-left: 5px;
+	font-weight: 400;
+	-moz-transform: scale(1.35);
+	-ms-transform: scale(1.35);
+	-webkit-transform: scale(1.35);
+	transform: scale(1.35);
+}
+.header .info li.step {
+	font-weight: 500;
+}
+.header .info li.score {
+	color: #ffd700;
+}
+.header .info li.record {
+	color: #ffd700;
+	font-style: italic;
+}
+.header .info li.msg {
+	color: yellow;
+}
+.header .info li.msg .text {
+	margin-left: 10px;
+}
+.header .timekeeper {
+	display: inline-block;
+	position: absolute;
+	right: 15px;
+	top: 15px;
+}
+
+.playground {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	border: 20px solid rgba(119,136,153,0.6);
+	border-top: none;
+	background: #f0f8ff;
+}
+
+/********* PlayGround curtain ***********/
+.playground .curtain {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	position: absolute;
+	z-index: 10;
+	line-height: 150%;
+	padding-top: 12%;
+	box-sizing: border-box;
+}
+.playground .curtain h2 {
+	font-size: 26px;
+	font-weight: normal;
+	color: #61a261;
+}
+.playground .curtain .tips li {
+	padding: 15px 0;
+	font-size: 20px;
+	list-style: none;
+}
+.playground .curtain .tips li b {
+	font-weight: bold;
+	color: #c7254e;
+}
+
+/********* PlayGround screen ***********/
+.playground .screen {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 8;
+	background: rgba(255,248,220,0.9);
+}
+/* sanke */
+.playground .screen .snake {
+	z-index: 6;
+	background: green;
+	position: absolute;
+	border-radius: 30%;
+	background: #12a70b;
+    background-repeat: no-repeat;
+}
+.playground .screen .snake.head {
+	z-index: 12;
+	border-radius: 0;
+	background: url(./images/head.png);
+}
+.playground .screen .snake.head.dead {
+	background: url(./images/head-dead.png);
+}
+.playground .screen .snake.body {
+	z-index: 11;
+}
+.playground .screen .snake.dead {
+	background: #6d6d6d;
+}
+.playground .screen .snake.LEFT {
+	-moz-transform: rotate(0);
+	-ms-transform: rotate(0);
+	-webkit-transform: rotate(0);
+	transform: rotate(0);
+}
+.playground .screen .snake.RIGHT {
+	-moz-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+.playground .screen .snake.UP {
+	-moz-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+.playground .screen .snake.DOWN {
+	-moz-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+	transform: rotate(270deg);
+}
+/* fruit */
+.playground .screen .fruit {
+	z-index: 5;
+	position: absolute;
+	background: red;
+	background-repeat: no-repeat;
+}
+.playground .screen .fruit.fresh {
+	background: url(./images/fruit.png);
+}
+.playground .screen .fruit.eaten {
+	background: url(./images/fruit-eaten.png);
+}
+
+/********* PlayGround grid line ***********/
+.playground .grid {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 7;
+	background: #EEE;
+	opacity: 0.5;
+}
+
+/********* PlayGround result content ***********/
+.playground .over {
+	position: absolute;
+	z-index: 11;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #fffacd;
+	font-family: fantasy, serif;
+	background: rgba(0, 0, 0, 0.8);
+	text-shadow: 2px 2px 5px #f00;
+}
+.playground .over h2 {
+	font-size: 30px;
+	margin-top: 25%;
+}
+.playground .over p {
+	font-size: 28px;
+}
+.playground .over i {
+	color: #ffd700;
+}
+
+footer {
+	text-align: center;
+}
+footer a {
+	color: inherit;
+	text-decoration: none;
+}

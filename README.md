@@ -104,6 +104,7 @@ There are several simple demos in **`demos/`**, check it out and preview them in
 * [StarRating](https://tangbc.github.io/sugar/demos/starRating)
 * [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
+* [Snake eat apple game](https://tangbc.github.io/sugar/demos/snake-eat-apples)
 
 You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
 
