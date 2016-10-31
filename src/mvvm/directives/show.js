@@ -12,9 +12,7 @@ const visibleDisplay = '__visible__';
  */
 function setVisibleDisplay (node) {
 	let display = getVisible(node);
-	if (display !== 'none') {
-		def(node, visibleDisplay, display || '');
-	}
+	def(node, visibleDisplay, display === 'none' ? '' : display);
 }
 
 /**

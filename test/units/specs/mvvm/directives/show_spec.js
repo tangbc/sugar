@@ -92,6 +92,50 @@ describe('v-show >', function () {
 	});
 
 
+	it('with inline style display none, show first', function () {
+		element.innerHTML = '<div v-show="isShow" style="display: none">title</div>';
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				isShow: true
+			}
+		});
+		let data = vm.$data;
+		let div = element.querySelector('div');
+
+		expect(div.style.display).toBe('');
+
+		data.isShow = false;
+		expect(div.style.display).toBe('none');
+
+		data.isShow = true;
+		expect(div.style.display).toBe('');
+	});
+
+
+	it('with inline style display none, hidden first', function () {
+		element.innerHTML = '<div v-show="isShow" style="display: none">title</div>';
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				isShow: false
+			}
+		});
+		let data = vm.$data;
+		let div = element.querySelector('div');
+
+		expect(div.style.display).toBe('none');
+
+		data.isShow = true;
+		expect(div.style.display).toBe('');
+
+		data.isShow = false;
+		expect(div.style.display).toBe('none');
+	});
+
+
 	it('with v-else block', function () {
 		element.innerHTML =
 			'<div id="ok" v-show="ok">OK</div>' +
