@@ -33,23 +33,6 @@ Consists of two independent libraries:
 <img src="https://tangbc.github.io/github-images/sugar-diagram-en.png" width="600">
 
 
-## Directories
-
-* **`build/`** Development, production and test configurations.
-
-* **`demos/`** Several complete examples/demos developed by `sugar.js`.
-
-* **`dist/`** Product files of `sugar.js` and `mvvm.js`, and their compressed.
-
-* **`src/`** Source code module files:
-
-	* `src/main/`<sup>20%</sup> A simple component system. [API & Doc](https://github.com/tangbc/sugar/wiki/API)
-
-	* **`src/mvvm/`**<sup>80%</sup> A powerful and easy-using MVVM library. [API & Doc](https://github.com/tangbc/sugar/wiki/MVVM)
-
-* **`test/`** Unit test specs writing by karma + jasmine.
-
-
 ## HelloWorld
 ```html
 ...
@@ -86,10 +69,32 @@ And then the HTML structure was rendered to be:
 </body>
 ...
 ```
-Data reactive:
+Data reactive (Model Drive View):
 ```javascript
 app.vm.$data.title = 'Change the title!'; // <h1>Change the title!</h1>
 ```
+
+## Demos
+
+There are several complete demos in **`demos/`**, check it out and preview them in the following links:
+
+* [StarRating](https://tangbc.github.io/sugar/demos/starRating)
+* [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
+* [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
+* [Snake eat apple game](https://tangbc.github.io/sugar/demos/snake-eat-apples)
+
+You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
+
+
+## Usage
+
+* Get by nodejs package: `npm install sugar-js`
+
+* Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
+	* `mvvm.js (about 27 kb)` `https://tangbc.github.io/sugar/dist/mvvm.min.js`
+	* `sugar.js (about 33 kb)` `https://tangbc.github.io/sugar/dist/sugar.min.js`
+
+* Browsers: **Not support IE8 and below**. Besides, support most modern desktop and mobile browsers.
 
 
 ## Documentation
@@ -97,32 +102,21 @@ app.vm.$data.title = 'Change the title!'; // <h1>Change the title!</h1>
 [Get start and check documentation on Wiki.](https://github.com/tangbc/sugar/wiki)
 
 
-## Demos
+## Directories
 
-There are several simple demos in **`demos/`**, check it out and preview them in the following links:
+* **`build/`** Development, production and test configurations.
 
-* [StarRating](https://tangbc.github.io/sugar/demos/starRating)
-* [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
-* [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
-* [Snake eat apple game](https://tangbc.github.io/sugar/demos/snake-eat-apples)
+* **`demos/`** Several complete examples/demos developed by `sugar.js`.
 
-You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
+* **`dist/`** Product files of `sugar.js` and `mvvm.js`, and their compressed.
 
+* **`src/`** Source code module files:
 
-## Usage
+	* `src/main/`<sup>20%</sup> A simple component system. [API & Doc](https://github.com/tangbc/sugar/wiki/API)
 
-* Use by nodejs package: `npm install sugar-js`
+	* **`src/mvvm/`**<sup>80%</sup> A powerful and easy-using MVVM library. [API & Doc](https://github.com/tangbc/sugar/wiki/MVVM)
 
-* Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
-	* `mvvm.js (about 26 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
-	* `sugar.js (about 33 kb)` https://tangbc.github.io/sugar/dist/sugar.min.js
-
-* Browsers: **not support IE8 and below**, used `Object.defineProperty`, `Object.create`.
-
-
-## ChangeLog
-
-* [See releases](https://github.com/tangbc/sugar/releases)
+* **`test/`** Unit test specs writing by karma + jasmine.
 
 
 ## Contribution
@@ -136,6 +130,11 @@ You can also preview `sugar.js` by a *RadioComponent* in [jsfiddle](https://jsfi
 4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**
 
 5. Generate the test coverage report and jshint checking up: **`npm run build`**
+
+
+## ChangeLog
+
+[See releases](https://github.com/tangbc/sugar/releases)
 
 
 ## License
