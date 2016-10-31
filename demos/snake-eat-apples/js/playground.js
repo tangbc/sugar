@@ -1,14 +1,10 @@
-define([
-	'dist/sugar',
-	'./config',
-	'./fruit'
-], function (Sugar, Config, Fruit) {
+;(function (exports) {
 
 	// base const definition
-	var UNIT = Config.UNIT;
-	var WIDTH = Config.WIDTH;
-	var HEIGHT = Config.HEIGHT;
-	var LENGTH = Config.LENGTH;
+	var UNIT = AppConfig.UNIT;
+	var WIDTH = AppConfig.WIDTH;
+	var HEIGHT = AppConfig.HEIGHT;
+	var LENGTH = AppConfig.LENGTH;
 	var DEFAULTDIRECT = 'LEFT';
 	var TYPE = { head: 'head', body: 'body', dead: 'dead' };
 
@@ -84,7 +80,7 @@ define([
 			this.buildGrid();
 
 			// fruit producer
-			this.fruit = new Fruit(ROWS, LINES);
+			this.fruit = new AppFruit(ROWS, LINES);
 			this.addFruit();
 		},
 
@@ -311,5 +307,5 @@ define([
 		}
 	});
 
-	return Playground;
-});
+	exports.AppPlayground = Playground;
+})(window);

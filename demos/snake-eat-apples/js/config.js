@@ -1,5 +1,7 @@
-define(function () {
-	return {
+;(function (exports) {
+
+	// App base config
+	var Config = {
 		// playground width
 		WIDTH: 660,
 
@@ -18,4 +20,6 @@ define(function () {
 		// move speed
 		SPEED: 178
 	}
-});
+
+	exports.AppConfig = Config;
+})(window);

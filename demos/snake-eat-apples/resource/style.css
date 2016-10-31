@@ -31,6 +31,20 @@ code {
 	margin: 0 auto;
 }
 
+.loading {
+	text-align: center;
+	padding: 1em;
+	// border: 1px dashed rgb(119,136,153);
+}
+.loading h2 {
+	font-size: 24px;
+	font-weight: 100;
+}
+.loading p {
+	font-size: 18px;
+	font-weight: 100;
+}
+
 /********* Header ***********/
 .header {
 	width: 100%;
@@ -54,8 +68,6 @@ code {
 	display: inline-block;
 	margin-left: 5px;
 	font-weight: 400;
-	-moz-transform: scale(1.35);
-	-ms-transform: scale(1.35);
 	-webkit-transform: scale(1.35);
 	transform: scale(1.35);
 }
@@ -149,26 +161,18 @@ code {
 	background: #6d6d6d;
 }
 .playground .screen .snake.LEFT {
-	-moz-transform: rotate(0);
-	-ms-transform: rotate(0);
 	-webkit-transform: rotate(0);
 	transform: rotate(0);
 }
 .playground .screen .snake.RIGHT {
-	-moz-transform: rotate(180deg);
-	-ms-transform: rotate(180deg);
 	-webkit-transform: rotate(180deg);
 	transform: rotate(180deg);
 }
 .playground .screen .snake.UP {
-	-moz-transform: rotate(90deg);
-	-ms-transform: rotate(90deg);
 	-webkit-transform: rotate(90deg);
 	transform: rotate(90deg);
 }
 .playground .screen .snake.DOWN {
-	-moz-transform: rotate(270deg);
-	-ms-transform: rotate(270deg);
 	-webkit-transform: rotate(270deg);
 	transform: rotate(270deg);
 }
@@ -225,4 +229,51 @@ footer {
 footer a {
 	color: inherit;
 	text-decoration: none;
+}
+
+/*********** keyframes ************/
+@-webkit-keyframes shake {
+	from, to {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+	}
+
+	10%, 30%, 50%, 70%, 90% {
+		-webkit-transform: translate3d(-10px, 0, 0);
+		transform: translate3d(-10px, 0, 0);
+	}
+
+	20%, 40%, 60%, 80% {
+		-webkit-transform: translate3d(10px, 0, 0);
+		transform: translate3d(10px, 0, 0);
+	}
+}
+
+@keyframes shake {
+	from, to {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+	}
+
+	10%, 30%, 50%, 70%, 90% {
+		-webkit-transform: translate3d(-10px, 0, 0);
+		transform: translate3d(-10px, 0, 0);
+	}
+
+	20%, 40%, 60%, 80% {
+		-webkit-transform: translate3d(10px, 0, 0);
+		transform: translate3d(10px, 0, 0);
+	}
+}
+
+.shake {
+	-webkit-animation-name: shake;
+	animation-name: shake;
+}
+
+.animated {
+	-webkit-animation-duration: 1s;
+	animation-duration: 1s;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
 }

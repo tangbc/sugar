@@ -4,22 +4,6 @@
 	<meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="resource/normalize.css">
 	<link rel="stylesheet" type="text/css" href="resource/style.css">
-	<script type="text/javascript" src="require.js"></script>
-	<script type="text/javascript">
-	requirejs.config({
-		paths: {
-			dist: '../../dist/'
-		},
-		waitSeconds: 15
-	});
-
-	require([
-		'js/app',
-		'dist/sugar'
-	], function (App, Sugar) {
-		Sugar.core.create('app', App);
-	});
-	</script>
 </head>
 <body>
 	<div style="display: none;">
@@ -30,11 +14,26 @@
 	</div>
 	<div id="app">
 		<h1>SNAKE EAT APPLES</h1>
+		<div v-show="loading" class="loading">
+			<h2 class="animated shake">Loading modules, please wait ...</h2>
+			<p>If taking a long time, please try refresh page or using https</p>
+		</div>
 		<AppHeader></AppHeader>
 		<AppPlayground></AppPlayground>
-		<footer v-pre>
-			<p>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
+		<footer style="display: none;" v-show="!loading">
+			<p v-pre>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
 		</footer>
 	</div>
+
+	<script type="text/javascript" src="../../dist/sugar.min.js"></script>
+	<script type="text/javascript" src="js/keymap.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/fruit.js"></script>
+	<script type="text/javascript" src="js/header.js"></script>
+	<script type="text/javascript" src="js/playground.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	<script type="text/javascript">
+		Sugar.core.create('app', SnakeApp);
+	</script>
 </body>
 </html>

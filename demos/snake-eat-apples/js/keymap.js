@@ -1,5 +1,6 @@
-define(function () {
-	return {
+;(function (exports) {
+
+	var Keymap = {
 		27: 'ESC',
 		32: 'SPACE',
 		37: 'LEFT',
@@ -11,4 +12,6 @@ define(function () {
 		87: 'UP', // W
 		83: 'DOWN' // S
 	}
-});
+
+	exports.AppKeymap = Keymap;
+})(window);

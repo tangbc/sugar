@@ -1,7 +1,4 @@
-define([
-	'dist/sugar',
-	'./config'
-], function (Sugar, Config) {
+;(function (exports) {
 
 	// score localStorage
 	var Storage = {
@@ -94,7 +91,7 @@ define([
 		// add score with eaten an apple
 		addScore: function () {
 			var data = this.vm.$data;
-			data.score = data.score + Config.SCORE;
+			data.score = data.score + AppConfig.SCORE;
 
 			// is current score breaking record
 			if (this.hasRecord && (data.score > data.best)) {
@@ -119,5 +116,5 @@ define([
 		}
 	});
 
-	return Header;
-});
+	exports.AppHeader = Header;
+})(window);

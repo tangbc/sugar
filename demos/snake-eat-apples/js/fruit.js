@@ -1,4 +1,4 @@
-define(function () {
+;(function (exports) {
 
 	// return a random int number from 1 to max
 	// Math.random() * (max - min + 1) + min
@@ -53,5 +53,5 @@ define(function () {
 		this.eatens = [];
 	}
 
-	return Fruit;
-});
+	exports.AppFruit = Fruit;
+})(window);

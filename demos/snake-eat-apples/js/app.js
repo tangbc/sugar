@@ -1,10 +1,4 @@
-define([
-	'dist/sugar',
-	'./header',
-	'./playground',
-	'./keymap',
-	'./config'
-],  function (Sugar, Header, Playground, KEYMAP, Config) {
+;(function (exports) {
 
 	// Top app component definition
 	var App = Sugar.Component.extend({
@@ -12,23 +6,27 @@ define([
 			this.Super('init', config, {
 				target: '#app',
 				css: {
-					width: Config.WIDTH + 'px'
+					width: AppConfig.WIDTH + 'px'
+				},
+				model: {
+					loading: true
 				},
 				childs: {
-					AppHeader: Header,
-					AppPlayground: Playground
+					AppHeader: AppHeader,
+					AppPlayground: AppPlayground
 				}
 			});
 		},
 
 		afterRender: function () {
 			this.virgin = true;
+			this.vm.$data.loading = false;
 			this.on(document, 'keydown', this.documentKeyDown);
 		},
 
 		// listen to document keydown event
 		documentKeyDown: function (e) {
-			var key = KEYMAP[e.keyCode];
+			var key = AppKeymap[e.keyCode];
 			var childs = this.getChilds();
 			var header = childs.AppHeader;
 			var playground = childs.AppPlayground;
@@ -64,5 +62,5 @@ define([
 		}
 	});
 
-	return App;
-});
+	exports.SnakeApp = App;
+})(window);
