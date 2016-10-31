@@ -148,7 +148,7 @@
 					.moveHead() // then move snake head
 					.check() // check if snake is alive
 					.start();
-			}, Config.SPEED);
+			}, AppConfig.SPEED);
 		},
 
 		turnUp: function () {
