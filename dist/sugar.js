@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.0 (c) 2016 TANG
  * Released under the MIT license
- * Sun Oct 30 2016 10:25:58 GMT+0800 (CST)
+ * Mon Oct 31 2016 13:04:27 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3125,9 +3125,7 @@
 	 */
 	function setVisibleDisplay (node) {
 		var display = getVisible(node);
-		if (display !== 'none') {
-			def(node, visibleDisplay, display || '');
-		}
+		def(node, visibleDisplay, display === 'none' ? '' : display);
 	}
 
 	/**
