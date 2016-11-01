@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.1 (c) 2016 TANG
  * Released under the MIT license
- * Mon Oct 31 2016 18:20:22 GMT+0800 (CST)
+ * Tue Nov 01 2016 18:34:13 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1274,29 +1274,6 @@
 		node.removeEventListener(evt, callback, capture);
 	}
 
-	/**
-	 * 获取节点行内样式显示值
-	 * 行内样式 display = '' 不会影响由 classname 中的定义
-	 * 在文档碎片中是不能通过 getComputedStyle 方法来获取样式值的
-	 * @param  {Element}  node
-	 */
-	function getVisible (node) {
-		var display;
-		var inlineStyle = removeSpace(getAttr(node, 'style'));
-
-		if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-			var styles = inlineStyle.split(';');
-
-			each(styles, function (style) {
-				if (style.indexOf('display') > -1) {
-					display = style.split(':').pop();
-				}
-			});
-		}
-
-		return display || '';
-	}
-
 	var regKeyCode = /^(\d)*$/;
 	var regBigBrackets = /^\{.*\}$/;
 	var regSmallBrackets = /(\(.*\))/;
@@ -2432,7 +2409,7 @@
 	 * @param  {Element}  node
 	 */
 	function setVisibleDisplay (node) {
-		var display = getVisible(node);
+		var display = node.style.display;
 		def(node, visibleDisplay, display === 'none' ? '' : display);
 	}
 
