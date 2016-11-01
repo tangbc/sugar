@@ -1,8 +1,3 @@
-import {
-	each,
-	removeSpace
-} from './util';
-
 /**
  * 是否是元素节点
  * @param   {Element}  element
@@ -181,28 +176,6 @@ export function removeEvent (node, evt, callback, capture) {
 	node.removeEventListener(evt, callback, capture);
 }
 
-/**
- * 获取节点行内样式显示值
- * 行内样式 display = '' 不会影响由 classname 中的定义
- * 在文档碎片中是不能通过 getComputedStyle 方法来获取样式值的
- * @param  {Element}  node
- */
-export function getVisible (node) {
-	let display;
-	let inlineStyle = removeSpace(getAttr(node, 'style'));
-
-	if (inlineStyle && inlineStyle.indexOf('display') > -1) {
-		let styles = inlineStyle.split(';');
-
-		each(styles, function (style) {
-			if (style.indexOf('display') > -1) {
-				display = style.split(':').pop();
-			}
-		});
-	}
-
-	return display || '';
-}
 
 /**
  * 导出作为组件系统的 DOM 处理构造函数
@@ -220,5 +193,4 @@ export default function DOM () {
 	this.removeClass = removeClass;
 	this.addEvent = addEvent;
 	this.removeEvent = removeEvent;
-	// this.getVisible = getVisible;
 }

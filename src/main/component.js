@@ -1,7 +1,7 @@
 import ajax from './ajax';
 import Module from './module';
 import MVVM from '../mvvm/index';
-import DOM, { addClass, setAttr, addEvent, removeEvent, getVisible } from '../dom';
+import DOM, { addClass, setAttr, addEvent, removeEvent } from '../dom';
 import {
 	each,
 	warn,
@@ -180,7 +180,8 @@ let Component = Module.extend({
 		}
 
 		// 组件初始显示状态
-		this.__visible__ = getVisible(this.el);
+		let display = this.el.style.display;
+		this.__visible__ = display === 'none' ? '' : display;
 
 		// 创建子组件
 		each(c.childs, this._buildBatchChilds, this);

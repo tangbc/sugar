@@ -1,6 +1,6 @@
 import { def } from '../../util';
+import { hasAttr } from '../../dom';
 import Parser, { linkParser } from '../parser';
-import { hasAttr, getVisible } from '../../dom';
 
 const visibleDisplay = '__visible__';
 
@@ -11,7 +11,7 @@ const visibleDisplay = '__visible__';
  * @param  {Element}  node
  */
 function setVisibleDisplay (node) {
-	let display = getVisible(node);
+	let display = node.style.display;
 	def(node, visibleDisplay, display === 'none' ? '' : display);
 }
 
