@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.1 (c) 2016 TANG
  * Released under the MIT license
- * Tue Nov 01 2016 18:34:13 GMT+0800 (CST)
+ * Fri Nov 04 2016 16:18:19 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2059,13 +2059,12 @@
 
 	/**
 	 * 更新 select 绑定
-	 * @param  {Boolean}  clear  [数组操作或重新赋值]
 	 */
-	vfor.updateModel = function (clear) {
+	vfor.updateModel = function () {
 		if (this.isOption) {
 			var selectModel = this.$parent.__vmodel__;
 			if (selectModel) {
-				selectModel.forceUpdate(clear);
+				selectModel.forceUpdate();
 			}
 		}
 	}
@@ -2090,7 +2089,7 @@
 				this.partly = false;
 			} else {
 				this.recompileList(newArray);
-				this.updateModel(true);
+				this.updateModel();
 			}
 		}
 	}
@@ -2942,16 +2941,9 @@
 
 		/**
 		 * 强制更新 select 的值，用于动态的 option
-		 * @param  {Boolean}  clean  [是否清除默认选中状态]
 		 */
-		forceUpdate: function forceUpdate (clean) {
-			var directive = this.directive;
-
-			if (clean) {
-				directive.set(this.multi ? [] : '');
-			} else {
-				this.update(directive.get());
-			}
+		forceUpdate: function forceUpdate () {
+			this.update(this.directive.get());
 		}
 	}
 
