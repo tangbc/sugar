@@ -1368,13 +1368,13 @@ describe('v-model >', function () {
 
 		// change/cover v-for(options) data,
 		// becasue we are not sure if new options has previous selected value
-		// so we clear the default selected value when options were rebuild
+		// so we reset the default selected value to ''(indicate select no option) & no change data
 		data.options = [
 			{ value: 'aa' },
 			{ value: 'bb' },
 			{ value: 'cc' }
 		];
-		expect(data.test).toBe('');
+		expect(data.test).toBe('c');
 		expect(select.value).toBe('');
 
 		// set value by data
@@ -1857,8 +1857,8 @@ describe('v-model >', function () {
 		expect(options[1].selected).toBe(false);
 		expect(options[2].value).toBe('cc');
 		expect(options[2].selected).toBe(false);
-		// when cover option the data.test will be reset
-		expect(data.test).toEqual([]);
+		// when cover option the data.test will not be changed
+		expect(data.test).toEqual(['c']);
 	});
 
 

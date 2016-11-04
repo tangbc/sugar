@@ -50,13 +50,12 @@ vfor.parse = function () {
 
 /**
  * 更新 select 绑定
- * @param  {Boolean}  clear  [数组操作或重新赋值]
  */
-vfor.updateModel = function (clear) {
+vfor.updateModel = function () {
 	if (this.isOption) {
 		let selectModel = this.$parent.__vmodel__;
 		if (selectModel) {
-			selectModel.forceUpdate(clear);
+			selectModel.forceUpdate();
 		}
 	}
 }
@@ -81,7 +80,7 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 			this.partly = false;
 		} else {
 			this.recompileList(newArray);
-			this.updateModel(true);
+			this.updateModel();
 		}
 	}
 }
