@@ -128,24 +128,23 @@ vfor.updatePartly = function (list, arg) {
  * @param  {Array}  list
  */
 vfor.recompileList = function (list) {
-	let end = this.end;
-	let start = this.start;
 	let parent = this.$parent;
+	var childs = parent.childNodes;
 
 	// 清空循环列表
-	let child;
-	while (child = (start && start.nextSibling || parent.firstChild)) {
-		if (end && child === end) {
-			break;
+	for (var i = 0; i < childs.length; i++) {
+		let child = childs[i];
+		if (child[vforAlias] === this.alias) {
+			parent.removeChild(child);
+			i--;
 		}
-		parent.removeChild(child);
 	}
 
 	// 移除所有取值域缓存
 	this.scopes.length = 0;
 
 	let listFragment = this.buildList(list);
-	parent.insertBefore(listFragment, end);
+	parent.insertBefore(listFragment, this.end);
 }
 
 /**
