@@ -3,9 +3,20 @@ import core from './core';
 import util from '../util';
 import Component from './component';
 
-export default {
-	ajax,
-	core,
-	util,
-	Component
-};
+/**
+ * Sugar
+ * @type  {Object}
+ */
+let Sugar = Object.create(null);
+
+/**
+ * 添加属性扩展方法
+ * @return  {Function}
+ */
+Sugar.extend = function () {
+	util.extend.apply(this, arguments);
+}
+
+Sugar.extend({ ajax, core, util, Component });
+
+export default Sugar;
