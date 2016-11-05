@@ -1,4 +1,4 @@
-;(function (exports) {
+;(function (exports, Header, Playground) {
 
 	// Top app component definition
 	var App = Sugar.Component.extend({
@@ -12,8 +12,8 @@
 					loading: true
 				},
 				childs: {
-					AppHeader: AppHeader,
-					AppPlayground: AppPlayground
+					AppHeader: Header,
+					AppPlayground: Playground
 				}
 			});
 		},
@@ -46,7 +46,6 @@
 				header.reset();
 				playground.reset();
 			} else if (key) {
-				header.addStep();
 				playground.update(key);
 			}
 		},
@@ -63,4 +62,4 @@
 	});
 
 	exports.SnakeApp = App;
-})(window);
+})(window, AppHeader, AppPlayground);

@@ -1,10 +1,10 @@
-;(function (exports) {
+;(function (exports, Config, Fruit) {
 
 	// base const definition
-	var UNIT = AppConfig.UNIT;
-	var WIDTH = AppConfig.WIDTH;
-	var HEIGHT = AppConfig.HEIGHT;
-	var LENGTH = AppConfig.LENGTH;
+	var UNIT = Config.UNIT;
+	var WIDTH = Config.WIDTH;
+	var HEIGHT = Config.HEIGHT;
+	var LENGTH = Config.LENGTH;
 	var DEFAULTDIRECT = 'LEFT';
 	var TYPE = { head: 'head', body: 'body', dead: 'dead' };
 
@@ -80,7 +80,7 @@
 			this.buildGrid();
 
 			// fruit producer
-			this.fruit = new AppFruit(ROWS, LINES);
+			this.fruit = new Fruit(ROWS, LINES);
 			this.addFruit();
 		},
 
@@ -148,7 +148,7 @@
 					.moveHead() // then move snake head
 					.check() // check if snake is alive
 					.start();
-			}, AppConfig.SPEED);
+			}, Config.SPEED);
 		},
 
 		turnUp: function () {
@@ -308,4 +308,4 @@
 	});
 
 	exports.AppPlayground = Playground;
-})(window);
+})(window, AppConfig, AppFruit);

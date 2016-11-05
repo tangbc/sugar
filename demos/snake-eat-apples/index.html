@@ -14,12 +14,15 @@
 	</div>
 	<div id="app">
 		<h1>SNAKE EAT APPLES</h1>
+		<!-- loading tips -->
 		<div v-show="loading" class="loading">
 			<h2 class="animated shake">Loading modules, please wait ...</h2>
 			<p>If taking a long time, please try refresh page or using https</p>
 		</div>
+		<!-- modules -->
 		<AppHeader></AppHeader>
 		<AppPlayground></AppPlayground>
+		<!-- footer -->
 		<footer style="display: none;" v-show="!loading">
 			<p v-pre>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
 		</footer>

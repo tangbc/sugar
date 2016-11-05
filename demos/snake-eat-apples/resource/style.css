@@ -71,15 +71,11 @@ code {
 	-webkit-transform: scale(1.35);
 	transform: scale(1.35);
 }
-.header .info li.step {
-	font-weight: 500;
-}
 .header .info li.score {
-	color: #ffd700;
+	color: #fff;
 }
 .header .info li.record {
 	color: #ffd700;
-	font-style: italic;
 }
 .header .info li.msg {
 	color: yellow;

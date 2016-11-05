@@ -1,4 +1,4 @@
-;(function (exports) {
+;(function (exports, Config) {
 
 	// score localStorage
 	var Storage = {
@@ -24,7 +24,6 @@
 				model: {
 					best: Storage.get(),
 					score: 0,
-					step: 0,
 					broke: false,
 					minute: '--',
 					secound: '--'
@@ -83,15 +82,10 @@
 			}
 		},
 
-		// add step
-		addStep: function () {
-			this.vm.$data.step++;
-		},
-
 		// add score with eaten an apple
 		addScore: function () {
 			var data = this.vm.$data;
-			data.score = data.score + AppConfig.SCORE;
+			data.score = data.score + Config.SCORE;
 
 			// is current score breaking record
 			if (this.hasRecord && (data.score > data.best)) {
@@ -117,4 +111,4 @@
 	});
 
 	exports.AppHeader = Header;
-})(window);
+})(window, AppConfig);
