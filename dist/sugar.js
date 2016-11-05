@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.3.1 (c) 2016 TANG
+ * sugar.js v1.3.2 (c) 2016 TANG
  * Released under the MIT license
- * Sat Nov 05 2016 16:34:56 GMT+0800 (CST)
+ * Sat Nov 05 2016 21:13:34 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4737,13 +4737,22 @@
 		}
 	});
 
-	var index = {
-		ajax: ajax,
-		core: core,
-		util: util,
-		Component: Component
-	};
+	/**
+	 * Sugar
+	 * @type  {Object}
+	 */
+	var Sugar = Object.create(null);
 
-	return index;
+	/**
+	 * 添加属性扩展方法
+	 * @return  {Function}
+	 */
+	Sugar.extend = function () {
+		util.extend.apply(this, arguments);
+	}
+
+	Sugar.extend({ ajax: ajax, core: core, util: util, Component: Component });
+
+	return Sugar;
 
 }));
