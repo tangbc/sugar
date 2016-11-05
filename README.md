@@ -121,7 +121,7 @@ You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](http
 
 ## Contribution
 
-1. Fork repository
+1. Fork and clone repository to your local
 
 2. Install nodejs package devtools: **`npm install`**
 
