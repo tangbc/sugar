@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.1 (c) 2016 TANG
  * Released under the MIT license
- * Fri Nov 04 2016 16:18:19 GMT+0800 (CST)
+ * Sat Nov 05 2016 16:34:57 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2137,24 +2137,25 @@
 	 * @param  {Array}  list
 	 */
 	vfor.recompileList = function (list) {
-		var end = this.end;
-		var start = this.start;
+		var this$1 = this;
+
 		var parent = this.$parent;
+		var childs = parent.childNodes;
 
 		// 清空循环列表
-		var child;
-		while (child = (start && start.nextSibling || parent.firstChild)) {
-			if (end && child === end) {
-				break;
+		for (var i = 0; i < childs.length; i++) {
+			var child = childs[i];
+			if (child[vforAlias] === this$1.alias) {
+				parent.removeChild(child);
+				i--;
 			}
-			parent.removeChild(child);
 		}
 
 		// 移除所有取值域缓存
 		this.scopes.length = 0;
 
 		var listFragment = this.buildList(list);
-		parent.insertBefore(listFragment, end);
+		parent.insertBefore(listFragment, this.end);
 	}
 
 	/**
