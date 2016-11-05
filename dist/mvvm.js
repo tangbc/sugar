@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.2 (c) 2016 TANG
  * Released under the MIT license
- * Sat Nov 05 2016 21:13:36 GMT+0800 (CST)
+ * Sun Nov 06 2016 07:54:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -432,10 +432,7 @@
 	 * @param  {Object}  watcher
 	 */
 	dp.removeWatcher = function (watcher) {
-		var index = this.watchers.indexOf(watcher);
-		if (index > -1) {
-			this.watchers.splice(index, 1);
-		}
+		this.watchers.$remove(watcher);
 	}
 
 	/**
@@ -1814,7 +1811,7 @@
 	});
 
 	/**
-	 * 添加数组选项设置/替换方法
+	 * 添加数组选项设置/替换方法（全局修改）
 	 * 提供需要修改的数组项下标 index 和新值 value
 	 */
 	def(arrayProto, '$set', function (index, value) {
@@ -1826,7 +1823,7 @@
 	});
 
 	/**
-	 * 添加数组选项删除方法
+	 * 添加数组选项删除方法（全局修改）
 	 */
 	def(arrayProto, '$remove', function (item) {
 		var index = this.indexOf(item);

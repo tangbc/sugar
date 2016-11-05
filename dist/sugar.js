@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.2 (c) 2016 TANG
  * Released under the MIT license
- * Sat Nov 05 2016 21:13:34 GMT+0800 (CST)
+ * Sun Nov 06 2016 07:54:06 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -399,26 +399,26 @@
 		}
 	}
 
+
 	/**
 	 * 挂载到 sugar 上的工具方法
 	 * @param  {Object}
 	 */
-	var util = {
-		def: def,
-		each: each,
-		copy: copy,
-		config: config,
-		extend: extend,
-		hasOwn: hasOwn,
+	var util = Object.create(null);
 
-		isFunc: isFunc,
-		isBool: isBool,
-		isArray: isArray,
-		isObject: isObject,
-		isNumber: isNumber,
-		isString: isString,
-		isEmptyObject: isEmptyObject
-	}
+	util.def = def;
+	util.each = each;
+	util.copy = copy;
+	util.config = config;
+	util.extend = extend;
+	util.hasOwn = hasOwn;
+	util.isFunc = isFunc;
+	util.isBool = isBool;
+	util.isArray = isArray;
+	util.isObject = isObject;
+	util.isNumber = isNumber;
+	util.isString = isString;
+	util.isEmptyObject = isEmptyObject;
 
 	/**
 	 * 执行一个 http 请求
@@ -520,7 +520,15 @@
 		return get(url, param, callback, context, 'text');
 	}
 
-	var ajax = { get: get, post: post, load: load }
+	/**
+	 * 挂载到 Sugar 上的 Ajax 工具方法
+	 * @type  {Object}
+	 */
+	var ajax = Object.create(null);
+
+	ajax.get = get;
+	ajax.post = post;
+	ajax.load = load;
 
 	var cache = { id: 1, length: 0 }
 
@@ -1105,10 +1113,7 @@
 	 * @param  {Object}  watcher
 	 */
 	dp.removeWatcher = function (watcher) {
-		var index = this.watchers.indexOf(watcher);
-		if (index > -1) {
-			this.watchers.splice(index, 1);
-		}
+		this.watchers.$remove(watcher);
 	}
 
 	/**
@@ -2506,7 +2511,7 @@
 	});
 
 	/**
-	 * 添加数组选项设置/替换方法
+	 * 添加数组选项设置/替换方法（全局修改）
 	 * 提供需要修改的数组项下标 index 和新值 value
 	 */
 	def(arrayProto, '$set', function (index, value) {
@@ -2518,7 +2523,7 @@
 	});
 
 	/**
-	 * 添加数组选项删除方法
+	 * 添加数组选项删除方法（全局修改）
 	 */
 	def(arrayProto, '$remove', function (item) {
 		var index = this.indexOf(item);
@@ -4745,7 +4750,7 @@
 
 	/**
 	 * 添加属性扩展方法
-	 * @return  {Function}
+	 * @type  {Function}
 	 */
 	Sugar.extend = function () {
 		util.extend.apply(this, arguments);
