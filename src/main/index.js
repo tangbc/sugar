@@ -11,7 +11,7 @@ let Sugar = Object.create(null);
 
 /**
  * 添加属性扩展方法
- * @return  {Function}
+ * @type  {Function}
  */
 Sugar.extend = function () {
 	util.extend.apply(this, arguments);

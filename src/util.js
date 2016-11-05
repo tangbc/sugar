@@ -386,23 +386,25 @@ export function config (data, name, value) {
 	}
 }
 
+
 /**
  * 挂载到 sugar 上的工具方法
  * @param  {Object}
  */
-export default {
-	def,
-	each,
-	copy,
-	config,
-	extend,
-	hasOwn,
+let util = Object.create(null);
 
-	isFunc,
-	isBool,
-	isArray,
-	isObject,
-	isNumber,
-	isString,
-	isEmptyObject
-}
+util.def = def;
+util.each = each;
+util.copy = copy;
+util.config = config;
+util.extend = extend;
+util.hasOwn = hasOwn;
+util.isFunc = isFunc;
+util.isBool = isBool;
+util.isArray = isArray;
+util.isObject = isObject;
+util.isNumber = isNumber;
+util.isString = isString;
+util.isEmptyObject = isEmptyObject;
+
+export default util;

@@ -100,4 +100,14 @@ function load (url, param, callback, context) {
 	return get(url, param, callback, context, 'text');
 }
 
-export default { get, post, load }
+/**
+ * 挂载到 Sugar 上的 Ajax 工具方法
+ * @type  {Object}
+ */
+let ajax = Object.create(null);
+
+ajax.get = get;
+ajax.post = post;
+ajax.load = load;
+
+export default ajax;

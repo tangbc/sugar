@@ -53,7 +53,7 @@ each([
 });
 
 /**
- * 添加数组选项设置/替换方法
+ * 添加数组选项设置/替换方法（全局修改）
  * 提供需要修改的数组项下标 index 和新值 value
  */
 def(arrayProto, '$set', function (index, value) {
@@ -65,7 +65,7 @@ def(arrayProto, '$set', function (index, value) {
 });
 
 /**
- * 添加数组选项删除方法
+ * 添加数组选项删除方法（全局修改）
  */
 def(arrayProto, '$remove', function (item) {
 	let index = this.indexOf(item);

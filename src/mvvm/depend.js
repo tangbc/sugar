@@ -33,10 +33,7 @@ dp.addWatcher = function (watcher) {
  * @param  {Object}  watcher
  */
 dp.removeWatcher = function (watcher) {
-	let index = this.watchers.indexOf(watcher);
-	if (index > -1) {
-		this.watchers.splice(index, 1);
-	}
+	this.watchers.$remove(watcher);
 }
 
 /**
