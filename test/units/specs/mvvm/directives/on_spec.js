@@ -490,13 +490,13 @@ describe('v-on >', function () {
 	});
 
 
-	it('use .once to handler event only first trigger', function () {
+	it('use .one to handler event only first trigger', function () {
 		element.innerHTML =
 			'<a id="test" v-on:click="test"></a>' +
-			'<a id="once" v-on:click.once="testOnce"></a>'
+			'<a id="one" v-on:click.one="testOne"></a>'
 
 		let testCount = 0;
-		let onceCount = 0;
+		let oneCount = 0;
 
 		new MVVM({
 			view: element,
@@ -505,14 +505,14 @@ describe('v-on >', function () {
 				test: function () {
 					testCount++;
 				},
-				testOnce: function () {
-					onceCount++;
+				testOne: function () {
+					oneCount++;
 				}
 			}
 		});
 
 		let testEl = element.querySelector('#test');
-		let onceEl = element.querySelector('#once');
+		let oneEl = element.querySelector('#one');
 
 		triggerEvent(testEl, 'click');
 		expect(testCount).toBe(1);
@@ -522,18 +522,18 @@ describe('v-on >', function () {
 		triggerEvent(testEl, 'click'); // 4
 		expect(testCount).toBe(4);
 
-		// when use .once dress, event just trigger once, then auto unbind
-		expect(onceCount).toBe(0);
-		triggerEvent(onceEl, 'click');
-		expect(onceCount).toBe(1);
+		// when use .one dress, event just trigger one, then auto unbind
+		expect(oneCount).toBe(0);
+		triggerEvent(oneEl, 'click');
+		expect(oneCount).toBe(1);
 
-		triggerEvent(onceEl, 'click');
-		expect(onceCount).toBe(1);
+		triggerEvent(oneEl, 'click');
+		expect(oneCount).toBe(1);
 
-		triggerEvent(onceEl, 'click');
-		triggerEvent(onceEl, 'click');
-		triggerEvent(onceEl, 'click');
-		triggerEvent(onceEl, 'click');
-		expect(onceCount).toBe(1);
+		triggerEvent(oneEl, 'click');
+		triggerEvent(oneEl, 'click');
+		triggerEvent(oneEl, 'click');
+		triggerEvent(oneEl, 'click');
+		expect(oneCount).toBe(1);
 	});
 });

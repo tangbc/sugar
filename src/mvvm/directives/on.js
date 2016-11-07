@@ -105,7 +105,7 @@ function collectEvents (desc) {
 /**
  * 获取事件修饰符对象
  * 支持 6 种事件修饰符
- * .self .stop .prevent .capture .keyCode .once
+ * .self .stop .prevent .capture .keyCode .one
  * @param  {String}  type
  * @param  {String}  dress
  */
@@ -114,7 +114,7 @@ function getDress (type, dress) {
 
 	let self = dresses.indexOf('self') > -1;
 	let stop = dresses.indexOf('stop') > -1;
-	let once = dresses.indexOf('once') > -1;
+	let one = dresses.indexOf('one') > -1;
 	let prevent = dresses.indexOf('prevent') > -1;
 	let capture = dresses.indexOf('capture') > -1;
 
@@ -128,7 +128,7 @@ function getDress (type, dress) {
 		});
 	}
 
-	return { self, stop, prevent, capture, keyCode, once };
+	return { self, stop, prevent, capture, keyCode, one };
 }
 
 /**
@@ -235,7 +235,7 @@ von.bindRemoveEvent = function (type, dress) {
  * @param  {String}    argString  [参数字符串]
  */
 von.bindEvent = function (type, dress, func, argString) {
-	let { self, stop, prevent, capture, keyCode, once } = getDress(type, dress);
+	let { self, stop, prevent, capture, keyCode, one } = getDress(type, dress);
 
 	// 挂载 $event
 	def((this.scope || this.vm.$data), '$event', '__e__');
@@ -298,8 +298,8 @@ von.bindEvent = function (type, dress, func, argString) {
 
 	// 回调函数是否只需触发一次
 	let that = this;
-	if (once) {
-		listener = function _onceListener (e) {
+	if (one) {
+		listener = function _oneListener (e) {
 			listenerAgent(e);
 			that.off(type, listener, capture);
 		}
