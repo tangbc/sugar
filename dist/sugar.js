@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.2 (c) 2016 TANG
  * Released under the MIT license
- * Sun Nov 06 2016 07:54:06 GMT+0800 (CST)
+ * Mon Nov 07 2016 15:02:49 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2073,7 +2073,7 @@
 	/**
 	 * 获取事件修饰符对象
 	 * 支持 6 种事件修饰符
-	 * .self .stop .prevent .capture .keyCode .once
+	 * .self .stop .prevent .capture .keyCode .one
 	 * @param  {String}  type
 	 * @param  {String}  dress
 	 */
@@ -2082,7 +2082,7 @@
 
 		var self = dresses.indexOf('self') > -1;
 		var stop = dresses.indexOf('stop') > -1;
-		var once = dresses.indexOf('once') > -1;
+		var one = dresses.indexOf('one') > -1;
 		var prevent = dresses.indexOf('prevent') > -1;
 		var capture = dresses.indexOf('capture') > -1;
 
@@ -2096,7 +2096,7 @@
 			});
 		}
 
-		return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode, once: once };
+		return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode, one: one };
 	}
 
 	/**
@@ -2209,7 +2209,7 @@
 		var prevent = ref.prevent;
 		var capture = ref.capture;
 		var keyCode = ref.keyCode;
-		var once = ref.once;
+		var one = ref.one;
 
 		// 挂载 $event
 		def((this.scope || this.vm.$data), '$event', '__e__');
@@ -2272,8 +2272,8 @@
 
 		// 回调函数是否只需触发一次
 		var that = this;
-		if (once) {
-			listener = function _onceListener (e) {
+		if (one) {
+			listener = function _oneListener (e) {
 				listenerAgent(e);
 				that.off(type, listener, capture);
 			}
