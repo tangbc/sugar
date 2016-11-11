@@ -111,4 +111,5 @@
 	});
 
 	exports.AppHeader = Header;
+
 })(window, AppConfig);

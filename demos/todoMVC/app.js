@@ -9,6 +9,7 @@
 			this.ready = true;
 			this.Super('init', config, {
 				target: '.todoapp',
+				cbRender: 'updateList',
 				model: {
 					type: 'all',
 					todos: [],
@@ -77,10 +78,6 @@
 			});
 		},
 
-		afterRender: function () {
-			this.updateList();
-		},
-
 		/**
 		 * update shown list
 		 */
@@ -101,10 +98,7 @@
 			}
 
 			data.newTodo = '';
-			data.allTodos.push({
-				title: todo,
-				completed: false
-			});
+			data.allTodos.push({ title: todo, completed: false });
 		},
 
 		/**
@@ -149,7 +143,7 @@
 		 * @param   {Object}  todo
 		 */
 		removeTodo: function (todo) {
-			this.vm.get('allTodos').$remove(todo);
+			this.vm.$data.allTodos.$remove(todo);
 		},
 
 		/**
@@ -162,8 +156,7 @@
 	});
 
 	/**
-	 * Create todoMVC instance
-	 * @type  {Object}
+	 * Create todoMVC app instance
 	 */
 	exports.todoMVC = Sugar.core.create('todoMVC', TodoMVC);
 

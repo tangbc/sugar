@@ -54,4 +54,5 @@
 	}
 
 	exports.AppFruit = Fruit;
+
 })(window);

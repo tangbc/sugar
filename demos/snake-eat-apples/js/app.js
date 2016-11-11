@@ -1,13 +1,11 @@
-;(function (exports, Header, Playground) {
+;(function (exports, Header, Playground, Keymap) {
 
 	// Top app component definition
 	var App = Sugar.Component.extend({
 		init: function (config) {
 			this.Super('init', config, {
 				target: '#app',
-				css: {
-					width: AppConfig.WIDTH + 'px'
-				},
+				css: { width: AppConfig.WIDTH + 'px' },
 				model: {
 					loading: true
 				},
@@ -26,7 +24,7 @@
 
 		// listen to document keydown event
 		documentKeyDown: function (e) {
-			var key = AppKeymap[e.keyCode];
+			var key = Keymap[e.keyCode];
 			var childs = this.getChilds();
 			var header = childs.AppHeader;
 			var playground = childs.AppPlayground;
@@ -61,5 +59,7 @@
 		}
 	});
 
-	exports.SnakeApp = App;
-})(window, AppHeader, AppPlayground);
+	// Create game instance
+	Sugar.core.create('app', App);
+
+})(window, AppHeader, AppPlayground, AppKeymap);

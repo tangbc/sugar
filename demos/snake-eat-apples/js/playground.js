@@ -308,4 +308,5 @@
 	});
 
 	exports.AppPlayground = Playground;
+
 })(window, AppConfig, AppFruit);
