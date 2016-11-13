@@ -41,7 +41,7 @@ export default function MVVM (option) {
 	this.$data = this.__vm__.$data;
 
 	// DOM 注册索引
-	this.$els = this.__vm__.$regElements;
+	this.$els = this.__vm__.$regEles;
 
 	// 批量 watch
 	this._watchBatch(option.watches);

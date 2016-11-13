@@ -103,7 +103,7 @@ function Compiler (option) {
 	// 缓存根节点
 	this.$element = element;
 	// DOM 注册索引
-	this.$regElements = {};
+	this.$regEles = {};
 	// 指令实例缓存
 	this.$directives = [];
 
