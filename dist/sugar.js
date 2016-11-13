@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.2 (c) 2016 TANG
  * Released under the MIT license
- * Mon Nov 07 2016 15:02:49 GMT+0800 (CST)
+ * Sun Nov 13 2016 18:46:13 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1084,10 +1084,10 @@
 
 	/**
 	 * 依赖收集模块
-	 * @param  {String}  key  [依赖数据字段]
+	 * @param  {String}  path  [数据路径]
 	 */
-	function Depend (key) {
-		this.key = key;
+	function Depend (path) {
+		this.path = path;
 		this.watchers = [];
 		this.guid = guid++;
 	}
@@ -1139,10 +1139,9 @@
 	 * @param  {Object}  args  [数组操作参数信息]
 	 */
 	dp.notify = function (args) {
-		var guid = this.guid;
 		each(this.watchers, function (watcher) {
-			watcher.update(args, guid);
-		});
+			watcher.update(args, this);
+		}, this);
 	}
 
 	var INIT = 0;
@@ -1636,17 +1635,23 @@
 
 	/**
 	 * 依赖变化，更新取值
-	 * @param  {Object}  args  [数组操作参数信息]
-	 * @param  {Number}  guid  [变更依赖对象 id]
+	 * @param  {Object}  args    [数组操作参数信息]
+	 * @param  {Object}  depend  [变更依赖对象 id]
 	 */
-	wp.update = function (args, guid) {
+	wp.update = function (args, depend) {
 		var oldVal = this.oldVal;
+		var unifyCb = this.vm.$unifyCb;
 		var newVal = this.value = this.get();
 
 		var callback = this.callback;
 		if (callback && (oldVal !== newVal)) {
-			var fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
+			var fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0;
 			callback.call(this.context, newVal, oldVal, fromDeep, args);
+		}
+
+		// 通知统一监听回调
+		if (unifyCb) {
+			unifyCb({ action: args, path: depend.path }, newVal, oldVal);
 		}
 	}
 
@@ -2351,7 +2356,7 @@
 		// 不能在 vfor 中使用
 		if (!this.scope) {
 			var register = this.desc.expression;
-			this.vm.$regElements[register] = this.el;
+			this.vm.$regEles[register] = this.el;
 		} else {
 			warn('v-el can not be used inside v-for!');
 		}
@@ -2363,7 +2368,7 @@
 	 * @param  {DOMElement}  element
 	 */
 	function removeDOMRegister (vm, element) {
-		var registers = vm.$regElements;
+		var registers = vm.$regEles;
 		var childNodes = element.childNodes;
 
 		for (var i = 0; i < childNodes.length; i++) {
@@ -2560,39 +2565,50 @@
 	}
 
 	/**
+	 * 生成取值路径
+	 * @param   {String}  prefix
+	 * @param   {String}  suffix
+	 * @return  {String}
+	 */
+	function createPath$1 (prefix, suffix) {
+		return prefix ? (prefix + '*' + suffix) : suffix;
+	}
+
+	/**
 	 * 监测对象
 	 * @param  {Object}  object
+	 * @param  {String}  path
 	 */
-	function observeObject (object) {
+	function observeObject (object, path) {
 		each(object, function (value, key) {
-			observe(object, key, value);
+			observe(object, key, value, createPath$1(path, key));
 		});
 	}
 
 	/**
 	 * 监测数组
 	 * @param  {Array}   array
-	 * @param  {String}  key
+	 * @param  {String}  path
 	 */
-	function observeArray (array, key) {
+	function observeArray (array, path) {
 		setMutationProto(array);
-		each(array, function (item) {
-			createObserver(item, key);
+		each(array, function (item, index) {
+			createObserver(item, createPath$1(path, index));
 		});
 	}
 
 	/**
 	 * 数据监测模块
 	 * @param  {Object}  data  [监测对象/数组]
-	 * @param  {String}  key   [监测字段名称]
+	 * @param  {String}  path  [监测字段名称]
 	 */
-	function Observer (data, key) {
-		this.dep = new Depend(key);
+	function Observer (data, path) {
+		this.dep = new Depend(path);
 
 		if (isArray(data)) {
-			observeArray(data, key);
+			observeArray(data, path);
 		} else {
-			observeObject(data);
+			observeObject(data, path);
 		}
 
 		def(data, '__ob__', this);
@@ -2602,28 +2618,29 @@
 	/**
 	 * 创建一个对象监测
 	 * @param   {Object|Array}  target
-	 * @param   {String}        key
+	 * @param   {String}        path
 	 * @return  {Object}
 	 */
-	function createObserver (target, key) {
+	function createObserver (target, path) {
 		if (isObject(target) || isArray(target)) {
-			return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, key);
+			return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, path || '');
 		}
 	}
 
 	/**
 	 * 监测 object[key] 的变化 & 依赖收集
-	 * @param  {Object}  object
-	 * @param  {String}  key
-	 * @param  {Mix}     value
+	 * @param  {Object}   object
+	 * @param  {String}   key
+	 * @param  {Mix}      value
+	 * @param  {String}   path
 	 */
-	function observe (object, key, value) {
-		var dep = new Depend(key);
+	function observe (object, key, value, path) {
+		var dep = new Depend(path);
 		var descriptor = Object.getOwnPropertyDescriptor(object, key);
 		var getter = descriptor && descriptor.get;
 		var setter = descriptor && descriptor.set;
 
-		var childOb = createObserver(value, key);
+		var childOb = createObserver(value, path);
 
 		Object.defineProperty(object, key, {
 			get: function Getter () {
@@ -3942,6 +3959,7 @@
 		var model = option.model;
 		var element = option.view;
 		var computed = option.computed;
+		var watchAll = option.watchAll;
 
 		if (!isElement(element)) {
 			return warn('view must be a type of DOMElement: ', element);
@@ -3958,13 +3976,12 @@
 		// 缓存根节点
 		this.$element = element;
 		// DOM 注册索引
-		this.$regElements = {};
-
+		this.$regEles = {};
 		// 指令实例缓存
 		this.$directives = [];
 
 		// 监测数据模型
-		this.$ob = createObserver(this.$data, '__MODEL__');
+		this.$ob = createObserver(this.$data);
 		// 设置计算属性
 		if (computed) {
 			setComputedProperty(this.$data, computed);
@@ -3974,6 +3991,8 @@
 		this.$afters = [];
 		// 自定义指令刷新函数
 		this.$customs = option.customs || {};
+		// 监听变更统一回调
+		this.$unifyCb = isFunc(watchAll) ? watchAll : null;
 
 		// 是否立刻编译根元素
 		if (!option.lazy) {
@@ -4275,7 +4294,7 @@
 		this.$data = this.__vm__.$data;
 
 		// DOM 注册索引
-		this.$els = this.__vm__.$regElements;
+		this.$els = this.__vm__.$regEles;
 
 		// 批量 watch
 		this._watchBatch(option.watches);
