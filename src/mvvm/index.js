@@ -12,9 +12,11 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
  * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
  * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
+ * @param  {Function}  - watchAll  [<可选>model 变更统一回调函数]
  * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
  */
 export default function MVVM (option) {
+	let watchAll = option.watchAll;
 	let context = option.context || option.model;
 
 	// 事件或 watch 函数作用域
@@ -33,6 +35,11 @@ export default function MVVM (option) {
 	each(option.methods, function (callback, func) {
 		option.model[func] = callback.bind(context);
 	});
+
+	// 修正统一回调作用域
+	if (isFunc(watchAll)) {
+		option.watchAll = watchAll.bind(context);
+	}
 
 	// 内部 ViewModel 实例
 	this.__vm__ = new Compiler(option);
