@@ -182,17 +182,23 @@ wp.beforeUpdate = function () {
 
 /**
  * 依赖变化，更新取值
- * @param  {Object}  args  [数组操作参数信息]
- * @param  {Number}  guid  [变更依赖对象 id]
+ * @param  {Object}  args    [数组操作参数信息]
+ * @param  {Object}  depend  [变更依赖对象 id]
  */
-wp.update = function (args, guid) {
+wp.update = function (args, depend) {
 	let oldVal = this.oldVal;
+	let unifyCb = this.vm.$unifyCb;
 	let newVal = this.value = this.get();
 
 	let callback = this.callback;
 	if (callback && (oldVal !== newVal)) {
-		let fromDeep = this.deep && this.shallowIds.indexOf(guid) < 0;
+		let fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0;
 		callback.call(this.context, newVal, oldVal, fromDeep, args);
+	}
+
+	// 通知统一监听回调
+	if (unifyCb) {
+		unifyCb({ action: args, path: depend.path }, newVal, oldVal);
 	}
 }
 

@@ -4,10 +4,10 @@ let guid = 0;
 
 /**
  * 依赖收集模块
- * @param  {String}  key  [依赖数据字段]
+ * @param  {String}  path  [数据路径]
  */
-export default function Depend (key) {
-	this.key = key;
+export default function Depend (path) {
+	this.path = path;
 	this.watchers = [];
 	this.guid = guid++;
 }
@@ -59,8 +59,7 @@ dp.beforeNotify = function () {
  * @param  {Object}  args  [数组操作参数信息]
  */
 dp.notify = function (args) {
-	let guid = this.guid;
 	each(this.watchers, function (watcher) {
-		watcher.update(args, guid);
-	});
+		watcher.update(args, this);
+	}, this);
 }

@@ -857,4 +857,124 @@ describe('mvvm instance api >', function () {
 		data.items.push({ text: 'ccc' });
 		expect(context).toBe(data);
 	});
+
+
+	it('use watchAll callback', function () {
+		element.innerHTML =
+			'<h1>{{ title }}</h1>' +
+			'<div>{{ info.text }}</div>' +
+			'<input type="checkbox" v-model="info.bool">' +
+			'<ul>' +
+				'<li v-for="item in items">' +
+					'<a>{{ item.id }}</a>' +
+					'<a>{{ item.sub.id }}</a>' +
+				'</li>' +
+			'</ul>' +
+			'<ul>' +
+				'<li v-for="op in options">{{ op }}</li>' +
+			'</ul>'
+
+		let param, newVal, oldVal;
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				title: 'aaa',
+				info: {
+					text: 'bbb',
+					bool: false
+				},
+				items: [
+					{ id: 123, sub: { id: 111 } },
+					{ id: 456, sub: { id: 222 } },
+					{ id: 789, sub: { id: 333 } }
+				],
+				options: ['a', 'b', 'c']
+			},
+			watchAll: function (_param, _newVal, _oldVal) {
+				param = _param;
+				newVal = _newVal;
+				oldVal = _oldVal;
+			}
+		});
+
+		let data = vm.$data;
+
+		// one level
+		data.title = 'AAA';
+		expect(param.path).toBe('title');
+		expect(newVal).toBe('AAA');
+		expect(oldVal).toBe('aaa');
+
+		// two level
+		data.info.text = 'BBB';
+		expect(param.path).toBe('info*text');
+		expect(newVal).toBe('BBB');
+		expect(oldVal).toBe('bbb');
+
+		data.info.bool = !!0; // no change at all
+		expect(param.path).toBe('info*text');
+		expect(newVal).toBe('BBB');
+		expect(oldVal).toBe('bbb');
+
+		// cover object
+		// NOTICE:
+		// because directive value not likely be an object,
+		// it was not collected by watcher,
+		// so if cover an object, newVal and oldVal will not change!!
+		data.info = {
+			text: 'xxx',
+			bool: true
+		}
+		expect(param.path).toBe('info');
+
+		// array inner change
+		data.items[0].id = 222;
+		expect(param.path).toBe('items*0*id');
+		expect(newVal).toBe(222);
+		expect(oldVal).toBe(123);
+
+		data.items[1].sub.id = 222000;
+		expect(param.path).toBe('items*1*sub*id');
+		expect(newVal).toBe(222000);
+		expect(oldVal).toBe(222);
+
+		data.items[2].sub.id = 333000;
+		expect(param.path).toBe('items*2*sub*id');
+		expect(newVal).toBe(333000);
+		expect(oldVal).toBe(333);
+
+		// array methods
+		expect(data.items).toEqual([
+			{ id: 222, sub: { id: 111 } },
+			{ id: 456, sub: { id: 222000 } },
+			{ id: 789, sub: { id: 333000 } }
+		]);
+
+		let newOne = { id: 100, sub: { id: 1000 } };
+		data.items.push(newOne);
+		expect(param.path).toBe('items');
+		expect(param.action.method).toBe('push');
+		expect(param.action.args).toEqual([newOne]);
+		expect(oldVal.length).toBe(3);
+		expect(newVal.length).toBe(4);
+
+		data.items.pop();
+		expect(param.path).toBe('items');
+		expect(param.action.method).toBe('pop');
+		expect(param.action.args).toEqual([]);
+		expect(oldVal.length).toBe(4);
+		expect(newVal.length).toBe(3);
+
+		newOne = { id: 666, sub: { id: 222 } };
+		data.items.$set(1, newOne);
+		expect(param.path).toBe('items');
+		expect(param.action.method).toBe('splice');
+		expect(param.action.args).toEqual([1, 1, newOne]);
+
+		data.items.splice(2, 1);
+		expect(param.path).toBe('items');
+		expect(param.action.method).toBe('splice');
+		expect(param.action.args).toEqual([2, 1]);
+	});
 });

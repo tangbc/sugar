@@ -1,42 +1,63 @@
 import Depend from '../depend';
 import Watcher from '../watcher';
 import { setMutationProto } from './array';
-import { def, isArray, each, isObject, hasOwn, isFunc, warn, noop } from '../../util';
+import {
+	def,
+	each,
+	noop,
+	warn,
+	hasOwn,
+	isFunc,
+	isArray,
+	isObject
+} from '../../util';
+
+
+/**
+ * 生成取值路径
+ * @param   {String}  prefix
+ * @param   {String}  suffix
+ * @return  {String}
+ */
+function createPath (prefix, suffix) {
+	return prefix ? (prefix + '*' + suffix) : suffix;
+}
 
 /**
  * 监测对象
  * @param  {Object}  object
+ * @param  {String}  path
  */
-function observeObject (object) {
+function observeObject (object, path) {
 	each(object, function (value, key) {
-		observe(object, key, value);
+		observe(object, key, value, createPath(path, key));
 	});
 }
 
 /**
  * 监测数组
  * @param  {Array}   array
- * @param  {String}  key
+ * @param  {String}  path
  */
-export function observeArray (array, key) {
+export function observeArray (array, path) {
 	setMutationProto(array);
-	each(array, function (item) {
-		createObserver(item, key);
+	each(array, function (item, index) {
+		createObserver(item, createPath(path, index));
 	});
 }
 
 /**
  * 数据监测模块
  * @param  {Object}  data  [监测对象/数组]
- * @param  {String}  key   [监测字段名称]
+ * @param  {String}  path  [监测字段名称]
  */
-function Observer (data, key) {
-	this.dep = new Depend(key);
+function Observer (data, path) {
+	this.dep = new Depend(path);
 
 	if (isArray(data)) {
-		observeArray(data, key);
+		observeArray(data, path);
 	} else {
-		observeObject(data);
+		observeObject(data, path);
 	}
 
 	def(data, '__ob__', this);
@@ -46,28 +67,29 @@ function Observer (data, key) {
 /**
  * 创建一个对象监测
  * @param   {Object|Array}  target
- * @param   {String}        key
+ * @param   {String}        path
  * @return  {Object}
  */
-export function createObserver (target, key) {
+export function createObserver (target, path) {
 	if (isObject(target) || isArray(target)) {
-		return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, key);
+		return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, path || '');
 	}
 }
 
 /**
  * 监测 object[key] 的变化 & 依赖收集
- * @param  {Object}  object
- * @param  {String}  key
- * @param  {Mix}     value
+ * @param  {Object}   object
+ * @param  {String}   key
+ * @param  {Mix}      value
+ * @param  {String}   path
  */
-export function observe (object, key, value) {
-	let dep = new Depend(key);
+export function observe (object, key, value, path) {
+	let dep = new Depend(path);
 	let descriptor = Object.getOwnPropertyDescriptor(object, key);
 	let getter = descriptor && descriptor.get;
 	let setter = descriptor && descriptor.set;
 
-	let childOb = createObserver(value, key);
+	let childOb = createObserver(value, path);
 
 	Object.defineProperty(object, key, {
 		get: function Getter () {

@@ -1,7 +1,7 @@
 import { DirectiveParsers } from './directives/index';
-import { def, each, warn, isObject, nodeToFragment } from '../util';
 import { createObserver, setComputedProperty } from './observe/index';
 import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
+import { def, each, warn, isObject, isFunc, nodeToFragment } from '../util';
 
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
@@ -86,6 +86,7 @@ function Compiler (option) {
 	let model = option.model;
 	let element = option.view;
 	let computed = option.computed;
+	let watchAll = option.watchAll;
 
 	if (!isElement(element)) {
 		return warn('view must be a type of DOMElement: ', element);
@@ -103,12 +104,11 @@ function Compiler (option) {
 	this.$element = element;
 	// DOM 注册索引
 	this.$regElements = {};
-
 	// 指令实例缓存
 	this.$directives = [];
 
 	// 监测数据模型
-	this.$ob = createObserver(this.$data, '__MODEL__');
+	this.$ob = createObserver(this.$data);
 	// 设置计算属性
 	if (computed) {
 		setComputedProperty(this.$data, computed);
@@ -118,6 +118,8 @@ function Compiler (option) {
 	this.$afters = [];
 	// 自定义指令刷新函数
 	this.$customs = option.customs || {};
+	// 监听变更统一回调
+	this.$unifyCb = isFunc(watchAll) ? watchAll : null;
 
 	// 是否立刻编译根元素
 	if (!option.lazy) {
