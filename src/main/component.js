@@ -54,6 +54,7 @@ let Component = Module.extend({
 			model: null,  // mvvm 数据模型对象 <Object>
 			methods: null,  // 事件声明函数对象  <Object>
 			watches: null,  // 批量 watch 数据对象  <Object>
+			watchAll: null,  // model 变化统一回调函数  <Function>
 			computed: null,  // mvvm 计算属性对象 <Object>
 			customs: null,  // 自定义指令刷新函数对象 <Object>
 			lazy: false, // 是否手动编译根元素 <Boolean>
@@ -172,6 +173,7 @@ let Component = Module.extend({
 				model: model,
 				methods: c.methods,
 				watches: c.watches,
+				watchAll: c.watchAll,
 				computed: c.computed,
 				customs: c.customs,
 				context: this,
