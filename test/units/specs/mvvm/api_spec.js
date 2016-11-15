@@ -687,6 +687,44 @@ describe('mvvm instance api >', function () {
 	});
 
 
+	it('callback wrote in methods should be reset', function () {
+		element.innerHTML = '<div v-on:click="evClick"></div>';
+
+		let flag, count = 0;
+		let vm = new MVVM({
+			view: element,
+			model: {},
+			methods: {
+				evClick: function cb () {
+					flag = 111;
+					count++;
+				}
+			}
+		});
+
+		let data = vm.$data;
+
+		triggerEvent(element.firstChild, 'click');
+		expect(count).toBe(1);
+		expect(flag).toBe(111);
+
+		// change callback
+		data.evClick = function () {
+			flag = 222;
+			count++;
+		}
+		triggerEvent(element.firstChild, 'click');
+		expect(count).toBe(2);
+		expect(flag).toBe(222);
+
+		// reset action shoud also reset the event callback
+		vm.reset();
+		triggerEvent(element.firstChild, 'click');
+		expect(count).toBe(3);
+		expect(flag).toBe(111);
+	});
+
+
 	it('use methods and without context', function () {
 		element.innerHTML =
 			'<div v-on:click="evClick"></div>'
