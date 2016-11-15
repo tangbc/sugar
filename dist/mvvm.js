@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.4 (c) 2016 TANG
  * Released under the MIT license
- * Mon Nov 14 2016 15:04:33 GMT+0800 (CST)
+ * Tue Nov 15 2016 15:17:49 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3572,11 +3572,6 @@
 		var watchAll = option.watchAll;
 		var context = option.context || option.model;
 
-		// 事件或 watch 函数作用域
-		this.__ct__ = context;
-		// 初始数据备份，用于 reset
-		this.__bk__ = copy(option.model);
-
 		// 将事件函数 this 指向调用者
 		each(option.model, function (value, key) {
 			if (isFunc(value)) {
@@ -3588,6 +3583,11 @@
 		each(option.methods, function (callback, func) {
 			option.model[func] = callback.bind(context);
 		});
+
+		// 事件或 watch 函数作用域
+		this.__ct__ = context;
+		// 初始数据备份，用于 reset
+		this.__bk__ = copy(option.model);
 
 		// 修正统一回调作用域
 		if (isFunc(watchAll)) {
