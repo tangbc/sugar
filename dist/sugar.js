@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.4 (c) 2016 TANG
  * Released under the MIT license
- * Wed Nov 16 2016 21:23:44 GMT+0800 (CST)
+ * Wed Nov 16 2016 22:03:07 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -3025,7 +3025,7 @@
 		// 只插入 或 删除并插入
 		if (insertOnly || deleAndInsert) {
 			// 开始的元素
-			var startItem = this.getChild(start);
+			var startItem = this.getChild(start) || this.end;
 			// 新增列表
 			var listFrag = this.buildList(insertItems, start);
 			// 更新新增部分
