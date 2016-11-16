@@ -399,7 +399,7 @@ vfor.splice = function (list, args) {
 	// 只插入 或 删除并插入
 	if (insertOnly || deleAndInsert) {
 		// 开始的元素
-		let startItem = this.getChild(start);
+		let startItem = this.getChild(start) || this.end;
 		// 新增列表
 		let listFrag = this.buildList(insertItems, start);
 		// 更新新增部分
