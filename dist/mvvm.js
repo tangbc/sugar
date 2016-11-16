@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.4 (c) 2016 TANG
  * Released under the MIT license
- * Tue Nov 15 2016 15:17:49 GMT+0800 (CST)
+ * Wed Nov 16 2016 17:52:35 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1662,106 +1662,6 @@
 		}
 	}
 
-	/**
-	 * 移除 DOM 注册的引用
-	 * @param  {Object}      vm
-	 * @param  {DOMElement}  element
-	 */
-	function removeDOMRegister (vm, element) {
-		var registers = vm.$regEles;
-		var childNodes = element.childNodes;
-
-		for (var i = 0; i < childNodes.length; i++) {
-			var node = childNodes[i];
-
-			if (!isElement(node)) {
-				continue;
-			}
-
-			var nodeAttrs = node.attributes;
-
-			for (var ii = 0; ii < nodeAttrs.length; ii++) {
-				var attr = nodeAttrs[ii];
-
-				if (
-					attr.name === 'v-el' &&
-					hasOwn(registers, attr.value)
-				) {
-					registers[attr.value] = null;
-				}
-			}
-
-			if (node.hasChildNodes()) {
-				removeDOMRegister(vm, node);
-			}
-		}
-	}
-
-
-	/**
-	 * v-if 指令解析模块
-	 */
-	function VIf () {
-		Parser.apply(this, arguments);
-	}
-
-	var vif = linkParser(VIf);
-
-	/**
-	 * 解析 v-if 指令
-	 */
-	vif.parse = function () {
-		var el = this.el;
-		var elseEl = el.nextElementSibling;
-
-		// 缓存渲染内容
-		this.elFrag = nodeToFragment(el);
-
-		// else 节点
-		if (elseEl && hasAttr(elseEl, 'v-else')) {
-			this.elseEl = elseEl;
-			this.elseElFrag = nodeToFragment(elseEl);
-		}
-
-		this.bind();
-	}
-
-	/**
-	 * 更新视图
-	 * @param  {Boolean}  isRender
-	 */
-	vif.update = function (isRender) {
-		var elseEl = this.elseEl;
-
-		this.toggle(this.el, this.elFrag, isRender);
-
-		if (elseEl) {
-			this.toggle(elseEl, this.elseElFrag, !isRender);
-		}
-	}
-
-	/**
-	 * 切换节点内容渲染
-	 * @param  {Element}   renderEl
-	 * @param  {Fragment}  fragment
-	 * @param  {Boolean}   isRender
-	 */
-	vif.toggle = function (renderEl, fragment, isRender) {
-		var vm = this.vm;
-		var frag = fragment.cloneNode(true);
-
-		// 渲染 & 更新视图
-		if (isRender) {
-			vm.compile(frag, true, this.scope, this.desc.once);
-			renderEl.appendChild(frag);
-		}
-		// 不渲染的情况需要移除 DOM 索引的引用
-		else {
-			empty(renderEl);
-			removeDOMRegister(vm, frag);
-		}
-	}
-
 	var hasProto = '__proto__' in {};
 	var arrayProto = Array.prototype;
 	var mutatedProto = Object.create(arrayProto);
@@ -2029,6 +1929,35 @@
 	var regForExp = /(.*) (?:in|of) (.*)/;
 	var partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
+	/**
+	 * 获取添加前和删除后的钩子函数
+	 * @param   {Object}   vm
+	 * @param   {Element}  node
+	 * @return  {Object}
+	 */
+	function getHooks (vm, node) {
+		var after, before;
+		var hooks = vm.$hooks;
+		var afterHook = node.__afterHook__ || getAttr(node, 'v-hook:after');
+		var beforeHook = node.__beforeHook__ || getAttr(node, 'v-hook:before');
+
+		if (afterHook) {
+			after = hooks[afterHook];
+			if (!isFunc(after)) {
+				warn('['+ afterHook +'] value must be type of Function');
+			}
+		}
+
+		if (beforeHook) {
+			before = hooks[beforeHook];
+			if (!isFunc(before)) {
+				warn('['+ beforeHook +'] value must be type of Function');
+			}
+		}
+
+		return { after: after, before: before };
+	}
+
 
 	/**
 	 * v-for 指令解析模块
@@ -2056,6 +1985,7 @@
 		var alias = match[1];
 		var iterator = match[2];
 
+		this.length = 0;
 		this.scopes = [];
 		this.init = true;
 		this.alias = alias;
@@ -2065,6 +1995,8 @@
 		this.end = el.nextSibling;
 		this.start = el.previousSibling;
 		this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
+
+		this.hooks = getHooks(this.vm, el);
 
 		desc.expression = iterator;
 		this.bind();
@@ -2084,6 +2016,20 @@
 	}
 
 	/**
+	 * 调用状态钩子函数
+	 * @param  {String}   type   [钩子类型]
+	 * @param  {Element}  plate  [元素板块]
+	 * @param  {Number}   index  [下标]
+	 */
+	vfor.hook = function (type, plate, index) {
+		var hook = this.hooks[type];
+		if (isFunc(hook)) {
+			hook.call(this.vm.$context, plate, index);
+			plate = null;
+		}
+	}
+
+	/**
 	 * 更新视图
 	 * @param  {Array}    newArray   [新数组]
 	 * @param  {Array}    oldArray   [旧数组]
@@ -2091,6 +2037,8 @@
 	 * @param  {Object}   methodArg  [数组操作参数信息]
 	 */
 	vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
+		this.length = newArray && newArray.length;
+
 		// 初始化列表
 		if (this.init) {
 			this.$parent.replaceChild(this.buildList(newArray), this.el);
@@ -2153,6 +2101,7 @@
 	vfor.recompileList = function (list) {
 		var this$1 = this;
 
+		var count = 0;
 		var parent = this.$parent;
 		var childs = parent.childNodes;
 
@@ -2160,6 +2109,7 @@
 		for (var i = 0; i < childs.length; i++) {
 			var child = childs[i];
 			if (child[vforAlias] === this$1.alias) {
+				this$1.hook('before', child, count++);
 				parent.removeChild(child);
 				i--;
 			}
@@ -2218,7 +2168,10 @@
 
 			// 编译板块
 			vm.compile(plate, true, scope, this.desc.once);
+
 			listFragment.appendChild(plate);
+
+			this.hook('after', plate, index);
 		}, this);
 
 		return listFragment;
@@ -2273,12 +2226,23 @@
 	}
 
 	/**
+	 * 删除一条选项
+	 * @param  {Element}  child
+	 */
+	vfor.removeChild = function (child) {
+		if (child) {
+			this.$parent.removeChild(child);
+		}
+	}
+
+	/**
 	 * 删除循环列表的第一个元素 array.shift()
 	 */
 	vfor.shift = function () {
 		var first = this.getFirst();
 		if (first) {
-			this.$parent.removeChild(first);
+			this.hook('before', first, 0);
+			this.removeChild(first);
 		}
 	}
 
@@ -2288,7 +2252,8 @@
 	vfor.pop = function () {
 		var last = this.getLast();
 		if (last) {
-			this.$parent.removeChild(last);
+			this.hook('before', last, this.length);
+			this.removeChild(last);
 		}
 	}
 
@@ -2341,17 +2306,16 @@
 		// 删除并插入 splice(2, 1, 'xxx')
 		var deleAndInsert = deleteCont && insertLength;
 
-		var parent = this.$parent;
-
 		// 删除指定选项
 		if (deleteOnly || deleAndInsert) {
 			var oldList = this.getChilds();
 			each(oldList, function (child, index) {
 				// 删除范围内
 				if (index >= start && index < start + deleteCont) {
-					parent.removeChild(child);
+					this.hook('before', child, index);
+					this.removeChild(child);
 				}
-			});
+			}, this);
 			oldList = null;
 		}
 
@@ -2362,7 +2326,126 @@
 			// 新增列表
 			var listFrag = this.buildList(insertItems, start);
 			// 更新新增部分
-			parent.insertBefore(listFrag, startItem);
+			this.$parent.insertBefore(listFrag, startItem);
+		}
+	}
+
+	/**
+	 * 移除 DOM 注册的引用
+	 * @param  {Object}      vm
+	 * @param  {DOMElement}  element
+	 */
+	function removeDOMRegister (vm, element) {
+		var registers = vm.$regEles;
+		var childNodes = element.childNodes;
+
+		for (var i = 0; i < childNodes.length; i++) {
+			var node = childNodes[i];
+
+			if (!isElement(node)) {
+				continue;
+			}
+
+			var nodeAttrs = node.attributes;
+
+			for (var ii = 0; ii < nodeAttrs.length; ii++) {
+				var attr = nodeAttrs[ii];
+
+				if (
+					attr.name === 'v-el' &&
+					hasOwn(registers, attr.value)
+				) {
+					registers[attr.value] = null;
+				}
+			}
+
+			if (node.hasChildNodes()) {
+				removeDOMRegister(vm, node);
+			}
+		}
+	}
+
+
+	/**
+	 * v-if 指令解析模块
+	 */
+	function VIf () {
+		Parser.apply(this, arguments);
+	}
+
+	var vif = linkParser(VIf);
+
+	/**
+	 * 解析 v-if 指令
+	 */
+	vif.parse = function () {
+		var el = this.el;
+		var elseEl = el.nextElementSibling;
+
+		// 状态钩子
+		this.hooks = getHooks(this.vm, el);
+
+		// 缓存渲染内容
+		this.elFrag = nodeToFragment(el);
+
+		// else 节点
+		if (elseEl && hasAttr(elseEl, 'v-else')) {
+			this.elseEl = elseEl;
+			this.elseElFrag = nodeToFragment(elseEl);
+		}
+
+		this.bind();
+	}
+
+	/**
+	 * 调用状态钩子函数
+	 * @param  {String}   type      [钩子类型]
+	 * @param  {Element}  renderEl  [渲染元素]
+	 * @param  {Boolean}  isElse    [是否是 else 板块]
+	 */
+	vif.hook = function (type, renderEl, isElse) {
+		var hook = this.hooks[type];
+		if (isFunc(hook)) {
+			hook.call(this.vm.$context, renderEl, isElse);
+		}
+	}
+
+	/**
+	 * 更新视图
+	 * @param  {Boolean}  isRender
+	 */
+	vif.update = function (isRender) {
+		var elseEl = this.elseEl;
+
+		this.toggle(this.el, this.elFrag, isRender);
+
+		if (elseEl) {
+			this.toggle(elseEl, this.elseElFrag, !isRender, 1);
+		}
+	}
+
+	/**
+	 * 切换节点内容渲染
+	 * @param  {Element}   renderEl
+	 * @param  {Fragment}  fragment
+	 * @param  {Boolean}   isRender
+	 * @param  {Mix}       isElse
+	 */
+	vif.toggle = function (renderEl, fragment, isRender, isElse) {
+		var vm = this.vm;
+		var frag = fragment.cloneNode(true);
+
+		// 渲染 & 更新视图
+		if (isRender) {
+			vm.compile(frag, true, this.scope, this.desc.once);
+			renderEl.appendChild(frag);
+			this.hook('after', renderEl, !!isElse);
+		}
+		// 不渲染的情况需要移除 DOM 索引的引用
+		else {
+			this.hook('before', renderEl, !!isElse);
+			empty(renderEl);
+			removeDOMRegister(vm, frag);
 		}
 	}
 
@@ -3179,7 +3262,7 @@
 	var regNewline = /\n/g;
 	var regText = /\{\{(.+?)\}\}/g;
 	var regMustache = /(\{\{.*\}\})/;
-	var noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce'];
+	var noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook'];
 
 	/**
 	 * 是否是合法指令
@@ -3250,6 +3333,20 @@
 		return { args: args, attr: attr, directive: directive, expression: expression };
 	}
 
+	/**
+	 * 缓存指令钩子函数名称
+	 * @param  {Elemnt}  node
+	 */
+	function saveDirectiveHooks (node) {
+		if (!node.__afterHook__) {
+			def(node, '__afterHook__', getAttr(node, 'v-hook:after'));
+		}
+
+		if (!node.__beforeHook__) {
+			def(node, '__beforeHook__', getAttr(node, 'v-hook:before'));
+		}
+	}
+
 
 	/**
 	 * ViewModel 编译模块
@@ -3279,6 +3376,8 @@
 		this.$regEles = {};
 		// 指令实例缓存
 		this.$directives = [];
+		// 钩子和统一回调作用域
+		this.$context = option.context || this;
 
 		// 监测数据模型
 		this.$ob = createObserver(this.$data);
@@ -3289,10 +3388,12 @@
 
 		// 编译完成后的回调集合
 		this.$afters = [];
+		// v-if, v-for DOM 插删钩子函数
+		this.$hooks = option.hooks || {};
 		// 自定义指令刷新函数
 		this.$customs = option.customs || {};
 		// 监听变更统一回调
-		this.$unifyCb = isFunc(watchAll) ? watchAll : null;
+		this.$unifyCb = isFunc(watchAll) ? watchAll.bind(this.$context) : null;
 
 		// 是否立刻编译根元素
 		if (!option.lazy) {
@@ -3447,6 +3548,12 @@
 		var dir = 'v' + directive.substr(2);
 		var Parser = DirectiveParsers[dir];
 
+		// 缓存指令的钩子函数
+		// 防止 v-hook 在某些浏览器下提前解析
+		if (dir === 'vhook') {
+			saveDirectiveHooks(node);
+		}
+
 		// 移除指令标记
 		removeAttr(node, desc.attr);
 
@@ -3569,7 +3676,6 @@
 	 * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
 	 */
 	function MVVM (option) {
-		var watchAll = option.watchAll;
 		var context = option.context || option.model;
 
 		// 将事件函数 this 指向调用者
@@ -3588,11 +3694,6 @@
 		this.__ct__ = context;
 		// 初始数据备份，用于 reset
 		this.__bk__ = copy(option.model);
-
-		// 修正统一回调作用域
-		if (isFunc(watchAll)) {
-			option.watchAll = watchAll.bind(context);
-		}
 
 		// 内部 ViewModel 实例
 		this.__vm__ = new Compiler(option);
