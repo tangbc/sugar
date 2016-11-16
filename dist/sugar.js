@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.4 (c) 2016 TANG
  * Released under the MIT license
- * Wed Nov 16 2016 17:52:34 GMT+0800 (CST)
+ * Wed Nov 16 2016 21:23:44 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2840,7 +2840,10 @@
 			var index = start + i;
 			var alias = this.alias;
 			var plate = el.cloneNode(true);
-			var scope = Object.create(this.scope || vm.$data);
+			var parentScope = this.scope || vm.$data;
+			var scope = Object.create(parentScope);
+
+			scope.$parent = parentScope;
 
 			// 绑定别名
 			observe(scope, alias, item);
