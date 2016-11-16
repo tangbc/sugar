@@ -57,6 +57,7 @@ let Component = Module.extend({
 			watchAll: null,  // model 变化统一回调函数  <Function>
 			computed: null,  // mvvm 计算属性对象 <Object>
 			customs: null,  // 自定义指令刷新函数对象 <Object>
+			hooks: null,  // DOM 增删钩子函数对象 <Object>
 			lazy: false, // 是否手动编译根元素 <Boolean>
 
 			/********* 声明式嵌套子组件定义 *********/
@@ -176,6 +177,7 @@ let Component = Module.extend({
 				watchAll: c.watchAll,
 				computed: c.computed,
 				customs: c.customs,
+				hooks: c.hooks,
 				context: this,
 				lazy: c.lazy
 			});

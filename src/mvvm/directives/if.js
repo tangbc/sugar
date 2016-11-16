@@ -1,6 +1,7 @@
+import { getHooks } from './for';
 import Parser, { linkParser } from '../parser';
-import { hasOwn, nodeToFragment } from '../../util';
 import { isElement, hasAttr, empty } from '../../dom';
+import { hasOwn, nodeToFragment, isFunc } from '../../util';
 
 /**
  * 移除 DOM 注册的引用
@@ -54,6 +55,9 @@ vif.parse = function () {
 	let el = this.el;
 	let elseEl = el.nextElementSibling;
 
+	// 状态钩子
+	this.hooks = getHooks(this.vm, el);
+
 	// 缓存渲染内容
 	this.elFrag = nodeToFragment(el);
 
@@ -67,6 +71,19 @@ vif.parse = function () {
 }
 
 /**
+ * 调用状态钩子函数
+ * @param  {String}   type      [钩子类型]
+ * @param  {Element}  renderEl  [渲染元素]
+ * @param  {Boolean}  isElse    [是否是 else 板块]
+ */
+vif.hook = function (type, renderEl, isElse) {
+	let hook = this.hooks[type];
+	if (isFunc(hook)) {
+		hook.call(this.vm.$context, renderEl, isElse);
+	}
+}
+
+/**
  * 更新视图
  * @param  {Boolean}  isRender
  */
@@ -76,7 +93,7 @@ vif.update = function (isRender) {
 	this.toggle(this.el, this.elFrag, isRender);
 
 	if (elseEl) {
-		this.toggle(elseEl, this.elseElFrag, !isRender);
+		this.toggle(elseEl, this.elseElFrag, !isRender, 1);
 	}
 }
 
@@ -85,8 +102,9 @@ vif.update = function (isRender) {
  * @param  {Element}   renderEl
  * @param  {Fragment}  fragment
  * @param  {Boolean}   isRender
+ * @param  {Mix}       isElse
  */
-vif.toggle = function (renderEl, fragment, isRender) {
+vif.toggle = function (renderEl, fragment, isRender, isElse) {
 	let vm = this.vm;
 	let frag = fragment.cloneNode(true);
 
@@ -94,9 +112,11 @@ vif.toggle = function (renderEl, fragment, isRender) {
 	if (isRender) {
 		vm.compile(frag, true, this.scope, this.desc.once);
 		renderEl.appendChild(frag);
+		this.hook('after', renderEl, !!isElse);
 	}
 	// 不渲染的情况需要移除 DOM 索引的引用
 	else {
+		this.hook('before', renderEl, !!isElse);
 		empty(renderEl);
 		removeDOMRegister(vm, frag);
 	}

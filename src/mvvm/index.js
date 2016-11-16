@@ -16,7 +16,6 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
  */
 export default function MVVM (option) {
-	let watchAll = option.watchAll;
 	let context = option.context || option.model;
 
 	// 将事件函数 this 指向调用者
@@ -35,11 +34,6 @@ export default function MVVM (option) {
 	this.__ct__ = context;
 	// 初始数据备份，用于 reset
 	this.__bk__ = copy(option.model);
-
-	// 修正统一回调作用域
-	if (isFunc(watchAll)) {
-		option.watchAll = watchAll.bind(context);
-	}
 
 	// 内部 ViewModel 实例
 	this.__vm__ = new Compiler(option);

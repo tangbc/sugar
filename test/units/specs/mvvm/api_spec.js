@@ -912,7 +912,8 @@ describe('mvvm instance api >', function () {
 				'<li v-for="op in options">{{ op }}</li>' +
 			'</ul>'
 
-		let param, newVal, oldVal;
+		let scope = {};
+		let param, newVal, oldVal, context;
 
 		let vm = new MVVM({
 			view: element,
@@ -933,7 +934,9 @@ describe('mvvm instance api >', function () {
 				param = _param;
 				newVal = _newVal;
 				oldVal = _oldVal;
-			}
+				context = this;
+			},
+			context: scope
 		});
 
 		let data = vm.$data;
@@ -943,6 +946,8 @@ describe('mvvm instance api >', function () {
 		expect(param.path).toBe('title');
 		expect(newVal).toBe('AAA');
 		expect(oldVal).toBe('aaa');
+
+		expect(context).toBe(scope);
 
 		// two level
 		data.info.text = 'BBB';
@@ -1014,5 +1019,221 @@ describe('mvvm instance api >', function () {
 		expect(param.path).toBe('items');
 		expect(param.action.method).toBe('splice');
 		expect(param.action.args).toEqual([2, 1]);
+	});
+
+
+	it('use v-hook with v-if', function () {
+		element.innerHTML =
+			'<div v-if="show" v-hook:after="afterRender" v-hook:before="beforeEmpty">xxdk</div>' +
+			'<div v-else>txgc</div>'
+
+
+		let afterEl, beforeEl;
+		let afterFlag, beforeFlag;
+		let cxt, scope = {a: 123};
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				show: true
+			},
+			hooks: {
+				afterRender: function (el, isElse) {
+					afterEl = el;
+					afterFlag = true;
+					cxt = this;
+				},
+				beforeEmpty: function (el, isElse) {
+					beforeEl = el;
+					beforeFlag = true;
+					cxt = this;
+				}
+			},
+			context: scope
+		});
+
+		let data = vm.$data;
+
+		let el = element.firstChild;
+		let elseEl = el.nextElementSibling;
+
+		// hooks were called once during compie
+		expect(cxt).toBe(scope);
+		expect(afterEl).toBe(el);
+		expect(beforeEl).toBe(elseEl);
+		expect(afterFlag).toBe(true);
+		expect(beforeFlag).toBe(true);
+
+		// clear flag
+		cxt = null;
+		afterEl = null;
+		afterFlag = null;
+		beforeEl = null;
+		beforeFlag = null;
+		data.show = false;
+		expect(cxt).toBe(scope);
+		// elseEl will be render and el will be empty
+		// so afterRender shoud call with elseEl, beforeEmpty call with el
+		expect(afterEl).toBe(elseEl);
+		expect(beforeEl).toBe(el);
+		expect(afterFlag).toBe(true);
+		expect(beforeFlag).toBe(true);
+
+		// clear flag
+		cxt = null;
+		afterEl = null;
+		afterFlag = null;
+		beforeEl = null;
+		beforeFlag = null;
+		data.show = true;
+		expect(cxt).toBe(scope);
+		// el will be render and el will be empty
+		// so afterRender shoud call with el, beforeEmpty call with elseEl
+		expect(afterEl).toBe(el);
+		expect(beforeEl).toBe(elseEl);
+		expect(afterFlag).toBe(true);
+		expect(beforeFlag).toBe(true);
+	});
+
+
+	it('use v-hook with v-for', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items" v-hook:after="afterAppend" v-hook:before="beforeRemove">' +
+					'{{ $index }}_{{ item }}' +
+				'</li>' +
+			'</ul>'
+
+		let afters = [];
+		let befores = [];
+		let cxt, scope = {a: 123};
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				items: ['a', 'b', 'c']
+			},
+			hooks: {
+				afterAppend: function (el, index) {
+					afters.push({ el, index });
+					cxt = this;
+				},
+				beforeRemove: function (el, index) {
+					befores.push({ el, index });
+					cxt = this;
+				}
+			},
+			context: scope
+		});
+
+		let data = vm.$data;
+		let ul = element.querySelector('ul');
+		let lis = ul.childNodes;
+
+		expect(cxt).toBe(scope);
+
+		// hooks were called once during compie
+		expect(afters.length).toBe(data.items.length);
+		expect(befores.length).toBe(0);
+		// afterAppend shoud call with v-for item and index
+		util.each(afters, function (after, index) {
+			expect(after.index).toBe(index);
+			expect(after.el).toBe(lis[index]);
+		});
+
+		// clear data
+		afters = [];
+		befores = [];
+		data.items.unshift('x');
+		expect(afters.length).toBe(1);
+		expect(befores.length).toBe(0);
+		expect(afters[0].index).toBe(0);
+		expect(afters[0].el).toBe(lis[0]);
+
+		afters = [];
+		befores = [];
+		data.items.push('o');
+		expect(afters.length).toBe(1);
+		expect(befores.length).toBe(0);
+		expect(afters[0].index).toBe(data.items.length - 1);
+		expect(afters[0].el).toBe(lis[data.items.length - 1]);
+
+		expect(data.items).toEqual(['x', 'a', 'b', 'c', 'o']);
+
+		afters = [];
+		befores = [];
+		data.items.shift();
+		expect(afters.length).toBe(0);
+		expect(befores.length).toBe(1);
+		expect(befores[0].index).toBe(0);
+		expect(befores[0].el.textContent).toBe('0_x');
+
+		afters = [];
+		befores = [];
+		data.items.pop();
+		expect(afters.length).toBe(0);
+		expect(befores.length).toBe(1);
+		expect(befores[0].index).toBe(data.items.length);
+		expect(befores[0].el.textContent).toBe((data.items.length) + '_o');
+
+		expect(data.items).toEqual(['a', 'b', 'c']);
+
+		afters = [];
+		befores = [];
+		data.items.$remove('b');
+		expect(afters.length).toBe(0);
+		expect(befores.length).toBe(1);
+		expect(befores[0].index).toBe(1);
+		expect(befores[0].el.textContent).toBe('1_b');
+
+		expect(data.items).toEqual(['a', 'c']);
+
+		afters = [];
+		befores = [];
+		data.items.$set(1, 'C');
+		expect(afters.length).toBe(1);
+		expect(befores.length).toBe(1);
+		expect(befores[0].index).toBe(1);
+		expect(befores[0].el.textContent).toBe('1_c');
+		expect(afters[0].index).toBe(1);
+		expect(afters[0].el.textContent).toBe('1_C');
+
+		expect(data.items).toEqual(['a', 'C']);
+
+		afters = [];
+		befores = [];
+		data.items.splice(0, 0, 'x', 'o');
+		expect(data.items).toEqual(['x', 'o', 'a','C']);
+		expect(afters.length).toBe(2);
+		expect(befores.length).toBe(0);
+		expect(afters[0].index).toBe(0);
+		expect(afters[0].el.textContent).toBe('0_x');
+		expect(afters[1].index).toBe(1);
+		expect(afters[1].el.textContent).toBe('1_o');
+
+		afters = [];
+		befores = [];
+		data.items.splice(0, 2);
+		expect(data.items).toEqual(['a','C']);
+		expect(afters.length).toBe(0);
+		expect(befores.length).toBe(2);
+		expect(befores[0].index).toBe(0);
+		expect(befores[0].el.textContent).toBe('0_x');
+		expect(befores[1].index).toBe(1);
+		expect(befores[1].el.textContent).toBe('1_o');
+
+		afters = [];
+		befores = [];
+		data.items = ['n', 'b', 'a'];
+		expect(afters.length).toBe(3);
+		expect(befores.length).toBe(2);
+		util.each(afters, function (after, index) {
+			expect(after.index).toBe(index);
+			expect(after.el).toBe(lis[index]);
+		});
+		expect(befores[0].index).toBe(0);
+		expect(befores[0].el.textContent).toBe('0_a');
+		expect(befores[1].index).toBe(1);
+		expect(befores[1].el.textContent).toBe('1_C');
 	});
 });

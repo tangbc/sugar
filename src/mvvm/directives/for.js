@@ -1,10 +1,40 @@
+import { getAttr } from '../../dom';
 import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
-import { warn, createFragment, each, def } from '../../util';
+import { warn, createFragment, each, def, isFunc } from '../../util';
 
 const vforAlias = '__vfor__';
 const regForExp = /(.*) (?:in|of) (.*)/;
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
+
+/**
+ * 获取添加前和删除后的钩子函数
+ * @param   {Object}   vm
+ * @param   {Element}  node
+ * @return  {Object}
+ */
+export function getHooks (vm, node) {
+	let after, before;
+	let hooks = vm.$hooks;
+	let afterHook = node.__afterHook__ || getAttr(node, 'v-hook:after');
+	let beforeHook = node.__beforeHook__ || getAttr(node, 'v-hook:before');
+
+	if (afterHook) {
+		after = hooks[afterHook];
+		if (!isFunc(after)) {
+			warn('['+ afterHook +'] value must be type of Function');
+		}
+	}
+
+	if (beforeHook) {
+		before = hooks[beforeHook];
+		if (!isFunc(before)) {
+			warn('['+ beforeHook +'] value must be type of Function');
+		}
+	}
+
+	return { after, before };
+}
 
 
 /**
@@ -33,6 +63,7 @@ vfor.parse = function () {
 	let alias = match[1];
 	let iterator = match[2];
 
+	this.length = 0;
 	this.scopes = [];
 	this.init = true;
 	this.alias = alias;
@@ -42,6 +73,8 @@ vfor.parse = function () {
 	this.end = el.nextSibling;
 	this.start = el.previousSibling;
 	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
+
+	this.hooks = getHooks(this.vm, el);
 
 	desc.expression = iterator;
 	this.bind();
@@ -61,6 +94,20 @@ vfor.updateModel = function () {
 }
 
 /**
+ * 调用状态钩子函数
+ * @param  {String}   type   [钩子类型]
+ * @param  {Element}  plate  [元素板块]
+ * @param  {Number}   index  [下标]
+ */
+vfor.hook = function (type, plate, index) {
+	let hook = this.hooks[type];
+	if (isFunc(hook)) {
+		hook.call(this.vm.$context, plate, index);
+		plate = null;
+	}
+}
+
+/**
  * 更新视图
  * @param  {Array}    newArray   [新数组]
  * @param  {Array}    oldArray   [旧数组]
@@ -68,6 +115,8 @@ vfor.updateModel = function () {
  * @param  {Object}   methodArg  [数组操作参数信息]
  */
 vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
+	this.length = newArray && newArray.length;
+
 	// 初始化列表
 	if (this.init) {
 		this.$parent.replaceChild(this.buildList(newArray), this.el);
@@ -128,6 +177,7 @@ vfor.updatePartly = function (list, arg) {
  * @param  {Array}  list
  */
 vfor.recompileList = function (list) {
+	let count = 0;
 	let parent = this.$parent;
 	var childs = parent.childNodes;
 
@@ -135,6 +185,7 @@ vfor.recompileList = function (list) {
 	for (var i = 0; i < childs.length; i++) {
 		let child = childs[i];
 		if (child[vforAlias] === this.alias) {
+			this.hook('before', child, count++);
 			parent.removeChild(child);
 			i--;
 		}
@@ -193,7 +244,10 @@ vfor.buildList = function (list, startIndex) {
 
 		// 编译板块
 		vm.compile(plate, true, scope, this.desc.once);
+
 		listFragment.appendChild(plate);
+
+		this.hook('after', plate, index);
 	}, this);
 
 	return listFragment;
@@ -246,12 +300,23 @@ vfor.getChild = function (index) {
 }
 
 /**
+ * 删除一条选项
+ * @param  {Element}  child
+ */
+vfor.removeChild = function (child) {
+	if (child) {
+		this.$parent.removeChild(child);
+	}
+}
+
+/**
  * 删除循环列表的第一个元素 array.shift()
  */
 vfor.shift = function () {
 	let first = this.getFirst();
 	if (first) {
-		this.$parent.removeChild(first);
+		this.hook('before', first, 0);
+		this.removeChild(first);
 	}
 }
 
@@ -261,7 +326,8 @@ vfor.shift = function () {
 vfor.pop = function () {
 	let last = this.getLast();
 	if (last) {
-		this.$parent.removeChild(last);
+		this.hook('before', last, this.length);
+		this.removeChild(last);
 	}
 }
 
@@ -314,17 +380,16 @@ vfor.splice = function (list, args) {
 	// 删除并插入 splice(2, 1, 'xxx')
 	let deleAndInsert = deleteCont && insertLength;
 
-	let parent = this.$parent;
-
 	// 删除指定选项
 	if (deleteOnly || deleAndInsert) {
 		let oldList = this.getChilds();
 		each(oldList, function (child, index) {
 			// 删除范围内
 			if (index >= start && index < start + deleteCont) {
-				parent.removeChild(child);
+				this.hook('before', child, index);
+				this.removeChild(child);
 			}
-		});
+		}, this);
 		oldList = null;
 	}
 
@@ -335,6 +400,6 @@ vfor.splice = function (list, args) {
 		// 新增列表
 		let listFrag = this.buildList(insertItems, start);
 		// 更新新增部分
-		parent.insertBefore(listFrag, startItem);
+		this.$parent.insertBefore(listFrag, startItem);
 	}
 }

@@ -1,12 +1,12 @@
 import { DirectiveParsers } from './directives/index';
 import { createObserver, setComputedProperty } from './observe/index';
-import { hasAttr, isElement, isTextNode, removeAttr, empty } from '../dom';
 import { def, each, warn, isObject, isFunc, nodeToFragment } from '../util';
+import { hasAttr, isElement, isTextNode, removeAttr, empty, getAttr } from '../dom';
 
 const regNewline = /\n/g;
 const regText = /\{\{(.+?)\}\}/g;
 const regMustache = /(\{\{.*\}\})/;
-const noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce'];
+const noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook'];
 
 /**
  * 是否是合法指令
@@ -77,6 +77,20 @@ function getDirectiveDesc (attribute) {
 	return { args, attr, directive, expression };
 }
 
+/**
+ * 缓存指令钩子函数名称
+ * @param  {Elemnt}  node
+ */
+function saveDirectiveHooks (node) {
+	if (!node.__afterHook__) {
+		def(node, '__afterHook__', getAttr(node, 'v-hook:after'));
+	}
+
+	if (!node.__beforeHook__) {
+		def(node, '__beforeHook__', getAttr(node, 'v-hook:before'));
+	}
+}
+
 
 /**
  * ViewModel 编译模块
@@ -106,6 +120,8 @@ function Compiler (option) {
 	this.$regEles = {};
 	// 指令实例缓存
 	this.$directives = [];
+	// 钩子和统一回调作用域
+	this.$context = option.context || this;
 
 	// 监测数据模型
 	this.$ob = createObserver(this.$data);
@@ -116,10 +132,12 @@ function Compiler (option) {
 
 	// 编译完成后的回调集合
 	this.$afters = [];
+	// v-if, v-for DOM 插删钩子函数
+	this.$hooks = option.hooks || {};
 	// 自定义指令刷新函数
 	this.$customs = option.customs || {};
 	// 监听变更统一回调
-	this.$unifyCb = isFunc(watchAll) ? watchAll : null;
+	this.$unifyCb = isFunc(watchAll) ? watchAll.bind(this.$context) : null;
 
 	// 是否立刻编译根元素
 	if (!option.lazy) {
@@ -271,6 +289,12 @@ cp.parse = function (node, attr, scope) {
 
 	let dir = 'v' + directive.substr(2);
 	let Parser = DirectiveParsers[dir];
+
+	// 缓存指令的钩子函数
+	// 防止 v-hook 在某些浏览器下提前解析
+	if (dir === 'vhook') {
+		saveDirectiveHooks(node);
+	}
 
 	// 移除指令标记
 	removeAttr(node, desc.attr);
