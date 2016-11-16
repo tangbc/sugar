@@ -216,7 +216,10 @@ vfor.buildList = function (list, startIndex) {
 		let index = start + i;
 		let alias = this.alias;
 		let plate = el.cloneNode(true);
-		let scope = Object.create(this.scope || vm.$data);
+		let parentScope = this.scope || vm.$data;
+		let scope = Object.create(parentScope);
+
+		scope.$parent = parentScope;
 
 		// 绑定别名
 		observe(scope, alias, item);
