@@ -286,7 +286,7 @@ export function copy (target) {
 	let ret;
 
 	if (isArray(target)) {
-		ret = target.slice(0);
+		ret = extend(true, [], target);
 	} else if (isObject(target)) {
 		ret = extend(true, {}, target);
 	}
