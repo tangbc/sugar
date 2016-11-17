@@ -1,6 +1,6 @@
 {
   "name": "sugar-js",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "A lightweight JavaScript MVVM library for building web UI component.",
   "keywords": [
     "framework",
@@ -25,6 +25,7 @@
     "test": "karma start build/karma.unit.js",
     "cover": "karma start build/karma.cover.js",
     "sauce": "karma start build/karma.sauce.js",
+    "server": "node demos/server.js",
     "jshint:src": "jshint src",
     "jshint:test": "jshint test/units",
     "build": "npm run jshint:src & npm run jshint:test & npm run cover",
