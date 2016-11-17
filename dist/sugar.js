@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.3.4 (c) 2016 TANG
+ * sugar.js v1.3.5 (c) 2016 TANG
  * Released under the MIT license
- * Wed Nov 16 2016 22:03:07 GMT+0800 (CST)
+ * Thu Nov 17 2016 14:35:03 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -299,7 +299,7 @@
 		var ret;
 
 		if (isArray(target)) {
-			ret = target.slice(0);
+			ret = extend(true, [], target);
 		} else if (isObject(target)) {
 			ret = extend(true, {}, target);
 		}
