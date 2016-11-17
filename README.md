@@ -25,7 +25,7 @@
 Simple api and without any dependence.
 Consists of two independent libraries:
 * **`sugar.js`** *Component system + MVVM , for building flexible web component*.
-* **`mvvm.js`** *Achived the MVVM* , **it doesn't rely on sugar, it can be used independently**.
+* **`mvvm.js`** *Achived above MVVM* , **it doesn't rely on sugar, it can be used independently**.
 
 
 ## Diagram
@@ -83,6 +83,8 @@ There are several complete demos in **`demos/`**, check it out and preview them 
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
 * [Snake eat apple game](https://tangbc.github.io/sugar/demos/snake-eat-apples)
 
+*(Some demos depend httpSever, so run script `npm run server` to get these demos if in your local.)*
+
 You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
 
 
@@ -91,8 +93,8 @@ You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](http
 * Get by nodejs package: `npm install sugar-js`
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
-	* `mvvm.js (about 27 kb)` `https://tangbc.github.io/sugar/dist/mvvm.min.js`
-	* `sugar.js (about 33 kb)` `https://tangbc.github.io/sugar/dist/sugar.min.js`
+	* `mvvm.js (about 28 kb)` `https://tangbc.github.io/sugar/dist/mvvm.min.js`
+	* `sugar.js (about 34 kb)` `https://tangbc.github.io/sugar/dist/sugar.min.js`
 
 * Browsers: **Not support IE8 and below**. Besides, support most modern desktop and mobile browsers.
 
