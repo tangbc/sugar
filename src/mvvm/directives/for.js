@@ -96,14 +96,14 @@ vfor.updateModel = function () {
 /**
  * 调用状态钩子函数
  * @param  {String}   type   [钩子类型]
- * @param  {Element}  plate  [元素板块]
+ * @param  {Element}  frag   [元素板块]
  * @param  {Number}   index  [下标]
  */
-vfor.hook = function (type, plate, index) {
+vfor.hook = function (type, frag, index) {
 	let hook = this.hooks[type];
 	if (isFunc(hook)) {
-		hook.call(this.vm.$context, plate, index);
-		plate = null;
+		hook.call(this.vm.$context, frag, index);
+		frag = null;
 	}
 }
 
@@ -215,7 +215,7 @@ vfor.buildList = function (list, startIndex) {
 	each(list, function (item, i) {
 		let index = start + i;
 		let alias = this.alias;
-		let plate = el.cloneNode(true);
+		let frag = el.cloneNode(true);
 		let parentScope = this.scope || vm.$data;
 		let scope = Object.create(parentScope);
 
@@ -243,14 +243,14 @@ vfor.buildList = function (list, startIndex) {
 		}
 
 		// 片段挂载别名
-		def(plate, vforAlias, alias);
+		def(frag, vforAlias, alias);
 
-		// 编译板块
-		vm.compile(plate, true, scope, this.desc.once);
+		// 编译片段
+		vm.compile(frag, true, scope, this.desc.once);
 
-		listFragment.appendChild(plate);
+		listFragment.appendChild(frag);
 
-		this.hook('after', plate, index);
+		this.hook('after', frag, index);
 	}, this);
 
 	return listFragment;

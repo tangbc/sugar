@@ -38,9 +38,9 @@ dp.destroy = function () {
  * @param   {Boolean}  fromDeep   [数组内部更新]
  * @param   {Object}   methodArg  [数组操作参数信息]
  */
-dp.update = function (newVal, oldVal, fromDeep, methodArg) {
+dp.update = function () {
 	let parser = this.parser;
-	parser.update.call(parser, newVal, oldVal, fromDeep, methodArg);
+	parser.update.apply(parser, arguments);
 }
 
 /**

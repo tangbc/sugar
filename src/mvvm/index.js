@@ -4,7 +4,7 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
 
 /**
  * MVVM 构造函数入口
- * @param  {Object}  option    [数据参数对象]
+ * @param  {Object}  option  [数据参数对象]
  * @param  {Element}   - view      [视图对象]
  * @param  {Object}    - model     [数据对象]
  * @param  {Object}    - computed  [<可选>计算属性对象]
@@ -12,6 +12,7 @@ import { each, copy, isFunc, isArray, isString, isObject, config } from '../util
  * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
  * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
  * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
+ * @param  {Object}    - hooks     [<可选>v-if/v-for DOM 增删钩子函数定义]
  * @param  {Function}  - watchAll  [<可选>model 变更统一回调函数]
  * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
  */
@@ -34,13 +35,11 @@ export default function MVVM (option) {
 	this.__ct__ = context;
 	// 初始数据备份，用于 reset
 	this.__bk__ = copy(option.model);
-
 	// 内部 ViewModel 实例
 	this.__vm__ = new Compiler(option);
 
 	// 数据模型
 	this.$data = this.__vm__.$data;
-
 	// DOM 注册索引
 	this.$els = this.__vm__.$regEles;
 

@@ -98,10 +98,9 @@ wp.setValue = function (value) {
  * 获取表达式的取值 & 提取依赖
  */
 wp.get = function () {
-	let value;
 	this.beforeGet();
 
-	value = this.getValue();
+	let value = this.getValue();
 
 	// 深层依赖获取
 	if (this.deep) {
@@ -111,6 +110,7 @@ wp.get = function () {
 	}
 
 	this.afterGet();
+
 	return value;
 }
 

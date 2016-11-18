@@ -214,7 +214,7 @@ cp.compileAll = function () {
 
 /**
  * 收集并编译节点指令
- * @param   {Array}  tuple  [node, scope]
+ * @param  {Array}  tuple  [node, scope]
  */
 cp.complieNode = function (tuple) {
 	let node = tuple[0];
@@ -278,9 +278,9 @@ cp.complieNode = function (tuple) {
 
 /**
  * 解析元素节点指令
- * @param   {Element}  node
- * @param   {Object}   attr
- * @param   {Object}   scope
+ * @param  {Element}  node
+ * @param  {Object}   attr
+ * @param  {Object}   scope
  */
 cp.parse = function (node, attr, scope) {
 	let once = node.__vonce__;
@@ -320,8 +320,8 @@ cp.parse = function (node, attr, scope) {
 
 /**
  * 解析文本指令 {{ text }}
- * @param   {Element}  node
- * @param   {Object}   scope
+ * @param  {Element}  node
+ * @param  {Object}   scope
  */
 cp.parseText = function (node, scope) {
 	let tokens = [], desc = {};
