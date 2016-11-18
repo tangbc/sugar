@@ -194,9 +194,14 @@ describe('mvvm instance api >', function () {
 				obj: {
 					a: 1,
 					b: 2
-				}
+				},
+				arr: [
+					{ text: 111 }
+				]
 			}
 		});
+
+		let data = vm.$data;
 
 		// getCopy returns a copy of model
 		let model = vm.getCopy();
@@ -208,6 +213,15 @@ describe('mvvm instance api >', function () {
 
 		// without Observer instance
 		expect(typeof model.obj.__ob__).toBe('undefined');
+
+		// object or array has no reference to vm.$data
+		let objCopy = vm.getCopy('obj');
+		objCopy.a = 11111;
+		expect(data.obj.a).toBe(1);
+
+		let arrCopy = vm.getCopy('arr');
+		arrCopy[0].text = 22222;
+		expect(data.arr[0].text).toBe(111);
 	});
 
 

@@ -388,4 +388,83 @@ describe('v-if >', function () {
 		data.show = true;
 		expect(div.textContent).toBe('txgc-0.A_1.b_2.c_3.D_');
 	});
+
+
+	it('with equal level v-for and render first', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items" v-if="show">' +
+					'{{ item }}' +
+				'</li>' +
+			'</ul>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				show: true,
+				items: ['a', 'b', 'c']
+			}
+		});
+
+		let data = vm.$data;
+		let ul = element.firstChild;
+
+		expect(ul.textContent).toBe('abc');
+
+		data.show = false;
+		expect(ul.textContent).toBe('');
+
+		// change data
+		data.items.push('d');
+		data.items.$set(1, 'B');
+		expect(data.items).toEqual(['a', 'B', 'c', 'd']);
+		expect(ul.textContent).toBe('');
+
+		data.show = true;
+		expect(ul.textContent).toBe('aBcd');
+
+		data.items.$set(1, 'b');
+		expect(ul.textContent).toBe('abcd');
+	});
+
+
+	it('with equal level v-for and no render first', function () {
+		element.innerHTML =
+			'<ul>' +
+				'<li v-for="item in items" v-if="show">' +
+					'{{ item }}' +
+				'</li>' +
+			'</ul>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				show: false,
+				items: ['a', 'b', 'c']
+			}
+		});
+
+		let data = vm.$data;
+		let ul = element.firstChild;
+
+		expect(ul.textContent).toBe('');
+
+		data.show = true;
+		expect(ul.textContent).toBe('abc');
+
+		// change data
+		data.items.push('d');
+		data.items.$set(1, 'B');
+		expect(data.items).toEqual(['a', 'B', 'c', 'd']);
+		expect(ul.textContent).toBe('aBcd');
+
+		data.show = false;
+		expect(ul.textContent).toBe('');
+
+		data.items.$set(1, 'b');
+		expect(ul.textContent).toBe('');
+
+		data.show = true;
+		expect(ul.textContent).toBe('abcd');
+	});
 });

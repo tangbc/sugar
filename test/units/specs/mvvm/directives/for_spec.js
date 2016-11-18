@@ -319,6 +319,47 @@ describe('v-for >', function () {
 	});
 
 
+	it('$parent.$index', function () {
+		element.innerHTML =
+			'<div>' +
+				'<ul>' +
+					'<li v-for="u in us">' +
+						'|' +
+						'<span v-for="p in u.ps">' +
+							'{{ $parent.$index }}_{{ $index }}$' +
+						'</span>' +
+						'|' +
+					'</li>' +
+				'</ul>' +
+			'</div>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				us: [
+					{ ps: [1] },
+					{ ps: [1,1] },
+					{ ps: [1,1,1] }
+				]
+			}
+		});
+
+		let data = vm.$data;
+		let ul = element.querySelector('ul');
+
+		expect(ul.textContent).toBe('|0_0$||1_0$1_1$||2_0$2_1$2_2$|');
+
+		data.us[2].ps.push(1);
+		expect(ul.textContent).toBe('|0_0$||1_0$1_1$||2_0$2_1$2_2$2_3$|');
+
+		data.us[2].ps.shift();
+		expect(ul.textContent).toBe('|0_0$||1_0$1_1$||2_0$2_1$2_2$|');
+
+		data.us.splice(1, 1);
+		expect(ul.textContent).toBe('|0_0$||1_0$1_1$1_2$|');
+	});
+
+
 	it('$index with object item', function () {
 		element.innerHTML =
 			'<ul id="test4">' +
@@ -619,5 +660,36 @@ describe('v-for >', function () {
 
 		data.items = [];
 		expect(ul.textContent).toBe('XXOO');
+
+		data.items.unshift({ text: 'a' });
+		expect(ul.textContent).toBe('XXaOO');
+
+		data.items.push({ text: 'b' });
+		expect(ul.textContent).toBe('XXabOO');
+
+		// if over array length, append to last
+		data.items.$set(100, { text: 'c' });
+		expect(data.items.length).toBe(3);
+		expect(ul.textContent).toBe('XXabcOO');
+
+		// replace the first one
+		data.items.$set(0, { text: 'A' });
+		expect(ul.textContent).toBe('XXAbcOO');
+
+		// replace the last one
+		data.items.$set(2, { text: 'C' });
+		expect(ul.textContent).toBe('XXAbCOO');
+
+		// exchange array item A and C
+		let tmp = data.items[0];
+		data.items.$set(0, data.items[2]);
+		data.items.$set(2, tmp);
+		expect(ul.textContent).toBe('XXCbAOO');
+
+		data.items[0].text = 'c';
+		expect(ul.textContent).toBe('XXcbAOO');
+
+		data.items[2].text = 'a';
+		expect(ul.textContent).toBe('XXcbaOO');
 	});
 });
