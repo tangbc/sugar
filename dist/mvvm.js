@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.5 (c) 2016 TANG
  * Released under the MIT license
- * Thu Nov 17 2016 14:35:05 GMT+0800 (CST)
+ * Sat Nov 19 2016 12:06:17 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -870,10 +870,9 @@
 	 * 获取表达式的取值 & 提取依赖
 	 */
 	wp.get = function () {
-		var value;
 		this.beforeGet();
 
-		value = this.getValue();
+		var value = this.getValue();
 
 		// 深层依赖获取
 		if (this.deep) {
@@ -883,6 +882,7 @@
 		}
 
 		this.afterGet();
+
 		return value;
 	}
 
@@ -1022,9 +1022,9 @@
 	 * @param   {Boolean}  fromDeep   [数组内部更新]
 	 * @param   {Object}   methodArg  [数组操作参数信息]
 	 */
-	dp$1.update = function (newVal, oldVal, fromDeep, methodArg) {
+	dp$1.update = function () {
 		var parser = this.parser;
-		parser.update.call(parser, newVal, oldVal, fromDeep, methodArg);
+		parser.update.apply(parser, arguments);
 	}
 
 	/**
@@ -1938,21 +1938,15 @@
 	function getHooks (vm, node) {
 		var after, before;
 		var hooks = vm.$hooks;
-		var afterHook = node.__afterHook__ || getAttr(node, 'v-hook:after');
-		var beforeHook = node.__beforeHook__ || getAttr(node, 'v-hook:before');
+		var afterHook = node.__afterHook__;
+		var beforeHook = node.__beforeHook__;
 
 		if (afterHook) {
 			after = hooks[afterHook];
-			if (!isFunc(after)) {
-				warn('['+ afterHook +'] value must be type of Function');
-			}
 		}
 
 		if (beforeHook) {
 			before = hooks[beforeHook];
-			if (!isFunc(before)) {
-				warn('['+ beforeHook +'] value must be type of Function');
-			}
 		}
 
 		return { after: after, before: before };
@@ -2018,14 +2012,14 @@
 	/**
 	 * 调用状态钩子函数
 	 * @param  {String}   type   [钩子类型]
-	 * @param  {Element}  plate  [元素板块]
+	 * @param  {Element}  frag   [元素板块]
 	 * @param  {Number}   index  [下标]
 	 */
-	vfor.hook = function (type, plate, index) {
+	vfor.hook = function (type, frag, index) {
 		var hook = this.hooks[type];
 		if (isFunc(hook)) {
-			hook.call(this.vm.$context, plate, index);
-			plate = null;
+			hook.call(this.vm.$context, frag, index);
+			frag = null;
 		}
 	}
 
@@ -2139,7 +2133,7 @@
 		each(list, function (item, i) {
 			var index = start + i;
 			var alias = this.alias;
-			var plate = el.cloneNode(true);
+			var frag = el.cloneNode(true);
 			var parentScope = this.scope || vm.$data;
 			var scope = Object.create(parentScope);
 
@@ -2167,14 +2161,14 @@
 			}
 
 			// 片段挂载别名
-			def(plate, vforAlias, alias);
+			def(frag, vforAlias, alias);
 
-			// 编译板块
-			vm.compile(plate, true, scope, this.desc.once);
+			// 编译片段
+			vm.compile(frag, true, scope, this.desc.once);
 
-			listFragment.appendChild(plate);
+			listFragment.appendChild(frag);
 
-			this.hook('after', plate, index);
+			this.hook('after', frag, index);
 		}, this);
 
 		return listFragment;
@@ -3475,7 +3469,7 @@
 
 	/**
 	 * 收集并编译节点指令
-	 * @param   {Array}  tuple  [node, scope]
+	 * @param  {Array}  tuple  [node, scope]
 	 */
 	cp.complieNode = function (tuple) {
 		var node = tuple[0];
@@ -3499,6 +3493,8 @@
 						index = attrs.length;
 					} else if (name.indexOf('v-bind') === 0) {
 						hasBind = true;
+					} else if (name.indexOf('v-hook') === 0) {
+						saveDirectiveHooks(node);
 					}
 
 					attrs.push(attr);
@@ -3539,9 +3535,9 @@
 
 	/**
 	 * 解析元素节点指令
-	 * @param   {Element}  node
-	 * @param   {Object}   attr
-	 * @param   {Object}   scope
+	 * @param  {Element}  node
+	 * @param  {Object}   attr
+	 * @param  {Object}   scope
 	 */
 	cp.parse = function (node, attr, scope) {
 		var once = node.__vonce__;
@@ -3550,12 +3546,6 @@
 
 		var dir = 'v' + directive.substr(2);
 		var Parser = DirectiveParsers[dir];
-
-		// 缓存指令的钩子函数
-		// 防止 v-hook 在某些浏览器下提前解析
-		if (dir === 'vhook') {
-			saveDirectiveHooks(node);
-		}
 
 		// 移除指令标记
 		removeAttr(node, desc.attr);
@@ -3581,8 +3571,8 @@
 
 	/**
 	 * 解析文本指令 {{ text }}
-	 * @param   {Element}  node
-	 * @param   {Object}   scope
+	 * @param  {Element}  node
+	 * @param  {Object}   scope
 	 */
 	cp.parseText = function (node, scope) {
 		var tokens = [], desc = {};
@@ -3667,7 +3657,7 @@
 
 	/**
 	 * MVVM 构造函数入口
-	 * @param  {Object}  option    [数据参数对象]
+	 * @param  {Object}  option  [数据参数对象]
 	 * @param  {Element}   - view      [视图对象]
 	 * @param  {Object}    - model     [数据对象]
 	 * @param  {Object}    - computed  [<可选>计算属性对象]
@@ -3675,6 +3665,7 @@
 	 * @param  {Object}    - watches   [<可选>批量 watch 数据对象]
 	 * @param  {Object}    - customs   [<可选>自定义指令刷新函数对象]
 	 * @param  {Object}    - context   [<可选>methods, watches 回调上下文]
+	 * @param  {Object}    - hooks     [<可选>v-if/v-for DOM 增删钩子函数定义]
 	 * @param  {Function}  - watchAll  [<可选>model 变更统一回调函数]
 	 * @param  {Boolean}   - lazy      [<可选>是否手动编译根元素]
 	 */
@@ -3697,13 +3688,11 @@
 		this.__ct__ = context;
 		// 初始数据备份，用于 reset
 		this.__bk__ = copy(option.model);
-
 		// 内部 ViewModel 实例
 		this.__vm__ = new Compiler(option);
 
 		// 数据模型
 		this.$data = this.__vm__.$data;
-
 		// DOM 注册索引
 		this.$els = this.__vm__.$regEles;
 
