@@ -238,6 +238,8 @@ cp.complieNode = function (tuple) {
 					index = attrs.length;
 				} else if (name.indexOf('v-bind') === 0) {
 					hasBind = true;
+				} else if (name.indexOf('v-hook') === 0) {
+					saveDirectiveHooks(node);
 				}
 
 				attrs.push(attr);
@@ -289,12 +291,6 @@ cp.parse = function (node, attr, scope) {
 
 	let dir = 'v' + directive.substr(2);
 	let Parser = DirectiveParsers[dir];
-
-	// 缓存指令的钩子函数
-	// 防止 v-hook 在某些浏览器下提前解析
-	if (dir === 'vhook') {
-		saveDirectiveHooks(node);
-	}
 
 	// 移除指令标记
 	removeAttr(node, desc.attr);

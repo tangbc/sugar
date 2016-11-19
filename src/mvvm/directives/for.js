@@ -1,4 +1,3 @@
-import { getAttr } from '../../dom';
 import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
 import { warn, createFragment, each, def, isFunc } from '../../util';
@@ -16,21 +15,15 @@ const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 export function getHooks (vm, node) {
 	let after, before;
 	let hooks = vm.$hooks;
-	let afterHook = node.__afterHook__ || getAttr(node, 'v-hook:after');
-	let beforeHook = node.__beforeHook__ || getAttr(node, 'v-hook:before');
+	let afterHook = node.__afterHook__;
+	let beforeHook = node.__beforeHook__;
 
 	if (afterHook) {
 		after = hooks[afterHook];
-		if (!isFunc(after)) {
-			warn('['+ afterHook +'] value must be type of Function');
-		}
 	}
 
 	if (beforeHook) {
 		before = hooks[beforeHook];
-		if (!isFunc(before)) {
-			warn('['+ beforeHook +'] value must be type of Function');
-		}
 	}
 
 	return { after, before };
