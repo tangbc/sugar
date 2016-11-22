@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.5 (c) 2016 TANG
  * Released under the MIT license
- * Sat Nov 19 2016 12:06:17 GMT+0800 (CST)
+ * Tue Nov 22 2016 15:10:02 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2829,15 +2829,19 @@
 	}
 
 	/**
-	 * 异步延迟函数
+	 * 保证 func 在 delay 时间内只触发一次
 	 * @param   {Function}   func
 	 * @param   {Number}     delay
 	 * @return  {TimeoutId}
 	 */
+	var beginTime;
 	function debounceDelay (func, delay) {
+		beginTime = Date.now();
 		return setTimeout(function () {
-			func.call(func);
-		}, toNumber(delay) || 0);
+			if (Date.now() - beginTime >= delay) {
+				func.call(func);
+			}
+		}, delay);
 	}
 
 	var userAgent = window.navigator.userAgent.toLowerCase();
@@ -2870,7 +2874,7 @@
 					debounceDelay(function () {
 						self.onDebounce = true;
 						directive.set(val);
-					}, debounce);
+					}, toNumber(debounce));
 				} else {
 					directive.set(val);
 				}
