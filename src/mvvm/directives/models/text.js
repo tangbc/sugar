@@ -2,15 +2,19 @@ import { formatValue } from './index';
 import { toNumber, _toString } from '../../../util';
 
 /**
- * 异步延迟函数
+ * 保证 func 在 delay 时间内只触发一次
  * @param   {Function}   func
  * @param   {Number}     delay
  * @return  {TimeoutId}
  */
+let beginTime;
 function debounceDelay (func, delay) {
+	beginTime = Date.now();
 	return setTimeout(function () {
-		func.call(func);
-	}, toNumber(delay) || 0);
+		if (Date.now() - beginTime >= delay) {
+			func.call(func);
+		}
+	}, delay);
 }
 
 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -43,7 +47,7 @@ export default {
 				debounceDelay(function () {
 					self.onDebounce = true;
 					directive.set(val);
-				}, debounce);
+				}, toNumber(debounce));
 			} else {
 				directive.set(val);
 			}
