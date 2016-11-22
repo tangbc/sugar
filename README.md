@@ -20,7 +20,7 @@
 
 ## sugar
 
-> A lightweight and powerful MVVM library for building web UI component.
+> A lightweight and powerful JavaScript MVVM library for building web UI component.
 
 Simple api and without any dependence.
 Consists of two independent libraries:
@@ -83,14 +83,14 @@ There are several complete demos in **`demos/`**, check it out and preview them 
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
 * [Snake eat apple game](https://tangbc.github.io/sugar/demos/snake-eat-apples)
 
-*(Some demos depend httpSever, so run script `npm run server` to get these demos if in your local.)*
+*(Some demos need httpSever (Ajax), so run script `npm run server` to preview if in your local.)*
 
-You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
+You can also experience `sugar.js` with a ***RadioComponent*** at [jsfiddle](https://jsfiddle.net/tangbc/may7jzb4/9/).
 
 
 ## Usage
 
-* Get by nodejs package: `npm install sugar-js`
+* Get by Node.js package: `npm install sugar-js`
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
 	* `mvvm.js (about 28 kb)` `https://tangbc.github.io/sugar/dist/mvvm.min.js`
@@ -123,20 +123,22 @@ You can also preview `sugar.js` with the ***RadioComponent*** at [jsfiddle](http
 
 ## Contribution
 
-1. Fork and clone repository to your local
+*Welcome any pull request of fixbug or improvement, even only supplement some unit test specs.*
 
-2. Install nodejs package devtools: **`npm install`**
+1. Fork and clone repository to your local.
 
-3. Develop and debug: **`npm run dev`** *(generate sourcemap files in `bundle/`)*
+2. Install Node.js package devtools: **`npm install`**.
 
-4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**
+3. Develop and debug: **`npm run dev`** *(generate sourcemap files in `bundle/`)*.
 
-5. Generate the test coverage report and jshint checking up: **`npm run build`**
+4. Add and write test spec, *(in `test/units/specs/`)* then run uint test：**`npm run test`**.
+
+5. Generate the test coverage report and jshint checking up: **`npm run build`**.
 
 
-## ChangeLog
+## ChangeLogs
 
-[See releases](https://github.com/tangbc/sugar/releases)
+[Check details from releases](https://github.com/tangbc/sugar/releases)
 
 
 ## License
