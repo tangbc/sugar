@@ -172,10 +172,10 @@ vfor.updatePartly = function (list, arg) {
 vfor.recompileList = function (list) {
 	let count = 0;
 	let parent = this.$parent;
-	var childs = parent.childNodes;
+	let childs = parent.childNodes;
 
 	// 清空循环列表
-	for (var i = 0; i < childs.length; i++) {
+	for (let i = 0; i < childs.length; i++) {
 		let child = childs[i];
 		if (child[vforAlias] === this.alias) {
 			this.hook('before', child, count++);
