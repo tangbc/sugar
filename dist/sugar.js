@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.5 (c) 2016 TANG
  * Released under the MIT license
- * Tue Nov 22 2016 15:10:01 GMT+0800 (CST)
+ * Thu Nov 24 2016 10:41:59 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4395,13 +4395,19 @@
 		// 内部 ViewModel 实例
 		this.__vm__ = new Compiler(option);
 
-		// 数据模型
+		// 数据模型对象
 		this.$data = this.__vm__.$data;
 		// DOM 注册索引
 		this.$els = this.__vm__.$regEles;
 
 		// 批量 watch
-		this._watchBatch(option.watches);
+		each(option.watches, function (callback, expression) {
+			if (isFunc(callback)) {
+				this.watch(expression, callback, false);
+			} else if (isObject(callback)) {
+				this.watch(expression, callback.handler, callback.deep);
+			}
+		}, this);
 	}
 
 	var mvp = MVVM.prototype;
@@ -4493,20 +4499,6 @@
 			deep: deep,
 			expression: expression
 		}, callback.bind(this.__ct__));
-	}
-
-	/**
-	 * 批量 watch 配置的监测模型
-	 * @param  {Object}  watches
-	 */
-	mvp._watchBatch = function (watches) {
-		each(watches, function (callback, expression) {
-			if (isFunc(callback)) {
-				this.watch(expression, callback, false);
-			} else if (isObject(callback)) {
-				this.watch(expression, callback.handler, callback.deep);
-			}
-		}, this);
 	}
 
 	/**
@@ -4877,10 +4869,10 @@
 
 	/**
 	 * 添加属性扩展方法
-	 * @type  {Function}
+	 * @param  {Object}  extra  [扩展对象]
 	 */
-	Sugar.extend = function () {
-		util.extend.apply(this, arguments);
+	Sugar.extend = function (extra) {
+		util.extend.call(this, extra);
 	}
 
 	Sugar.extend({ ajax: ajax, core: core, util: util, Component: Component });
