@@ -11,10 +11,10 @@ let Sugar = Object.create(null);
 
 /**
  * 添加属性扩展方法
- * @type  {Function}
+ * @param  {Object}  extra  [扩展对象]
  */
-Sugar.extend = function () {
-	util.extend.apply(this, arguments);
+Sugar.extend = function (extra) {
+	util.extend.call(this, extra);
 }
 
 Sugar.extend({ ajax, core, util, Component });
