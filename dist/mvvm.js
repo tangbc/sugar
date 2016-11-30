@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.5 (c) 2016 TANG
  * Released under the MIT license
- * Thu Nov 24 2016 10:42:00 GMT+0800 (CST)
+ * Wed Nov 30 2016 09:03:55 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1976,6 +1976,14 @@
 			return warn('The format of v-for must be like "item in/of items"!');
 		}
 
+		if (parent.nodeType !== 1) {
+			return warn('v-for cannot use in the root element!');
+		}
+
+		if (hasAttr(el, 'v-if')) {
+			return warn('Do not use v-if and v-for on the same element! Consider filtering the source Array instead.');
+		}
+
 		var alias = match[1];
 		var iterator = match[2];
 
@@ -2362,6 +2370,26 @@
 		}
 	}
 
+	/**
+	 * 生成一个锚点标记
+	 * @return  {TextNode}
+	 */
+	function createAnchor () {
+		return document.createTextNode('');
+	}
+
+	/**
+	 * 元素节点替换
+	 * @param  {Element}  oldChild
+	 * @param  {Element}  newChild
+	 */
+	function replaceNode (oldChild, newChild) {
+		var parent = oldChild.parentNode;
+		if (parent) {
+			parent.replaceChild(newChild, oldChild);
+		}
+	}
+
 
 	/**
 	 * v-if 指令解析模块
@@ -2379,16 +2407,29 @@
 		var el = this.el;
 		var elseEl = el.nextElementSibling;
 
+		var parent = el.parentNode;
+
+		if (parent.nodeType !== 1) {
+			return warn('v-if cannot use in the root element!');
+		}
+
+		this.$parent = parent;
+
 		// 状态钩子
 		this.hooks = getHooks(this.vm, el);
 
-		// 缓存渲染内容
-		this.elFrag = nodeToFragment(el);
+		// 缓存渲染模板
+		this.elTpl = el.cloneNode(true);
+		this.elAnchor = createAnchor();
+		replaceNode(el, this.elAnchor);
+		this.el = null;
 
 		// else 节点
 		if (elseEl && hasAttr(elseEl, 'v-else')) {
-			this.elseEl = elseEl;
-			this.elseElFrag = nodeToFragment(elseEl);
+			this.elseTpl = elseEl.cloneNode(true);
+			this.elseAnchor = createAnchor();
+			replaceNode(elseEl, this.elseAnchor);
+			elseEl = null;
 		}
 
 		this.bind();
@@ -2412,37 +2453,42 @@
 	 * @param  {Boolean}  isRender
 	 */
 	vif.update = function (isRender) {
-		var elseEl = this.elseEl;
+		var elseAnchor = this.elseAnchor;
 
-		this.toggle(this.el, this.elFrag, isRender);
+		this.toggle(this.elAnchor, this.elTpl, isRender, false);
 
-		if (elseEl) {
-			this.toggle(elseEl, this.elseElFrag, !isRender, 1);
+		if (elseAnchor) {
+			this.toggle(elseAnchor, this.elseTpl, !isRender, true);
 		}
 	}
 
 	/**
 	 * 切换节点内容渲染
-	 * @param  {Element}   renderEl
-	 * @param  {Fragment}  fragment
+	 * @param  {Element}   anchor
+	 * @param  {Fragment}  template
 	 * @param  {Boolean}   isRender
-	 * @param  {Mix}       isElse
+	 * @param  {Boolean}   isElse
 	 */
-	vif.toggle = function (renderEl, fragment, isRender, isElse) {
+	vif.toggle = function (anchor, template, isRender, isElse) {
 		var vm = this.vm;
-		var frag = fragment.cloneNode(true);
+		var parent = this.$parent;
+		var tpl = template.cloneNode(true);
 
 		// 渲染 & 更新视图
 		if (isRender) {
-			vm.compile(frag, true, this.scope, this.desc.once);
-			renderEl.appendChild(frag);
-			this.hook('after', renderEl, !!isElse);
+			vm.compile(tpl, true, this.scope, this.desc.once);
+			var insert = parent.insertBefore(tpl, anchor);
+			this.hook('after', insert, isElse);
+			def(insert, '__vif__', true);
 		}
 		// 不渲染的情况需要移除 DOM 索引的引用
 		else {
-			this.hook('before', renderEl, !!isElse);
-			empty(renderEl);
-			removeDOMRegister(vm, frag);
+			var el = anchor.previousSibling;
+			if (el && el.__vif__) {
+				this.hook('before', el, isElse);
+				removeDOMRegister(vm, template);
+				parent.removeChild(el);
+			}
 		}
 	}
 
