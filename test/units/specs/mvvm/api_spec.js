@@ -1038,11 +1038,13 @@ describe('mvvm instance api >', function () {
 
 	it('use v-hook with v-if', function () {
 		element.innerHTML =
-			'<div v-if="show" v-hook:after="afterRender" v-hook:before="beforeEmpty">xxdk</div>' +
-			'<div v-else>txgc</div>'
+			'<div>' +
+				'<div id="el" v-if="show" v-hook:after="afterAppend" v-hook:before="beforeRemove">xxdk</div>' +
+				'<div id="else" v-else>txgc</div>' +
+			'</div>'
 
 
-		let afterEl, beforeEl;
+		let targetEl;
 		let afterFlag, beforeFlag;
 		let cxt, scope = {a: 123};
 
@@ -1052,13 +1054,12 @@ describe('mvvm instance api >', function () {
 				show: true
 			},
 			hooks: {
-				afterRender: function (el, isElse) {
-					afterEl = el;
+				afterAppend: function (el, isElse) {
+					targetEl = el;
 					afterFlag = true;
 					cxt = this;
 				},
-				beforeEmpty: function (el, isElse) {
-					beforeEl = el;
+				beforeRemove: function (el, isElse) {
 					beforeFlag = true;
 					cxt = this;
 				}
@@ -1068,43 +1069,33 @@ describe('mvvm instance api >', function () {
 
 		let data = vm.$data;
 
-		let el = element.firstChild;
-		let elseEl = el.nextElementSibling;
+		let div = element.firstChild;
 
 		// hooks were called once during compie
 		expect(cxt).toBe(scope);
-		expect(afterEl).toBe(el);
-		expect(beforeEl).toBe(elseEl);
+		expect(targetEl).toBe(div.querySelector('#el'));
 		expect(afterFlag).toBe(true);
-		expect(beforeFlag).toBe(true);
+		expect(beforeFlag).toBe(undefined);
 
 		// clear flag
 		cxt = null;
-		afterEl = null;
 		afterFlag = null;
-		beforeEl = null;
 		beforeFlag = null;
+
 		data.show = false;
 		expect(cxt).toBe(scope);
-		// elseEl will be render and el will be empty
-		// so afterRender shoud call with elseEl, beforeEmpty call with el
-		expect(afterEl).toBe(elseEl);
-		expect(beforeEl).toBe(el);
+		// both afterAppend and beforeRemove are triggered!
 		expect(afterFlag).toBe(true);
 		expect(beforeFlag).toBe(true);
 
 		// clear flag
 		cxt = null;
-		afterEl = null;
 		afterFlag = null;
-		beforeEl = null;
 		beforeFlag = null;
+
 		data.show = true;
 		expect(cxt).toBe(scope);
-		// el will be render and el will be empty
-		// so afterRender shoud call with el, beforeEmpty call with elseEl
-		expect(afterEl).toBe(el);
-		expect(beforeEl).toBe(elseEl);
+		expect(targetEl).toBe(div.querySelector('#el'));
 		expect(afterFlag).toBe(true);
 		expect(beforeFlag).toBe(true);
 	});

@@ -30,8 +30,10 @@ describe('v-el >', function () {
 
 	it('inside v-if render first', function () {
 		element.innerHTML =
-			'<div v-if="isRender">' +
-				'<span id="test2" v-el="elSpan">1234</span>' +
+			'<div>' +
+				'<div v-if="isRender">' +
+					'<span id="test2" v-el="elSpan">1234</span>' +
+				'</div>' +
 			'</div>'
 
 		let vm = new MVVM({
@@ -56,8 +58,10 @@ describe('v-el >', function () {
 
 	it('inside v-if no-render first', function () {
 		element.innerHTML =
-			'<div v-if="isRender">' +
-				'<span id="test3" v-el="elSpan">12345</span>' +
+			'<div>' +
+				'<div v-if="isRender">' +
+					'<span id="test3" v-el="elSpan">12345</span>' +
+				'</div>' +
 			'</div>'
 
 		let vm = new MVVM({

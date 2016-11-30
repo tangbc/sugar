@@ -54,7 +54,7 @@ describe('v-once >', function () {
 				'<li v-for="item in items">{{ item }}</li>' +
 			'</ul>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			view: element,
 			model: {
 				items: ['a', 'b', 'c']
@@ -80,11 +80,13 @@ describe('v-once >', function () {
 
 	it('with v-if render first', function () {
 		element.innerHTML =
-			'<div v-once v-if="show">' +
-				'<span>{{ title }}</span>' +
+			'<div>' +
+				'<div v-once v-if="show">' +
+					'<span>{{ title }}</span>' +
+				'</div>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			view: element,
 			model: {
 				show: true,
@@ -109,11 +111,13 @@ describe('v-once >', function () {
 
 	it('with v-if no-render first', function () {
 		element.innerHTML =
-			'<div v-once v-if="show">' +
-				'<span>{{ title }}</span>' +
+			'<div>' +
+				'<div v-once v-if="show">' +
+					'<span>{{ title }}</span>' +
+				'</div>' +
 			'</div>'
 
-		var vm = new MVVM({
+		let vm = new MVVM({
 			view: element,
 			model: {
 				show: false,

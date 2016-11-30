@@ -5,7 +5,7 @@
  * @param   {Function}  process
  */
 export function triggerEvent (target, evt, process) {
-	var e = document.createEvent('HTMLEvents');
+	let e = document.createEvent('HTMLEvents');
 	e.initEvent(evt, true, true);
 
 	if (process) {
@@ -21,8 +21,8 @@ export function triggerEvent (target, evt, process) {
  * @param  {String}  value
  */
 export function setSelect (select, value) {
-	var options = select.options;
-	for (var i = 0; i < options.length; i++) {
+	let options = select.options;
+	for (let i = 0; i < options.length; i++) {
 		/* jshint ignore:start */
 		if (options[i].value == value) {
 			options[i].selected = true;
