@@ -1,3 +1,4 @@
+import { hasAttr } from '../../dom';
 import { observe } from '../observe/index';
 import Parser, { linkParser } from '../parser';
 import { warn, createFragment, each, def, isFunc } from '../../util';
@@ -51,6 +52,14 @@ vfor.parse = function () {
 
 	if (!match) {
 		return warn('The format of v-for must be like "item in/of items"!');
+	}
+
+	if (parent.nodeType !== 1) {
+		return warn('v-for cannot use in the root element!');
+	}
+
+	if (hasAttr(el, 'v-if')) {
+		return warn('Do not use v-if and v-for on the same element! Consider filtering the source Array instead.');
 	}
 
 	let alias = match[1];

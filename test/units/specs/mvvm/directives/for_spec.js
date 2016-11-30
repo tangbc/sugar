@@ -31,6 +31,20 @@ describe('v-for >', function () {
 	});
 
 
+	it('invalid use on the root element', function () {
+		element.innerHTML = '<li v-for="item in items"></li>';
+
+		new MVVM({
+			view: element,
+			model: {
+				items: []
+			}
+		});
+
+		expect(util.warn).toHaveBeenCalledWith('v-for cannot use in the root element!');
+	});
+
+
 	it('not array first', function () {
 		element.innerHTML =
 			'<ul id="test8">' +
