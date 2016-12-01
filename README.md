@@ -6,15 +6,13 @@
 		<img src="https://travis-ci.org/tangbc/sugar.svg?branch=master" alt="Travis CI Status"/>
 	</a>
 	<a href="https://codecov.io/gh/tangbc/sugar">
-		<img src="https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg" alt="codecov"/>
+		<img src="https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg" alt="Code Coverage"/>
 	</a>
 	<a href="https://saucelabs.com/u/tangbc">
 		<img src="https://saucelabs.com/buildstatus/tangbc" alt="Sauce Test Status"/>
 	</a>
 	<br>
-	<a href="https://saucelabs.com/u/tangbc">
-		<img src="https://saucelabs.com/browser-matrix/tangbc.svg" alt="Sauce Browser Matrix"/>
-	</a>
+	<img src="https://tangbc.github.io/github-images/browser-matrix.svg" alt="Sauce Browser Matrix"/>
 </p>
 
 
@@ -94,7 +92,7 @@ You can also experience `sugar.js` with a ***RadioComponent*** at [jsfiddle](htt
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
 	* `mvvm.js (about 28 kb)` `https://tangbc.github.io/sugar/dist/mvvm.min.js`
-	* `sugar.js (about 34 kb)` `https://tangbc.github.io/sugar/dist/sugar.min.js`
+	* `sugar.js (about 35 kb)` `https://tangbc.github.io/sugar/dist/sugar.min.js`
 
 * Browsers: **Not support IE8 and below**. Besides, support most modern desktop and mobile browsers.
 
