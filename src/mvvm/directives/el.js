@@ -21,6 +21,6 @@ vel.parse = function () {
 		let register = this.desc.expression;
 		this.vm.$regEles[register] = this.el;
 	} else {
-		warn('v-el can not be used inside v-for!');
+		warn('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.');
 	}
 }

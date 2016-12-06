@@ -102,6 +102,6 @@ describe('v-el >', function () {
 			}
 		});
 
-		expect(util.warn).toHaveBeenCalledWith('v-el can not be used inside v-for!');
+		expect(util.warn).toHaveBeenCalledWith('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.');
 	});
 });
