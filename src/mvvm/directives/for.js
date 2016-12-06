@@ -71,12 +71,15 @@ vfor.parse = function () {
 	this.alias = alias;
 	this.partly = false;
 	this.partlyArgs = [];
+
 	this.$parent = parent;
 	this.end = el.nextSibling;
 	this.start = el.previousSibling;
-	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
+	this.bodyDirs = el.__dirs__;
+	this.tpl = el.cloneNode(true);
 	this.hooks = getHooks(this.vm, el);
+	this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 	desc.expression = iterator;
 	this.bind();
@@ -122,6 +125,7 @@ vfor.update = function (newArray, oldArray, fromDeep, methodArg) {
 	// 初始化列表
 	if (this.init) {
 		this.$parent.replaceChild(this.buildList(newArray), this.el);
+		this.el = null;
 		this.init = false;
 	} else {
 		// 数组操作部分更新
@@ -208,8 +212,7 @@ vfor.recompileList = function (list) {
  */
 vfor.buildList = function (list, startIndex) {
 	let vm = this.vm;
-	let el = this.el;
-	let bodyDirs = el.__dirs__;
+	let tpl = this.tpl;
 	let start = startIndex || 0;
 	let listFragment = createFragment();
 	let iterator = this.directive.watcher.value;
@@ -217,7 +220,7 @@ vfor.buildList = function (list, startIndex) {
 	each(list, function (item, i) {
 		let index = start + i;
 		let alias = this.alias;
-		let frag = el.cloneNode(true);
+		let frag = tpl.cloneNode(true);
 		let parentScope = this.scope || vm.$data;
 		let scope = Object.create(parentScope);
 
@@ -240,8 +243,8 @@ vfor.buildList = function (list, startIndex) {
 		}
 
 		// 阻止重复编译除 vfor 以外的指令
-		if (this.init && bodyDirs > 1) {
-			vm.block(el);
+		if (this.init && this.bodyDirs > 1) {
+			vm.block(this.el);
 		}
 
 		// 片段挂载别名
