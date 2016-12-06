@@ -353,6 +353,82 @@ describe('v-if >', function () {
 	});
 
 
+	it('back-to-back v-if', function () {
+		element.innerHTML =
+			'<div>' +
+				'<h1 v-if="showA">{{a}}</h1>' +
+				'<h1 v-if="showB">{{b}}</h1>' +
+				'<h1 v-if="showC">{{c}}</h1>' +
+			'</div>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				a: 1,
+				b: 2,
+				c: 3,
+				showA: true,
+				showB: false,
+				showC: true
+			}
+		});
+
+		let data = vm.$data;
+		let div = element.firstChild;
+
+		expect(div.textContent).toBe('13');
+
+		data.showB = true;
+		expect(div.textContent).toBe('123');
+
+		data.showA = false;
+		expect(div.textContent).toBe('23');
+
+		data.showC = false;
+		expect(div.textContent).toBe('2');
+	});
+
+
+	it('back-to-back v-if has others siblings', function () {
+		element.innerHTML =
+			'<div>' +
+				'-' +
+				'<h1 v-if="showA">{{a}}</h1>' +
+				'-' +
+				'<h1 v-if="showB">{{b}}</h1>' +
+				'-' +
+				'<h1 v-if="showC">{{c}}</h1>' +
+				'-' +
+			'</div>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				a: 1,
+				b: 2,
+				c: 3,
+				showA: true,
+				showB: false,
+				showC: true
+			}
+		});
+
+		let data = vm.$data;
+		let div = element.firstChild;
+
+		expect(div.textContent).toBe('-1--3-');
+
+		data.showB = true;
+		expect(div.textContent).toBe('-1-2-3-');
+
+		data.showA = false;
+		expect(div.textContent).toBe('--2-3-');
+
+		data.showC = false;
+		expect(div.textContent).toBe('--2--');
+	});
+
+
 	it('render content contains v-for and render first', function () {
 		element.innerHTML =
 			'<div>' +
