@@ -4,6 +4,7 @@ import Parser, { linkParser } from '../parser';
 import { warn, createFragment, each, def, isFunc } from '../../util';
 
 const vforAlias = '__vfor__';
+const vforGuid = '__vforid__';
 const regForExp = /(.*) (?:in|of) (.*)/;
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
@@ -28,6 +29,14 @@ export function getHooks (vm, node) {
 	}
 
 	return { after, before };
+}
+
+/**
+ * 生成一段不重复的 id
+ * @return  {String}
+ */
+function makeVforGuid () {
+	return Date.now().toString(36) + Math.random().toString(36).substr(-10);
 }
 
 
@@ -107,7 +116,7 @@ vfor.updateModel = function () {
 vfor.hook = function (type, frag, index) {
 	let hook = this.hooks[type];
 	if (isFunc(hook)) {
-		hook.call(this.vm.$context, frag, index);
+		hook.call(this.vm.$context, frag, index, frag[vforGuid]);
 		frag = null;
 	}
 }
@@ -249,6 +258,8 @@ vfor.buildList = function (list, startIndex) {
 
 		// 片段挂载别名
 		def(frag, vforAlias, alias);
+		// 挂载唯一 id
+		def(frag, vforGuid, makeVforGuid());
 
 		// 编译片段
 		vm.compile(frag, true, scope, this.desc.once);
