@@ -91,6 +91,26 @@ function saveDirectiveHooks (node) {
 	}
 }
 
+/**
+ * 统一变更回调函数
+ * 保证多个相同依赖的变更只触发一次
+ * @param   {Function}  func
+ * @param   {Object}    context
+ * @return  {Function}
+ */
+function makeUnifyCallback (func, context) {
+	let _path, _newVal, _oldVal;
+	return function (param, newVal, oldVal) {
+		let path = param.path;
+		if (path !== _path || newVal !== _newVal || oldVal !== _oldVal) {
+			func.apply(context, arguments);
+			_path = path;
+			_newVal = newVal;
+			_oldVal = oldVal;
+		}
+	}
+}
+
 
 /**
  * ViewModel 编译模块
@@ -137,7 +157,7 @@ function Compiler (option) {
 	// 自定义指令刷新函数
 	this.$customs = option.customs || {};
 	// 监听变更统一回调
-	this.$unifyCb = isFunc(watchAll) ? watchAll.bind(this.$context) : null;
+	this.$unifyCb = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null;
 
 	// 是否立刻编译根元素
 	if (!option.lazy) {
