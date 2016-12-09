@@ -49,15 +49,15 @@
 					</span>
 				</li>
 				<li>
-					<button class="button" v-on:click="clickButton" v-el="btn" >矢量图标加载中……</button>
+					<button class="button" v-on:click="clickButton" v-el="btn">矢量图标加载中 ···</button>
 				</li>
 			</ul>
 		</div>
 		<!-- 模块容器 -->
 		<div class="container">
 			<!-- 评分组件载体容器列表 -->
-			<div class="star-container" v-for="comp in comps" v-hook:after="afterAppend">
-				<span class="trash" title="移除该组件" v-on:click="remove($index, comp.guid)">
+			<div class="star-container" v-for="comp in comps" v-hook:after="afterAppend" v-hook:before="beforeRemove">
+				<span class="trash" title="移除该组件" v-on:click="$remove">
 					<i class="fa fa-trash"></i>
 				</span>
 				<!-- 评分组件会被添加到这条注释的下一个位置（appendChild） -->
@@ -164,12 +164,12 @@ var App = Sugar.Component.extend({
 			methods: {
 				clickDef: this.clickDef,
 				clickFull: this.clickFull,
-				clickButton: this.clickButton,
-				remove: this.removeComponent
+				clickButton: this.clickButton
 			},
 			// v-for 动态列表的每个选项 DOM 节点添加钩子函数
 			hooks: {
-				afterAppend: this.afterAppend
+				afterAppend: this.afterAppend,
+				beforeRemove: this.beforeRemove
 			}
 		});
 	},
@@ -185,9 +185,7 @@ var App = Sugar.Component.extend({
 		return {
 			def: def,
 			full: full,
-			deg: this.vm.$data.deg,
-			// 子组件的名称可以任意但不予许重复创建
-			guid: Date.now().toString(36) + Math.random().toString(36).substr(10)
+			deg: this.vm.$data.deg
 		}
 	},
 
@@ -232,9 +230,9 @@ var App = Sugar.Component.extend({
 	},
 
 	// v-for 列表钩子函数，在新增元素后同步创建 Star 子组件
-	afterAppend: function (el, index) {
+	afterAppend: function (el, index, guid) {
 		var comp = this.vm.$data.comps[index];
-		this.create(comp.guid, Star, {
+		this.create(guid, Star, {
 			target: el,
 			deg: comp.deg,
 			def: comp.def,
@@ -243,25 +241,39 @@ var App = Sugar.Component.extend({
 	},
 
 	// 点击垃圾箱，移除一个 Star 子组件，获取组件实例并销毁
-	removeComponent: function (index, guid) {
+	beforeRemove: function (frag, index, guid) {
 		var comp = this.getChild(guid);
 		if (comp) {
 			comp.destroy();
-			this.vm.$data.comps.splice(index, 1);
 		}
 	}
 });
 
-
+// load 事件在样式加载完成后触发
 window.onload = function () {
 	var app = Sugar.core.create('app', App);
 
-	// 测试连续创建子组件
-	// setTimeout(function () {
-	// 	for (var i = 0; i < 100; i++) {
-	// 		app.clickButton();
+	// // 测试连续创建/删除子组件
+	// function doneWithApp (func, times) {
+	// 	while (times--) {
+	// 		func.call(app);
 	// 	}
-	// }, 5000);
+	// }
+
+	// var testTimes = 100;
+	// setTimeout(function () {
+	// 	// 动态添加子组件
+	// 	doneWithApp(function () {
+	// 		this.clickButton();
+	// 	}, testTimes);
+
+	// 	// 动态删除子组件
+	// 	setTimeout(function () {
+	// 		doneWithApp(function () {
+	// 			this.vm.$data.comps.shift();
+	// 		}, testTimes);
+	// 	}, 3000);
+	// }, 3000);
 }
 
 </script>
