@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.3.6 (c) 2016 TANG
+ * sugar.js v1.3.7 (c) 2016 TANG
  * Released under the MIT license
- * Thu Dec 01 2016 14:35:19 GMT+0800 (CST)
+ * Sat Dec 10 2016 09:54:55 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2358,7 +2358,7 @@
 			var register = this.desc.expression;
 			this.vm.$regEles[register] = this.el;
 		} else {
-			warn('v-el can not be used inside v-for!');
+			warn('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.');
 		}
 	}
 
@@ -2626,6 +2626,7 @@
 	}
 
 	var vforAlias = '__vfor__';
+	var vforGuid = '__vforid__';
 	var regForExp = /(.*) (?:in|of) (.*)/;
 	var partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
@@ -2650,6 +2651,14 @@
 		}
 
 		return { after: after, before: before };
+	}
+
+	/**
+	 * 生成一段不重复的 id
+	 * @return  {String}
+	 */
+	function makeVforGuid () {
+		return Math.random().toString(36).substr(2);
 	}
 
 
@@ -2693,12 +2702,15 @@
 		this.alias = alias;
 		this.partly = false;
 		this.partlyArgs = [];
+
 		this.$parent = parent;
 		this.end = el.nextSibling;
 		this.start = el.previousSibling;
-		this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
+		this.bodyDirs = el.__dirs__;
+		this.tpl = el.cloneNode(true);
 		this.hooks = getHooks(this.vm, el);
+		this.isOption = el.tagName === 'OPTION' && parent.tagName === 'SELECT';
 
 		desc.expression = iterator;
 		this.bind();
@@ -2726,7 +2738,7 @@
 	vfor.hook = function (type, frag, index) {
 		var hook = this.hooks[type];
 		if (isFunc(hook)) {
-			hook.call(this.vm.$context, frag, index);
+			hook.call(this.vm.$context, frag, index, frag[vforGuid]);
 			frag = null;
 		}
 	}
@@ -2744,6 +2756,7 @@
 		// 初始化列表
 		if (this.init) {
 			this.$parent.replaceChild(this.buildList(newArray), this.el);
+			this.el = null;
 			this.init = false;
 		} else {
 			// 数组操作部分更新
@@ -2832,8 +2845,7 @@
 	 */
 	vfor.buildList = function (list, startIndex) {
 		var vm = this.vm;
-		var el = this.el;
-		var bodyDirs = el.__dirs__;
+		var tpl = this.tpl;
 		var start = startIndex || 0;
 		var listFragment = createFragment();
 		var iterator = this.directive.watcher.value;
@@ -2841,7 +2853,7 @@
 		each(list, function (item, i) {
 			var index = start + i;
 			var alias = this.alias;
-			var frag = el.cloneNode(true);
+			var frag = tpl.cloneNode(true);
 			var parentScope = this.scope || vm.$data;
 			var scope = Object.create(parentScope);
 
@@ -2864,12 +2876,14 @@
 			}
 
 			// 阻止重复编译除 vfor 以外的指令
-			if (this.init && bodyDirs > 1) {
-				vm.block(el);
+			if (this.init && this.bodyDirs > 1) {
+				vm.block(this.el);
 			}
 
 			// 片段挂载别名
 			def(frag, vforAlias, alias);
+			// 挂载唯一 id
+			def(frag, vforGuid, makeVforGuid());
 
 			// 编译片段
 			vm.compile(frag, true, scope, this.desc.once);
@@ -4094,6 +4108,26 @@
 		}
 	}
 
+	/**
+	 * 统一变更回调函数
+	 * 保证多个相同依赖的变更只触发一次
+	 * @param   {Function}  func
+	 * @param   {Object}    context
+	 * @return  {Function}
+	 */
+	function makeUnifyCallback (func, context) {
+		var _path, _newVal, _oldVal;
+		return function (param, newVal, oldVal) {
+			var path = param.path;
+			if (path !== _path || newVal !== _newVal || oldVal !== _oldVal) {
+				func.apply(context, arguments);
+				_path = path;
+				_newVal = newVal;
+				_oldVal = oldVal;
+			}
+		}
+	}
+
 
 	/**
 	 * ViewModel 编译模块
@@ -4140,7 +4174,7 @@
 		// 自定义指令刷新函数
 		this.$customs = option.customs || {};
 		// 监听变更统一回调
-		this.$unifyCb = isFunc(watchAll) ? watchAll.bind(this.$context) : null;
+		this.$unifyCb = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null;
 
 		// 是否立刻编译根元素
 		if (!option.lazy) {
