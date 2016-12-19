@@ -267,7 +267,6 @@ von.bindEvent = function (type, dress, func, argString) {
 			return;
 		}
 
-
 		// 未指定参数，则原生事件对象作为唯一参数
 		if (!args.length) {
 			args.push(e);

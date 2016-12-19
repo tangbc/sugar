@@ -225,7 +225,7 @@ cp.compile = function (element, root, scope, once) {
  */
 cp.compileAll = function () {
 	each(this.$queue, function (tuple) {
-		this.complieNode(tuple);
+		this.compileNode(tuple);
 		return null;
 	}, this);
 
@@ -236,7 +236,7 @@ cp.compileAll = function () {
  * 收集并编译节点指令
  * @param  {Array}  tuple  [node, scope]
  */
-cp.complieNode = function (tuple) {
+cp.compileNode = function (tuple) {
 	let node = tuple[0];
 	let scope = tuple[1];
 
