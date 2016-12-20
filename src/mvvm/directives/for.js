@@ -5,6 +5,7 @@ import { warn, createFragment, each, def, isFunc } from '../../util';
 
 const vforAlias = '__vfor__';
 const vforGuid = '__vforid__';
+const vforDirIds = '__vfordirids__';
 const regForExp = /(.*) (?:in|of) (.*)/;
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
@@ -122,6 +123,14 @@ vfor.hook = function (type, frag, index) {
 }
 
 /**
+ * 移除该选项中的所有指令实例
+ * @param  {Element}  frag
+ */
+vfor.dropDirectives = function (frag) {
+	this.vm.dropDirective(frag[vforDirIds]);
+}
+
+/**
  * 更新视图
  * @param  {Array}    newArray   [新数组]
  * @param  {Array}    oldArray   [旧数组]
@@ -200,8 +209,7 @@ vfor.recompileList = function (list) {
 	for (let i = 0; i < childs.length; i++) {
 		let child = childs[i];
 		if (child[vforAlias] === this.alias) {
-			this.hook('before', child, count++);
-			parent.removeChild(child);
+			this.removeChild(child, count++);
 			i--;
 		}
 	}
@@ -262,7 +270,10 @@ vfor.buildList = function (list, startIndex) {
 		def(frag, vforGuid, makeVforGuid());
 
 		// 编译片段
-		vm.compile(frag, true, scope, this.desc.once);
+		let dirIds = vm.compile(frag, true, scope, this.desc.once);
+
+		// 挂载指令 id 集合，以便销毁内存占用
+		def(frag, vforDirIds, dirIds);
 
 		listFragment.appendChild(frag);
 
@@ -321,9 +332,12 @@ vfor.getChild = function (index) {
 /**
  * 删除一条选项
  * @param  {Element}  child
+ * @param  {Number}   index
  */
-vfor.removeChild = function (child) {
+vfor.removeChild = function (child, index) {
 	if (child) {
+		this.dropDirectives(child);
+		this.hook('before', child, index);
 		this.$parent.removeChild(child);
 	}
 }
@@ -334,8 +348,7 @@ vfor.removeChild = function (child) {
 vfor.shift = function () {
 	let first = this.getFirst();
 	if (first) {
-		this.hook('before', first, 0);
-		this.removeChild(first);
+		this.removeChild(first, 0);
 	}
 }
 
@@ -345,8 +358,7 @@ vfor.shift = function () {
 vfor.pop = function () {
 	let last = this.getLast();
 	if (last) {
-		this.hook('before', last, this.length);
-		this.removeChild(last);
+		this.removeChild(last, this.length);
 	}
 }
 
@@ -405,8 +417,7 @@ vfor.splice = function (list, args) {
 		each(oldList, function (child, index) {
 			// 删除范围内
 			if (index >= start && index < start + deleteCont) {
-				this.hook('before', child, index);
-				this.removeChild(child);
+				this.removeChild(child, index);
 			}
 		}, this);
 		oldList = null;

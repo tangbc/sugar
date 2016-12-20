@@ -138,8 +138,12 @@ function Compiler (option) {
 	this.$element = element;
 	// DOM 注册索引
 	this.$regEles = {};
+	// 指令实例唯一 id
+	this.$dirGuid = 1000;
+	// 指令 id 集合
+	this.$dirGuids = [];
 	// 指令实例缓存
-	this.$directives = [];
+	this.$directives = {};
 	// 钩子和统一回调作用域
 	this.$context = option.context || this;
 
@@ -188,8 +192,11 @@ cp.compile = function (element, root, scope, once) {
 	let children = element.childNodes;
 	let parentOnce = !!once || isOnceNode(element);
 
-	if (root && hasDirective(element)) {
-		this.$queue.push([element, scope]);
+	if (root) {
+		this.$dirGuids.length = 0;
+		if (hasDirective(element)) {
+			this.$queue.push([element, scope]);
+		}
 	}
 
 	def(element, '__vonce__', parentOnce);
@@ -217,6 +224,7 @@ cp.compile = function (element, root, scope, once) {
 
 	if (root) {
 		this.compileAll();
+		return this.$dirGuids.slice(0);
 	}
 }
 
@@ -327,7 +335,7 @@ cp.parse = function (node, attr, scope) {
 		if (once) {
 			dirParser.destroy();
 		} else {
-			this.$directives.push(dirParser);
+			this.saveDirective(dirParser);
 		}
 	} else {
 		warn('[' + directive + '] is an unknown directive!');
@@ -365,8 +373,34 @@ cp.parseText = function (node, scope) {
 	if (once) {
 		directive.destroy();
 	} else {
-		this.$directives.push(directive);
+		this.saveDirective(directive);
 	}
+}
+
+/**
+ * 缓存一个指令实例到队列
+ * @param  {Directive}  directive  [已编译的指令实例]
+ */
+cp.saveDirective = function (directive) {
+	let guid = this.$dirGuid++;
+	this.$dirGuids.push(guid);
+	this.$directives[guid] = directive;
+}
+
+/**
+ * 移除指令实例
+ * @param  {Array}  guids  [指令实例 id 集合]
+ */
+cp.dropDirective = function (guids) {
+	var directives = this.$directives;
+	each(guids, function (guid) {
+		let directive = directives[guid];
+		if (directive) {
+			directive.destroy();
+			delete directives[guid];
+			return null;
+		}
+	}, this);
 }
 
 /**
@@ -414,10 +448,7 @@ cp.completed = function () {
 cp.destroy = function () {
 	this.$data = null;
 	empty(this.$element);
-	each(this.$directives, function (directive) {
-		directive.destroy();
-		return null;
-	});
+	this.dropDirective(Object.keys(this.$directives));
 }
 
 export default Compiler;

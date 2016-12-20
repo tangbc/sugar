@@ -82,7 +82,9 @@ vif.parse = function () {
 	}
 
 	this.$parent = parent;
-
+	// 指令实例 id 缓存
+	this.$dirIds = null;
+	this.$elseDirIds = null;
 	// 状态钩子
 	this.hooks = getHooks(this.vm, el);
 
@@ -144,16 +146,24 @@ vif.toggle = function (anchor, template, isRender, isElse) {
 
 	// 渲染 & 更新视图
 	if (isRender) {
-		vm.compile(tpl, true, this.scope, this.desc.once);
+		let dirIds = vm.compile(tpl, true, this.scope, this.desc.once);
 		let insert = parent.insertBefore(tpl, anchor);
 		this.hook('after', insert, isElse);
 		def(insert, '__vif__', true);
+
+		if (isElse) {
+			this.$elseDirIds = dirIds;
+		} else {
+			this.$dirIds = dirIds;
+		}
 	}
 	// 不渲染的情况需要移除 DOM 索引的引用
 	else {
 		let el = anchor.previousSibling;
 		if (el && el.__vif__) {
 			this.hook('before', el, isElse);
+			let dirIds = isElse ? this.$elseDirIds : this.dirIds;
+			vm.dropDirective(dirIds);
 			removeDOMRegister(vm, template);
 			parent.removeChild(el);
 		}
