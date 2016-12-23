@@ -1,7 +1,7 @@
 /*!
- * mvvm.js v1.3.7 (c) 2016 TANG
+ * mvvm.js v1.3.8 (c) 2016 TANG
  * Released under the MIT license
- * Sat Dec 10 2016 09:54:56 GMT+0800 (CST)
+ * Fri Dec 23 2016 13:44:08 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1546,7 +1546,6 @@
 				return;
 			}
 
-
 			// 未指定参数，则原生事件对象作为唯一参数
 			if (!args.length) {
 				args.push(e);
@@ -1927,6 +1926,7 @@
 
 	var vforAlias = '__vfor__';
 	var vforGuid = '__vforid__';
+	var vforDirIds = '__vfordirids__';
 	var regForExp = /(.*) (?:in|of) (.*)/;
 	var partlyMethods = 'push|pop|shift|unshift|splice'.split('|');
 
@@ -2044,6 +2044,14 @@
 	}
 
 	/**
+	 * 移除该选项中的所有指令实例
+	 * @param  {Element}  frag
+	 */
+	vfor.dropDirectives = function (frag) {
+		this.vm.dropDirective(frag[vforDirIds]);
+	}
+
+	/**
 	 * 更新视图
 	 * @param  {Array}    newArray   [新数组]
 	 * @param  {Array}    oldArray   [旧数组]
@@ -2124,8 +2132,7 @@
 		for (var i = 0; i < childs.length; i++) {
 			var child = childs[i];
 			if (child[vforAlias] === this$1.alias) {
-				this$1.hook('before', child, count++);
-				parent.removeChild(child);
+				this$1.removeChild(child, count++);
 				i--;
 			}
 		}
@@ -2186,7 +2193,10 @@
 			def(frag, vforGuid, makeVforGuid());
 
 			// 编译片段
-			vm.compile(frag, true, scope, this.desc.once);
+			var dirIds = vm.compile(frag, true, scope, this.desc.once);
+
+			// 挂载指令 id 集合，以便销毁内存占用
+			def(frag, vforDirIds, dirIds);
 
 			listFragment.appendChild(frag);
 
@@ -2247,9 +2257,12 @@
 	/**
 	 * 删除一条选项
 	 * @param  {Element}  child
+	 * @param  {Number}   index
 	 */
-	vfor.removeChild = function (child) {
+	vfor.removeChild = function (child, index) {
 		if (child) {
+			this.dropDirectives(child);
+			this.hook('before', child, index);
 			this.$parent.removeChild(child);
 		}
 	}
@@ -2260,8 +2273,7 @@
 	vfor.shift = function () {
 		var first = this.getFirst();
 		if (first) {
-			this.hook('before', first, 0);
-			this.removeChild(first);
+			this.removeChild(first, 0);
 		}
 	}
 
@@ -2271,8 +2283,7 @@
 	vfor.pop = function () {
 		var last = this.getLast();
 		if (last) {
-			this.hook('before', last, this.length);
-			this.removeChild(last);
+			this.removeChild(last, this.length);
 		}
 	}
 
@@ -2331,8 +2342,7 @@
 			each(oldList, function (child, index) {
 				// 删除范围内
 				if (index >= start && index < start + deleteCont) {
-					this.hook('before', child, index);
-					this.removeChild(child);
+					this.removeChild(child, index);
 				}
 			}, this);
 			oldList = null;
@@ -2428,7 +2438,9 @@
 		}
 
 		this.$parent = parent;
-
+		// 指令实例 id 缓存
+		this.$dirIds = null;
+		this.$elseDirIds = null;
 		// 状态钩子
 		this.hooks = getHooks(this.vm, el);
 
@@ -2490,16 +2502,24 @@
 
 		// 渲染 & 更新视图
 		if (isRender) {
-			vm.compile(tpl, true, this.scope, this.desc.once);
+			var dirIds = vm.compile(tpl, true, this.scope, this.desc.once);
 			var insert = parent.insertBefore(tpl, anchor);
 			this.hook('after', insert, isElse);
 			def(insert, '__vif__', true);
+
+			if (isElse) {
+				this.$elseDirIds = dirIds;
+			} else {
+				this.$dirIds = dirIds;
+			}
 		}
 		// 不渲染的情况需要移除 DOM 索引的引用
 		else {
 			var el = anchor.previousSibling;
 			if (el && el.__vif__) {
 				this.hook('before', el, isElse);
+				var dirIds$1 = isElse ? this.$elseDirIds : this.dirIds;
+				vm.dropDirective(dirIds$1);
 				removeDOMRegister(vm, template);
 				parent.removeChild(el);
 			}
@@ -3455,8 +3475,12 @@
 		this.$element = element;
 		// DOM 注册索引
 		this.$regEles = {};
+		// 指令实例唯一 id
+		this.$dirGuid = 1000;
+		// 指令 id 集合
+		this.$dirGuids = [];
 		// 指令实例缓存
-		this.$directives = [];
+		this.$directives = {};
 		// 钩子和统一回调作用域
 		this.$context = option.context || this;
 
@@ -3507,8 +3531,11 @@
 		var children = element.childNodes;
 		var parentOnce = !!once || isOnceNode(element);
 
-		if (root && hasDirective(element)) {
-			this.$queue.push([element, scope]);
+		if (root) {
+			this.$dirGuids.length = 0;
+			if (hasDirective(element)) {
+				this.$queue.push([element, scope]);
+			}
 		}
 
 		def(element, '__vonce__', parentOnce);
@@ -3536,6 +3563,7 @@
 
 		if (root) {
 			this.compileAll();
+			return this.$dirGuids.slice(0);
 		}
 	}
 
@@ -3544,7 +3572,7 @@
 	 */
 	cp.compileAll = function () {
 		each(this.$queue, function (tuple) {
-			this.complieNode(tuple);
+			this.compileNode(tuple);
 			return null;
 		}, this);
 
@@ -3555,7 +3583,7 @@
 	 * 收集并编译节点指令
 	 * @param  {Array}  tuple  [node, scope]
 	 */
-	cp.complieNode = function (tuple) {
+	cp.compileNode = function (tuple) {
 		var node = tuple[0];
 		var scope = tuple[1];
 
@@ -3646,7 +3674,7 @@
 			if (once) {
 				dirParser.destroy();
 			} else {
-				this.$directives.push(dirParser);
+				this.saveDirective(dirParser);
 			}
 		} else {
 			warn('[' + directive + '] is an unknown directive!');
@@ -3684,8 +3712,34 @@
 		if (once) {
 			directive.destroy();
 		} else {
-			this.$directives.push(directive);
+			this.saveDirective(directive);
 		}
+	}
+
+	/**
+	 * 缓存一个指令实例到队列
+	 * @param  {Directive}  directive  [已编译的指令实例]
+	 */
+	cp.saveDirective = function (directive) {
+		var guid = this.$dirGuid++;
+		this.$dirGuids.push(guid);
+		this.$directives[guid] = directive;
+	}
+
+	/**
+	 * 移除指令实例
+	 * @param  {Array}  guids  [指令实例 id 集合]
+	 */
+	cp.dropDirective = function (guids) {
+		var directives = this.$directives;
+		each(guids, function (guid) {
+			var directive = directives[guid];
+			if (directive) {
+				directive.destroy();
+				delete directives[guid];
+				return null;
+			}
+		}, this);
 	}
 
 	/**
@@ -3733,10 +3787,7 @@
 	cp.destroy = function () {
 		this.$data = null;
 		empty(this.$element);
-		each(this.$directives, function (directive) {
-			directive.destroy();
-			return null;
-		});
+		this.dropDirective(Object.keys(this.$directives));
 	}
 
 	/**
