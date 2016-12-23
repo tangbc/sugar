@@ -1,6 +1,6 @@
 {
   "name": "sugar-js",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "A lightweight and powerful JavaScript MVVM library for building web UI component.",
   "keywords": [
     "framework",
@@ -13,7 +13,9 @@
   "main": "dist/sugar.js",
   "files": [
     "dist/sugar.js",
-    "dist/sugar.min.js"
+    "dist/sugar.min.js",
+    "dist/mvvm.js",
+    "dist/mvvm.min.js"
   ],
   "repository": {
     "type": "git",
