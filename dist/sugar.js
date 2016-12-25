@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.8 (c) 2016 TANG
  * Released under the MIT license
- * Sun Dec 25 2016 10:17:02 GMT+0800 (CST)
+ * Sun Dec 25 2016 16:58:22 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -4344,7 +4344,7 @@
 
 			if (once) {
 				dirParser.destroy();
-			} else {
+			} else if (!scope) {
 				this.$directives.push(dirParser);
 			}
 		} else {
@@ -4382,7 +4382,7 @@
 
 		if (once) {
 			directive.destroy();
-		} else {
+		} else if (!scope) {
 			this.$directives.push(directive);
 		}
 	}
