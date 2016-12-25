@@ -3,7 +3,6 @@
 <head>
 	<meta charset="utf-8">
 	<title>打星评分组件</title>
-	<script type="text/javascript" src="../../dist/sugar.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 </head>
@@ -65,6 +64,7 @@
 		</div>
 	</section>
 
+<script type="text/javascript" src="../../dist/sugar.min.js"></script>
 <script type="text/javascript">
 /**
  * 打星评分基础组件定义
@@ -80,7 +80,7 @@ var Star = Sugar.Component.extend({
 
 		for (var i = 1; i < full + 1; i++) {
 			score = i <= ceilDef ? (score = (i === ceilDef && isDecimal) ? scores[2] : scores[1]) : scores[0];
-			items.push(score);
+			items.push({ type: score });
 		}
 
 		// 缓存图标定义
@@ -94,7 +94,7 @@ var Star = Sugar.Component.extend({
 			view : [
 				'<ul class="star">',
 					'<li class="star-item" v-for="star in stars">',
-						'<i class="fa" v-bind:class="star" v-on:click="clickStar($index)"></i>',
+						'<i class="fa" v-bind:class="star.type" v-on:click="clickStar($index)"></i>',
 					'</li>',
 				'</ul>',
 				'<h4 class="result">{{ score }} 分</h4>'
@@ -110,19 +110,20 @@ var Star = Sugar.Component.extend({
 			methods: {
 				// 星星点击事件
 				clickStar: function (i) {
-					var stars = this.vm.get('stars');
-					var index = this.$scores.indexOf(stars[i]);
+					var vm = this.vm.$data;
+					var stars = vm.stars;
+					var index = this.$scores.indexOf(stars[i].type);
 					var deg = this.getConfig('deg');
 					var next = ++index % (deg === 1 ? 2 : 3);
 
-					stars.$set(i, this.$scores[next]);
-					this.vm.set('score', i + (next === 2 ? deg : next));
+					stars[i].type = this.$scores[next];
+					vm.score = i + (next === 2 ? deg : next);
 
 					for (var j = 0; j < i; j++) {
-						stars.$set(j, this.$scores[1]);
+						stars[j].type = this.$scores[1];
 					}
 					for (var k = i + 1; k < stars.length; k++) {
-						stars.$set(k, this.$scores[0]);
+						stars[k].type = this.$scores[0];
 					}
 				}
 			}
@@ -215,7 +216,7 @@ var App = Sugar.Component.extend({
 		if (symbol === '+') {
 			vm.full++;
 		} else {
-			if (vm.full === 1) {
+			if (vm.full === 1 || vm.full <= Math.ceil(vm.def)) {
 				alert('不能再减了~');
 			} else {
 				vm.full--;
@@ -250,7 +251,7 @@ var App = Sugar.Component.extend({
 });
 
 // load 事件在样式加载完成后触发
-window.onload = function () {
+window.addEventListener('load', function () {
 	var app = Sugar.core.create('app', App);
 
 	// // 测试连续创建/删除子组件
@@ -274,7 +275,7 @@ window.onload = function () {
 	// 		}, testTimes);
 	// 	}, 3000);
 	// }, 3000);
-}
+});
 
 </script>
 </body>
