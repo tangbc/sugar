@@ -326,7 +326,7 @@ cp.parse = function (node, attr, scope) {
 
 		if (once) {
 			dirParser.destroy();
-		} else {
+		} else if (!scope) {
 			this.$directives.push(dirParser);
 		}
 	} else {
@@ -364,7 +364,7 @@ cp.parseText = function (node, scope) {
 
 	if (once) {
 		directive.destroy();
-	} else {
+	} else if (!scope) {
 		this.$directives.push(directive);
 	}
 }
