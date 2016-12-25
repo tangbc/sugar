@@ -101,6 +101,9 @@ ul {
 	margin: 0 5px;
 	font-size: 35px;
 	color: orange;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 .box {
