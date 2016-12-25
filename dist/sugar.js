@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.3.7 (c) 2016 TANG
+ * sugar.js v1.3.8 (c) 2016 TANG
  * Released under the MIT license
- * Sat Dec 10 2016 09:54:55 GMT+0800 (CST)
+ * Sun Dec 25 2016 10:17:02 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -2246,7 +2246,6 @@
 				return;
 			}
 
-
 			// 未指定参数，则原生事件对象作为唯一参数
 			if (!args.length) {
 				args.push(e);
@@ -4244,7 +4243,7 @@
 	 */
 	cp.compileAll = function () {
 		each(this.$queue, function (tuple) {
-			this.complieNode(tuple);
+			this.compileNode(tuple);
 			return null;
 		}, this);
 
@@ -4255,7 +4254,7 @@
 	 * 收集并编译节点指令
 	 * @param  {Array}  tuple  [node, scope]
 	 */
-	cp.complieNode = function (tuple) {
+	cp.compileNode = function (tuple) {
 		var node = tuple[0];
 		var scope = tuple[1];
 
