@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Render-list Sugar.js</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+	* { margin: 0; padding: 0; }
+	body { font: 14px Arial, sans-serif; }
+	h2 { padding: 1em; display: inline-block; }
+	input { border: 1px solid #CCC; padding: 5px 10px;outline: none; }
+	ul { padding: 0 20px 20px; }
+	li { display: block; border: 1px solid #ccc; border-bottom: none; padding: .5em; }
+	li:last-child { border-bottom: 1px solid #ccc; }
+	.odd { background: #f4f4f4; }
+	strong { display: inline-block; padding-bottom: .5em; }
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h2>
+			Search email, id or name:
+			<input type="text" v-model="search" debounce="500" trim />
+		</h2>
+		<h2>
+			Total: {{ items.length }}
+		</h2>
+		<h2>
+			Render time: {{ time }} ms
+		</h2>
+		<ul>
+			<li v-for="item in items" v-bind:class="{ odd: $index % 2 }">
+				<strong>{{ $index }}</strong>
+				<strong>{{ item.name }}</strong>
+				-
+				<span>{{ item.id }}</span>
+				<br/>
+				{{ item.email }}
+			</li>
+		</ul>
+	</div>
+
+<script type="text/javascript" src="mock-min.js"></script>
+<script type="text/javascript" src="../../../dist/sugar.min.js"></script>
+<script type="text/javascript">
+	var Random = Mock.Random;
+
+	var total = 1000;
+	var userList = [];
+	while (total--) {
+		userList.push({
+			id: Random.natural(10000, 90000),
+			name: Random.cname(),
+			email: Random.email()
+		});
+	}
+
+	function perf () {
+		if (window.performance) {
+			return window.performance.now(); // IE10 +
+		} else {
+			return Date.now(); // IE9 +
+		}
+	}
+
+	var App = Sugar.Component.extend({
+		init: function (config) {
+			this.Super('init', config, {
+				target: '#app',
+				model: {
+					time: 0,
+					search: '',
+					items: userList
+				},
+				watchAll: this.watchAll
+			});
+		},
+
+		watchAll: function (param, val) {
+			var startTime;
+			var vm = this.vm.$data;
+
+			if (param.path === 'search') {
+				startTime = perf();
+				vm.items = userList.filter(function (item) {
+					return item.email.indexOf(val) > -1 ||
+							item.name.indexOf(val) > -1 ||
+							item.id.toString().indexOf(val) > -1;
+				});
+				vm.time = perf() - startTime;
+			}
+		}
+	});
+
+	var startTime = perf();
+	var app = Sugar.core.create('app', App);
+	app.vm.$data.time = perf() - startTime;
+</script>
+</body>
+</html>

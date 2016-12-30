@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>dbmon Sugar.js</title>
+	<link href="libs/styles.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<table id="app" class="table table-striped lastest-data">
+		<tbody>
+			<tr v-for="db of databases">
+				<td class="dbname">{{ db.dbname }}</td>
+				<td class="query-count">
+					<span v-bind:class="db.lastSample.countClassName">{{ db.lastSample.nbQueries }}</span>
+				</td>
+				<td v-for="q of db.lastSample.topFiveQueries" class="Query" v-bind:class="q.elapsedClassName">
+					{{ q.formatElapsed }}
+					<div class="popover left">
+						<div class="popover-content">{{ q.query }}</div>
+						<div class="arrow"></div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<!-- dbmon libs -->
+	<script src="libs/ENV.js"></script>
+	<script src="libs/memory-stats.js"></script>
+	<script src="libs/monitor.js"></script>
+
+	<!-- sugar.js -->
+	<script src="../../../dist/sugar.min.js"></script>
+	<script type="text/javascript">
+		var App = Sugar.Component.extend({
+			init: function (config) {
+				this.Super('init', config, {
+					target: '#app',
+					model: {
+						databases: []
+					},
+					cbRender: 'repaint'
+				});
+			},
+
+			repaint: function () {
+				var self = this;
+				self.vm.$data.databases = ENV.generateData(true).toArray();
+				Monitoring.renderRate.ping();
+				setTimeout(function () {
+					self.repaint();
+				}, ENV.timeout);
+			}
+		});
+
+		Sugar.core.create('app', App);
+	</script>
+</body>
+</html>
