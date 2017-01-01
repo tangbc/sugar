@@ -46,7 +46,7 @@ each([
 			observeArray(inserts);
 		}
 
-		ob.dep.notify({method, args});
+		ob.dep.notify({method, args, source: this});
 
 		return result;
 	});

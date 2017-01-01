@@ -190,10 +190,18 @@ wp.update = function (args, depend) {
 	let unifyCb = this.vm.$unifyCb;
 	let newVal = this.value = this.get();
 
+	// 多维数组的情况下判断数组操作是否为源数组所发出的
+	let source = args && args.source;
+	if (source && source !== newVal && this.directive === 'v-for') {
+		return;
+	}
+
 	let callback = this.callback;
 	if (callback && (oldVal !== newVal)) {
-		let fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0;
-		callback.call(this.context, newVal, oldVal, fromDeep, args);
+		callback.call(this.context, newVal, oldVal, (this.deep && this.shallowIds.indexOf(depend.guid) < 0), args);
+		if (source) {
+			args.source = null;
+		}
 	}
 
 	// 通知统一监听回调

@@ -706,4 +706,63 @@ describe('v-for >', function () {
 		data.items[2].text = 'a';
 		expect(ul.textContent).toBe('XXcbaOO');
 	});
+
+
+	it('two-dimensional array', function () {
+		element.innerHTML =
+			'<ul id="test">' +
+				'<li v-for="item in items">' +
+					'-' +
+					'<ul>' +
+						'<li v-for="sub in item">' +
+							'{{ sub }}' +
+						'</li>' +
+					'</ul>' +
+					'-' +
+				'</li>' +
+			'</ul>'
+
+		let vm = new MVVM({
+			view: element,
+			model: {
+				items: [
+					['a']
+				]
+			}
+		});
+
+		let data = vm.$data;
+		let items = data.items;
+		let ul = element.querySelector('#test');
+
+		expect(ul.textContent).toBe('-a-');
+
+		items[0].push('b');
+		expect(ul.textContent).toBe('-ab-');
+		items[0].push('c');
+		expect(ul.textContent).toBe('-abc-');
+
+		items.$set(0, []); // amount to `items[0] = []`
+		expect(ul.textContent).toBe('--');
+
+		items[0].unshift('c');
+		items[0].unshift('b');
+		items[0].unshift('a');
+		expect(ul.textContent).toBe('-abc-');
+
+		items.push(['d', 'e', 'f']);
+		expect(ul.textContent).toBe('-abc--def-');
+
+		items[1].push('g');
+		items[1].push('h');
+		expect(ul.textContent).toBe('-abc--defgh-');
+
+		items.splice(0, 1);
+		expect(ul.textContent).toBe('-defgh-');
+
+		items[0].unshift('c');
+		items[0].unshift('b');
+		items[0].unshift('a');
+		expect(ul.textContent).toBe('-abcdefgh-');
+	});
 });
