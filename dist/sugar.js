@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.3.8 (c) 2016 TANG
+ * sugar.js v1.3.8 (c) 2017 TANG
  * Released under the MIT license
- * Sun Dec 25 2016 16:58:22 GMT+0800 (CST)
+ * Sun Jan 01 2017 11:39:18 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1351,7 +1351,7 @@
 	var regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 
 	// 表达式中允许的关键字
-	var allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
+	var allowKeywords = 'JSON.Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
 						'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
 	var regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
 
@@ -1643,10 +1643,18 @@
 		var unifyCb = this.vm.$unifyCb;
 		var newVal = this.value = this.get();
 
+		// 多维数组的情况下判断数组操作是否为源数组所发出的
+		var source = args && args.source;
+		if (source && source !== newVal && this.directive === 'v-for') {
+			return;
+		}
+
 		var callback = this.callback;
 		if (callback && (oldVal !== newVal)) {
-			var fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0;
-			callback.call(this.context, newVal, oldVal, fromDeep, args);
+			callback.call(this.context, newVal, oldVal, (this.deep && this.shallowIds.indexOf(depend.guid) < 0), args);
+			if (source) {
+				args.source = null;
+			}
 		}
 
 		// 通知统一监听回调
@@ -2408,7 +2416,7 @@
 				observeArray(inserts);
 			}
 
-			ob.dep.notify({method: method, args: args});
+			ob.dep.notify({method: method, args: args, source: this});
 
 			return result;
 		});
@@ -4287,6 +4295,7 @@
 			// 当 v-bind 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
 			// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind
 			// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
+			/* istanbul ignore next */
 			if (
 				!vfor &&
 				hasBind &&
