@@ -13,7 +13,7 @@ const regReplaceScope = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|
 const regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 
 // 表达式中允许的关键字
-const allowKeywords = 'Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
+const allowKeywords = 'JSON.Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
 					'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
 const regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
 

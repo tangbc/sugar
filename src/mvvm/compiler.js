@@ -269,6 +269,7 @@ cp.compileNode = function (tuple) {
 		// 当 v-bind 和 v-model 共存时，即使 v-model 写在 v-bind 的后面
 		// 在 IE9+ 和 Edge 中遍历 attributes 时 v-model 仍然会先于 v-bind
 		// 所以当二者共存时，v-model 需要放到最后编译以保证表单 value 的正常获取
+		/* istanbul ignore next */
 		if (
 			!vfor &&
 			hasBind &&
