@@ -5,7 +5,7 @@ import {
 } from '../util';
 
 const regSuper = /\b\.Super\b/;
-const toString = Function.prototype.toString;
+const _toString = Function.prototype.toString;
 
 /**
  * 对子类方法挂载 Super
@@ -16,7 +16,7 @@ const toString = Function.prototype.toString;
 function bindSuper (Super, method) {
 	if (
 		isFunc(method) &&
-		regSuper.test(toString.call(method))
+		regSuper.test(_toString.call(method))
 	) {
 		return function () {
 			this.Super = Super;

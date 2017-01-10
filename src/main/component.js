@@ -11,9 +11,9 @@ import {
 	isArray,
 	isObject,
 	isString,
+	_toString,
 	clearObject,
-	createElement,
-	stringToFragment
+	createElement
 } from '../util';
 
 /**
@@ -163,7 +163,7 @@ let Component = Module.extend({
 
 		// 添加页面视图布局
 		if (c.view) {
-			this.el.appendChild(stringToFragment(c.view));
+			this.el.innerHTML = _toString(c.view);
 		}
 
 		// 初始化 mvvm 对象

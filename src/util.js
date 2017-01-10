@@ -328,29 +328,6 @@ export function nodeToFragment (element) {
 }
 
 /**
- * 字符串 html 转文档碎片
- * @param   {String}    html
- * @return  {Fragment}
- */
-export function stringToFragment (html) {
-	let fragment;
-
-	// 存在标签
-	if (/<[^>]+>/g.test(html)) {
-		let div = createElement('div');
-		div.innerHTML = html;
-		fragment = nodeToFragment(div);
-	}
-	// 纯文本节点
-	else {
-		fragment = createFragment();
-		fragment.appendChild(document.createTextNode(html));
-	}
-
-	return fragment;
-}
-
-/**
  * 去掉字符串中所有空格
  * @param   {String}  string
  * @return  {String}
