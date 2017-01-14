@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.3.9 (c) 2017 TANG
  * Released under the MIT license
- * Sun Jan 01 2017 11:48:15 GMT+0800 (CST)
+ * Sat Jan 14 2017 17:21:50 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -309,15 +309,6 @@
 
 
 	/**
-	 * 创建一个空的 dom 元素
-	 * @param   {String}  tag  [元素标签名称]
-	 * @return  {Elemnt}
-	 */
-	function createElement (tag) {
-		return document.createElement(tag);
-	}
-
-	/**
 	 * 返回一个空文档碎片
 	 * @return  {Fragment}
 	 */
@@ -335,29 +326,6 @@
 
 		while (child = element.firstChild) {
 			fragment.appendChild(child);
-		}
-
-		return fragment;
-	}
-
-	/**
-	 * 字符串 html 转文档碎片
-	 * @param   {String}    html
-	 * @return  {Fragment}
-	 */
-	function stringToFragment (html) {
-		var fragment;
-
-		// 存在标签
-		if (/<[^>]+>/g.test(html)) {
-			var div = createElement('div');
-			div.innerHTML = html;
-			fragment = nodeToFragment(div);
-		}
-		// 纯文本节点
-		else {
-			fragment = createFragment();
-			fragment.appendChild(document.createTextNode(html));
 		}
 
 		return fragment;
@@ -2558,7 +2526,7 @@
 	 * @param  {String}  value
 	 */
 	vhtml.update = function (value) {
-		empty(this.el).appendChild(stringToFragment(_toString(value)));
+		this.el.innerHTML = _toString(value);
 	}
 
 	var visibleDisplay = '__visible__';

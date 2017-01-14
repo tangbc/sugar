@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.3.9 (c) 2017 TANG
  * Released under the MIT license
- * Sun Jan 01 2017 11:48:14 GMT+0800 (CST)
+ * Sat Jan 14 2017 17:21:49 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -341,29 +341,6 @@
 	}
 
 	/**
-	 * 字符串 html 转文档碎片
-	 * @param   {String}    html
-	 * @return  {Fragment}
-	 */
-	function stringToFragment (html) {
-		var fragment;
-
-		// 存在标签
-		if (/<[^>]+>/g.test(html)) {
-			var div = createElement('div');
-			div.innerHTML = html;
-			fragment = nodeToFragment(div);
-		}
-		// 纯文本节点
-		else {
-			fragment = createFragment();
-			fragment.appendChild(document.createTextNode(html));
-		}
-
-		return fragment;
-	}
-
-	/**
 	 * 去掉字符串中所有空格
 	 * @param   {String}  string
 	 * @return  {String}
@@ -533,7 +510,7 @@
 	var cache = { id: 1, length: 0 }
 
 	var regSuper = /\b\.Super\b/;
-	var toString = Function.prototype.toString;
+	var _toString$1 = Function.prototype.toString;
 
 	/**
 	 * 对子类方法挂载 Super
@@ -544,7 +521,7 @@
 	function bindSuper (Super, method) {
 		if (
 			isFunc(method) &&
-			regSuper.test(toString.call(method))
+			regSuper.test(_toString$1.call(method))
 		) {
 			return function () {
 				this.Super = Super;
@@ -3258,7 +3235,7 @@
 	 * @param  {String}  value
 	 */
 	vhtml.update = function (value) {
-		empty(this.el).appendChild(stringToFragment(_toString(value)));
+		this.el.innerHTML = _toString(value);
 	}
 
 	var visibleDisplay = '__visible__';
@@ -4744,7 +4721,7 @@
 
 			// 添加页面视图布局
 			if (c.view) {
-				this.el.appendChild(stringToFragment(c.view));
+				this.el.innerHTML = _toString(c.view);
 			}
 
 			// 初始化 mvvm 对象
