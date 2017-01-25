@@ -2,15 +2,14 @@ import { formatValue } from './index';
 import { toNumber, _toString } from '../../../util';
 
 /**
- * 保证 func 在 delay 时间内只触发一次
- * @param   {Function}   func
- * @param   {Number}     delay
- * @return  {TimeoutId}
+ * 保证 func 在上次执行后的 delay 时间内不会被触发第二次
+ * @param  {Function}  func
+ * @param  {Number}    delay
  */
-let beginTime;
+let beginTime = 0;
 function debounceDelay (func, delay) {
 	beginTime = Date.now();
-	return setTimeout(function () {
+	setTimeout(function () {
 		if (Date.now() - beginTime >= delay) {
 			func.call(func);
 		}
@@ -86,7 +85,7 @@ export default {
 		/* istanbul ignore next */
 		if (isMsie9) {
 			this.on('cut', function () {
-				debounceDelay(() => setModelValue(this.value));
+				setModelValue(this.value);
 			});
 
 			this.on('keyup', function (e) {
