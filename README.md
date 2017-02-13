@@ -1,15 +1,12 @@
-<p align="center">
+<p>
 	<a href="https://travis-ci.org/tangbc/sugar">
 		<img src="https://travis-ci.org/tangbc/sugar.svg?branch=master" alt="Travis CI Status"/>
 	</a>
 	<a href="https://codecov.io/gh/tangbc/sugar">
 		<img src="https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg" alt="Code Coverage"/>
 	</a>
-  <a href="https://npmjs.com/package/sugar-js">
+	<a href="https://npmjs.com/package/sugar-js">
 		<img src="https://img.shields.io/npm/v/sugar-js.svg?style=flat" alt="NPM version"/>
-	</a>
-	<a href="https://saucelabs.com/u/tangbc">
-		<img src="https://saucelabs.com/buildstatus/tangbc" alt="Sauce Test Status"/>
 	</a>
 	<br>
 	<img src="https://tangbc.github.io/github-images/browser-matrix.svg" alt="Sauce Browser Matrix"/>
