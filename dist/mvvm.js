@@ -1,7 +1,7 @@
 /*!
- * mvvm.js v1.3.9 (c) 2017 TANG
+ * mvvm.js v1.4.0 (c) 2017 TANG
  * Released under the MIT license
- * Sat Jan 14 2017 17:21:50 GMT+0800 (CST)
+ * Sat Mar 18 2017 16:26:31 GMT+0800 (CST)
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1630,8 +1630,7 @@
 	vel.parse = function () {
 		// 不能在 vfor 中使用
 		if (!this.scope) {
-			var register = this.desc.expression;
-			this.vm.$regEles[register] = this.el;
+			this.vm.$regEles[this.desc.expression] = this.el;
 		} else {
 			warn('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.');
 		}
@@ -2864,15 +2863,14 @@
 	}
 
 	/**
-	 * 保证 func 在 delay 时间内只触发一次
-	 * @param   {Function}   func
-	 * @param   {Number}     delay
-	 * @return  {TimeoutId}
+	 * 保证 func 在上次执行后的 delay 时间内不会被触发第二次
+	 * @param  {Function}  func
+	 * @param  {Number}    delay
 	 */
-	var beginTime;
+	var beginTime = 0;
 	function debounceDelay (func, delay) {
 		beginTime = Date.now();
-		return setTimeout(function () {
+		setTimeout(function () {
 			if (Date.now() - beginTime >= delay) {
 				func.call(func);
 			}
@@ -2948,9 +2946,7 @@
 			/* istanbul ignore next */
 			if (isMsie9) {
 				this.on('cut', function () {
-					var this$1 = this;
-
-					debounceDelay(function () { return setModelValue(this$1.value); });
+					setModelValue(this.value);
 				});
 
 				this.on('keyup', function (e) {
