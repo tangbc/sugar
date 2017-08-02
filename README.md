@@ -15,12 +15,11 @@
 
 ## sugar
 
-> A lightweight and powerful JavaScript MVVM library for building web UI component.
+> A lightweight and powerful JavaScript MVVM library for building easy web UI.
 
-Simple api and without any dependence.
-Consists of two independent libraries:
-* **`sugar.js`** *Component system + MVVM , for building flexible web component*.
-* **`mvvm.js`** *Achived above MVVM* , ***it doesn't rely on sugar, it can be used independently***.
+Simple api and without any dependence. Consists of two independent libraries:
+* **`mvvm.js`** *A simple ViewModel library* , ***it can be used independently***.
+* **`sugar.js`** *Component system + mvvm.js , for building flexible web components*.
 
 
 ## Diagram
@@ -28,47 +27,68 @@ Consists of two independent libraries:
 <img src="https://tangbc.github.io/github-images/sugar-diagram-en.png" width="600">
 
 
-## HelloWorld
+## HelloWord
+
+### mvvm.js
 ```html
 <html>
 <body>
 	<div id="app">
 		<h1>{{ title }}</h1>
 	</div>
+
+	<script src="https://tangbc.github.io/sugar/dist/mvvm.js"></script>
+	<script>
+	var vm = new MVVM({
+		view: document.getElementById('#app'),
+		model: {
+			title: 'Hello world!'
+		}
+	})
+
+	// Model drive View:
+	vm.$data.title = 'Change title!';
+	</script>
 </body>
 </html>
 ```
-```javascript
-// define HelloWorld component:
-var HelloWorld = Sugar.Component.extend({
-	init: function (config) {
-		this.Super('init', config, {
-			target: '#app',
-			model: {
-				title: 'Hello world!'
-			}
-		});
-	}
-});
+More MVVM directives are supported, see all at [documentation](https://github.com/tangbc/sugar/wiki/MVVM).
 
-// create component instance:
-var app = Sugar.core.create('hello-world', HelloWord);
-```
-And then the HTML structure was rendered/parsed to be:
+### sugar.js
 ```html
 <html>
 <body>
-	<div class="app">
-		<h1>Hello world!</h1>
+	<div id="app">
+		<h1>{{ title }}</h1>
 	</div>
+
+	<script src="https://tangbc.github.io/sugar/dist/sugar.js"></script>
+	<script>
+	// define HelloWorld component:
+	var HelloWorld = Sugar.Component.extend({
+		init: function (config) {
+			this.Super('init', config, {
+				target: '#app',
+				model: {
+					title: 'Hello world!'
+				}
+			});
+		},
+		// Hook of after view was rendered.
+		afterRender: function () {
+			// Model drive View:
+			this.vm.$data.title = 'Change title!';
+		}
+	});
+
+	// create component instance:
+	var app = Sugar.core.create('hello-world', HelloWord);
+	</script>
 </body>
 </html>
 ```
-Data reactive (Model Drive View):
-```javascript
-app.vm.$data.title = 'Change the title!'; // <h1>Change the title!</h1>
-```
-More MVVM directives are supported, see all at [documentation](https://github.com/tangbc/sugar/wiki/MVVM).
+SubComponent, component nesting and message system see [documentaion](https://github.com/tangbc/sugar/wiki).
+
 
 ## Demos
 
@@ -87,8 +107,6 @@ You can also experience `sugar.js` online with a ***RadioComponent*** at [jsfidd
 
 
 ## Usage
-
-* Get by NodeJS package: `npm install sugar-js --save`
 
 * Both support [`UMD`](https://github.com/umdjs/umd) (Universal Module Definition)
 	* `mvvm.js (just 28 kb)` https://tangbc.github.io/sugar/dist/mvvm.min.js
