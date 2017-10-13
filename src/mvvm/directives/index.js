@@ -14,14 +14,14 @@ import { VCustom as vcustom } from './custom';
  * @type {Object}
  */
 export const DirectiveParsers = {
-	von,
-	vel,
-	vif,
-	vfor,
-	vtext,
-	vhtml,
-	vshow,
-	vbind,
-	vmodel,
-	vcustom
+    von,
+    vel,
+    vif,
+    vfor,
+    vtext,
+    vhtml,
+    vshow,
+    vbind,
+    vmodel,
+    vcustom
 };

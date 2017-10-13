@@ -7,9 +7,9 @@ let guid = 0;
  * @param  {String}  path  [数据路径]
  */
 export default function Depend (path) {
-	this.path = path;
-	this.watchers = [];
-	this.guid = guid++;
+    this.path = path;
+    this.watchers = [];
+    this.guid = guid++;
 }
 
 /**
@@ -25,7 +25,7 @@ let dp = Depend.prototype;
  * @param  {Object}  watcher
  */
 dp.addWatcher = function (watcher) {
-	this.watchers.push(watcher);
+    this.watchers.push(watcher);
 }
 
 /**
@@ -33,25 +33,25 @@ dp.addWatcher = function (watcher) {
  * @param  {Object}  watcher
  */
 dp.removeWatcher = function (watcher) {
-	this.watchers.$remove(watcher);
+    this.watchers.$remove(watcher);
 }
 
 /**
  * 为 watcher 收集当前的依赖
  */
 dp.depend = function () {
-	if (Depend.watcher) {
-		Depend.watcher.addDepend(this);
-	}
+    if (Depend.watcher) {
+        Depend.watcher.addDepend(this);
+    }
 }
 
 /**
  * 依赖变更前调用方法，用于旧数据的缓存处理
  */
 dp.beforeNotify = function () {
-	each(this.watchers, function (watcher) {
-		watcher.beforeUpdate();
-	});
+    each(this.watchers, function (watcher) {
+        watcher.beforeUpdate();
+    });
 }
 
 /**
@@ -59,7 +59,7 @@ dp.beforeNotify = function () {
  * @param  {Object}  args  [数组操作参数信息]
  */
 dp.notify = function (args) {
-	each(this.watchers, function (watcher) {
-		watcher.update(args, this);
-	}, this);
+    each(this.watchers, function (watcher) {
+        watcher.update(args, this);
+    }, this);
 }

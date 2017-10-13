@@ -8,10 +8,10 @@ import { toNumber } from '../../../util';
  * 导出 model 类型
  */
 export {
-	text,
-	radio,
-	select,
-	checkbox
+    text,
+    radio,
+    select,
+    checkbox
 };
 
 /**
@@ -21,7 +21,7 @@ export {
  * @return  {Number}
  */
 export function formatValue (value, convertToNumber) {
-	return convertToNumber ? toNumber(value) : value;
+    return convertToNumber ? toNumber(value) : value;
 }
 
 /**
@@ -31,13 +31,13 @@ export function formatValue (value, convertToNumber) {
  * @return  {Number}
  */
 export function indexOf (item, array) {
-	for (let i = 0; i < array.length; i++) {
-		/* jshint ignore:start */
-		if (array[i] == item) {
-			return i;
-		}
-		/* jshint ignore:end */
-	}
+    for (let i = 0; i < array.length; i++) {
+        /* jshint ignore:start */
+        if (array[i] == item) {
+            return i;
+        }
+        /* jshint ignore:end */
+    }
 
-	return -1;
+    return -1;
 }

@@ -9,43 +9,43 @@ import { each, isString, isArray, isObject, isEmptyObject, warn } from '../../ut
  * @return  {Object}
  */
 function getDiffObject (contrast, refer) {
-	let unique = {};
+    let unique = {};
 
-	each(contrast, function (value, key) {
-		let _diff, oldItem = refer[key];
+    each(contrast, function (value, key) {
+        let _diff, oldItem = refer[key];
 
-		if (isObject(value)) {
-			_diff = getDiffObject(value, oldItem);
-			if (!isEmptyObject(_diff)) {
-				unique[key] = _diff;
-			}
-		} else if (isArray(value)) {
-			let newArray = [];
+        if (isObject(value)) {
+            _diff = getDiffObject(value, oldItem);
+            if (!isEmptyObject(_diff)) {
+                unique[key] = _diff;
+            }
+        } else if (isArray(value)) {
+            let newArray = [];
 
-			each(value, function (nItem, index) {
-				let _diff;
+            each(value, function (nItem, index) {
+                let _diff;
 
-				if (isObject(nItem)) {
-					_diff = getDiffObject(nItem, oldItem[index]);
-					newArray.push(_diff);
-				}
-				else {
-					// 新数组元素
-					if (oldItem.indexOf(nItem) < 0) {
-						newArray.push(nItem);
-					}
-				}
-			});
+                if (isObject(nItem)) {
+                    _diff = getDiffObject(nItem, oldItem[index]);
+                    newArray.push(_diff);
+                }
+                else {
+                    // 新数组元素
+                    if (oldItem.indexOf(nItem) < 0) {
+                        newArray.push(nItem);
+                    }
+                }
+            });
 
-			unique[key] = newArray;
-		} else {
-			if (value !== oldItem) {
-				unique[key] = value;
-			}
-		}
-	});
+            unique[key] = newArray;
+        } else {
+            if (value !== oldItem) {
+                unique[key] = value;
+            }
+        }
+    });
 
-	return unique;
+    return unique;
 }
 
 /**
@@ -55,19 +55,19 @@ function getDiffObject (contrast, refer) {
  * @return  {Array}
  */
 function getDiffArray (contrast, refer) {
-	let uniques = [];
+    let uniques = [];
 
-	if (!isArray(contrast) || !isArray(refer)) {
-		return contrast;
-	}
+    if (!isArray(contrast) || !isArray(refer)) {
+        return contrast;
+    }
 
-	each(contrast, function (item) {
-		if (refer.indexOf(item) < 0) {
-			uniques.push(item);
-		}
-	});
+    each(contrast, function (item) {
+        if (refer.indexOf(item) < 0) {
+            uniques.push(item);
+        }
+    });
 
-	return uniques;
+    return uniques;
 }
 
 /**
@@ -78,14 +78,14 @@ function getDiffArray (contrast, refer) {
  * @return  {Object}
  */
 function diff (newVal, oldVal) {
-	let isA = isArray(newVal) && isArray(oldVal);
-	let isO = isObject(newVal) && isObject(oldVal);
-	let handler = isO ? getDiffObject : (isA ? getDiffArray : null);
+    let isA = isArray(newVal) && isArray(oldVal);
+    let isO = isObject(newVal) && isObject(oldVal);
+    let handler = isO ? getDiffObject : (isA ? getDiffArray : null);
 
-	let after = handler && handler(newVal, oldVal) || newVal;
-	let before = handler && handler(oldVal, newVal) || oldVal;
+    let after = handler && handler(newVal, oldVal) || newVal;
+    let before = handler && handler(oldVal, newVal) || oldVal;
 
-	return { after, before };
+    return { after, before };
 }
 
 /**
@@ -94,17 +94,17 @@ function diff (newVal, oldVal) {
  * @param  {String}   styleObject
  */
 function updateStyle (element, styleObject) {
-	let style = element.style;
+    let style = element.style;
 
-	if (!isObject(styleObject)) {
-		return warn('v-bind for style must be a type of Object', styleObject);
-	}
+    if (!isObject(styleObject)) {
+        return warn('v-bind for style must be a type of Object', styleObject);
+    }
 
-	each(styleObject, function (value, property) {
-		if (style[property] !== value) {
-			style[property] = value;
-		}
-	});
+    each(styleObject, function (value, property) {
+        if (style[property] !== value) {
+            style[property] = value;
+        }
+    });
 }
 
 /**
@@ -114,13 +114,13 @@ function updateStyle (element, styleObject) {
  * @param  {Boolean}  remove
  */
 function handleClass (element, className, remove) {
-	each(className.split(' '), function (cls) {
-		if (remove) {
-			removeClass(element, cls);
-		} else {
-			addClass(element, cls);
-		}
-	});
+    each(className.split(' '), function (cls) {
+        if (remove) {
+            removeClass(element, cls);
+        } else {
+            addClass(element, cls);
+        }
+    });
 }
 
 /**
@@ -130,17 +130,17 @@ function handleClass (element, className, remove) {
  * @param  {Boolean}  remove
  */
 function updateClass (element, classValue, remove) {
-	if (isString(classValue)) {
-		handleClass(element, classValue, remove);
-	} else if (isArray(classValue)) {
-		each(classValue, function (cls) {
-			handleClass(element, cls, remove);
-		});
-	} else if (isObject(classValue)) {
-		each(classValue, function (add, cls) {
-			handleClass(element, cls, remove || !add);
-		});
-	}
+    if (isString(classValue)) {
+        handleClass(element, classValue, remove);
+    } else if (isArray(classValue)) {
+        each(classValue, function (cls) {
+            handleClass(element, cls, remove);
+        });
+    } else if (isObject(classValue)) {
+        each(classValue, function (add, cls) {
+            handleClass(element, cls, remove || !add);
+        });
+    }
 }
 
 
@@ -148,7 +148,7 @@ function updateClass (element, classValue, remove) {
  * v-bind 指令解析模块
  */
 export function VBind () {
-	Parser.apply(this, arguments);
+    Parser.apply(this, arguments);
 }
 
 let vbind = linkParser(VBind);
@@ -157,8 +157,8 @@ let vbind = linkParser(VBind);
  * 解析 v-bind 指令
  */
 vbind.parse = function () {
-	this.desc.deep = true;
-	this.bind();
+    this.desc.deep = true;
+    this.bind();
 }
 
 /**
@@ -167,12 +167,12 @@ vbind.parse = function () {
  * @param  {Mix}  oldValue
  */
 vbind.update = function (newValue, oldValue) {
-	let type = this.desc.args;
-	if (type) {
-		this.single(type, newValue, oldValue);
-	} else {
-		this.multi(newValue, oldValue);
-	}
+    let type = this.desc.args;
+    if (type) {
+        this.single(type, newValue, oldValue);
+    } else {
+        this.multi(newValue, oldValue);
+    }
 }
 
 /**
@@ -182,16 +182,16 @@ vbind.update = function (newValue, oldValue) {
  * @param  {Mix}     oldValue
  */
 vbind.single = function (type, newValue, oldValue) {
-	switch (type) {
-		case 'class':
-			this.processClass(newValue, oldValue);
-			break;
-		case 'style':
-			this.processStyle(newValue, oldValue);
-			break;
-		default:
-			this.processAttr(type, newValue);
-	}
+    switch (type) {
+        case 'class':
+            this.processClass(newValue, oldValue);
+            break;
+        case 'style':
+            this.processStyle(newValue, oldValue);
+            break;
+        default:
+            this.processAttr(type, newValue);
+    }
 }
 
 /**
@@ -200,12 +200,12 @@ vbind.single = function (type, newValue, oldValue) {
  * @param  {Object}  oldObj
  */
 vbind.multi = function (newObj, oldObj) {
-	if (oldObj) {
-		let { after, before } = diff(newObj, oldObj);
-		this.batch(after, before);
-	}
+    if (oldObj) {
+        let { after, before } = diff(newObj, oldObj);
+        this.batch(after, before);
+    }
 
-	this.batch(newObj);
+    this.batch(newObj);
 }
 
 /**
@@ -214,9 +214,9 @@ vbind.multi = function (newObj, oldObj) {
  * @param  {Object}  oldObj
  */
 vbind.batch = function (newObj, oldObj) {
-	each(newObj, function (value, key) {
-		this.single(key, value, oldObj && oldObj[key]);
-	}, this);
+    each(newObj, function (value, key) {
+        this.single(key, value, oldObj && oldObj[key]);
+    }, this);
 }
 
 /**
@@ -225,16 +225,16 @@ vbind.batch = function (newObj, oldObj) {
  * @param  {Mix}  oldClass
  */
 vbind.processClass = function (newClass, oldClass) {
-	let el = this.el;
+    let el = this.el;
 
-	// 数据更新
-	if (oldClass) {
-		let { after, before } = diff(newClass, oldClass);
-		updateClass(el, before, true);
-		updateClass(el, after);
-	} else {
-		updateClass(el, newClass);
-	}
+    // 数据更新
+    if (oldClass) {
+        let { after, before } = diff(newClass, oldClass);
+        updateClass(el, before, true);
+        updateClass(el, after);
+    } else {
+        updateClass(el, newClass);
+    }
 }
 
 /**
@@ -243,19 +243,19 @@ vbind.processClass = function (newClass, oldClass) {
  * @param  {Mix}  oldStyle
  */
 vbind.processStyle = function (newStyle, oldStyle) {
-	let el = this.el;
+    let el = this.el;
 
-	// 数据更新
-	if (oldStyle) {
-		// 移除旧样式(设为 '')
-		each(oldStyle, function (v, key) {
-			oldStyle[key] = '';
-		});
+    // 数据更新
+    if (oldStyle) {
+        // 移除旧样式(设为 '')
+        each(oldStyle, function (v, key) {
+            oldStyle[key] = '';
+        });
 
-		updateStyle(el, oldStyle);
-	}
+        updateStyle(el, oldStyle);
+    }
 
-	updateStyle(el, newStyle);
+    updateStyle(el, newStyle);
 }
 
 /**
@@ -264,5 +264,5 @@ vbind.processStyle = function (newStyle, oldStyle) {
  * @param  {String}   value
  */
 vbind.processAttr = function (attr, value) {
-	setAttr(this.el, attr, value);
+    setAttr(this.el, attr, value);
 }

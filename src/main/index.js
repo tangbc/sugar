@@ -14,7 +14,7 @@ let Sugar = Object.create(null);
  * @param  {Object}  extra  [扩展对象]
  */
 Sugar.extend = function (extra) {
-	util.extend.call(this, extra);
+    util.extend.call(this, extra);
 }
 
 Sugar.extend({ ajax, core, util, Component });

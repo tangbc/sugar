@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<meta charset="utf-8">
-	<title>打星评分组件</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <meta charset="utf-8">
+    <title>打星评分组件</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 </head>
 <body>
-	<header id="head">
-		<h1>利用 sugar.js 开发的打星评分组件</h1>
-		<h3>演示如何定义一个简单的通用组件，并利用动态列表来实现子组件的创建和移除（组件复用/销毁）</h3>
-		<p>
-			<i>
-				PS：星星是用
-				<a href="http://fortawesome.github.io/Font-Awesome/icons/" target="_blank"> Font Awesome Bootstrap CDN </a>
-				的矢量图标，所以 CSS 和字体文件的加载会有点慢，没有梯子的请耐心等待或刷新 ……
-			</i>
-		</p>
-	</header>
-	<hr>
-	<section id="app">
-		<div class="creator">
-			<ul class="setting">
-				<li>
-					<label class="allow">
-						<input type="checkbox" v-model="allowHalf"> 允许评 0.5 分
-					</label>
-				</li>
-				<li>
-					<label class="item">满分</label>
-					<span v-on:click="clickFull('-')" class="handle">
-						<i class="fa fa-minus-square"></i>
-					</span>
-					<input class="score" type="text" readonly="readonly" v-model="full">
-					<span v-on:click="clickFull('+')" class="handle">
-						<i class="fa fa-plus-square"></i>
-					</span>
-				</li>
-				<li>
-					<label class="item">默认</label>
-					<span v-on:click="clickDef('-')" class="handle">
-						<i class="fa fa-minus-square"></i>
-					</span>
-					<input class="score" type="text" readonly="readonly" v-model="def">
-					<span v-on:click="clickDef('+')" class="handle">
-						<i class="fa fa-plus-square"></i>
-					</span>
-				</li>
-				<li>
-					<button class="button" v-on:click="clickButton" v-el="btn">矢量图标加载中 ···</button>
-				</li>
-			</ul>
-		</div>
-		<!-- 模块容器 -->
-		<div class="container">
-			<!-- 评分组件载体容器列表 -->
-			<div class="star-container" v-for="comp in comps" v-hook:after="afterAppend" v-hook:before="beforeRemove">
-				<span class="trash" title="移除该组件" v-on:click="$remove">
-					<i class="fa fa-trash"></i>
-				</span>
-				<!-- 评分组件会被添加到这条注释的下一个位置（appendChild） -->
-			</div>
-		</div>
-	</section>
+    <header id="head">
+        <h1>利用 sugar.js 开发的打星评分组件</h1>
+        <h3>演示如何定义一个简单的通用组件，并利用动态列表来实现子组件的创建和移除（组件复用/销毁）</h3>
+        <p>
+            <i>
+                PS：星星是用
+                <a href="http://fortawesome.github.io/Font-Awesome/icons/" target="_blank"> Font Awesome Bootstrap CDN </a>
+                的矢量图标，所以 CSS 和字体文件的加载会有点慢，没有梯子的请耐心等待或刷新 ……
+            </i>
+        </p>
+    </header>
+    <hr>
+    <section id="app">
+        <div class="creator">
+            <ul class="setting">
+                <li>
+                    <label class="allow">
+                        <input type="checkbox" v-model="allowHalf"> 允许评 0.5 分
+                    </label>
+                </li>
+                <li>
+                    <label class="item">满分</label>
+                    <span v-on:click="clickFull('-')" class="handle">
+                        <i class="fa fa-minus-square"></i>
+                    </span>
+                    <input class="score" type="text" readonly="readonly" v-model="full">
+                    <span v-on:click="clickFull('+')" class="handle">
+                        <i class="fa fa-plus-square"></i>
+                    </span>
+                </li>
+                <li>
+                    <label class="item">默认</label>
+                    <span v-on:click="clickDef('-')" class="handle">
+                        <i class="fa fa-minus-square"></i>
+                    </span>
+                    <input class="score" type="text" readonly="readonly" v-model="def">
+                    <span v-on:click="clickDef('+')" class="handle">
+                        <i class="fa fa-plus-square"></i>
+                    </span>
+                </li>
+                <li>
+                    <button class="button" v-on:click="clickButton" v-el="btn">矢量图标加载中 ···</button>
+                </li>
+            </ul>
+        </div>
+        <!-- 模块容器 -->
+        <div class="container">
+            <!-- 评分组件载体容器列表 -->
+            <div class="star-container" v-for="comp in comps" v-hook:after="afterAppend" v-hook:before="beforeRemove">
+                <span class="trash" title="移除该组件" v-on:click="$remove">
+                    <i class="fa fa-trash"></i>
+                </span>
+                <!-- 评分组件会被添加到这条注释的下一个位置（appendChild） -->
+            </div>
+        </div>
+    </section>
 
 <script type="text/javascript" src="../../dist/sugar.min.js"></script>
 <script type="text/javascript">
@@ -70,65 +70,65 @@
  * 打星评分基础组件定义
  */
 var Star = Sugar.Component.extend({
-	// 组件初始化定义方法
-	init: function (config) {
-		// 初始配置数据的收集，config 为实例创建时传进来的参数
-		var udf, scores = ['fa-star-o', 'fa-star', 'fa-star-half-o'];
-		var def = config.def === udf ? 3 : config.def;
-		var full = config.full === udf ? 5 : config.full;
-		var score, items = [], ceilDef = Math.ceil(def), isDecimal = def !== ceilDef;
+    // 组件初始化定义方法
+    init: function (config) {
+        // 初始配置数据的收集，config 为实例创建时传进来的参数
+        var udf, scores = ['fa-star-o', 'fa-star', 'fa-star-half-o'];
+        var def = config.def === udf ? 3 : config.def;
+        var full = config.full === udf ? 5 : config.full;
+        var score, items = [], ceilDef = Math.ceil(def), isDecimal = def !== ceilDef;
 
-		for (var i = 1; i < full + 1; i++) {
-			score = i <= ceilDef ? (score = (i === ceilDef && isDecimal) ? scores[2] : scores[1]) : scores[0];
-			items.push({ type: score });
-		}
+        for (var i = 1; i < full + 1; i++) {
+            score = i <= ceilDef ? (score = (i === ceilDef && isDecimal) ? scores[2] : scores[1]) : scores[0];
+            items.push({ type: score });
+        }
 
-		// 缓存图标定义
-		this.$scores = scores;
+        // 缓存图标定义
+        this.$scores = scores;
 
-		// 定义组件配置（包括初始数据、初始布局、初始状态）
-		// 调用父类 Sugar.Component 的 init 方法进行视图渲染
-		this.Super('init', config, {
-			class: 'M-star',
-			// 渲染布局
-			view : [
-				'<ul class="star">',
-					'<li class="star-item" v-for="star in stars">',
-						'<i class="fa" v-bind:class="star.type" v-on:click="clickStar($index)"></i>',
-					'</li>',
-				'</ul>',
-				'<h4 class="result">{{ score }} 分</h4>'
-			].join(''),
-			// 组件自定义参数，是否允许评 0.5 分
-			deg: config.deg || 0.5,
-			// 定义 MVVM 数据模型
-			model: {
-				score: def,
-				stars: items
-			},
-			// 定义 MVVM 事件方法
-			methods: {
-				// 星星点击事件
-				clickStar: function (i) {
-					var vm = this.vm.$data;
-					var stars = vm.stars;
-					var index = this.$scores.indexOf(stars[i].type);
-					var deg = this.getConfig('deg');
-					var next = ++index % (deg === 1 ? 2 : 3);
+        // 定义组件配置（包括初始数据、初始布局、初始状态）
+        // 调用父类 Sugar.Component 的 init 方法进行视图渲染
+        this.Super('init', config, {
+            class: 'M-star',
+            // 渲染布局
+            view : [
+                '<ul class="star">',
+                    '<li class="star-item" v-for="star in stars">',
+                        '<i class="fa" v-bind:class="star.type" v-on:click="clickStar($index)"></i>',
+                    '</li>',
+                '</ul>',
+                '<h4 class="result">{{ score }} 分</h4>'
+            ].join(''),
+            // 组件自定义参数，是否允许评 0.5 分
+            deg: config.deg || 0.5,
+            // 定义 MVVM 数据模型
+            model: {
+                score: def,
+                stars: items
+            },
+            // 定义 MVVM 事件方法
+            methods: {
+                // 星星点击事件
+                clickStar: function (i) {
+                    var vm = this.vm.$data;
+                    var stars = vm.stars;
+                    var index = this.$scores.indexOf(stars[i].type);
+                    var deg = this.getConfig('deg');
+                    var next = ++index % (deg === 1 ? 2 : 3);
 
-					stars[i].type = this.$scores[next];
-					vm.score = i + (next === 2 ? deg : next);
+                    stars[i].type = this.$scores[next];
+                    vm.score = i + (next === 2 ? deg : next);
 
-					for (var j = 0; j < i; j++) {
-						stars[j].type = this.$scores[1];
-					}
-					for (var k = i + 1; k < stars.length; k++) {
-						stars[k].type = this.$scores[0];
-					}
-				}
-			}
-		});
-	}
+                    for (var j = 0; j < i; j++) {
+                        stars[j].type = this.$scores[1];
+                    }
+                    for (var k = i + 1; k < stars.length; k++) {
+                        stars[k].type = this.$scores[0];
+                    }
+                }
+            }
+        });
+    }
 });
 
 
@@ -136,145 +136,145 @@ var Star = Sugar.Component.extend({
  * 页面顶层组件，调配评分组件的分数定义和创建
  */
 var App = Sugar.Component.extend({
-	init: function (config) {
-		this.Super('init', config, {
-			target: '#app',
-			model: {
-				def: 3,
-				full: 5,
-				comps: [],
-				allowHalf: true
-			},
-			// 计算属性声明
-			computed: {
-				deg: function () {
-					return this.allowHalf ? 0.5 : 1;
-				}
-			},
-			// 统一数据变更回调，处理当 allowHalf 为 false 且默认分数为小数时的情况
-			watchAll: function (param, newValue) {
-				var vm = this.vm.$data;
-				if (
-					param.path === 'allowHalf' &&
-					!newValue &&
-					vm.def.toString().indexOf('.') > -1
-				) {
-					vm.def = Math.floor(vm.def);
-				}
-			},
-			methods: {
-				clickDef: this.clickDef,
-				clickFull: this.clickFull,
-				clickButton: this.clickButton
-			},
-			// v-for 动态列表的每个选项 DOM 节点添加钩子函数
-			hooks: {
-				afterAppend: this.afterAppend,
-				beforeRemove: this.beforeRemove
-			}
-		});
-	},
+    init: function (config) {
+        this.Super('init', config, {
+            target: '#app',
+            model: {
+                def: 3,
+                full: 5,
+                comps: [],
+                allowHalf: true
+            },
+            // 计算属性声明
+            computed: {
+                deg: function () {
+                    return this.allowHalf ? 0.5 : 1;
+                }
+            },
+            // 统一数据变更回调，处理当 allowHalf 为 false 且默认分数为小数时的情况
+            watchAll: function (param, newValue) {
+                var vm = this.vm.$data;
+                if (
+                    param.path === 'allowHalf' &&
+                    !newValue &&
+                    vm.def.toString().indexOf('.') > -1
+                ) {
+                    vm.def = Math.floor(vm.def);
+                }
+            },
+            methods: {
+                clickDef: this.clickDef,
+                clickFull: this.clickFull,
+                clickButton: this.clickButton
+            },
+            // v-for 动态列表的每个选项 DOM 节点添加钩子函数
+            hooks: {
+                afterAppend: this.afterAppend,
+                beforeRemove: this.beforeRemove
+            }
+        });
+    },
 
-	// 组件初始化完成（视图创建完成，MVVM 编译完成后调用）
-	afterRender: function () {
-		this.vm.$els.btn.textContent = '添加一个评分组件';
-		this.vm.$data.comps = [this.createConfig(3, 2), this.createConfig(5, 3)];
-	},
+    // 组件初始化完成（视图创建完成，MVVM 编译完成后调用）
+    afterRender: function () {
+        this.vm.$els.btn.textContent = '添加一个评分组件';
+        this.vm.$data.comps = [this.createConfig(3, 2), this.createConfig(5, 3)];
+    },
 
-	// 返回一个 Star 组件的生成配置
-	createConfig: function (full, def) {
-		return {
-			def: def,
-			full: full,
-			deg: this.vm.$data.deg
-		}
-	},
+    // 返回一个 Star 组件的生成配置
+    createConfig: function (full, def) {
+        return {
+            def: def,
+            full: full,
+            deg: this.vm.$data.deg
+        }
+    },
 
-	// 点击增加/减少默认分数
-	clickDef: function (symbol) {
-		var vm = this.vm.$data;
+    // 点击增加/减少默认分数
+    clickDef: function (symbol) {
+        var vm = this.vm.$data;
 
-		if (symbol === '+') {
-			if (vm.def === vm.full) {
-				alert('默认分数不能大于满分分数~');
-			} else {
-				vm.def = vm.def + vm.deg;
-			}
-		} else {
-			if (vm.def === 0) {
-				alert('不能再减了~');
-			} else {
-				vm.def = vm.def - vm.deg;
-			}
-		}
-	},
+        if (symbol === '+') {
+            if (vm.def === vm.full) {
+                alert('默认分数不能大于满分分数~');
+            } else {
+                vm.def = vm.def + vm.deg;
+            }
+        } else {
+            if (vm.def === 0) {
+                alert('不能再减了~');
+            } else {
+                vm.def = vm.def - vm.deg;
+            }
+        }
+    },
 
-	// 点击增加/减少满分分数
-	clickFull: function (symbol) {
-		var vm = this.vm.$data;
+    // 点击增加/减少满分分数
+    clickFull: function (symbol) {
+        var vm = this.vm.$data;
 
-		if (symbol === '+') {
-			vm.full++;
-		} else {
-			if (vm.full === 1 || vm.full <= Math.ceil(vm.def)) {
-				alert('不能再减了~');
-			} else {
-				vm.full--;
-			}
-		}
-	},
+        if (symbol === '+') {
+            vm.full++;
+        } else {
+            if (vm.full === 1 || vm.full <= Math.ceil(vm.def)) {
+                alert('不能再减了~');
+            } else {
+                vm.full--;
+            }
+        }
+    },
 
-	// 点击添加一个组件
-	clickButton: function () {
-		var vm = this.vm.$data;
-		vm.comps.push(this.createConfig(vm.full, vm.def));
-	},
+    // 点击添加一个组件
+    clickButton: function () {
+        var vm = this.vm.$data;
+        vm.comps.push(this.createConfig(vm.full, vm.def));
+    },
 
-	// v-for 列表钩子函数，在新增元素后同步创建 Star 子组件
-	afterAppend: function (el, index, guid) {
-		var comp = this.vm.$data.comps[index];
-		this.create(guid, Star, {
-			target: el,
-			deg: comp.deg,
-			def: comp.def,
-			full: comp.full
-		});
-	},
+    // v-for 列表钩子函数，在新增元素后同步创建 Star 子组件
+    afterAppend: function (el, index, guid) {
+        var comp = this.vm.$data.comps[index];
+        this.create(guid, Star, {
+            target: el,
+            deg: comp.deg,
+            def: comp.def,
+            full: comp.full
+        });
+    },
 
-	// 点击垃圾箱，移除一个 Star 子组件，获取组件实例并销毁
-	beforeRemove: function (frag, index, guid) {
-		var comp = this.getChild(guid);
-		if (comp) {
-			comp.destroy();
-		}
-	}
+    // 点击垃圾箱，移除一个 Star 子组件，获取组件实例并销毁
+    beforeRemove: function (frag, index, guid) {
+        var comp = this.getChild(guid);
+        if (comp) {
+            comp.destroy();
+        }
+    }
 });
 
 // load 事件在样式加载完成后触发
 window.addEventListener('load', function () {
-	var app = Sugar.core.create('app', App);
+    var app = Sugar.core.create('app', App);
 
-	// // 测试连续创建/删除子组件
-	// function doneWithApp (func, times) {
-	// 	while (times--) {
-	// 		func.call(app);
-	// 	}
-	// }
+    // // 测试连续创建/删除子组件
+    // function doneWithApp (func, times) {
+    // 	while (times--) {
+    // 		func.call(app);
+    // 	}
+    // }
 
-	// var testTimes = 100;
-	// setTimeout(function () {
-	// 	// 动态添加子组件
-	// 	doneWithApp(function () {
-	// 		this.clickButton();
-	// 	}, testTimes);
+    // var testTimes = 100;
+    // setTimeout(function () {
+    // 	// 动态添加子组件
+    // 	doneWithApp(function () {
+    // 		this.clickButton();
+    // 	}, testTimes);
 
-	// 	// 动态删除子组件
-	// 	setTimeout(function () {
-	// 		doneWithApp(function () {
-	// 			this.vm.$data.comps.shift();
-	// 		}, testTimes);
-	// 	}, 3000);
-	// }, 3000);
+    // 	// 动态删除子组件
+    // 	setTimeout(function () {
+    // 		doneWithApp(function () {
+    // 			this.vm.$data.comps.shift();
+    // 		}, testTimes);
+    // 	}, 3000);
+    // }, 3000);
 });
 
 </script>

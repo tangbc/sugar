@@ -1,39 +1,39 @@
 <html>
 <head>
-	<title>Snake eat apples</title>
-	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="resource/normalize.css">
-	<link rel="stylesheet" type="text/css" href="resource/style.css">
+    <title>Snake eat apples</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="resource/normalize.css">
+    <link rel="stylesheet" type="text/css" href="resource/style.css">
 </head>
 <body>
-	<div style="display: none;">
-		<img src="resource/images/head.png">
-		<img src="resource/images/head-dead.png">
-		<img src="resource/images/fruit.png">
-		<img src="resource/images/fruit-eaten.png">
-	</div>
-	<div id="app">
-		<h1>SNAKE EAT APPLES</h1>
-		<!-- loading tips -->
-		<div v-show="loading" class="loading">
-			<h2 class="animated shake">Loading modules, please wait ...</h2>
-			<p>If taking a long time, please try refresh page or using https</p>
-		</div>
-		<!-- modules -->
-		<AppHeader></AppHeader>
-		<AppPlayground></AppPlayground>
-		<!-- footer -->
-		<footer style="display: none;" v-show="!loading">
-			<p v-pre>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
-		</footer>
-	</div>
+    <div style="display: none;">
+        <img src="resource/images/head.png">
+        <img src="resource/images/head-dead.png">
+        <img src="resource/images/fruit.png">
+        <img src="resource/images/fruit-eaten.png">
+    </div>
+    <div id="app">
+        <h1>SNAKE EAT APPLES</h1>
+        <!-- loading tips -->
+        <div v-show="loading" class="loading">
+            <h2 class="animated shake">Loading modules, please wait ...</h2>
+            <p>If taking a long time, please try refresh page or using https</p>
+        </div>
+        <!-- modules -->
+        <AppHeader></AppHeader>
+        <AppPlayground></AppPlayground>
+        <!-- footer -->
+        <footer style="display: none;" v-show="!loading">
+            <p v-pre>Created by <a href="https://github.com/tangbc">TANG </a>, use <a href="https://github.com/tangbc/sugar">sugar.js</a> MVVM library [<a href="https://github.com/tangbc/sugar/tree/master/demos/snake-eat-apples">Source code here</a>]</p>
+        </footer>
+    </div>
 
-	<script type="text/javascript" src="../../dist/sugar.min.js"></script>
-	<script type="text/javascript" src="js/keymap.js"></script>
-	<script type="text/javascript" src="js/config.js"></script>
-	<script type="text/javascript" src="js/fruit.js"></script>
-	<script type="text/javascript" src="js/header.js"></script>
-	<script type="text/javascript" src="js/playground.js"></script>
-	<script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="../../dist/sugar.min.js"></script>
+    <script type="text/javascript" src="js/keymap.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/fruit.js"></script>
+    <script type="text/javascript" src="js/header.js"></script>
+    <script type="text/javascript" src="js/playground.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>

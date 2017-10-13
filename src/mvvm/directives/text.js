@@ -5,7 +5,7 @@ import Parser, { linkParser } from '../parser';
  * v-text 指令解析模块
  */
 export function VText () {
-	Parser.apply(this, arguments);
+    Parser.apply(this, arguments);
 }
 
 let vtext = linkParser(VText);
@@ -14,7 +14,7 @@ let vtext = linkParser(VText);
  * 解析 v-text, {{ text }} 指令
  */
 vtext.parse = function () {
-	this.bind();
+    this.bind();
 }
 
 /**
@@ -22,5 +22,5 @@ vtext.parse = function () {
  * @param  {String}  value
  */
 vtext.update = function (value) {
-	this.el.textContent = _toString(value);
+    this.el.textContent = _toString(value);
 }

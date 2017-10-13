@@ -14,20 +14,20 @@ const regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d
 
 // 表达式中允许的关键字
 const allowKeywords = 'JSON.Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
-					'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
+                    'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent';
 const regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 // 表达式中禁止的关键字
 const avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.' +
-					'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
+                    'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await';
 const regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)');
 
 // 保存常量，返回序号 "i"
 let consts = [];
 function saveConst (string) {
-	let i = consts.length;
-	consts[i] = string;
-	return '"' + i + '"';
+    let i = consts.length;
+    consts[i] = string;
+    return '"' + i + '"';
 }
 
 /**
@@ -37,7 +37,7 @@ function saveConst (string) {
  * @return  {String}
  */
 function returnConst (string, i) {
-	return consts[i];
+    return consts[i];
 }
 
 /**
@@ -46,15 +46,15 @@ function returnConst (string, i) {
  * @return  {String}
  */
 function replaceScope (string) {
-	let pad = string.charAt(0);
-	let path = string.slice(1);
+    let pad = string.charAt(0);
+    let path = string.slice(1);
 
-	if (regAllowKeyword.test(path)) {
-		return string;
-	} else {
-		path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path;
-		return pad + 'scope.' + path;
-	}
+    if (regAllowKeyword.test(path)) {
+        return string;
+    } else {
+        path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path;
+        return pad + 'scope.' + path;
+    }
 }
 
 /**
@@ -63,7 +63,7 @@ function replaceScope (string) {
  * @return  {Boolean}
  */
 export function isNormal (expression) {
-	return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
+    return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0;
 }
 
 /**
@@ -71,15 +71,15 @@ export function isNormal (expression) {
  * @return  {String}
  */
 function addScope (expression) {
-	if (isNormal(expression)) {
-		return 'scope.' + expression;
-	}
+    if (isNormal(expression)) {
+        return 'scope.' + expression;
+    }
 
-	expression = (' ' + expression).replace(regReplaceConst, saveConst);
-	expression = expression.replace(regReplaceScope, replaceScope);
-	expression = expression.replace(regSaveConst, returnConst);
+    expression = (' ' + expression).replace(regReplaceConst, saveConst);
+    expression = expression.replace(regReplaceScope, replaceScope);
+    expression = expression.replace(regSaveConst, returnConst);
 
-	return expression;
+    return expression;
 }
 
 /**
@@ -88,17 +88,17 @@ function addScope (expression) {
  * @return  {Function}
  */
 export function createGetter (expression) {
-	if (regAviodKeyword.test(expression)) {
-		warn('Avoid using unallow keyword in expression ['+ expression +']');
-		return noop;
-	}
+    if (regAviodKeyword.test(expression)) {
+        warn('Avoid using unallow keyword in expression ['+ expression +']');
+        return noop;
+    }
 
-	try {
-		return new Function('scope', 'return ' + addScope(expression) + ';');
-	} catch (e) {
-		error('Invalid generated expression: [' + expression + ']');
-		return noop;
-	}
+    try {
+        return new Function('scope', 'return ' + addScope(expression) + ';');
+    } catch (e) {
+        error('Invalid generated expression: [' + expression + ']');
+        return noop;
+    }
 }
 
 /**
@@ -106,13 +106,13 @@ export function createGetter (expression) {
  * @param  {String}  expression
  */
 export function createSetter (expression) {
-	let paths = createPath(expression);
-	if (paths.length) {
-		return function setter (scope, value) {
-			setValueByPath(scope, value, paths);
-		}
-	} else {
-		error('Invalid setter expression ['+ expression +']');
-		return noop;
-	}
+    let paths = createPath(expression);
+    if (paths.length) {
+        return function setter (scope, value) {
+            setValueByPath(scope, value, paths);
+        }
+    } else {
+        error('Invalid setter expression ['+ expression +']');
+        return noop;
+    }
 }

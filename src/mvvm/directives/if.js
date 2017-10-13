@@ -9,33 +9,33 @@ import { hasOwn, def, warn, isFunc } from '../../util';
  * @param  {DOMElement}  element
  */
 function removeDOMRegister (vm, element) {
-	let registers = vm.$regEles;
-	let childNodes = element.childNodes;
+    let registers = vm.$regEles;
+    let childNodes = element.childNodes;
 
-	for (let i = 0; i < childNodes.length; i++) {
-		let node = childNodes[i];
+    for (let i = 0; i < childNodes.length; i++) {
+        let node = childNodes[i];
 
-		if (!isElement(node)) {
-			continue;
-		}
+        if (!isElement(node)) {
+            continue;
+        }
 
-		let nodeAttrs = node.attributes;
+        let nodeAttrs = node.attributes;
 
-		for (let ii = 0; ii < nodeAttrs.length; ii++) {
-			let attr = nodeAttrs[ii];
+        for (let ii = 0; ii < nodeAttrs.length; ii++) {
+            let attr = nodeAttrs[ii];
 
-			if (
-				attr.name === 'v-el' &&
-				hasOwn(registers, attr.value)
-			) {
-				registers[attr.value] = null;
-			}
-		}
+            if (
+                attr.name === 'v-el' &&
+                hasOwn(registers, attr.value)
+            ) {
+                registers[attr.value] = null;
+            }
+        }
 
-		if (node.hasChildNodes()) {
-			removeDOMRegister(vm, node);
-		}
-	}
+        if (node.hasChildNodes()) {
+            removeDOMRegister(vm, node);
+        }
+    }
 }
 
 /**
@@ -43,7 +43,7 @@ function removeDOMRegister (vm, element) {
  * @return  {TextNode}
  */
 function createAnchor () {
-	return document.createTextNode('');
+    return document.createTextNode('');
 }
 
 /**
@@ -52,10 +52,10 @@ function createAnchor () {
  * @param  {Element}  newChild
  */
 function replaceNode (oldChild, newChild) {
-	let parent = oldChild.parentNode;
-	if (parent) {
-		parent.replaceChild(newChild, oldChild);
-	}
+    let parent = oldChild.parentNode;
+    if (parent) {
+        parent.replaceChild(newChild, oldChild);
+    }
 }
 
 
@@ -63,7 +63,7 @@ function replaceNode (oldChild, newChild) {
  * v-if 指令解析模块
  */
 export function VIf () {
-	Parser.apply(this, arguments);
+    Parser.apply(this, arguments);
 }
 
 let vif = linkParser(VIf);
@@ -72,35 +72,35 @@ let vif = linkParser(VIf);
  * 解析 v-if 指令
  */
 vif.parse = function () {
-	let el = this.el;
-	let elseEl = el.nextElementSibling;
+    let el = this.el;
+    let elseEl = el.nextElementSibling;
 
-	let parent = el.parentNode;
+    let parent = el.parentNode;
 
-	if (parent.nodeType !== 1) {
-		return warn('v-if cannot use in the root element!');
-	}
+    if (parent.nodeType !== 1) {
+        return warn('v-if cannot use in the root element!');
+    }
 
-	this.$parent = parent;
+    this.$parent = parent;
 
-	// 状态钩子
-	this.hooks = getHooks(this.vm, el);
+    // 状态钩子
+    this.hooks = getHooks(this.vm, el);
 
-	// 缓存渲染模板
-	this.elTpl = el.cloneNode(true);
-	this.elAnchor = createAnchor();
-	replaceNode(el, this.elAnchor);
-	this.el = null;
+    // 缓存渲染模板
+    this.elTpl = el.cloneNode(true);
+    this.elAnchor = createAnchor();
+    replaceNode(el, this.elAnchor);
+    this.el = null;
 
-	// else 节点
-	if (elseEl && hasAttr(elseEl, 'v-else')) {
-		this.elseTpl = elseEl.cloneNode(true);
-		this.elseAnchor = createAnchor();
-		replaceNode(elseEl, this.elseAnchor);
-		elseEl = null;
-	}
+    // else 节点
+    if (elseEl && hasAttr(elseEl, 'v-else')) {
+        this.elseTpl = elseEl.cloneNode(true);
+        this.elseAnchor = createAnchor();
+        replaceNode(elseEl, this.elseAnchor);
+        elseEl = null;
+    }
 
-	this.bind();
+    this.bind();
 }
 
 /**
@@ -110,10 +110,10 @@ vif.parse = function () {
  * @param  {Boolean}  isElse    [是否是 else 板块]
  */
 vif.hook = function (type, renderEl, isElse) {
-	let hook = this.hooks[type];
-	if (isFunc(hook)) {
-		hook.call(this.vm.$context, renderEl, isElse);
-	}
+    let hook = this.hooks[type];
+    if (isFunc(hook)) {
+        hook.call(this.vm.$context, renderEl, isElse);
+    }
 }
 
 /**
@@ -121,13 +121,13 @@ vif.hook = function (type, renderEl, isElse) {
  * @param  {Boolean}  isRender
  */
 vif.update = function (isRender) {
-	let elseAnchor = this.elseAnchor;
+    let elseAnchor = this.elseAnchor;
 
-	this.toggle(this.elAnchor, this.elTpl, isRender, false);
+    this.toggle(this.elAnchor, this.elTpl, isRender, false);
 
-	if (elseAnchor) {
-		this.toggle(elseAnchor, this.elseTpl, !isRender, true);
-	}
+    if (elseAnchor) {
+        this.toggle(elseAnchor, this.elseTpl, !isRender, true);
+    }
 }
 
 /**
@@ -138,24 +138,24 @@ vif.update = function (isRender) {
  * @param  {Boolean}   isElse
  */
 vif.toggle = function (anchor, template, isRender, isElse) {
-	let vm = this.vm;
-	let parent = this.$parent;
-	let tpl = template.cloneNode(true);
+    let vm = this.vm;
+    let parent = this.$parent;
+    let tpl = template.cloneNode(true);
 
-	// 渲染 & 更新视图
-	if (isRender) {
-		vm.compile(tpl, true, this.scope, this.desc.once);
-		let insert = parent.insertBefore(tpl, anchor);
-		this.hook('after', insert, isElse);
-		def(insert, '__vif__', true);
-	}
-	// 不渲染的情况需要移除 DOM 索引的引用
-	else {
-		let el = anchor.previousSibling;
-		if (el && el.__vif__) {
-			this.hook('before', el, isElse);
-			removeDOMRegister(vm, template);
-			parent.removeChild(el);
-		}
-	}
+    // 渲染 & 更新视图
+    if (isRender) {
+        vm.compile(tpl, true, this.scope, this.desc.once);
+        let insert = parent.insertBefore(tpl, anchor);
+        this.hook('after', insert, isElse);
+        def(insert, '__vif__', true);
+    }
+    // 不渲染的情况需要移除 DOM 索引的引用
+    else {
+        let el = anchor.previousSibling;
+        if (el && el.__vif__) {
+            this.hook('before', el, isElse);
+            removeDOMRegister(vm, template);
+            parent.removeChild(el);
+        }
+    }
 }
