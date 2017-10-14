@@ -1,5 +1,5 @@
 // webpack config for develop mvvm.js
-var baseConfig = require('./dev.sugar');
+var baseConfig = require('./dev.sugar')
 
 module.exports = Object.assign(baseConfig, {
     entry : './src/mvvm/index',
@@ -9,4 +9,4 @@ module.exports = Object.assign(baseConfig, {
         filename: 'mvvm.js',
         libraryTarget: 'umd'
     }
-});
+})

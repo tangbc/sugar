@@ -3,16 +3,16 @@
     // score localStorage
     var Storage = {
         set: function (score) {
-            localStorage.setItem('BESTSCORE', score);
+            localStorage.setItem('BESTSCORE', score)
         },
         get: function () {
-            return localStorage.getItem('BESTSCORE') || '-';
+            return localStorage.getItem('BESTSCORE') || '-'
         }
     }
 
     // keep a single number with 0
     function keepDouble (num) {
-        return (num > 9 ? '' : '0') + num;
+        return (num > 9 ? '' : '0') + num
     }
 
     // AppHeader component definition
@@ -29,87 +29,87 @@
                     secound: '--'
                 },
                 cbRender: 'initState'
-            });
+            })
         },
 
         initState: function () {
-            this.minute = 0;
-            this.secound = 0;
-            this.timer = null;
-            this.over = false;
-            this.hasRecord = this.vm.get('best') !== '-';
+            this.minute = 0
+            this.secound = 0
+            this.timer = null
+            this.over = false
+            this.hasRecord = this.vm.get('best') !== '-'
         },
 
         // start to count game time
         startTime: function () {
-            var self = this;
+            var self = this
             this.timer = window.setTimeout(function () {
-                self.secound++;
+                self.secound++
 
                 if (self.secound === 60) {
-                    self.minute++;
-                    self.secound = 0;
+                    self.minute++
+                    self.secound = 0
                 }
 
                 self.vm.set({
                     minute: keepDouble(self.minute),
                     secound: keepDouble(self.secound)
-                });
+                })
 
-                self.startTime();
-            }, 1000);
+                self.startTime()
+            }, 1000)
         },
 
         // pause game time
         pauseTime: function (force) {
             if (this.timer || force) {
-                window.clearTimeout(this.timer);
-                this.timer = null;
+                window.clearTimeout(this.timer)
+                this.timer = null
             } else if (!this.over) {
-                this.startTime();
+                this.startTime()
             }
-            return this;
+            return this
         },
 
         // game over
         end: function () {
-            this.over = true;
-            this.pauseTime(true);
+            this.over = true
+            this.pauseTime(true)
 
             // for the frist play
             if (!this.hasRecord) {
-                this.saveScore();
+                this.saveScore()
             }
         },
 
         // add score with eaten an apple
         addScore: function () {
-            var data = this.vm.$data;
-            data.score = data.score + Config.SCORE;
+            var data = this.vm.$data
+            data.score = data.score + Config.SCORE
 
             // is current score breaking record
             if (this.hasRecord && (data.score > data.best)) {
-                this.saveScore();
-                data.broke = true;
+                this.saveScore()
+                data.broke = true
             }
         },
 
         // save the socre if it's best record
         saveScore: function () {
-            var data = this.vm.$data;
-            data.best = data.score;
-            Storage.set(data.best);
+            var data = this.vm.$data
+            data.best = data.score
+            Storage.set(data.best)
         },
 
         // reset component, be ready to restart
         reset: function () {
-            this.pauseTime(true);
-            this.initState();
-            this.vm.reset();
-            this.vm.set('best', Storage.get());
+            this.pauseTime(true)
+            this.initState()
+            this.vm.reset()
+            this.vm.set('best', Storage.get())
         }
-    });
+    })
 
-    exports.AppHeader = Header;
+    exports.AppHeader = Header
 
-})(window, AppConfig);
+})(window, AppConfig)

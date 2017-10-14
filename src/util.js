@@ -1,5 +1,5 @@
-let OP = Object.prototype;
-let has = OP.hasOwnProperty;
+let OP = Object.prototype
+let has = OP.hasOwnProperty
 
 /**
  * typeof 类型检测
@@ -8,49 +8,49 @@ let has = OP.hasOwnProperty;
  * @return  {Boolean}
  */
 function typeOf (test, type) {
-    return typeof test === type;
+    return typeof test === type
 }
 
 /**
  * 是否是对象
  */
 export function isObject (object) {
-    return OP.toString.call(object) === '[object Object]';
+    return OP.toString.call(object) === '[object Object]'
 }
 
 /**
  * 是否是数组
  */
 export function isArray (array) {
-    return Array.isArray(array);
+    return Array.isArray(array)
 }
 
 /**
  * 是否是函数
  */
 export function isFunc (func) {
-    return typeOf(func, 'function');
+    return typeOf(func, 'function')
 }
 
 /**
  * 是否是字符串
  */
 export function isString (str) {
-    return typeOf(str, 'string');
+    return typeOf(str, 'string')
 }
 
 /**
  * 是否是布尔值
  */
 export function isBool (bool) {
-    return typeOf(bool, 'boolean');
+    return typeOf(bool, 'boolean')
 }
 
 /**
  * 是否是数字
  */
 export function isNumber (num) {
-    return typeOf(num, 'number') && !isNaN(num);
+    return typeOf(num, 'number') && !isNaN(num)
 }
 
 /**
@@ -58,14 +58,14 @@ export function isNumber (num) {
  */
 export function isPlainObject (object) {
     if (!object || !isObject(object) || object.nodeType || object === object.window) {
-        return false;
+        return false
     }
 
     if (object.constructor && !has.call(object.constructor.prototype, 'isPrototypeOf')) {
-        return false;
+        return false
     }
 
-    return true;
+    return true
 }
 
 /**
@@ -74,7 +74,7 @@ export function isPlainObject (object) {
  * @return  {Boolean}
  */
 export function isEmptyObject (object) {
-    return Object.keys(object).length === 0;
+    return Object.keys(object).length === 0
 }
 
 /**
@@ -84,7 +84,7 @@ export function isEmptyObject (object) {
  * @return  {String}
  */
 export function _toString (value) {
-    return value == null ? '' : value.toString();
+    return value == null ? '' : value.toString()
 }
 
 /**
@@ -95,10 +95,10 @@ export function _toString (value) {
  */
 export function toNumber (value) {
     if (isString(value)) {
-        let val = Number(value);
-        return isNumber(val) ? val : value;
+        let val = Number(value)
+        return isNumber(val) ? val : value
     } else {
-        return value;
+        return value
     }
 }
 
@@ -107,7 +107,7 @@ export function toNumber (value) {
  */
 export function noop () {}
 
-let cons = window.console;
+let cons = window.console
 
 /**
  * 打印警告信息
@@ -115,7 +115,7 @@ let cons = window.console;
 /* istanbul ignore next */
 export function warn () {
     if (cons) {
-        cons.warn.apply(cons, arguments);
+        cons.warn.apply(cons, arguments)
     }
 }
 
@@ -125,7 +125,7 @@ export function warn () {
 /* istanbul ignore next */
 export function error () {
     if (cons) {
-        cons.error.apply(cons, arguments);
+        cons.error.apply(cons, arguments)
     }
 }
 
@@ -133,7 +133,7 @@ export function error () {
  * 对象自有属性检测
  */
 export function hasOwn (obj, key) {
-    return obj && has.call(obj, key);
+    return obj && has.call(obj, key)
 }
 
 /**
@@ -149,7 +149,7 @@ export function def (object, property, value, enumerable) {
         writable: true,
         enumerable: !!enumerable,
         configurable: true
-    });
+    })
 }
 
 /**
@@ -159,45 +159,45 @@ export function def (object, property, value, enumerable) {
  * @param  {Object}        context   [作用域]
  */
 export function each (iterator, callback, context) {
-    let i, ret;
+    let i, ret
 
     if (!context) {
-        context = this;
+        context = this
     }
 
     // 数组
     if (isArray(iterator)) {
         for (i = 0; i < iterator.length; i++) {
-            ret = callback.call(context, iterator[i], i, iterator);
+            ret = callback.call(context, iterator[i], i, iterator)
 
             // 回调返回 false 退出循环
             if (ret === false) {
-                break;
+                break
             }
 
             // 回调返回 null 从原数组删除当前选项
             if (ret === null) {
-                iterator.splice(i, 1);
-                i--;
+                iterator.splice(i, 1)
+                i--
             }
         }
 
     } else if (isObject(iterator)) {
-        let keys = Object.keys(iterator);
+        let keys = Object.keys(iterator)
 
         for (i = 0; i < keys.length; i++) {
-            let key = keys[i];
+            let key = keys[i]
 
-            ret = callback.call(context, iterator[key], key, iterator);
+            ret = callback.call(context, iterator[key], key, iterator)
 
             // 回调返回 false 退出循环
             if (ret === false) {
-                break;
+                break
             }
 
             // 回调返回 null 从原对象删除当前选项
             if (ret === null) {
-                delete iterator[key];
+                delete iterator[key]
             }
         }
     }
@@ -209,8 +209,8 @@ export function each (iterator, callback, context) {
  */
 export function clearObject (object) {
     each(object, function () {
-        return null;
-    });
+        return null
+    })
 }
 
 /**
@@ -218,25 +218,25 @@ export function clearObject (object) {
  */
 /* istanbul ignore next */
 export function extend () {
-    let options, name, src, copy, copyIsArray, clone;
-    let target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
+    let options, name, src, copy, copyIsArray, clone
+    let target = arguments[0] || {}, i = 1, length = arguments.length, deep = false
 
     // Handle a deep copy situation
     if (isBool(target)) {
-        deep = target;
-        target = arguments[i] || {};
-        i++;
+        deep = target
+        target = arguments[i] || {}
+        i++
     }
 
     // Handle case when target is a string or something (possible in deep copy)
     if (typeof target !== 'object' && !isFunc(target)) {
-        target = {};
+        target = {}
     }
 
     // Extend Util itself if only one argument is passed
     if (i === length) {
-        target = this;
-        i--;
+        target = this
+        i--
     }
 
     for (; i < length; i++) {
@@ -244,37 +244,37 @@ export function extend () {
         if ((options = arguments[i]) != null) {
             // Extend the base object
             for (name in options) {
-                src = target[name];
-                copy = options[name];
+                src = target[name]
+                copy = options[name]
 
                 // Prevent never-ending loop
                 if (target === copy) {
-                    continue;
+                    continue
                 }
 
                 // Recurse if we're merging plain objects or arrays
                 if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
                     if (copyIsArray) {
-                        copyIsArray = false;
-                        clone = src && isArray(src) ? src : [];
+                        copyIsArray = false
+                        clone = src && isArray(src) ? src : []
 
                     } else {
-                        clone = src && isPlainObject(src) ? src : {};
+                        clone = src && isPlainObject(src) ? src : {}
                     }
 
                     // Never move original objects, clone them
-                    target[name] = extend(deep, clone, copy);
+                    target[name] = extend(deep, clone, copy)
                 }
                 // Don't bring in undefined values
                 else if (copy !== undefined) {
-                    target[name] = copy;
+                    target[name] = copy
                 }
             }
         }
     }
 
     // Return the modified object
-    return target;
+    return target
 }
 
 /**
@@ -283,15 +283,15 @@ export function extend () {
  * @return  {Mix}
  */
 export function copy (target) {
-    let ret;
+    let ret
 
     if (isArray(target)) {
-        ret = extend(true, [], target);
+        ret = extend(true, [], target)
     } else if (isObject(target)) {
-        ret = extend(true, {}, target);
+        ret = extend(true, {}, target)
     }
 
-    return ret || target;
+    return ret || target
 }
 
 
@@ -301,7 +301,7 @@ export function copy (target) {
  * @return  {Elemnt}
  */
 export function createElement (tag) {
-    return document.createElement(tag);
+    return document.createElement(tag)
 }
 
 /**
@@ -309,7 +309,7 @@ export function createElement (tag) {
  * @return  {Fragment}
  */
 export function createFragment () {
-    return document.createDocumentFragment();
+    return document.createDocumentFragment()
 }
 
 /**
@@ -317,14 +317,14 @@ export function createFragment () {
  * @param  {Element}  element
  */
 export function nodeToFragment (element) {
-    let child;
-    let fragment = createFragment();
+    let child
+    let fragment = createFragment()
 
     while (child = element.firstChild) {
-        fragment.appendChild(child);
+        fragment.appendChild(child)
     }
 
-    return fragment;
+    return fragment
 }
 
 /**
@@ -332,9 +332,9 @@ export function nodeToFragment (element) {
  * @param   {String}  string
  * @return  {String}
  */
-const regSpaceAll = /\s/g;
+const regSpaceAll = /\s/g
 export function removeSpace (string) {
-    return string.replace(regSpaceAll, '');
+    return string.replace(regSpaceAll, '')
 }
 
 /**
@@ -346,20 +346,20 @@ export function removeSpace (string) {
  */
 export function config (data, name, value) {
     if (name) {
-        let ns = name.split('.');
+        let ns = name.split('.')
         while (ns.length > 1 && hasOwn(data, ns[0])) {
-            data = data[ns.shift()];
+            data = data[ns.shift()]
         }
-        name = ns[0];
+        name = ns[0]
     } else {
-        return data;
+        return data
     }
 
     if (typeof value !== 'undefined') {
-        data[name] = value;
-        return;
+        data[name] = value
+        return
     } else {
-        return data[name];
+        return data[name]
     }
 }
 
@@ -368,20 +368,20 @@ export function config (data, name, value) {
  * 挂载到 sugar 上的工具方法
  * @param  {Object}
  */
-let util = Object.create(null);
+let util = Object.create(null)
 
-util.def = def;
-util.each = each;
-util.copy = copy;
-util.config = config;
-util.extend = extend;
-util.hasOwn = hasOwn;
-util.isFunc = isFunc;
-util.isBool = isBool;
-util.isArray = isArray;
-util.isObject = isObject;
-util.isNumber = isNumber;
-util.isString = isString;
-util.isEmptyObject = isEmptyObject;
+util.def = def
+util.each = each
+util.copy = copy
+util.config = config
+util.extend = extend
+util.hasOwn = hasOwn
+util.isFunc = isFunc
+util.isBool = isBool
+util.isArray = isArray
+util.isObject = isObject
+util.isNumber = isNumber
+util.isString = isString
+util.isEmptyObject = isEmptyObject
 
-export default util;
+export default util

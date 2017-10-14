@@ -21,5 +21,5 @@
         SPEED: 178
     }
 
-    exports.AppConfig = Config;
-})(window);
+    exports.AppConfig = Config
+})(window)

@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require('path')
 
 /**
  * karma-webpack config
@@ -74,18 +74,18 @@ var UNITCONIG = Object.assign({}, KARMABASE, {
     browsers: ['Chrome', 'Firefox', 'Safari'],
     webpack: webpackConfig,
     reporters: ['progress']
-});
+})
 
 
 // webpack config for istanbul loader
-var coverWebpackConfig = Object.assign({}, webpackConfig);
+var coverWebpackConfig = Object.assign({}, webpackConfig)
 coverWebpackConfig.module.postLoaders = [
     {
         test: /\.js$/,
         exclude: /test|node_modules/,
         loader: 'istanbul-instrumenter'
     }
-];
+]
 
 /**
  * coverage report config
@@ -100,7 +100,7 @@ var COVERCONFIG = Object.assign({}, KARMABASE, {
             {type: 'lcov', subdir: '.', dir: 'coverage/'}
         ]
     }
-});
+})
 
 
 // create an object for a customLauncher about sauceLabs
@@ -110,7 +110,7 @@ function createCustomLauncher (browser, platform, version) {
         browserName: browser,
         platform: platform,
         version: version
-    };
+    }
 }
 
 // browsers to run on Sauce Labs
@@ -138,12 +138,12 @@ var customLaunchers = {
     sl_ie_9: createCustomLauncher('internet explorer', 'Windows 7', '9'),
     sl_ie_10: createCustomLauncher('internet explorer', 'Windows 8', '10'),
     sl_ie_11: createCustomLauncher('internet explorer', 'Windows 10', '11')
-};
+}
 
 /**
  * sauceLabs config
  */
-var maxExecuteTime = 5*60*1000;
+var maxExecuteTime = 5*60*1000
 var SAUCECONFIG = Object.assign({}, KARMABASE, {
     sauceLabs: {
         public: 'public',
@@ -158,7 +158,7 @@ var SAUCECONFIG = Object.assign({}, KARMABASE, {
     browserNoActivityTimeout: maxExecuteTime,
     webpack: webpackConfig,
     reporters: ['progress', 'saucelabs']
-});
+})
 
 
 // output the unit, cover, sauceLabs karma config

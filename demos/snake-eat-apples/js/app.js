@@ -13,53 +13,53 @@
                     AppHeader: Header,
                     AppPlayground: Playground
                 }
-            });
+            })
         },
 
         afterRender: function () {
-            this.virgin = true;
-            this.vm.$data.loading = false;
-            this.on(document, 'keydown', this.documentKeyDown);
+            this.virgin = true
+            this.vm.$data.loading = false
+            this.on(document, 'keydown', this.documentKeyDown)
         },
 
         // listen to document keydown event
         documentKeyDown: function (e) {
-            var key = Keymap[e.keyCode];
-            var childs = this.getChilds();
-            var header = childs.AppHeader;
-            var playground = childs.AppPlayground;
+            var key = Keymap[e.keyCode]
+            var childs = this.getChilds()
+            var header = childs.AppHeader
+            var playground = childs.AppPlayground
 
             if (key === 'SPACE') {
                 // first press, just to start game
                 if (this.virgin) {
-                    this.virgin = false;
-                    header.startTime();
-                    playground.start();
-                    return;
+                    this.virgin = false
+                    header.startTime()
+                    playground.start()
+                    return
                 }
 
-                header.pauseTime();
-                playground.pause();
+                header.pauseTime()
+                playground.pause()
             } else if (key === 'ESC') {
-                header.reset();
-                playground.reset();
+                header.reset()
+                playground.reset()
             } else if (key) {
-                playground.update(key);
+                playground.update(key)
             }
         },
 
         // game over message from AppPlayground
         onGameOver: function () {
-            this.getChild('AppHeader').end();
+            this.getChild('AppHeader').end()
         },
 
         // snake eat a fruit, message from AppPlayground
         onEatFruit: function () {
-            this.getChild('AppHeader').addScore();
+            this.getChild('AppHeader').addScore()
         }
-    });
+    })
 
     // Create game instance
-    Sugar.core.create('app', App);
+    Sugar.core.create('app', App)
 
-})(window, AppHeader, AppPlayground, AppKeymap);
+})(window, AppHeader, AppPlayground, AppKeymap)

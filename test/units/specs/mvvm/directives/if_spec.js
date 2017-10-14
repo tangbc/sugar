@@ -1,31 +1,31 @@
-import MVVM from 'mvvm';
-import * as util from 'src/util';
+import MVVM from 'mvvm'
+import * as util from 'src/util'
 
 describe('v-if >', function () {
-    let element;
+    let element
 
     beforeEach(function () {
-        element = document.createElement('div');
-        document.body.appendChild(element);
-    });
+        element = document.createElement('div')
+        document.body.appendChild(element)
+    })
 
     afterEach(function () {
-        document.body.removeChild(element);
-    });
+        document.body.removeChild(element)
+    })
 
 
     it('invalid use(on the root element)', function () {
-        element.innerHTML = '<div v-if="render"></div>';
+        element.innerHTML = '<div v-if="render"></div>'
 
         new MVVM({
             view: element,
             model: {
                 render: true
             }
-        });
+        })
 
-        expect(util.warn).toHaveBeenCalledWith('v-if cannot use in the root element!');
-    });
+        expect(util.warn).toHaveBeenCalledWith('v-if cannot use in the root element!')
+    })
 
 
     it('normal render first', function () {
@@ -39,18 +39,18 @@ describe('v-if >', function () {
             model: {
                 render: true
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('<div id="test1"><b>123</b></div>');
+        expect(warpper.innerHTML).toBe('<div id="test1"><b>123</b></div>')
 
-        data.render = false;
-        expect(warpper.innerHTML).toBe('');
+        data.render = false
+        expect(warpper.innerHTML).toBe('')
 
-        data.render = true;
-        expect(warpper.innerHTML).toBe('<div id="test1"><b>123</b></div>');
-    });
+        data.render = true
+        expect(warpper.innerHTML).toBe('<div id="test1"><b>123</b></div>')
+    })
 
 
     it('normal no-render first', function () {
@@ -64,18 +64,18 @@ describe('v-if >', function () {
             model: {
                 render: false
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('');
+        expect(warpper.innerHTML).toBe('')
 
-        data.render = true;
-        expect(warpper.innerHTML).toBe('<div id="test2"><b>123</b></div>');
+        data.render = true
+        expect(warpper.innerHTML).toBe('<div id="test2"><b>123</b></div>')
 
-        data.render = false;
-        expect(warpper.innerHTML).toBe('');
-    });
+        data.render = false
+        expect(warpper.innerHTML).toBe('')
+    })
 
 
     it('render content contains directive and render first', function () {
@@ -92,25 +92,25 @@ describe('v-if >', function () {
                 render: true,
                 text: 'aaa'
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('<div id="test3"><p>--aaa--</p></div>');
+        expect(warpper.innerHTML).toBe('<div id="test3"><p>--aaa--</p></div>')
 
-        data.text = 'bbb';
-        expect(warpper.innerHTML).toBe('<div id="test3"><p>--bbb--</p></div>');
+        data.text = 'bbb'
+        expect(warpper.innerHTML).toBe('<div id="test3"><p>--bbb--</p></div>')
 
-        data.render = false;
-        expect(warpper.innerHTML).toBe('');
+        data.render = false
+        expect(warpper.innerHTML).toBe('')
 
-        data.text = 'ccc';
-        data.render = true;
-        expect(warpper.innerHTML).toBe('<div id="test3"><p>--ccc--</p></div>');
+        data.text = 'ccc'
+        data.render = true
+        expect(warpper.innerHTML).toBe('<div id="test3"><p>--ccc--</p></div>')
 
-        data.text = 'ddd';
-        expect(warpper.innerHTML).toBe('<div id="test3"><p>--ddd--</p></div>');
-    });
+        data.text = 'ddd'
+        expect(warpper.innerHTML).toBe('<div id="test3"><p>--ddd--</p></div>')
+    })
 
 
     it('render content contains directive and no-render first', function () {
@@ -127,28 +127,28 @@ describe('v-if >', function () {
                 render: false,
                 text: 'aaa'
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('');
+        expect(warpper.innerHTML).toBe('')
 
-        data.render = true;
-        expect(warpper.innerHTML).toBe('<div id="test4"><p>--aaa--</p></div>');
+        data.render = true
+        expect(warpper.innerHTML).toBe('<div id="test4"><p>--aaa--</p></div>')
 
-        data.text = 'bbb';
-        expect(warpper.innerHTML).toBe('<div id="test4"><p>--bbb--</p></div>');
+        data.text = 'bbb'
+        expect(warpper.innerHTML).toBe('<div id="test4"><p>--bbb--</p></div>')
 
-        data.render = false;
-        expect(warpper.innerHTML).toBe('');
+        data.render = false
+        expect(warpper.innerHTML).toBe('')
 
-        data.text = 'ccc';
-        data.render = true;
-        expect(warpper.innerHTML).toBe('<div id="test4"><p>--ccc--</p></div>');
+        data.text = 'ccc'
+        data.render = true
+        expect(warpper.innerHTML).toBe('<div id="test4"><p>--ccc--</p></div>')
 
-        data.text = 'ddd';
-        expect(warpper.innerHTML).toBe('<div id="test4"><p>--ddd--</p></div>');
-    });
+        data.text = 'ddd'
+        expect(warpper.innerHTML).toBe('<div id="test4"><p>--ddd--</p></div>')
+    })
 
 
     it('with v-else block', function () {
@@ -167,18 +167,18 @@ describe('v-if >', function () {
             model: {
                 ok: true
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div>');
+        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div>')
 
-        data.ok = false;
-        expect(warpper.innerHTML).toBe('<div id="notok"><b>Not OK</b></div>');
+        data.ok = false
+        expect(warpper.innerHTML).toBe('<div id="notok"><b>Not OK</b></div>')
 
-        data.ok = true;
-        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div>');
-    });
+        data.ok = true
+        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div>')
+    })
 
 
     it('with v-else block has text siblings', function () {
@@ -198,18 +198,18 @@ describe('v-if >', function () {
             model: {
                 ok: true
             }
-        });
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        })
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div><!-- comments -->');
+        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div><!-- comments -->')
 
-        data.ok = false;
-        expect(warpper.innerHTML).toBe('<!-- comments --><div id="notok"><b>Not OK</b></div>');
+        data.ok = false
+        expect(warpper.innerHTML).toBe('<!-- comments --><div id="notok"><b>Not OK</b></div>')
 
-        data.ok = true;
-        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div><!-- comments -->');
-    });
+        data.ok = true
+        expect(warpper.innerHTML).toBe('<div id="ok"><i>OK</i></div><!-- comments -->')
+    })
 
 
     it('nest v-if render all first', function () {
@@ -230,58 +230,58 @@ describe('v-if >', function () {
                 a: 'aaa',
                 b: 'bbb'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
         // initial render result
-        expect(warpper.textContent).toBe('aaabbb');
+        expect(warpper.textContent).toBe('aaabbb')
 
         // clear out
-        data.out = false;
-        expect(warpper.textContent).toBe('');
+        data.out = false
+        expect(warpper.textContent).toBe('')
 
         // render out
-        data.out = true;
-        expect(warpper.textContent).toBe('aaabbb');
+        data.out = true
+        expect(warpper.textContent).toBe('aaabbb')
 
         // clear a
-        data.inA = false;
-        expect(warpper.textContent).toBe('bbb');
+        data.inA = false
+        expect(warpper.textContent).toBe('bbb')
         // change b to test data reactive
-        data.b = 'BBB';
-        expect(warpper.textContent).toBe('BBB');
+        data.b = 'BBB'
+        expect(warpper.textContent).toBe('BBB')
 
         // ignore a and clear out
-        data.out = false;
-        expect(warpper.textContent).toBe('');
+        data.out = false
+        expect(warpper.textContent).toBe('')
 
         // render out, and a still be no-render
-        data.out = true;
-        expect(warpper.textContent).toBe('BBB');
+        data.out = true
+        expect(warpper.textContent).toBe('BBB')
 
         // now, change a and b, then render a
-        data.a = 'AAA';
-        data.b = '3B';
-        data.inA = true;
-        expect(warpper.textContent).toBe('AAA3B');
+        data.a = 'AAA'
+        data.b = '3B'
+        data.inA = true
+        expect(warpper.textContent).toBe('AAA3B')
 
         // clear all of them
-        data.inA = false;
-        data.inB = false;
-        data.out = false;
-        expect(warpper.textContent).toBe('');
+        data.inA = false
+        data.inB = false
+        data.out = false
+        expect(warpper.textContent).toBe('')
 
         // although render a and b, but out not render
-        data.inA = true;
-        data.inB = true;
-        expect(warpper.textContent).toBe('');
+        data.inA = true
+        data.inB = true
+        expect(warpper.textContent).toBe('')
 
         // until out is true only a & b should be rendered
-        data.out = true;
-        expect(warpper.textContent).toBe('AAA3B');
-    });
+        data.out = true
+        expect(warpper.textContent).toBe('AAA3B')
+    })
 
 
     it('nest v-if no-render all first', function () {
@@ -302,55 +302,55 @@ describe('v-if >', function () {
                 a: 'aaa',
                 b: 'bbb'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
         // initial render result
-        expect(warpper.textContent).toBe('');
+        expect(warpper.textContent).toBe('')
 
         // render out
-        data.out = true;
-        expect(warpper.textContent).toBe('');
+        data.out = true
+        expect(warpper.textContent).toBe('')
 
         // render a
-        data.inA = true;
-        expect(warpper.textContent).toBe('aaa');
+        data.inA = true
+        expect(warpper.textContent).toBe('aaa')
         // change a to test data reactive
-        data.a = 'AAA';
-        expect(warpper.textContent).toBe('AAA');
+        data.a = 'AAA'
+        expect(warpper.textContent).toBe('AAA')
 
         // ignore b and clear out
-        data.out = false;
-        expect(warpper.textContent).toBe('');
+        data.out = false
+        expect(warpper.textContent).toBe('')
 
         // render out, and b still be no-render
-        data.out = true;
-        expect(warpper.textContent).toBe('AAA');
+        data.out = true
+        expect(warpper.textContent).toBe('AAA')
 
         // now, change a and b, then render a
-        data.a = 'aaa';
-        data.b = 'BBB';
-        data.inA = false;
-        data.inB = true;
-        expect(warpper.textContent).toBe('BBB');
+        data.a = 'aaa'
+        data.b = 'BBB'
+        data.inA = false
+        data.inB = true
+        expect(warpper.textContent).toBe('BBB')
 
         // clear all of them
-        data.inA = false;
-        data.inB = false;
-        data.out = false;
-        expect(warpper.textContent).toBe('');
+        data.inA = false
+        data.inB = false
+        data.out = false
+        expect(warpper.textContent).toBe('')
 
         // although render a and b, but out not render
-        data.inA = true;
-        data.inB = true;
-        expect(warpper.textContent).toBe('');
+        data.inA = true
+        data.inB = true
+        expect(warpper.textContent).toBe('')
 
         // until out is true only a & b should be rendered
-        data.out = true;
-        expect(warpper.textContent).toBe('aaaBBB');
-    });
+        data.out = true
+        expect(warpper.textContent).toBe('aaaBBB')
+    })
 
 
     it('back-to-back v-if', function () {
@@ -371,22 +371,22 @@ describe('v-if >', function () {
                 showB: false,
                 showC: true
             }
-        });
+        })
 
-        let data = vm.$data;
-        let div = element.firstChild;
+        let data = vm.$data
+        let div = element.firstChild
 
-        expect(div.textContent).toBe('13');
+        expect(div.textContent).toBe('13')
 
-        data.showB = true;
-        expect(div.textContent).toBe('123');
+        data.showB = true
+        expect(div.textContent).toBe('123')
 
-        data.showA = false;
-        expect(div.textContent).toBe('23');
+        data.showA = false
+        expect(div.textContent).toBe('23')
 
-        data.showC = false;
-        expect(div.textContent).toBe('2');
-    });
+        data.showC = false
+        expect(div.textContent).toBe('2')
+    })
 
 
     it('back-to-back v-if has others siblings', function () {
@@ -411,22 +411,22 @@ describe('v-if >', function () {
                 showB: false,
                 showC: true
             }
-        });
+        })
 
-        let data = vm.$data;
-        let div = element.firstChild;
+        let data = vm.$data
+        let div = element.firstChild
 
-        expect(div.textContent).toBe('-1--3-');
+        expect(div.textContent).toBe('-1--3-')
 
-        data.showB = true;
-        expect(div.textContent).toBe('-1-2-3-');
+        data.showB = true
+        expect(div.textContent).toBe('-1-2-3-')
 
-        data.showA = false;
-        expect(div.textContent).toBe('--2-3-');
+        data.showA = false
+        expect(div.textContent).toBe('--2-3-')
 
-        data.showC = false;
-        expect(div.textContent).toBe('--2--');
-    });
+        data.showC = false
+        expect(div.textContent).toBe('--2--')
+    })
 
 
     it('render content contains v-for and render first', function () {
@@ -449,32 +449,32 @@ describe('v-if >', function () {
                 title: 'xxdk',
                 items: ['a', 'b', 'c']
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('xxdk-0.a_1.b_2.c_');
+        expect(warpper.textContent).toBe('xxdk-0.a_1.b_2.c_')
 
         // change for array
-        data.items.shift();
-        expect(warpper.textContent).toBe('xxdk-0.b_1.c_');
-        data.items.unshift('A');
-        expect(warpper.textContent).toBe('xxdk-0.A_1.b_2.c_');
+        data.items.shift()
+        expect(warpper.textContent).toBe('xxdk-0.b_1.c_')
+        data.items.unshift('A')
+        expect(warpper.textContent).toBe('xxdk-0.A_1.b_2.c_')
 
         // clear warpper
-        data.show = false;
-        expect(warpper.textContent).toBe('');
+        data.show = false
+        expect(warpper.textContent).toBe('')
 
         // change for data, but will not has appearance
-        data.title = 'txgc';
-        data.items.push('D');
-        expect(warpper.textContent).toBe('');
+        data.title = 'txgc'
+        data.items.push('D')
+        expect(warpper.textContent).toBe('')
 
         // render warpper, and will refresh appearance
-        data.show = true;
-        expect(warpper.textContent).toBe('txgc-0.A_1.b_2.c_3.D_');
-    });
+        data.show = true
+        expect(warpper.textContent).toBe('txgc-0.A_1.b_2.c_3.D_')
+    })
 
 
     it('render content contains v-for and no-render first', function () {
@@ -497,35 +497,35 @@ describe('v-if >', function () {
                 title: 'xxdk',
                 items: ['a', 'b', 'c']
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('');
+        expect(warpper.textContent).toBe('')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('xxdk-0.a_1.b_2.c_');
+        data.show = true
+        expect(warpper.textContent).toBe('xxdk-0.a_1.b_2.c_')
 
         // change for array
-        data.items.shift();
-        expect(warpper.textContent).toBe('xxdk-0.b_1.c_');
-        data.items.unshift('A');
-        expect(warpper.textContent).toBe('xxdk-0.A_1.b_2.c_');
+        data.items.shift()
+        expect(warpper.textContent).toBe('xxdk-0.b_1.c_')
+        data.items.unshift('A')
+        expect(warpper.textContent).toBe('xxdk-0.A_1.b_2.c_')
 
         // clear warpper
-        data.show = false;
-        expect(warpper.textContent).toBe('');
+        data.show = false
+        expect(warpper.textContent).toBe('')
 
         // change for data, but will not has appearance
-        data.title = 'txgc';
-        data.items.push('D');
-        expect(warpper.textContent).toBe('');
+        data.title = 'txgc'
+        data.items.push('D')
+        expect(warpper.textContent).toBe('')
 
         // render warpper, and will refresh appearance
-        data.show = true;
-        expect(warpper.textContent).toBe('txgc-0.A_1.b_2.c_3.D_');
-    });
+        data.show = true
+        expect(warpper.textContent).toBe('txgc-0.A_1.b_2.c_3.D_')
+    })
 
 
     it('cannot use v-if and v-for on the same element', function () {
@@ -542,11 +542,11 @@ describe('v-if >', function () {
                 show: true,
                 items: ['a', 'b', 'c']
             }
-        });
+        })
 
-        let msg = 'Do not use v-if and v-for on the same element! Consider filtering the source Array instead.';
-        expect(util.warn).toHaveBeenCalledWith(msg);
-    });
+        let msg = 'Do not use v-if and v-for on the same element! Consider filtering the source Array instead.'
+        expect(util.warn).toHaveBeenCalledWith(msg)
+    })
 
 
     it('has others siblings render first', function () {
@@ -564,25 +564,25 @@ describe('v-if >', function () {
                 show: true,
                 title: 'aaa'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('XX-aaaOO');
+        expect(warpper.textContent).toBe('XX-aaaOO')
 
-        data.title = 'bbb';
-        expect(warpper.textContent).toBe('XX-bbbOO');
+        data.title = 'bbb'
+        expect(warpper.textContent).toBe('XX-bbbOO')
 
-        data.show = false;
-        expect(warpper.textContent).toBe('XX-OO');
+        data.show = false
+        expect(warpper.textContent).toBe('XX-OO')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('XX-bbbOO');
+        data.show = true
+        expect(warpper.textContent).toBe('XX-bbbOO')
 
-        data.title = 'ccc';
-        expect(warpper.textContent).toBe('XX-cccOO');
-    });
+        data.title = 'ccc'
+        expect(warpper.textContent).toBe('XX-cccOO')
+    })
 
 
     it('has others siblings no render first', function () {
@@ -600,28 +600,28 @@ describe('v-if >', function () {
                 show: false,
                 title: 'aaa'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('XX-OO');
+        expect(warpper.textContent).toBe('XX-OO')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('XXaaa-OO');
+        data.show = true
+        expect(warpper.textContent).toBe('XXaaa-OO')
 
-        data.title = 'bbb';
-        expect(warpper.textContent).toBe('XXbbb-OO');
+        data.title = 'bbb'
+        expect(warpper.textContent).toBe('XXbbb-OO')
 
-        data.show = false;
-        expect(warpper.textContent).toBe('XX-OO');
+        data.show = false
+        expect(warpper.textContent).toBe('XX-OO')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('XXbbb-OO');
+        data.show = true
+        expect(warpper.textContent).toBe('XXbbb-OO')
 
-        data.title = 'ccc';
-        expect(warpper.textContent).toBe('XXccc-OO');
-    });
+        data.title = 'ccc'
+        expect(warpper.textContent).toBe('XXccc-OO')
+    })
 
 
     it('has v-else and others siblings render first', function () {
@@ -641,28 +641,28 @@ describe('v-if >', function () {
                 title: 'aaa',
                 desc: 'AAA'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('XX-aaaOO');
+        expect(warpper.textContent).toBe('XX-aaaOO')
 
-        data.title = 'bbb';
-        expect(warpper.textContent).toBe('XX-bbbOO');
+        data.title = 'bbb'
+        expect(warpper.textContent).toBe('XX-bbbOO')
 
-        data.show = false;
-        expect(warpper.textContent).toBe('XX-AAAOO');
+        data.show = false
+        expect(warpper.textContent).toBe('XX-AAAOO')
 
-        data.desc = 'BBB';
-        expect(warpper.textContent).toBe('XX-BBBOO');
+        data.desc = 'BBB'
+        expect(warpper.textContent).toBe('XX-BBBOO')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('XX-bbbOO');
+        data.show = true
+        expect(warpper.textContent).toBe('XX-bbbOO')
 
-        data.title = 'ccc';
-        expect(warpper.textContent).toBe('XX-cccOO');
-    });
+        data.title = 'ccc'
+        expect(warpper.textContent).toBe('XX-cccOO')
+    })
 
 
     it('has v-else and others siblings no render first', function () {
@@ -682,26 +682,26 @@ describe('v-if >', function () {
                 title: 'aaa',
                 desc: 'AAA'
             }
-        });
+        })
 
-        let data = vm.$data;
-        let warpper = element.firstChild;
+        let data = vm.$data
+        let warpper = element.firstChild
 
-        expect(warpper.textContent).toBe('XXAAA-OO');
+        expect(warpper.textContent).toBe('XXAAA-OO')
 
-        data.desc = 'BBB';
-        expect(warpper.textContent).toBe('XXBBB-OO');
+        data.desc = 'BBB'
+        expect(warpper.textContent).toBe('XXBBB-OO')
 
-        data.show = true;
-        expect(warpper.textContent).toBe('XXaaa-OO');
+        data.show = true
+        expect(warpper.textContent).toBe('XXaaa-OO')
 
-        data.title = 'bbb';
-        expect(warpper.textContent).toBe('XXbbb-OO');
+        data.title = 'bbb'
+        expect(warpper.textContent).toBe('XXbbb-OO')
 
-        data.show = false;
-        expect(warpper.textContent).toBe('XXBBB-OO');
+        data.show = false
+        expect(warpper.textContent).toBe('XXBBB-OO')
 
-        data.desc = 'CCC';
-        expect(warpper.textContent).toBe('XXCCC-OO');
-    });
-});
+        data.desc = 'CCC'
+        expect(warpper.textContent).toBe('XXCCC-OO')
+    })
+})

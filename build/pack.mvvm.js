@@ -1,5 +1,5 @@
-import buble from 'rollup-plugin-buble';
-import { mvvmBanner } from './pack.banner';
+import buble from 'rollup-plugin-buble'
+import { mvvmBanner } from './pack.banner'
 
 export default {
     entry: './src/mvvm/index.js',

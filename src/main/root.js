@@ -2,10 +2,10 @@ import {
     each,
     extend,
     isFunc
-} from '../util';
+} from '../util'
 
-const regSuper = /\b\.Super\b/;
-const _toString = Function.prototype.toString;
+const regSuper = /\b\.Super\b/
+const _toString = Function.prototype.toString
 
 /**
  * 对子类方法挂载 Super
@@ -19,11 +19,11 @@ function bindSuper (Super, method) {
         regSuper.test(_toString.call(method))
     ) {
         return function () {
-            this.Super = Super;
-            method.apply(this, arguments);
+            this.Super = Super
+            method.apply(this, arguments)
         }
     } else {
-        return method;
+        return method
     }
 }
 
@@ -34,7 +34,7 @@ function bindSuper (Super, method) {
  */
 function Root () {}
 Root.extend = function (proto) {
-    let parent = this.prototype;
+    let parent = this.prototype
 
     /**
      * 子类对父类方法的调用
@@ -43,9 +43,9 @@ Root.extend = function (proto) {
      * @param  {Object}  newConfig  [新配置参数]
      */
     function Super (method, oldConfig, newConfig) {
-        let func = parent[method];
+        let func = parent[method]
         if (isFunc(func)) {
-            func.call(this, extend(true, newConfig, oldConfig));
+            func.call(this, extend(true, newConfig, oldConfig))
         }
     }
 
@@ -53,17 +53,17 @@ Root.extend = function (proto) {
      * 返回(继承后)的类
      */
     function Class () {}
-    let classProto = Class.prototype = Object.create(parent);
+    let classProto = Class.prototype = Object.create(parent)
 
     each(proto, function (value, property) {
-        classProto[property] = bindSuper(Super, value);
-    });
+        classProto[property] = bindSuper(Super, value)
+    })
 
-    proto = null;
-    Class.extend = this.extend;
-    classProto.constructor = Class;
+    proto = null
+    Class.extend = this.extend
+    classProto.constructor = Class
 
-    return Class;
+    return Class
 }
 
-export default Root;
+export default Root

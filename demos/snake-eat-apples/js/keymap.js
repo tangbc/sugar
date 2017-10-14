@@ -13,6 +13,6 @@
         83: 'DOWN' // S
     }
 
-    exports.AppKeymap = Keymap;
+    exports.AppKeymap = Keymap
 
-})(window);
+})(window)

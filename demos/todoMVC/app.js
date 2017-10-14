@@ -1,12 +1,12 @@
-(function (exports, filter, storage) {
+;(function (exports, filter, storage) {
     /**
      * TodoMVC app define
      */
     var TodoMVC = Sugar.Component.extend({
         init: function (config) {
-            var allTodos = storage.getAll();
+            var allTodos = storage.getAll()
 
-            this.ready = true;
+            this.ready = true
             this.Super('init', config, {
                 target: '.todoapp',
                 cbRender: 'updateList',
@@ -28,10 +28,10 @@
                 },
                 computed: {
                     left: function () {
-                        return filter.active(this.allTodos).length;
+                        return filter.active(this.allTodos).length
                     },
                     showClear: function () {
-                        return filter.completed(this.allTodos).length > 0;
+                        return filter.completed(this.allTodos).length > 0
                     }
                 },
                 customs: {
@@ -39,7 +39,7 @@
                     // define custom directive refresh function
                     focus: function (editing) {
                         if (editing) {
-                            this.el.focus();
+                            this.el.focus()
                         }
                     }
                 },
@@ -51,8 +51,8 @@
                     toggleAll: function (checked) {
                         if (!this.$checking) {
                             this.vm.get('todos').forEach(function (todo) {
-                                todo.completed = checked;
-                            });
+                                todo.completed = checked
+                            })
                         }
                     },
                     // watch for `allTodos` deep change
@@ -60,45 +60,45 @@
                         deep: true,
                         handler: function () {
                             var data = this.vm.$data
-                            var allTodos = data.allTodos;
+                            var allTodos = data.allTodos
 
                             // check checking status for `toggleAll`
-                            this.$checking = true;
-                            data.toggleAll = filter.active(allTodos).length === 0;
-                            this.$checking = false;
+                            this.$checking = true
+                            data.toggleAll = filter.active(allTodos).length === 0
+                            this.$checking = false
 
                             if (this.ready) {
-                                this.updateList();
+                                this.updateList()
                             }
 
-                            storage.save(allTodos);
+                            storage.save(allTodos)
                         }
                     }
                 }
-            });
+            })
         },
 
         /**
          * update shown list
          */
         updateList: function () {
-            var data = this.vm.$data;
-            data.todos = filter[data.type](data.allTodos);
+            var data = this.vm.$data
+            data.todos = filter[data.type](data.allTodos)
         },
 
         /**
          * add a todo by press enter
          */
         addTodo: function () {
-            var data = this.vm.$data;
-            var todo = data.newTodo.trim();
+            var data = this.vm.$data
+            var todo = data.newTodo.trim()
 
             if (!todo) {
-                return;
+                return
             }
 
-            data.newTodo = '';
-            data.allTodos.push({ title: todo, completed: false });
+            data.newTodo = ''
+            data.allTodos.push({ title: todo, completed: false })
         },
 
         /**
@@ -106,9 +106,9 @@
          * @param   {Object}  todo
          */
         editTodo: function (todo) {
-            this.ready = false;
-            this.titleCache = todo.title;
-            this.vm.$data.editingTodo = todo;
+            this.ready = false
+            this.titleCache = todo.title
+            this.vm.$data.editingTodo = todo
         },
 
         /**
@@ -116,16 +116,16 @@
          * @param   {Object}  todo
          */
         doneEdit: function (todo) {
-            var data = this.vm.$data;
+            var data = this.vm.$data
 
             // sign for update
-            this.ready = true;
+            this.ready = true
 
-            data.editingTodo = null;
+            data.editingTodo = null
 
             // remove it if it's empty
             if (!todo.title.trim()) {
-                this.removeTodo(todo);
+                this.removeTodo(todo)
             }
         },
 
@@ -134,8 +134,8 @@
          * @param   {Object}  todo
          */
         cancelEdit: function (todo) {
-            this.vm.$data.editingTodo = null;
-            todo.title = this.titleCache;
+            this.vm.$data.editingTodo = null
+            todo.title = this.titleCache
         },
 
         /**
@@ -143,21 +143,21 @@
          * @param   {Object}  todo
          */
         removeTodo: function (todo) {
-            this.vm.$data.allTodos.$remove(todo);
+            this.vm.$data.allTodos.$remove(todo)
         },
 
         /**
          * clear completed todos
          */
         clearCompleted: function () {
-            var data = this.vm.$data;
-            data.allTodos = filter.active(data.allTodos);
+            var data = this.vm.$data
+            data.allTodos = filter.active(data.allTodos)
         }
-    });
+    })
 
     /**
      * Create todoMVC app instance
      */
-    exports.todoMVC = Sugar.core.create('todoMVC', TodoMVC);
+    exports.todoMVC = Sugar.core.create('todoMVC', TodoMVC)
 
-})(window, Filter, Storage);
+})(window, Filter, Storage)

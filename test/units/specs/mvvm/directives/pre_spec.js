@@ -1,16 +1,16 @@
-import MVVM from 'mvvm';
+import MVVM from 'mvvm'
 
 describe('v-pre >', function () {
-    let element;
+    let element
 
     beforeEach(function () {
-        element = document.createElement('div');
-        document.body.appendChild(element);
-    });
+        element = document.createElement('div')
+        document.body.appendChild(element)
+    })
 
     afterEach(function () {
-        document.body.removeChild(element);
-    });
+        document.body.removeChild(element)
+    })
 
 
     it('normal', function () {
@@ -23,11 +23,11 @@ describe('v-pre >', function () {
         new MVVM({
             view: element,
             model: {}
-        });
-        let div = element.querySelector('#test1');
+        })
+        let div = element.querySelector('#test1')
 
-        expect(div.innerHTML).toBe('<b v-show="show"></b><i>{{ text }}</i>');
-    });
+        expect(div.innerHTML).toBe('<b v-show="show"></b><i>{{ text }}</i>')
+    })
 
 
     it('in v-for', function () {
@@ -43,9 +43,9 @@ describe('v-pre >', function () {
             model: {
                 items: [{}, {}, {}]
             }
-        });
-        let ul = element.querySelector('#test2');
+        })
+        let ul = element.querySelector('#test2')
 
-        expect(ul.textContent).toBe('{{ item.text }}{{ item.text }}{{ item.text }}');
-    });
-});
+        expect(ul.textContent).toBe('{{ item.text }}{{ item.text }}{{ item.text }}')
+    })
+})

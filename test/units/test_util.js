@@ -5,14 +5,14 @@
  * @param   {Function}  process
  */
 export function triggerEvent (target, evt, process) {
-    let e = document.createEvent('HTMLEvents');
-    e.initEvent(evt, true, true);
+    let e = document.createEvent('HTMLEvents')
+    e.initEvent(evt, true, true)
 
     if (process) {
-        process(e);
+        process(e)
     }
 
-    target.dispatchEvent(e);
+    target.dispatchEvent(e)
 }
 
 /**
@@ -21,11 +21,11 @@ export function triggerEvent (target, evt, process) {
  * @param  {String}  value
  */
 export function setSelect (select, value) {
-    let options = select.options;
+    let options = select.options
     for (let i = 0; i < options.length; i++) {
         /* jshint ignore:start */
         if (options[i].value == value) {
-            options[i].selected = true;
+            options[i].selected = true
         }
         /* jshint ignore:end */
     }
@@ -38,18 +38,18 @@ export function setSelect (select, value) {
  * @return  {Boolean}
  */
 export function equalClass (classString, stringClass) {
-    let fronts = classString.split(' ');
-    let backs = stringClass.split(' ');
+    let fronts = classString.split(' ')
+    let backs = stringClass.split(' ')
 
     if (fronts.length !== backs.length) {
-        return false;
+        return false
     }
 
     for (let i = 0; i < fronts.length; i++) {
         if (backs.indexOf(fronts[i]) === -1) {
-            return false;
+            return false
         }
     }
 
-    return true;
+    return true
 }

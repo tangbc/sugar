@@ -1,7 +1,7 @@
-import ajax from './ajax';
-import Module from './module';
-import MVVM from '../mvvm/index';
-import DOM, { addClass, setAttr, addEvent, removeEvent } from '../dom';
+import ajax from './ajax'
+import Module from './module'
+import MVVM from '../mvvm/index'
+import DOM, { addClass, setAttr, addEvent, removeEvent } from '../dom'
 import {
     each,
     warn,
@@ -14,14 +14,14 @@ import {
     _toString,
     clearObject,
     createElement
-} from '../util';
+} from '../util'
 
 /**
  * 事件 id 唯一计数
  * @type  {Number}
  */
-let componentEventGuid = 1000;
-let identifier = '__eventid__';
+let componentEventGuid = 1000
+let identifier = '__eventid__'
 
 
 /**
@@ -65,32 +65,32 @@ let Component = Module.extend({
 
             // 视图渲染完成后的回调函数
             cbRender: 'afterRender'
-        }, config);
+        }, config)
 
         // 组件元素
-        this.el = null;
+        this.el = null
         // mvvm 实例
-        this.vm = null;
+        this.vm = null
         // 通用 DOM 处理方法
-        this.$ = new DOM();
+        this.$ = new DOM()
 
         // (Private) 组件初始显示状态
-        this.__visible__ = '';
+        this.__visible__ = ''
         // (Private) 组件是否已经创建完成
-        this.__ready__ = false;
+        this.__ready__ = false
         // (Private) DOM 事件绑定记录
-        this.__listeners__ = {};
+        this.__listeners__ = {}
 
         // 调用渲染前函数
         if (isFunc(this.beforeRender)) {
-            this.beforeRender();
+            this.beforeRender()
         }
 
         // 拉取模板
         if (this.getConfig('template')) {
-            this._loadTemplate();
+            this._loadTemplate()
         } else {
-            this._render();
+            this._render()
         }
     },
 
@@ -98,22 +98,22 @@ let Component = Module.extend({
      * (Private) 加载模板布局文件
      */
     _loadTemplate: function () {
-        let c = this.getConfig();
-        let uri = c.template;
+        let c = this.getConfig()
+        let uri = c.template
 
         ajax.load(uri, c.tplParam, function (err, data) {
-            let view;
+            let view
 
             if (err) {
-                view = err.status + ': ' + uri;
-                warn(err);
+                view = err.status + ': ' + uri
+                warn(err)
             } else {
-                view = data.result;
+                view = data.result
             }
 
-            this.setConfig('view', view);
-            this._render();
-        }, this);
+            this.setConfig('view', view)
+            this._render()
+        }, this)
     },
 
     /**
@@ -122,52 +122,52 @@ let Component = Module.extend({
     _render: function () {
         // 判断是否已创建过
         if (this.__ready__) {
-            return this;
+            return this
         }
 
-        this.__ready__ = true;
+        this.__ready__ = true
 
-        let c = this.getConfig();
+        let c = this.getConfig()
 
-        let target = c.target;
-        let isAppend = target instanceof HTMLElement;
+        let target = c.target
+        let isAppend = target instanceof HTMLElement
 
         // 组件 el 创建
         if (isAppend) {
-            this.el = createElement(c.tag);
+            this.el = createElement(c.tag)
         } else {
-            this.el = document.querySelector(target);
+            this.el = document.querySelector(target)
         }
 
         // 添加 class
-        let cls = c.class;
+        let cls = c.class
         if (cls && isString(cls)) {
             each(cls.split(' '), function (classname) {
-                addClass(this.el, classname);
-            }, this);
+                addClass(this.el, classname)
+            }, this)
         }
 
         // 添加 css
         if (isObject(c.css)) {
             each(c.css, function (value, property) {
-                this.el.style[property] = value;
-            }, this);
+                this.el.style[property] = value
+            }, this)
         }
 
         // 添加 attr
         if (isObject(c.attr)) {
             each(c.attr, function (value, name) {
-                setAttr(this.el, name, value);
-            }, this);
+                setAttr(this.el, name, value)
+            }, this)
         }
 
         // 添加页面视图布局
         if (c.view) {
-            this.el.innerHTML = _toString(c.view);
+            this.el.innerHTML = _toString(c.view)
         }
 
         // 初始化 mvvm 对象
-        let model = c.model;
+        let model = c.model
         if (isObject(model)) {
             this.vm = new MVVM({
                 view: this.el,
@@ -180,29 +180,29 @@ let Component = Module.extend({
                 hooks: c.hooks,
                 context: this,
                 lazy: c.lazy
-            });
+            })
         }
 
         // 组件初始显示状态
-        let display = this.el.style.display;
-        this.__visible__ = display === 'none' ? '' : display;
+        let display = this.el.style.display
+        this.__visible__ = display === 'none' ? '' : display
 
         // 创建子组件
-        each(c.childs, this._buildBatchChilds, this);
+        each(c.childs, this._buildBatchChilds, this)
 
         // 追加到目标容器
         if (isAppend) {
             if (c.replace) {
-                target.parentNode.replaceChild(this.el, target);
+                target.parentNode.replaceChild(this.el, target)
             } else {
-                target.appendChild(this.el);
+                target.appendChild(this.el)
             }
         }
 
         // 组件视图渲染完成回调方法
-        let cb = this[c.cbRender];
+        let cb = this[c.cbRender]
         if (isFunc(cb)) {
-            cb.call(this);
+            cb.call(this)
         }
     },
 
@@ -212,22 +212,22 @@ let Component = Module.extend({
      * @param   {String}    symbol     [子组件名称]
      */
     _buildBatchChilds: function (ChildComp, symbol) {
-        let target = this.queryAll(symbol.toLowerCase());
+        let target = this.queryAll(symbol.toLowerCase())
 
         if (!target.length) {
-            target = this.queryAll('[name='+ symbol +']');
+            target = this.queryAll('[name='+ symbol +']')
         }
 
         switch (target.length) {
             case 0:
-                warn('Cannot find target element for sub component ['+ symbol +']');
-                break;
+                warn('Cannot find target element for sub component ['+ symbol +']')
+                break
             case 1:
-                this._createChild(target[0], symbol, ChildComp);
-                break;
+                this._createChild(target[0], symbol, ChildComp)
+                break
             default: {
                 for (let i = 0; i < target.length; i++) {
-                    this._createChild(target[i], symbol + i, ChildComp);
+                    this._createChild(target[i], symbol + i, ChildComp)
                 }
             }
         }
@@ -241,15 +241,15 @@ let Component = Module.extend({
      */
     _createChild: function (target, childName, ChildComp) {
         // 默认全部替换子组件标记
-        let childConfig = { target, 'replace': true };
+        let childConfig = { target, 'replace': true }
 
         // 直接传入子组件
         if (isFunc(ChildComp)) {
-            this.create(childName, ChildComp, childConfig);
+            this.create(childName, ChildComp, childConfig)
         }
         // 传子组件和其配置参数 [component, config]
         else if (isArray(ChildComp)) {
-            this.create(childName, ChildComp[0], extend(ChildComp[1], childConfig));
+            this.create(childName, ChildComp[0], extend(ChildComp[1], childConfig))
         }
     },
 
@@ -257,22 +257,22 @@ let Component = Module.extend({
      * (Private) 组件销毁后的回调函数
      */
     _afterDestroy: function () {
-        let vm = this.vm;
-        let el = this.el;
-        let parent = el.parentNode;
+        let vm = this.vm
+        let el = this.el
+        let parent = el.parentNode
 
         // 销毁 mvvm 实例
         if (vm) {
-            vm.destroy();
+            vm.destroy()
         }
 
         // 销毁 dom 对象
         if (parent) {
-            parent.removeChild(el);
+            parent.removeChild(el)
         }
 
-        this.el = this.vm = null;
-        clearObject(this.__listeners__);
+        this.el = this.vm = null
+        clearObject(this.__listeners__)
     },
 
     /**
@@ -280,7 +280,7 @@ let Component = Module.extend({
      * @param  {String}  name  [参数字段名称，支持/层级]
      */
     getConfig: function (name) {
-        return config(this.__config__, name);
+        return config(this.__config__, name)
     },
 
     /**
@@ -289,7 +289,7 @@ let Component = Module.extend({
      * @param {Mix}     value  [值]
      */
     setConfig: function (name, value) {
-        return config(this.__config__, name, value);
+        return config(this.__config__, name, value)
     },
 
     /**
@@ -298,7 +298,7 @@ let Component = Module.extend({
      * @return {DOMObject}
      */
     query: function (selector) {
-        return this.el.querySelector(selector);
+        return this.el.querySelector(selector)
     },
 
     /**
@@ -307,45 +307,45 @@ let Component = Module.extend({
      * @return {NodeList}
      */
     queryAll: function (selectors) {
-        return this.el.querySelectorAll(selectors);
+        return this.el.querySelectorAll(selectors)
     },
 
     /**
      * 显示组件
      */
     show: function () {
-        this.el.style.display = this.__visible__;
-        return this;
+        this.el.style.display = this.__visible__
+        return this
     },
 
     /**
      * 隐藏组件
      */
     hide: function () {
-        this.el.style.display = 'none';
-        return this;
+        this.el.style.display = 'none'
+        return this
     },
 
     /**
      * 元素添加绑定事件
      */
     on: function (node, type, callback, capture) {
-        let self = this;
-        let guid = componentEventGuid++;
+        let self = this
+        let guid = componentEventGuid++
 
         if (isString(callback)) {
-            callback = this[callback];
+            callback = this[callback]
         }
 
-        callback[identifier] = guid;
+        callback[identifier] = guid
         let eventAgent = function (e) {
-            callback.call(self, e);
+            callback.call(self, e)
         }
 
-        this.__listeners__[guid] = eventAgent;
-        addEvent(node, type, eventAgent, capture);
+        this.__listeners__[guid] = eventAgent
+        addEvent(node, type, eventAgent, capture)
 
-        return this;
+        return this
     },
 
     /**
@@ -353,17 +353,17 @@ let Component = Module.extend({
      */
     off: function (node, type, callback, capture) {
         if (isString(callback)) {
-            callback = this[callback];
+            callback = this[callback]
         }
 
-        let guid = callback[identifier];
-        let eventAgent = this.__listeners__[guid];
+        let guid = callback[identifier]
+        let eventAgent = this.__listeners__[guid]
         if (eventAgent) {
-            removeEvent(node, type, eventAgent, capture);
+            removeEvent(node, type, eventAgent, capture)
         }
 
-        return this;
+        return this
     }
-});
+})
 
-export default Component;
+export default Component

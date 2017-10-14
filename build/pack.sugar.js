@@ -1,5 +1,5 @@
-import buble from 'rollup-plugin-buble';
-import { sugarBanner } from './pack.banner';
+import buble from 'rollup-plugin-buble'
+import { sugarBanner } from './pack.banner'
 
 export default {
     entry: './src/main/index.js',

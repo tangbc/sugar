@@ -1,4 +1,4 @@
-import Watcher from './watcher';
+import Watcher from './watcher'
 
 /**
  * 指令通用模块
@@ -6,29 +6,29 @@ import Watcher from './watcher';
  * @param  {Object}   parser  [指令解析模块实例]
  */
 export default function Directive (parser) {
-    this.parser = parser;
-    this.scope = parser.scope;
+    this.parser = parser
+    this.scope = parser.scope
 }
 
-let dp = Directive.prototype;
+let dp = Directive.prototype
 
 /**
  * 安装/解析指令，订阅数据、更新视图
  */
 dp.mount = function () {
-    let parser = this.parser;
+    let parser = this.parser
     // 生成数据订阅实例
-    let watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this);
+    let watcher = this.watcher = new Watcher(parser.vm, parser.desc, this.update, this)
     // 更新初始视图
-    this.update(watcher.value);
+    this.update(watcher.value)
 }
 
 /**
  * 销毁/卸载指令
  */
 dp.destroy = function () {
-    this.watcher.destroy();
-    this.parser = this.scope = null;
+    this.watcher.destroy()
+    this.parser = this.scope = null
 }
 
 /**
@@ -39,8 +39,8 @@ dp.destroy = function () {
  * @param   {Object}   methodArg  [数组操作参数信息]
  */
 dp.update = function () {
-    let parser = this.parser;
-    parser.update.apply(parser, arguments);
+    let parser = this.parser
+    parser.update.apply(parser, arguments)
 }
 
 /**
@@ -48,7 +48,7 @@ dp.update = function () {
  * @return  {Mix}
  */
 dp.get = function () {
-    return this.watcher.value;
+    return this.watcher.value
 }
 
 /**
@@ -56,5 +56,5 @@ dp.get = function () {
  * @param  {Mix}  value
  */
 dp.set = function (value) {
-    this.watcher.setValue(value);
+    this.watcher.setValue(value)
 }

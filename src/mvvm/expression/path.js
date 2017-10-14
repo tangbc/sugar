@@ -1,16 +1,16 @@
-import { removeSpace, each, copy, isObject } from '../../util';
+import { removeSpace, each, copy, isObject } from '../../util'
 
-const INIT = 0;
-const IDENT = 1;
-const QUOTE = 2;
-const OTHER = 1;
+const INIT = 0
+const IDENT = 1
+const QUOTE = 2
+const OTHER = 1
 
 /**
  * 保留取词
  * @param  {String}  value
  */
 function ident (value) {
-    return value;
+    return value
 }
 
 /**
@@ -18,10 +18,10 @@ function ident (value) {
  * @param  {String}  value
  */
 function quote (value) {
-    return '';
+    return ''
 }
 
-let convert = [0, ident, quote, ident];
+let convert = [0, ident, quote, ident]
 
 /**
  * 获取字符类型
@@ -30,7 +30,7 @@ let convert = [0, ident, quote, ident];
  * @return  {Number}
  */
 function getState (cha) {
-    let code = cha.charCodeAt(0);
+    let code = cha.charCodeAt(0)
 
     // a-z A-Z 0-9
     if (
@@ -38,7 +38,7 @@ function getState (cha) {
         (code >= 97 && code <= 122) ||
         (code >= 48 && code <= 57)
     ) {
-        return IDENT;
+        return IDENT
     }
 
     switch (code) {
@@ -47,9 +47,9 @@ function getState (cha) {
         case 46: // .
         case 34: // "
         case 39: // '
-            return QUOTE;
+            return QUOTE
         default:
-            return OTHER;
+            return OTHER
     }
 }
 
@@ -62,8 +62,8 @@ let StateMachine = {
      * 初始状态设定
      */
     init: function (state) {
-        this.saves = '';
-        this.state = state;
+        this.saves = ''
+        this.state = state
     },
 
     /**
@@ -72,18 +72,18 @@ let StateMachine = {
      * @param  {String}  value
      */
     set: function (state, value) {
-        let { keepIdent, tobeQuote, tobeIdent } = this.get(state);
+        let { keepIdent, tobeQuote, tobeIdent } = this.get(state)
 
         if (keepIdent) {
-            this.save(state, value);
+            this.save(state, value)
         } else if (tobeQuote) {
-            let saves = this.saves;
-            this.saves = '';
-            this.change(state);
-            return saves;
+            let saves = this.saves
+            this.saves = ''
+            this.change(state)
+            return saves
         } else if (tobeIdent) {
-            this.save(state, value);
-            this.change(state);
+            this.save(state, value)
+            this.change(state)
         }
     },
 
@@ -93,12 +93,12 @@ let StateMachine = {
      * @return  {Object}            [状态类型对象]
      */
     get: function (toBecome) {
-        let current = this.state;
-        let keepIdent = current === IDENT && toBecome === IDENT;
-        let tobeQuote = (current === IDENT || current === INIT) && toBecome === QUOTE;
-        let keepQuote = current === QUOTE && toBecome === QUOTE;
-        let tobeIdent = (current === QUOTE || current === INIT) && toBecome === IDENT;
-        return { keepIdent, tobeQuote, keepQuote, tobeIdent };
+        let current = this.state
+        let keepIdent = current === IDENT && toBecome === IDENT
+        let tobeQuote = (current === IDENT || current === INIT) && toBecome === QUOTE
+        let keepQuote = current === QUOTE && toBecome === QUOTE
+        let tobeIdent = (current === QUOTE || current === INIT) && toBecome === IDENT
+        return { keepIdent, tobeQuote, keepQuote, tobeIdent }
     },
 
     /**
@@ -106,22 +106,22 @@ let StateMachine = {
      * @param  {Number}  state
      */
     change: function (state) {
-        this.state = state;
+        this.state = state
     },
 
     /**
      * 缓存当前字符
      */
     save: function (state, value) {
-        this.saves += convert[state](value);
+        this.saves += convert[state](value)
     },
 
     /**
      * 重置状态
      */
     reset: function () {
-        this.saves = '';
-        this.state = INIT;
+        this.saves = ''
+        this.state = INIT
     }
 }
 
@@ -131,27 +131,27 @@ let StateMachine = {
  * @return  {Array}
  */
 function parseToPath (expression) {
-    let paths = [];
-    let letters = expression.split('');
-    let lastIndex = letters.length - 1;
-    let firstState = getState(letters[0]);
+    let paths = []
+    let letters = expression.split('')
+    let lastIndex = letters.length - 1
+    let firstState = getState(letters[0])
 
-    StateMachine.init(firstState);
+    StateMachine.init(firstState)
     each(letters, function (letter, index) {
-        let state = getState(letter);
-        let word = StateMachine.set(state, letter);
+        let state = getState(letter)
+        let word = StateMachine.set(state, letter)
         if (word) {
-            paths.push(word);
+            paths.push(word)
         }
 
         // 解析结束
         if (index === lastIndex && StateMachine.saves) {
-            paths.push(StateMachine.saves);
-            StateMachine.reset();
+            paths.push(StateMachine.saves)
+            StateMachine.reset()
         }
-    });
+    })
 
-    return paths;
+    return paths
 }
 
 /**
@@ -162,9 +162,9 @@ function parseToPath (expression) {
  */
 function getDeepValue (target, paths) {
     while (paths.length) {
-        target = target[paths.shift()];
+        target = target[paths.shift()]
     }
-    return target;
+    return target
 }
 
 
@@ -174,7 +174,7 @@ function getDeepValue (target, paths) {
  * @return  {Array}
  */
 export function createPath (expression) {
-    return parseToPath(removeSpace(expression));
+    return parseToPath(removeSpace(expression))
 }
 
 /**
@@ -184,10 +184,10 @@ export function createPath (expression) {
  * @param  {Array}   paths
  */
 export function setValueByPath (scope, value, paths) {
-    let copyPaths = copy(paths);
-    let set = copyPaths.pop();
-    let data = getDeepValue(scope, copyPaths);
+    let copyPaths = copy(paths)
+    let set = copyPaths.pop()
+    let data = getDeepValue(scope, copyPaths)
     if (isObject(data)) {
-        data[set] = value;
+        data[set] = value
     }
 }

@@ -1,7 +1,7 @@
-import cache from './cache';
-import Module from './module';
-import { isFunc } from '../util';
-import messager from './messager';
+import cache from './cache'
+import Module from './module'
+import { isFunc } from '../util'
+import messager from './messager'
 
 /**
  * Core 核心模块，用于顶层组件模块的创建
@@ -13,7 +13,7 @@ let Core = Module.extend({
      * @return {Object}
      */
     get: function (name) {
-        return this.getChild(name);
+        return this.getChild(name)
     },
 
     /**
@@ -27,18 +27,18 @@ let Core = Module.extend({
     globalCast: function (name, param, callback, context) {
         // 不传 param
         if (isFunc(param)) {
-            context = callback;
-            callback = param;
-            param = null;
+            context = callback
+            callback = param
+            param = null
         }
 
-        messager.globalCast(name, param, callback, context);
+        messager.globalCast(name, param, callback, context)
     },
 
     /**
      * 重写 destroy, core 模块不允许销毁
      */
     destroy: function () {}
-});
+})
 
-export default cache['0'] = new Core();
+export default cache['0'] = new Core()

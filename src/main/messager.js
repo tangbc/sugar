@@ -1,12 +1,12 @@
-import cache from './cache';
-import { each, isFunc, isObject, isString, warn } from '../util';
+import cache from './cache'
+import { each, isFunc, isObject, isString, warn } from '../util'
 
 /**
  * 字符串首字母大写
  * @param   {String}  string
  */
 function ucFirst (string) {
-    return string.charAt(0).toUpperCase() + string.substr(1);
+    return string.charAt(0).toUpperCase() + string.substr(1)
 }
 
 /**
@@ -14,16 +14,16 @@ function ucFirst (string) {
  * @param   {String}  name
  */
 function getComponentByName (name) {
-    let component = null;
+    let component = null
 
     each(cache, function (instance) {
         if ((instance.__rd__ && instance.__rd__.name) === name) {
-            component = instance;
-            return false;
+            component = instance
+            return false
         }
-    });
+    })
 
-    return component;
+    return component
 }
 
 /**
@@ -63,15 +63,15 @@ function createMessage (type, sender, name, param) {
  */
 function triggerReceiver (receiver, msg) {
     // 接受者消息处理方法
-    let func = receiver[msg.method];
+    let func = receiver[msg.method]
 
     // 触发接收者的消息处理方法
     if (isFunc(func)) {
         // 标识消息的发送目标
-        msg.to = receiver;
+        msg.to = receiver
         // 发送次数
-        ++msg.count;
-        return func.call(receiver, msg);
+        ;++msg.count
+        return func.call(receiver, msg)
     }
 }
 
@@ -83,7 +83,7 @@ function triggerReceiver (receiver, msg) {
  */
 function feedbackSender (msg, callback, context) {
     if (isFunc(callback)) {
-        callback.call(context, msg);
+        callback.call(context, msg)
     }
 }
 
@@ -97,25 +97,25 @@ function feedbackSender (msg, callback, context) {
  */
 function fire (sender, name, param, callback, context) {
     // 创建消息
-    let msg = createMessage('fire', sender, name, param);
+    let msg = createMessage('fire', sender, name, param)
 
     // 消息接收者，先从上一层模块开始接收
-    let receiver = sender.getParent();
+    let receiver = sender.getParent()
 
     while (receiver) {
-        let ret = triggerReceiver(receiver, msg);
+        let ret = triggerReceiver(receiver, msg)
 
         // 接收消息方法返回 false 则不再继续冒泡
         if (ret === false) {
-            feedbackSender(msg, callback, context);
-            return;
+            feedbackSender(msg, callback, context)
+            return
         }
 
-        msg.from = receiver;
-        receiver = receiver.getParent();
+        msg.from = receiver
+        receiver = receiver.getParent()
     }
 
-    feedbackSender(msg, callback, context);
+    feedbackSender(msg, callback, context)
 }
 
 /**
@@ -128,23 +128,23 @@ function fire (sender, name, param, callback, context) {
  */
 function broadcast (sender, name, param, callback, context) {
     // 创建消息
-    let msg = createMessage('broadcast', sender, name, param);
+    let msg = createMessage('broadcast', sender, name, param)
 
     // 消息接收者集合，先从自身的子模块开始接收
-    let receivers = sender.getChilds(true).slice(0);
+    let receivers = sender.getChilds(true).slice(0)
 
     while (receivers.length) {
-        let receiver = receivers.shift();
-        let ret = triggerReceiver(receiver, msg);
+        let receiver = receivers.shift()
+        let ret = triggerReceiver(receiver, msg)
 
         // 接收消息方法返回 false 则不再继续广播
         if (ret !== false) {
-            msg.from = receiver;
-            Array.prototype.push.apply(receivers, receiver.getChilds(true));
+            msg.from = receiver
+            Array.prototype.push.apply(receivers, receiver.getChilds(true))
         }
     }
 
-    feedbackSender(msg, callback, context);
+    feedbackSender(msg, callback, context)
 }
 
 /**
@@ -159,38 +159,38 @@ function broadcast (sender, name, param, callback, context) {
 function notify (sender, receiver, name, param, callback, context) {
     // 找到 receiver，名称可能为 superName.fatherName.childName 的情况
     if (isString(receiver)) {
-        let target;
-        let paths = receiver.split('.');
-        let parent = getComponentByName(paths.shift());
+        let target
+        let paths = receiver.split('.')
+        let parent = getComponentByName(paths.shift())
 
         // 有层级
         if (paths.length) {
             each(paths, function (comp) {
-                target = parent.getChild(comp);
-                parent = target;
-                return null;
-            });
+                target = parent.getChild(comp)
+                parent = target
+                return null
+            })
         } else {
-            target = parent;
+            target = parent
         }
 
-        parent = null;
+        parent = null
 
         if (isObject(target)) {
-            receiver = target;
+            receiver = target
         }
     }
 
-    let msg = createMessage('notify', sender, name, param);
+    let msg = createMessage('notify', sender, name, param)
 
     if (!isObject(receiver)) {
-        feedbackSender(msg, callback, context);
-        return warn('Component: [' + receiver + '] is not exist!');
+        feedbackSender(msg, callback, context)
+        return warn('Component: [' + receiver + '] is not exist!')
     }
 
-    triggerReceiver(receiver, msg);
+    triggerReceiver(receiver, msg)
 
-    feedbackSender(msg, callback, context);
+    feedbackSender(msg, callback, context)
 }
 
 /**
@@ -201,15 +201,15 @@ function notify (sender, receiver, name, param, callback, context) {
  * @param  {Object}    context   [执行环境]
  */
 function globalCast (name, param, callback, context) {
-    let msg = createMessage('globalCast', '__core__', name, param);
+    let msg = createMessage('globalCast', '__core__', name, param)
 
     each(cache, function (receiver, index) {
         if (isObject(receiver) && index !== '0') {
-            triggerReceiver(receiver, msg);
+            triggerReceiver(receiver, msg)
         }
-    });
+    })
 
-    feedbackSender(msg, callback, context);
+    feedbackSender(msg, callback, context)
 }
 
 export default { fire, broadcast, notify, globalCast }

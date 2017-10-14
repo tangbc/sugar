@@ -1,10 +1,10 @@
-import Root from './root';
-import cache from './cache';
-import messager from './messager';
-import { each, isFunc, isBool, isString, warn, hasOwn, clearObject } from '../util';
+import Root from './root'
+import cache from './cache'
+import messager from './messager'
+import { each, isFunc, isBool, isString, warn, hasOwn, clearObject } from '../util'
 
-const childMap = 'map';
-const childArray = 'array';
+const childMap = 'map'
+const childArray = 'array'
 
 /**
  * Module 系统组件模块基础类，实现所有模块的通用方法
@@ -25,29 +25,29 @@ let Module = Root.extend({
      */
     create: function (name, Class, config) {
         if (!isString(name)) {
-            return warn('Module name ['+ name +'] must be a type of String');
+            return warn('Module name ['+ name +'] must be a type of String')
         }
         if (!isFunc(Class)) {
-            return warn('Module Class ['+ Class +'] must be a type of Component');
+            return warn('Module Class ['+ Class +'] must be a type of Component')
         }
 
-        let record = this.__rd__;
+        let record = this.__rd__
 
         // 建立模块关系信息
         if (!hasOwn(record, childArray)) {
             // 子模块实例缓存数组
-            record[childArray] = [];
+            record[childArray] = []
             // 子模块命名索引
-            record[childMap] = {};
+            record[childMap] = {}
         }
 
         // 判断是否已经创建过
         if (record[childMap][name]) {
-            return warn('Module ['+ name +'] is already exists!');
+            return warn('Module ['+ name +'] is already exists!')
         }
 
         // 生成子模块实例
-        let instance = new Class(config);
+        let instance = new Class(config)
 
         // 记录子模块实例信息和父模块实例的对应关系
         let subRecord = {
@@ -58,31 +58,31 @@ let Module = Root.extend({
             // 父模块实例 id，0 为顶级模块实例
             pid: record.id || 0
         }
-        instance.__rd__ = subRecord;
+        instance.__rd__ = subRecord
 
         // 存入系统实例缓存队列
-        cache[subRecord.id] = instance;
-        cache.length++;
+        cache[subRecord.id] = instance
+        cache.length++
 
         // 缓存子模块实例
-        record[childArray].push(instance);
-        record[childMap][name] = instance;
+        record[childArray].push(instance)
+        record[childMap][name] = instance
 
         // 调用模块实例的 init 方法，传入配置参数和父模块
         if (isFunc(instance.init)) {
-            instance.init(config, this);
+            instance.init(config, this)
         }
 
-        return instance;
+        return instance
     },
 
     /**
      * 获取当前模块的父模块实例（模块创建者）
      */
     getParent: function () {
-        let record = this.__rd__;
-        let pid = record && record.pid;
-        return cache[pid] || null;
+        let record = this.__rd__
+        let pid = record && record.pid
+        return cache[pid] || null
     },
 
     /**
@@ -91,8 +91,8 @@ let Module = Root.extend({
      * @return {Object}
      */
     getChild: function (name) {
-        let record = this.__rd__;
-        return record && record[childMap] && record[childMap][name] || null;
+        let record = this.__rd__
+        return record && record[childMap] && record[childMap][name] || null
     },
 
     /**
@@ -101,9 +101,9 @@ let Module = Root.extend({
      * @return {Mix}
      */
     getChilds: function (returnArray) {
-        let record = this.__rd__;
-        returnArray = isBool(returnArray) && returnArray;
-        return returnArray ? (record[childArray] || []) : (record[childMap] || {});
+        let record = this.__rd__
+        returnArray = isBool(returnArray) && returnArray
+        return returnArray ? (record[childArray] || []) : (record[childMap] || {})
     },
 
     /**
@@ -112,16 +112,16 @@ let Module = Root.extend({
      * @return {Boolean}
      */
     _removeChild: function (name) {
-        let record = this.__rd__;
-        let cMap = record[childMap] || {};
-        let cArray = record[childArray] || [];
-        let child = cMap[name];
+        let record = this.__rd__
+        let cMap = record[childMap] || {}
+        let cArray = record[childArray] || []
+        let child = cMap[name]
 
         for (let i = 0, len = cArray.length; i < len; i++) {
             if (cArray[i].id === child.id) {
-                delete cMap[name];
-                cArray.splice(i, 1);
-                break;
+                delete cMap[name]
+                cArray.splice(i, 1)
+                break
             }
         }
     },
@@ -131,47 +131,47 @@ let Module = Root.extend({
      * @param  {Mix}  notify  [是否向父模块发送销毁消息]
      */
     destroy: function (notify) {
-        let record = this.__rd__;
-        let name = record.name;
+        let record = this.__rd__
+        let name = record.name
 
         // 调用销毁前函数，可进行必要的数据保存
         if (isFunc(this.beforeDestroy)) {
-            this.beforeDestroy();
+            this.beforeDestroy()
         }
 
         // 递归调用子模块的销毁函数
-        let childs = this.getChilds(true);
+        let childs = this.getChilds(true)
         each(childs, function (child) {
             if (isFunc(child.destroy)) {
-                child.destroy(1);
+                child.destroy(1)
             }
-        });
+        })
 
         // 从父模块删除（递归调用时不需要）
-        let parent = this.getParent();
+        let parent = this.getParent()
         if (notify !== 1 && parent) {
-            parent._removeChild(name);
+            parent._removeChild(name)
         }
 
         // 从系统缓存队列中销毁相关记录
-        let id = record.id;
+        let id = record.id
         if (hasOwn(cache, id)) {
-            delete cache[id];
-            cache.length--;
+            delete cache[id]
+            cache.length--
         }
 
         // 调用销毁后函数，可进行销毁界面和事件
         if (isFunc(this._afterDestroy)) {
-            this._afterDestroy();
+            this._afterDestroy()
         }
 
         // 向父模块通知销毁消息
         if (notify === true) {
-            this.fire('subDestroyed', name);
+            this.fire('subDestroyed', name)
         }
 
         // 移除所有属性
-        clearObject(this);
+        clearObject(this)
     },
 
     /**
@@ -183,16 +183,16 @@ let Module = Root.extend({
     fire: function (name, param, callback) {
         // 不传 param
         if (isFunc(param)) {
-            callback = param;
-            param = null;
+            callback = param
+            param = null
         }
 
         // callback 为属性值
         if (isString(callback)) {
-            callback = this[callback];
+            callback = this[callback]
         }
 
-        messager.fire(this, name, param, callback, this);
+        messager.fire(this, name, param, callback, this)
     },
 
     /**
@@ -201,16 +201,16 @@ let Module = Root.extend({
     broadcast: function (name, param, callback) {
         // 不传 param
         if (isFunc(param)) {
-            callback = param;
-            param = null;
+            callback = param
+            param = null
         }
 
         // callback 为属性值
         if (isString(callback)) {
-            callback = this[callback];
+            callback = this[callback]
         }
 
-        messager.broadcast(this, name, param, callback, this);
+        messager.broadcast(this, name, param, callback, this)
     },
 
     /**
@@ -223,17 +223,17 @@ let Module = Root.extend({
     notify: function (receiver, name, param, callback) {
         // 不传 param
         if (isFunc(param)) {
-            callback = param;
-            param = null;
+            callback = param
+            param = null
         }
 
         // callback 为属性值
         if (isString(callback)) {
-            callback = this[callback];
+            callback = this[callback]
         }
 
-        messager.notify(this, receiver, name, param, callback, this);
+        messager.notify(this, receiver, name, param, callback, this)
     }
-});
+})
 
-export default Module;
+export default Module

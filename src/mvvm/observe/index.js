@@ -1,6 +1,6 @@
-import Depend from '../depend';
-import Watcher from '../watcher';
-import { setMutationProto } from './array';
+import Depend from '../depend'
+import Watcher from '../watcher'
+import { setMutationProto } from './array'
 import {
     def,
     each,
@@ -10,7 +10,7 @@ import {
     isFunc,
     isArray,
     isObject
-} from '../../util';
+} from '../../util'
 
 
 /**
@@ -20,7 +20,7 @@ import {
  * @return  {String}
  */
 function createPath (prefix, suffix) {
-    return prefix ? (prefix + '*' + suffix) : suffix;
+    return prefix ? (prefix + '*' + suffix) : suffix
 }
 
 /**
@@ -30,8 +30,8 @@ function createPath (prefix, suffix) {
  */
 function observeObject (object, path) {
     each(object, function (value, key) {
-        observe(object, key, value, createPath(path, key));
-    });
+        observe(object, key, value, createPath(path, key))
+    })
 }
 
 /**
@@ -40,10 +40,10 @@ function observeObject (object, path) {
  * @param  {String}  path
  */
 export function observeArray (array, path) {
-    setMutationProto(array);
+    setMutationProto(array)
     each(array, function (item, index) {
-        createObserver(item, createPath(path, index));
-    });
+        createObserver(item, createPath(path, index))
+    })
 }
 
 /**
@@ -52,15 +52,15 @@ export function observeArray (array, path) {
  * @param  {String}  path  [监测字段名称]
  */
 function Observer (data, path) {
-    this.dep = new Depend(path);
+    this.dep = new Depend(path)
 
     if (isArray(data)) {
-        observeArray(data, path);
+        observeArray(data, path)
     } else {
-        observeObject(data, path);
+        observeObject(data, path)
     }
 
-    def(data, '__ob__', this);
+    def(data, '__ob__', this)
 }
 
 
@@ -72,7 +72,7 @@ function Observer (data, path) {
  */
 export function createObserver (target, path) {
     if (isObject(target) || isArray(target)) {
-        return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, path || '');
+        return hasOwn(target, '__ob__') ? target.__ob__ : new Observer(target, path || '')
     }
 }
 
@@ -84,54 +84,54 @@ export function createObserver (target, path) {
  * @param  {String}   path
  */
 export function observe (object, key, value, path) {
-    let dep = new Depend(path);
-    let descriptor = Object.getOwnPropertyDescriptor(object, key);
-    let getter = descriptor && descriptor.get;
-    let setter = descriptor && descriptor.set;
+    let dep = new Depend(path)
+    let descriptor = Object.getOwnPropertyDescriptor(object, key)
+    let getter = descriptor && descriptor.get
+    let setter = descriptor && descriptor.set
 
-    let childOb = createObserver(value, path);
+    let childOb = createObserver(value, path)
 
     Object.defineProperty(object, key, {
         get: function Getter () {
-            let val = getter ? getter.call(object) : value;
+            let val = getter ? getter.call(object) : value
 
             if (Depend.watcher) {
-                dep.depend();
+                dep.depend()
                 if (childOb) {
-                    childOb.dep.depend();
+                    childOb.dep.depend()
                 }
             }
 
             if (isArray(val)) {
                 each(val, function (item) {
-                    let ob = item && item.__ob__;
+                    let ob = item && item.__ob__
                     if (ob) {
-                        ob.dep.depend();
+                        ob.dep.depend()
                     }
-                });
+                })
             }
 
-            return val;
+            return val
         },
         set: function Setter (newValue) {
-            let oldValue = getter ? getter.call(object) : value;
+            let oldValue = getter ? getter.call(object) : value
 
             if (newValue === oldValue) {
-                return;
+                return
             }
 
-            dep.beforeNotify();
+            dep.beforeNotify()
 
             if (setter) {
-                setter.call(object, newValue);
+                setter.call(object, newValue)
             } else {
-                value = newValue;
+                value = newValue
             }
 
-            childOb = createObserver(newValue, key);
-            dep.notify();
+            childOb = createObserver(newValue, key)
+            dep.notify()
         }
-    });
+    })
 }
 
 
@@ -144,15 +144,15 @@ export function observe (object, key, value, path) {
 function createComputedGetter (vm, getter) {
     let watcher = new Watcher(vm, {
         expression: getter.bind(vm)
-    });
+    })
 
     return function computedGetter () {
         if (Depend.watcher) {
             each(watcher.depends, function (dep) {
-                dep.depend();
-            });
+                dep.depend()
+            })
         }
-        return watcher.value;
+        return watcher.value
     }
 }
 
@@ -164,12 +164,12 @@ function createComputedGetter (vm, getter) {
 export function setComputedProperty (vm, computed) {
     each(computed, function (getter, property) {
         if (!isFunc(getter)) {
-            return warn('computed property ['+ property +'] must be a getter function!');
+            return warn('computed property ['+ property +'] must be a getter function!')
         }
 
         Object.defineProperty(vm, property, {
             set: noop,
             get: createComputedGetter(vm, getter)
-        });
-    });
+        })
+    })
 }
