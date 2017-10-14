@@ -5,9 +5,6 @@
 	<a href="https://codecov.io/gh/tangbc/sugar">
 		<img src="https://codecov.io/gh/tangbc/sugar/branch/master/graph/badge.svg" alt="Code Coverage"/>
 	</a>
-	<a href="https://npmjs.com/package/sugar-js">
-		<img src="https://img.shields.io/npm/v/sugar-js.svg?style=flat" alt="NPM version"/>
-	</a>
 	<br>
 	<img src="https://tangbc.github.io/github-images/browser-matrix.svg" alt="Sauce Browser Matrix"/>
 </p>
@@ -40,7 +37,7 @@ Simple api and without any dependence. Consists of two independent libraries:
 	<script src="https://tangbc.github.io/sugar/dist/mvvm.js"></script>
 	<script>
 	var vm = new MVVM({
-		view: document.getElementById('#app'),
+		view: document.getElementById('app'),
 		model: {
 			title: 'Hello world!'
 		}
