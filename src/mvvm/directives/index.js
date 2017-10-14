@@ -24,4 +24,4 @@ export const DirectiveParsers = {
     vbind,
     vmodel,
     vcustom
-
+}
