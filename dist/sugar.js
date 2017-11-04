@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.4.0 (c) 2017 TANG
+ * sugar.js v1.4.1 (c) 2017 TANG
  * Released under the MIT license
- * Sat Oct 14 2017 08:39:42 GMT+0800 (CST)
+ * Sat Nov 04 2017 11:30:27 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1968,6 +1968,20 @@
     var regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g
 
     /**
+     * 生成匿名事件函数
+     * @param   {String}  expression
+     * @return  {Function}
+     */
+    function createAnonymous (expression) {
+        try {
+            return new Function('scope', addScope(expression))
+        } catch (e) {
+            error('Invalid generated expression: [' + expression + ']')
+            return noop
+        }
+    }
+
+    /**
      * 分解字符串函数参数
      * @param   {String}  funcString
      * @return  {Object}
@@ -2035,6 +2049,11 @@
         var info = stringToParams(expression)
         var func = info.func, args = info.args
 
+        // 尝试匿名函数表达式
+        if (!isNormal(func)) {
+            func = createAnonymous(expression)
+        }
+
         return { type: type, dress: dress, func: func, args: args }
     }
 
@@ -2049,7 +2068,7 @@
         var expression = desc.expression
 
         if (args) {
-            binds.push(formatEvent(args, expression))
+            binds = [formatEvent(args, expression)]
         } else {
             var json = convertJson(expression)
             each(json, function (value, key) {
@@ -2141,6 +2160,10 @@
         var dress = bind.dress
         var capture = dress.indexOf('capture') > -1
 
+        if (isFunc(func)) {
+            return this.bindAnonymousEvent(type, dress, func)
+        }
+
         if (func === '$remove') {
             return this.bindRemoveEvent(type, dress)
         }
@@ -2168,7 +2191,18 @@
     }
 
     /**
-     * 隐性绑定删除($remove) vfor 选项事件
+     * 绑定匿名事件
+     * @param  {String}    type   [事件类型]
+     * @param  {String}    dress  [事件修饰符]
+     * @param  {Function}  func   [匿名事件函数]
+     */
+    von.bindAnonymousEvent = function (type, dress, func) {
+        var scope = this.scope || this.vm.$data
+        this.bindEvent(type, dress, func.bind(scope, scope))
+    }
+
+    /**
+     * 匿名绑定删除($remove) vfor 选项事件
      * @param  {String}  type   [事件类型]
      * @param  {String}  dress  [事件修饰符]
      */
