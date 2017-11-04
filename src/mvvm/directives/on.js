@@ -1,13 +1,28 @@
 import Watcher from '../watcher'
 import Parser, { linkParser } from '../parser'
 import { addEvent, removeEvent } from '../../dom'
-import { removeSpace, each, def, extend, clearObject, warn, isFunc } from '../../util'
+import { isNormal, addScope } from '../expression'
+import { removeSpace, each, def, extend, clearObject, warn, isFunc, error, noop } from '../../util'
 
 const regKeyCode = /^(\d)*$/
 const regBigBrackets = /^\{.*\}$/
 const regSmallBrackets = /(\(.*\))/
 const regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g
 const regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g
+
+/**
+ * 生成匿名事件函数
+ * @param   {String}  expression
+ * @return  {Function}
+ */
+function createAnonymous (expression) {
+    try {
+        return new Function('scope', addScope(expression))
+    } catch (e) {
+        error('Invalid generated expression: [' + expression + ']')
+        return noop
+    }
+}
 
 /**
  * 分解字符串函数参数
@@ -77,6 +92,11 @@ function formatEvent (arg, expression) {
     let info = stringToParams(expression)
     let func = info.func, args = info.args
 
+    // 尝试匿名函数表达式
+    if (!isNormal(func)) {
+        func = createAnonymous(expression)
+    }
+
     return { type, dress, func, args }
 }
 
@@ -91,7 +111,7 @@ function collectEvents (desc) {
     let expression = desc.expression
 
     if (args) {
-        binds.push(formatEvent(args, expression))
+        binds = [formatEvent(args, expression)]
     } else {
         let json = convertJson(expression)
         each(json, function (value, key) {
@@ -183,6 +203,10 @@ von.parseEvent = function (bind) {
     let dress = bind.dress
     let capture = dress.indexOf('capture') > -1
 
+    if (isFunc(func)) {
+        return this.bindAnonymousEvent(type, dress, func)
+    }
+
     if (func === '$remove') {
         return this.bindRemoveEvent(type, dress)
     }
@@ -210,7 +234,18 @@ von.parseEvent = function (bind) {
 }
 
 /**
- * 隐性绑定删除($remove) vfor 选项事件
+ * 绑定匿名事件
+ * @param  {String}    type   [事件类型]
+ * @param  {String}    dress  [事件修饰符]
+ * @param  {Function}  func   [匿名事件函数]
+ */
+von.bindAnonymousEvent = function (type, dress, func) {
+    let scope = this.scope || this.vm.$data
+    this.bindEvent(type, dress, func.bind(scope, scope))
+}
+
+/**
+ * 匿名绑定删除($remove) vfor 选项事件
  * @param  {String}  type   [事件类型]
  * @param  {String}  dress  [事件修饰符]
  */

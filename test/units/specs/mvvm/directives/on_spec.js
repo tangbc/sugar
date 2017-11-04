@@ -536,4 +536,90 @@ describe('v-on >', function () {
         triggerEvent(oneEl, 'click')
         expect(oneCount).toBe(1)
     })
+
+
+    it('bind with anonymous function using inline expression', function () {
+        element.innerHTML =
+            '<button v-on:click="value = \'bbb\'"></button>' +
+            '<a v-on:click="value = \'ccc-\' + getStr()"></a>'
+
+        let vm = new MVVM({
+            view: element,
+            model: {
+                value: 'aaa'
+            },
+            methods: {
+                getStr: function () {
+                    return 'xxdk'
+                }
+            }
+        })
+
+        let data = vm.$data
+
+        let button = document.querySelector('button')
+        let anchor = document.querySelector('a')
+
+        expect(data.value).toBe('aaa')
+
+        triggerEvent(button, 'click')
+        expect(data.value).toBe('bbb')
+
+        triggerEvent(anchor, 'click')
+        expect(data.value).toBe('ccc-xxdk')
+    })
+
+
+    it('bind with anonymous function using inline expression inside v-for scope', function () {
+        element.innerHTML =
+            '<ul>' +
+                '<li v-for="item in items" v-on:mouseenter="item.value = 123">' +
+                    '{{ item.value }}' +
+                '</li>' +
+            '</ul>'
+
+        let vm = new MVVM({
+            view: element,
+            model: {
+                items: [
+                    { value: 'aaa' },
+                    { value: 'bbb' },
+                    { value: 'ccc' }
+                ]
+            }
+        })
+
+        let data = vm.$data
+
+        let ul = document.querySelector('ul')
+        let lis = ul.childNodes
+
+        expect(ul.textContent).toBe('aaabbbccc')
+
+        triggerEvent(lis[0], 'mouseenter')
+        expect(ul.textContent).toBe('123bbbccc')
+        expect(data.items[0].value).toBe(123)
+
+        data.items.splice(1, 1)
+        expect(ul.textContent).toBe('123ccc')
+        expect(data.items[1].value).toBe('ccc')
+
+        triggerEvent(lis[1], 'mouseenter')
+        expect(ul.textContent).toBe('123123')
+        expect(data.items[1].value).toBe(123)
+    })
+
+
+    it('bind with anonymous function using inline expression break error', function () {
+        element.innerHTML = '<button v-on:click="value = 1 ++ foo()"></button>'
+
+        new MVVM({
+            view: element,
+            model: {
+                value: 123
+            }
+        })
+
+        expect(util.error).toHaveBeenCalledWith('Invalid generated expression: [value = 1 ++ foo()]')
+    })
 })

@@ -1,7 +1,7 @@
 {
   "name": "sugar-js",
-  "version": "1.4.0",
-  "description": "A lightweight and powerful JavaScript MVVM library for building web UI component.",
+  "version": "1.4.1",
+  "description": "A lightweight and powerful JavaScript MVVM library for building easy web UI.",
   "keywords": [
     "framework",
     "mvvm",

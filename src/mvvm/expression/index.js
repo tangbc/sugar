@@ -70,7 +70,7 @@ export function isNormal (expression) {
  * 表达式变量添加 scope
  * @return  {String}
  */
-function addScope (expression) {
+export function addScope (expression) {
     if (isNormal(expression)) {
         return 'scope.' + expression
     }
