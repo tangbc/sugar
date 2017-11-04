@@ -1,7 +1,7 @@
 import Watcher from '../watcher'
 import Parser, { linkParser } from '../parser'
 import { addEvent, removeEvent } from '../../dom'
-import { isNormal, addScope } from '../expression'
+import { isNormal, addScope } from '../expression/index'
 import { removeSpace, each, def, extend, clearObject, warn, isFunc, error, noop } from '../../util'
 
 const regKeyCode = /^(\d)*$/
