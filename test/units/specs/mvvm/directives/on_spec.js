@@ -14,19 +14,6 @@ describe('v-on >', function () {
         document.body.removeChild(element)
     })
 
-    it('invalid listener', function () {
-        element.innerHTML = '<span v-on:click="test"></span>'
-
-        new MVVM({
-            view: element,
-            model: {
-                test: '123'
-            }
-        })
-
-        expect(util.warn).toHaveBeenCalledWith('Directive [v-on:click] must be a type of Function')
-    })
-
 
     it('normal', function () {
         let count = 0
@@ -294,7 +281,7 @@ describe('v-on >', function () {
 
 
     it('multi events', function () {
-        element.innerHTML = '<div id="el" v-on="{click: clickTest, mouseout: mouseoutTest(123, $event)}"></div>'
+        element.innerHTML = '<div id="el" v-on="{click: clickTest, mouseout: mouseoutTest}"></div>'
 
         let args, storeArgs = function () {
             args = Array.prototype.slice.call(arguments)
@@ -313,9 +300,8 @@ describe('v-on >', function () {
         expect(args[0].type).toBe('click')
 
         triggerEvent(el, 'mouseout')
-        expect(args.length).toBe(2)
-        expect(args[0]).toBe(123)
-        expect(args[1].type).toBe('mouseout')
+        expect(args.length).toBe(1)
+        expect(args[0].type).toBe('mouseout')
     })
 
 

@@ -49,7 +49,7 @@ function replaceScope (string) {
     let pad = string.charAt(0)
     let path = string.slice(1)
 
-    if (regAllowKeyword.test(path)) {
+    if (regAllowKeyword.test(path) || regAviodKeyword.test(path)) {
         return string
     } else {
         path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path

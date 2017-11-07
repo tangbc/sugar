@@ -158,53 +158,6 @@ describe('v-once >', function () {
     })
 
 
-    it('with v-on', function () {
-        element.innerHTML =
-            '<h1 v-once v-on:click="click1">test</h1>' +
-            '<div v-once>' +
-                '<h2 v-on:click="click2(title)">test</h2>' +
-            '</div>'
-
-        let flag1, flag2
-
-        let vm = new MVVM({
-            view: element,
-            model: {
-                title: 'xxdk',
-                click1: function () {
-                    flag1 = 123
-                },
-                click2: function (title) {
-                    flag2 = title
-                }
-            }
-        })
-
-        let data = vm.$data
-        let h1 = element.querySelector('h1')
-        let h2 = element.querySelector('h2')
-
-        expect(vm.__vm__.$directives.length).toBe(0)
-
-        triggerEvent(h1, 'click')
-        expect(flag1).toBe(123)
-
-        triggerEvent(h2, 'click')
-        expect(flag2).toBe('xxdk')
-
-        // when used v-once, change callback or arguments will not effect
-        data.click1 = function () {
-            flag1 = 222
-        }
-        triggerEvent(h1, 'click')
-        expect(flag1).toBe(123)
-
-        data.title = 'txgc'
-        triggerEvent(h2, 'click')
-        expect(flag2).toBe('xxdk')
-    })
-
-
     it('with v-model', function () {
         element.innerHTML =
             '<div v-once>' +
