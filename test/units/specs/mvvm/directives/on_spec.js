@@ -556,6 +556,39 @@ describe('v-on >', function () {
     })
 
 
+    it('bind with anonymous function using inline expression more logic', function () {
+        element.innerHTML =
+            '<button v-on:click="if (ok) { title = 123 } else { title = 456 }"></button>' +
+            '<span>{{ title }}</span>'
+
+        let vm = new MVVM({
+            view: element,
+            model: {
+                ok: true,
+                title: 0
+            }
+        })
+
+        let data = vm.$data
+
+        let button = document.querySelector('button')
+        let span = document.querySelector('span')
+
+        expect(data.title).toBe(0)
+        expect(span.textContent).toBe('0')
+
+        triggerEvent(button, 'click')
+        expect(data.title).toBe(123)
+        expect(span.textContent).toBe('123')
+
+        // change ok to false
+        data.ok = false
+        triggerEvent(button, 'click')
+        expect(data.title).toBe(456)
+        expect(span.textContent).toBe('456')
+    })
+
+
     it('bind with anonymous function using inline expression inside v-for scope', function () {
         element.innerHTML =
             '<ul>' +
