@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.4.1 (c) 2017 TANG
+ * sugar.js v1.4.2 (c) 2017 TANG
  * Released under the MIT license
- * Sat Nov 04 2017 11:30:27 GMT+0800 (CST)
+ * Tue Nov 07 2017 20:13:58 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1364,7 +1364,7 @@
         var pad = string.charAt(0)
         var path = string.slice(1)
 
-        if (regAllowKeyword.test(path)) {
+        if (regAllowKeyword.test(path) || regAviodKeyword.test(path)) {
             return string
         } else {
             path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path
@@ -1961,11 +1961,60 @@
         this.removeEvent = removeEvent
     }
 
-    var regKeyCode = /^(\d)*$/
-    var regBigBrackets = /^\{.*\}$/
-    var regSmallBrackets = /(\(.*\))/
-    var regQuotes = /(^'*)|('*$)|(^"*)|("*$)/g
-    var regJsonFormat = /[^,]+:[^:]+((?=,[^:]+:)|$)/g
+    /**
+     * 获取事件修饰符对象
+     * 支持 6 种事件修饰符
+     * .self .stop .prevent .capture .keyCode .one
+     * @param  {String}  type
+     * @param  {String}  modifier
+     */
+    function getModifiers (type, modifier) {
+        var modifiers = modifier.split('.')
+
+        var self = modifiers.indexOf('self') > -1
+        var stop = modifiers.indexOf('stop') > -1
+        var one = modifiers.indexOf('one') > -1
+        var prevent = modifiers.indexOf('prevent') > -1
+        var capture = modifiers.indexOf('capture') > -1
+
+        var keyCode = null
+        if (type.indexOf('key') === 0) {
+            each(modifiers, function (value) {
+                if (/^(\d)*$/.test(value)) {
+                    keyCode = +value
+                    return false
+                }
+            })
+        }
+
+        return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode, one: one }
+    }
+
+    /**
+     * 收集绑定的事件
+     * @param   {Object}  desc
+     * @return  {Array}
+     */
+    function collectEvents (desc) {
+        var binds = []
+        var args = desc.args
+        var expression = desc.expression.trim()
+
+        if (args) {
+            var pos = args.indexOf('.')
+            var type = pos === -1 ? args : args.substr(0, pos)
+            var modifier = pos === -1 ? '' : args.substr(pos + 1,  args.length)
+            binds = [{ type: type, handler: expression, modifier: modifier }]
+        } else if (/^{.*}$/.test(expression)) {
+            expression = expression.substr(1, expression.length - 2)
+            each(removeSpace(expression).split(','), function (event) {
+                var info = event.split(':')
+                binds.push({ type: info[0], handler: info[1], modifier: '' })
+            })
+        }
+
+        return binds
+    }
 
     /**
      * 生成匿名事件函数
@@ -1982,148 +2031,10 @@
     }
 
     /**
-     * 分解字符串函数参数
-     * @param   {String}  funcString
-     * @return  {Object}
-     */
-    function stringToParams (funcString) {
-        var args, func
-        var exp = removeSpace(funcString)
-        var matches = exp.match(regSmallBrackets)
-        var result = matches && matches[0]
-
-        // 有函数名和参数
-        if (result) {
-            func = exp.substr(0, exp.indexOf(result))
-            args = '[' + result.substr(1, result.length - 2) + ']'
-        } else {
-            func = exp
-        }
-
-        return { func: func, args: args }
-    }
-
-    /**
-     * 字符串 json 转为键值对象
-     * @param   {String}  jsonString
-     * @return  {Object}
-     */
-    function convertJson (jsonString) {
-        var json = {}, string = jsonString.trim()
-
-        if (regBigBrackets.test(string)) {
-            var leng = string.length
-            string = string.substr(1, leng - 2).replace(/\s/g, '')
-            var props = string.match(regJsonFormat)
-
-            each(props, function (prop) {
-                var vals = prop.split(':')
-                var name = vals[0], value = vals[1]
-                if (name && value) {
-                    name = name.replace(regQuotes, '')
-                    json[name] = value
-                }
-            })
-        }
-
-        return json
-    }
-
-    /**
-     * 格式化事件信息
-     * @param   {String}  arg
-     * @param   {String}  expression
-     * @return  {Object}
-     */
-    function formatEvent (arg, expression) {
-        var pos = arg.indexOf('.')
-
-        var type, dress = ''
-        if (pos > -1) {
-            type = arg.substr(0, pos)
-            dress = arg.substr(pos + 1,  arg.length)
-        } else {
-            type = arg
-        }
-
-        var info = stringToParams(expression)
-        var func = info.func, args = info.args
-
-        // 尝试匿名函数表达式
-        if (!isNormal(func)) {
-            func = createAnonymous(expression)
-        }
-
-        return { type: type, dress: dress, func: func, args: args }
-    }
-
-    /**
-     * 收集绑定的事件
-     * @param   {Object}  desc
-     * @return  {Array}
-     */
-    function collectEvents (desc) {
-        var binds = []
-        var args = desc.args
-        var expression = desc.expression
-
-        if (args) {
-            binds = [formatEvent(args, expression)]
-        } else {
-            var json = convertJson(expression)
-            each(json, function (value, key) {
-                binds.push(formatEvent(key, value))
-            })
-        }
-
-        return binds
-    }
-
-    /**
-     * 获取事件修饰符对象
-     * 支持 6 种事件修饰符
-     * .self .stop .prevent .capture .keyCode .one
-     * @param  {String}  type
-     * @param  {String}  dress
-     */
-    function getDress (type, dress) {
-        var dresses = dress.split('.')
-
-        var self = dresses.indexOf('self') > -1
-        var stop = dresses.indexOf('stop') > -1
-        var one = dresses.indexOf('one') > -1
-        var prevent = dresses.indexOf('prevent') > -1
-        var capture = dresses.indexOf('capture') > -1
-
-        var keyCode
-        if (type.indexOf('key') === 0) {
-            each(dresses, function (value) {
-                if (regKeyCode.test(value)) {
-                    keyCode = +value
-                    return false
-                }
-            })
-        }
-
-        return { self: self, stop: stop, prevent: prevent, capture: capture, keyCode: keyCode, one: one }
-    }
-
-    /**
-     * 事件 id 唯一计数
-     * @type  {Number}
-     */
-    var vonGuid = 2000
-    var identifier$1 = '__vonid__'
-
-
-    /**
      * v-on 指令解析模块
      * 不需要实例化 Directive
      */
     function VOn () {
-        this.cache = {}
-        this.funcWatchers = []
-        this.argsWatchers = []
         Parser.apply(this, arguments)
     }
 
@@ -2139,74 +2050,29 @@
     }
 
     /**
-     * 获取事件/参数的监测信息
-     * @param   {String}  expression
-     * @return  {Object}
+     * 解析事件绑定函数
+     * @param  {Object}  event
      */
-    von.getExpDesc = function (expression) {
-        return extend({}, this.desc, {
-            expression: expression
-        })
+    von.parseEvent = function (event) {
+        var type = event.type;
+        var handler = event.handler;
+        var modifier = event.modifier;
+        var modifiers = getModifiers(type, modifier)
+
+        if (handler === '$remove') {
+            return this.bindRemoveEvent(type, modifiers)
+        }
+
+        var inlineStatement = isNormal(handler) ? handler + '($event)' : handler
+        this.bindEvent(type, createAnonymous(inlineStatement), modifiers)
     }
 
     /**
-     * 解析事件处理函数
-     * @param  {Object}  bind
-     */
-    von.parseEvent = function (bind) {
-        var func = bind.func
-        var args = bind.args
-        var type = bind.type
-        var dress = bind.dress
-        var capture = dress.indexOf('capture') > -1
-
-        if (isFunc(func)) {
-            return this.bindAnonymousEvent(type, dress, func)
-        }
-
-        if (func === '$remove') {
-            return this.bindRemoveEvent(type, dress)
-        }
-
-        var desc = this.getExpDesc(func)
-        var funcWatcher = new Watcher(this.vm, desc, function (newFunc, oldFunc) {
-            this.off(type, oldFunc, capture)
-            this.bindEvent(type, dress, newFunc, args)
-        }, this)
-
-        var listener = funcWatcher.value
-
-        if (!isFunc(listener)) {
-            funcWatcher.destroy()
-            return warn('Directive ['+ this.desc.attr +'] must be a type of Function')
-        }
-
-        this.bindEvent(type, dress, listener, args)
-
-        if (desc.once) {
-            funcWatcher.destroy()
-        } else {
-            this.funcWatchers.push(funcWatcher)
-        }
-    }
-
-    /**
-     * 绑定匿名事件
-     * @param  {String}    type   [事件类型]
-     * @param  {String}    dress  [事件修饰符]
-     * @param  {Function}  func   [匿名事件函数]
-     */
-    von.bindAnonymousEvent = function (type, dress, func) {
-        var scope = this.scope || this.vm.$data
-        this.bindEvent(type, dress, func.bind(scope, scope))
-    }
-
-    /**
-     * 匿名绑定删除($remove) vfor 选项事件
+     * 绑定删除($remove) vfor 选项事件
      * @param  {String}  type   [事件类型]
      * @param  {String}  dress  [事件修饰符]
      */
-    von.bindRemoveEvent = function (type, dress) {
+    von.bindRemoveEvent = function (type, modifiers) {
         var scope = this.scope
 
         if (!scope) {
@@ -2214,67 +2080,33 @@
         }
 
         var alias = scope.__alias__
-        this.bindEvent(type, dress, function $remove () {
+        this.bindEvent(type, function $remove () {
             scope.__viterator__.$remove(scope[alias])
-        }, '['+ alias +']')
+        }, modifiers)
     }
 
     /**
      * 添加一个事件绑定，同时处理参数的变更
      * @param  {String}    type       [事件类型]
-     * @param  {String}    dress      [事件修饰符]
-     * @param  {Function}  func       [回调函数]
-     * @param  {String}    argString  [参数字符串]
+     * @param  {Function}  handler    [事件函数]
+     * @param  {Object}    modifiers  [事件修饰符]
      */
-    von.bindEvent = function (type, dress, func, argString) {
-        var ref = getDress(type, dress);
-        var self = ref.self;
-        var stop = ref.stop;
-        var prevent = ref.prevent;
-        var capture = ref.capture;
-        var keyCode = ref.keyCode;
-        var one = ref.one;
-
-        // 挂载 $event
-        def((this.scope || this.vm.$data), '$event', '__e__')
-
-        // 处理回调参数以及依赖监测
-        var args = []
-        if (argString) {
-            var desc = this.getExpDesc(argString)
-            var argsWatcher = new Watcher(this.vm, desc, function (newArgs) {
-                args = newArgs
-            }, this)
-
-            args = argsWatcher.value
-
-            if (desc.once) {
-                argsWatcher.destroy()
-            } else {
-                this.argsWatchers.push(argsWatcher)
-            }
-        }
-
-        // 事件代理函数
+    von.bindEvent = function (type, handler, modifiers) {
         var el = this.el
+        var scope = this.scope || this.vm.$data
+        var self = modifiers.self;
+        var stop = modifiers.stop;
+        var prevent = modifiers.prevent;
+        var capture = modifiers.capture;
+        var keyCode = modifiers.keyCode;
+        var one = modifiers.one;
+
         var listenerAgent = function _listenerAgent (e) {
             if (
                 (self && e.target !== el) || // 是否限定只能在当前节点触发事件
                 (keyCode && keyCode !== e.keyCode) // 键盘事件时是否指定键码触发
             ) {
                 return
-            }
-
-            // 未指定参数，则原生事件对象作为唯一参数
-            if (!args.length) {
-                args.push(e)
-            } else {
-                // 更新/替换事件对象
-                each(args, function (param, index) {
-                    if (param === '__e__' || param instanceof Event) {
-                        args[index] = e
-                    }
-                })
             }
 
             // 是否阻止默认事件
@@ -2287,73 +2119,18 @@
                 e.stopPropagation()
             }
 
-            func.apply(this, args)
+            // 挂载 $event
+            def(scope, '$event', e)
+
+            handler.call(scope, scope)
         }
 
-        var listener
-        var guid = vonGuid++
+        var listener = one ? function _oneListener (e) {
+            listenerAgent(e)
+            removeEvent(el, type, listener, capture)
+        } : listenerAgent
 
-        // 回调函数是否只需触发一次
-        var that = this
-        if (one) {
-            listener = function _oneListener (e) {
-                listenerAgent(e)
-                that.off(type, listener, capture)
-            }
-
-            listener[identifier$1] = guid
-        } else {
-            func[identifier$1] = guid
-            listener = listenerAgent
-        }
-
-        // 缓存事件
-        this.cache[guid] = listener
-
-        // 添加绑定
-        this.on(type, listener, capture)
-    }
-
-    /**
-     * 绑定一个事件
-     * @param  {String}    type
-     * @param  {Function}  callback
-     * @param  {Boolean}   capture
-     */
-    von.on = function (type, callback, capture) {
-        addEvent(this.el, type, callback, capture)
-    }
-
-    /**
-     * 解绑一个事件
-     * @param  {String}    type
-     * @param  {Function}  callback
-     * @param  {Boolean}   capture
-     */
-    von.off = function (type, callback, capture) {
-        var cache = this.cache
-        var guid = callback[identifier$1]
-        var listenerAgent = cache[guid]
-
-        if (listenerAgent) {
-            removeEvent(this.el, type, listenerAgent, capture)
-            delete cache[guid]
-        }
-    }
-
-    /**
-     * von 指令特定的销毁函数
-     */
-    von._destroy = function () {
-        clearObject(this.cache)
-
-        each(this.funcWatchers, function (watcher) {
-            watcher.destroy()
-        })
-
-        each(this.argsWatchers, function (watcher) {
-            watcher.destroy()
-        })
+        addEvent(el, type, listener, capture)
     }
 
     /**
