@@ -58,7 +58,6 @@ function replaceNode (oldChild, newChild) {
     }
 }
 
-
 /**
  * v-if 指令解析模块
  */

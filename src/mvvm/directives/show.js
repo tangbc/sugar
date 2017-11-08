@@ -24,7 +24,6 @@ function setStyleDisplay (node, display) {
     node.style.display = display
 }
 
-
 /**
  * v-show 指令解析模块
  */

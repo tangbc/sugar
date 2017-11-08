@@ -363,7 +363,6 @@ export function config (data, name, value) {
     }
 }
 
-
 /**
  * 挂载到 sugar 上的工具方法
  * @param  {Object}

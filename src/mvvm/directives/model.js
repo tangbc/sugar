@@ -7,7 +7,6 @@ import { text, radio, select, checkbox } from './models/index'
 // 双向数据绑定限制的表单元素
 const validForms = ['input', 'select', 'textarea']
 
-
 /**
  * v-model 指令解析模块
  */

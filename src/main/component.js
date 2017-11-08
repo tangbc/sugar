@@ -23,7 +23,6 @@ import {
 let componentEventGuid = 1000
 let identifier = '__eventid__'
 
-
 /**
  * Component 基础视图组件
  */

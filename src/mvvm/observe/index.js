@@ -1,17 +1,7 @@
 import Depend from '../depend'
 import Watcher from '../watcher'
 import { setMutationProto } from './array'
-import {
-    def,
-    each,
-    noop,
-    warn,
-    hasOwn,
-    isFunc,
-    isArray,
-    isObject
-} from '../../util'
-
+import { def, each, noop, warn, hasOwn, isFunc, isArray, isObject } from '../../util'
 
 /**
  * 生成取值路径
@@ -63,7 +53,6 @@ function Observer (data, path) {
     def(data, '__ob__', this)
 }
 
-
 /**
  * 创建一个对象监测
  * @param   {Object|Array}  target
@@ -113,6 +102,7 @@ export function observe (object, key, value, path) {
 
             return val
         },
+
         set: function Setter (newValue) {
             let oldValue = getter ? getter.call(object) : value
 
@@ -133,7 +123,6 @@ export function observe (object, key, value, path) {
         }
     })
 }
-
 
 /**
  * 生成计算属性取值函数

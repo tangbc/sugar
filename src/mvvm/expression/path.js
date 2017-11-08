@@ -167,7 +167,6 @@ function getDeepValue (target, paths) {
     return target
 }
 
-
 /**
  * 生成访问路径数组
  * @param   {String}  expression

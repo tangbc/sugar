@@ -111,7 +111,6 @@ function makeUnifyCallback (func, context) {
     }
 }
 
-
 /**
  * ViewModel 编译模块
  * @param  {Object}  option  [参数对象]

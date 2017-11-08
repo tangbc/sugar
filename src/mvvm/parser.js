@@ -46,7 +46,6 @@ pp.destroy = function () {
     this.vm = this.el = this.desc = this.scope = null
 }
 
-
 /**
  * 解析器模块的类式继承
  * @param   {Function}   PostParser

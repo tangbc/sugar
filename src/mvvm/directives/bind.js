@@ -143,7 +143,6 @@ function updateClass (element, classValue, remove) {
     }
 }
 
-
 /**
  * v-bind 指令解析模块
  */
