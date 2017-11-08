@@ -1,7 +1,7 @@
 /*!
  * mvvm.js v1.4.2 (c) 2017 TANG
  * Released under the MIT license
- * Tue Nov 07 2017 20:13:59 GMT+0800 (CST)
+ * Wed Nov 08 2017 17:37:06 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -591,7 +591,6 @@
         return target
     }
 
-
     /**
      * 生成访问路径数组
      * @param   {String}  expression
@@ -1053,7 +1052,6 @@
 
         this.vm = this.el = this.desc = this.scope = null
     }
-
 
     /**
      * 解析器模块的类式继承
@@ -1589,7 +1587,6 @@
         def(data, '__ob__', this)
     }
 
-
     /**
      * 创建一个对象监测
      * @param   {Object|Array}  target
@@ -1639,6 +1636,7 @@
 
                 return val
             },
+
             set: function Setter (newValue) {
                 var oldValue = getter ? getter.call(object) : value
 
@@ -1659,7 +1657,6 @@
             }
         })
     }
-
 
     /**
      * 生成计算属性取值函数
@@ -1735,7 +1732,6 @@
     function makeVforGuid () {
         return Math.random().toString(36).substr(2)
     }
-
 
     /**
      * v-for 指令解析模块
@@ -2179,7 +2175,6 @@
         }
     }
 
-
     /**
      * v-if 指令解析模块
      */
@@ -2350,7 +2345,6 @@
     function setStyleDisplay (node, display) {
         node.style.display = display
     }
-
 
     /**
      * v-show 指令解析模块
@@ -2534,7 +2528,6 @@
             })
         }
     }
-
 
     /**
      * v-bind 指令解析模块
@@ -2952,7 +2945,6 @@
     // 双向数据绑定限制的表单元素
     var validForms = ['input', 'select', 'textarea']
 
-
     /**
      * v-model 指令解析模块
      */
@@ -3199,7 +3191,6 @@
             }
         }
     }
-
 
     /**
      * ViewModel 编译模块
