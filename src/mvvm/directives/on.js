@@ -1,7 +1,7 @@
 import Parser, { linkParser } from '../parser'
 import { addEvent, removeEvent } from '../../dom'
 import { isNormal, addScope } from '../expression/index'
-import { removeSpace, each, def, error, warn, noop } from '../../util'
+import { removeSpace, each, error, warn, noop } from '../../util'
 
 /**
  * 获取事件修饰符对象
@@ -65,7 +65,7 @@ function collectEvents (desc) {
  */
 function createAnonymous (expression) {
     try {
-        return new Function('scope', addScope(expression))
+        return new Function('scope', '$event', addScope(expression))
     } catch (e) {
         error('Invalid generated expression: [' + expression + ']')
         return noop
@@ -136,7 +136,7 @@ von.bindEvent = function (type, handler, modifiers) {
     let scope = this.scope || this.vm.$data
     let { self, stop, prevent, capture, keyCode, one } = modifiers
 
-    let listenerAgent = function _listenerAgent (e) {
+    let listenerAgent = function (e) {
         if (
             (self && e.target !== el) || // 是否限定只能在当前节点触发事件
             (keyCode && keyCode !== e.keyCode) // 键盘事件时是否指定键码触发
@@ -154,13 +154,10 @@ von.bindEvent = function (type, handler, modifiers) {
             e.stopPropagation()
         }
 
-        // 挂载 $event
-        def(scope, '$event', e)
-
-        handler.call(scope, scope)
+        handler.call(scope, scope, e)
     }
 
-    let listener = one ? function _oneListener (e) {
+    let listener = one ? function (e) {
         listenerAgent(e)
         removeEvent(el, type, listener, capture)
     } : listenerAgent

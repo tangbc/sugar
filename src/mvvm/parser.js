@@ -1,4 +1,3 @@
-import { isFunc } from '../util'
 import Directive from './directive'
 
 /**
@@ -35,12 +34,8 @@ pp.bind = function () {
 pp.destroy = function () {
     let directive = this.directive
 
-    // 有些指令没有实例化 Directive
-    // 所以需要调用额外定义的销毁函数
     if (directive) {
         directive.destroy()
-    } else if (isFunc(this._destroy)) {
-        this._destroy()
     }
 
     this.vm = this.el = this.desc = this.scope = null

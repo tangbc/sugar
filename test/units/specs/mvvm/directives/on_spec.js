@@ -201,6 +201,21 @@ describe('v-on >', function () {
     })
 
 
+    it('use .prevent & has no inline statement', function () {
+        element.innerHTML = '<a id="el" v-on:click.prevent href="#abc"></a>'
+
+        new MVVM({
+            view: element,
+            model: {}
+        })
+        let hash = window.location.hash
+        let el = element.querySelector('#el')
+
+        triggerEvent(el, 'click')
+        expect(window.location.hash).toBe(hash) // no change hash
+    })
+
+
     it('setup keyCode', function () {
         element.innerHTML = '<input id="el" type="text" v-on:keyup.13="test">'
 
@@ -524,7 +539,7 @@ describe('v-on >', function () {
     })
 
 
-    it('bind with anonymous function using inline expression', function () {
+    it('use inline statement 1', function () {
         element.innerHTML =
             '<button v-on:click="value = \'bbb\'"></button>' +
             '<a v-on:click="value = \'ccc-\' + getStr()"></a>'
@@ -556,7 +571,61 @@ describe('v-on >', function () {
     })
 
 
-    it('bind with anonymous function using inline expression more logic', function () {
+    it('use inline statement 2', function () {
+        element.innerHTML =
+            '<button v-on:click="$event.target.textContent = Math.random()"></button>'
+
+        new MVVM({
+            view: element,
+            model: {}
+        })
+
+        let text
+        let button = document.querySelector('button')
+
+        text = button.textContent
+        expect(text.length).toBe(0)
+
+        triggerEvent(button, 'click')
+        text = button.textContent
+        expect(text.length !== 0).toBe(true)
+
+        triggerEvent(button, 'click')
+        expect(text !== button.textContent).toBe(true)
+    })
+
+
+    it('use inline statement 3', function () {
+        element.innerHTML =
+            '<button v-on:click="value = 123; $event.target.textContent = Date.now() + Math.random()"></button>'
+
+        let vm = new MVVM({
+            view: element,
+            model: {
+                value: 0
+            }
+        })
+
+        let data = vm.$data
+
+        let text
+        let button = document.querySelector('button')
+
+        text = button.textContent
+        expect(data.value).toBe(0)
+        expect(text.length).toBe(0)
+
+        triggerEvent(button, 'click')
+        text = button.textContent
+        expect(data.value).toBe(123)
+        expect(text.length !== 0).toBe(true)
+
+        triggerEvent(button, 'click')
+        expect(text !== button.textContent).toBe(true)
+    })
+
+
+    it('use inline statement more logic', function () {
         element.innerHTML =
             '<button v-on:click="if (ok) { title = 123 } else { title = 456 }"></button>' +
             '<span>{{ title }}</span>'
@@ -589,7 +658,7 @@ describe('v-on >', function () {
     })
 
 
-    it('bind with anonymous function using inline expression inside v-for scope', function () {
+    it('use inline statement inside v-for scope', function () {
         element.innerHTML =
             '<ul>' +
                 '<li v-for="item in items" v-on:mouseenter="item.value = 123">' +
@@ -629,7 +698,7 @@ describe('v-on >', function () {
     })
 
 
-    it('bind with anonymous function using inline expression break error', function () {
+    it('use inline statement break error', function () {
         element.innerHTML = '<button v-on:click="value = 1 ++ foo()"></button>'
 
         new MVVM({
