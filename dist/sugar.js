@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.4.2 (c) 2017 TANG
  * Released under the MIT license
- * Wed Nov 08 2017 17:37:04 GMT+0800 (CST)
+ * Thu Nov 09 2017 19:29:38 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -1315,25 +1315,23 @@
     }
 
     // 匹配常量缓存序号 "1"
-    var regSaveConst = /"(\d+)"/g
+    var saveConstRE = /"(\d+)"/g
     // 只含有 true 或 false
-    var regBool = /^(true|false)$/
+    var booleanRE = /^(true|false)$/
     // 匹配表达式中的常量
-    var regReplaceConst = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g
+    var replaceConstRE = /[\{,]\s*[\w\$_]+\s*:|('[^']*'|"[^"]*")|typeof /g
     // 匹配表达式中的取值域
-    var regReplaceScope = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*)/g
+    var replaceScopeRE = /[^\w$\.]([A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\])*)/g
     // 匹配常规取值: item or item['x'] or item["y"] or item[0]
-    var regNormal = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/
+    var normalRE = /^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/
 
     // 表达式中允许的关键字
     var allowKeywords = 'JSON.Math.parseInt.parseFloat.Date.this.true.false.null.undefined.Infinity.NaN.' +
                         'isNaN.isFinite.decodeURI.decodeURIComponent.encodeURI.encodeURIComponent'
-    var regAllowKeyword = new RegExp('^(' + allowKeywords.replace(/\./g, '\\b|') + '\\b)')
 
     // 表达式中禁止的关键字
     var avoidKeywords = 'var.const.let.if.else.for.in.continue.switch.case.break.default.function.return.' +
                         'do.while.delete.try.catch.throw.finally.with.import.export.instanceof.yield.await'
-    var regAviodKeyword = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)')
 
     // 保存常量，返回序号 "i"
     var consts = []
@@ -1354,7 +1352,18 @@
     }
 
     /**
-     * 返回变量/单词的 scope 替换
+     * 是否是不加 scope 的语句
+     * @param   {String}  sentence
+     * @return  {Boolean}
+     */
+    var allKeywords = allowKeywords + '.' + avoidKeywords
+    var scopeKeywordRE = new RegExp('^(' + allKeywords.replace(/\./g, '\\b|') + '\\b)')
+    function isScopeKeyword (sentence) {
+        return sentence.indexOf('$event') === 0 || scopeKeywordRE.test(sentence)
+    }
+
+    /**
+     * 返回变量/语句的 scope 替换
      * @param   {String}  string
      * @return  {String}
      */
@@ -1362,10 +1371,10 @@
         var pad = string.charAt(0)
         var path = string.slice(1)
 
-        if (regAllowKeyword.test(path) || regAviodKeyword.test(path)) {
+        if (isScopeKeyword(path)) {
             return string
         } else {
-            path = path.indexOf('"') > -1 ? path.replace(regSaveConst, returnConst) : path
+            path = path.indexOf('"') > -1 ? path.replace(saveConstRE, returnConst) : path
             return pad + 'scope.' + path
         }
     }
@@ -1376,7 +1385,7 @@
      * @return  {Boolean}
      */
     function isNormal (expression) {
-        return regNormal.test(expression) && !regBool.test(expression) && expression.indexOf('Math.') !== 0
+        return normalRE.test(expression) && !booleanRE.test(expression)
     }
 
     /**
@@ -1388,9 +1397,9 @@
             return 'scope.' + expression
         }
 
-        expression = (' ' + expression).replace(regReplaceConst, saveConst)
-        expression = expression.replace(regReplaceScope, replaceScope)
-        expression = expression.replace(regSaveConst, returnConst)
+        expression = (' ' + expression).replace(replaceConstRE, saveConst)
+        expression = expression.replace(replaceScopeRE, replaceScope)
+        expression = expression.replace(saveConstRE, returnConst)
 
         return expression
     }
@@ -1400,8 +1409,9 @@
      * @param   {String}    expression
      * @return  {Function}
      */
+    var aviodKeywordRE = new RegExp('^(' + avoidKeywords.replace(/\./g, '\\b|') + '\\b)')
     function createGetter (expression) {
-        if (regAviodKeyword.test(expression)) {
+        if (aviodKeywordRE.test(expression)) {
             warn('Avoid using unallow keyword in expression ['+ expression +']')
             return noop
         }
@@ -1741,12 +1751,8 @@
     pp.destroy = function () {
         var directive = this.directive
 
-        // 有些指令没有实例化 Directive
-        // 所以需要调用额外定义的销毁函数
         if (directive) {
             directive.destroy()
-        } else if (isFunc(this._destroy)) {
-            this._destroy()
         }
 
         this.vm = this.el = this.desc = this.scope = null
@@ -2017,7 +2023,7 @@
      */
     function createAnonymous (expression) {
         try {
-            return new Function('scope', addScope(expression))
+            return new Function('scope', '$event', addScope(expression))
         } catch (e) {
             error('Invalid generated expression: [' + expression + ']')
             return noop
@@ -2095,7 +2101,7 @@
         var keyCode = modifiers.keyCode;
         var one = modifiers.one;
 
-        var listenerAgent = function _listenerAgent (e) {
+        var listenerAgent = function (e) {
             if (
                 (self && e.target !== el) || // 是否限定只能在当前节点触发事件
                 (keyCode && keyCode !== e.keyCode) // 键盘事件时是否指定键码触发
@@ -2113,13 +2119,10 @@
                 e.stopPropagation()
             }
 
-            // 挂载 $event
-            def(scope, '$event', e)
-
-            handler.call(scope, scope)
+            handler.call(scope, scope, e)
         }
 
-        var listener = one ? function _oneListener (e) {
+        var listener = one ? function (e) {
             listenerAgent(e)
             removeEvent(el, type, listener, capture)
         } : listenerAgent
