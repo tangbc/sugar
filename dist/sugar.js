@@ -1,7 +1,7 @@
 /*!
  * sugar.js v1.4.2 (c) 2017 TANG
  * Released under the MIT license
- * Thu Nov 09 2017 19:29:38 GMT+0800 (CST)
+ * Fri Nov 10 2017 17:15:52 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -345,9 +345,9 @@
      * @param   {String}  string
      * @return  {String}
      */
-    var regSpaceAll = /\s/g
+    var spaceRE = /\s/g
     function removeSpace (string) {
-        return string.replace(regSpaceAll, '')
+        return string.replace(spaceRE, '')
     }
 
     /**
@@ -508,7 +508,7 @@
 
     var cache = { id: 1, length: 0 }
 
-    var regSuper = /\b\.Super\b/
+    var superRE = /\b\.Super\b/
     var _toString$1 = Function.prototype.toString
 
     /**
@@ -520,7 +520,7 @@
     function bindSuper (Super, method) {
         if (
             isFunc(method) &&
-            regSuper.test(_toString$1.call(method))
+            superRE.test(_toString$1.call(method))
         ) {
             return function () {
                 this.Super = Super
@@ -1625,7 +1625,7 @@
      */
     wp.update = function (args, depend) {
         var oldVal = this.oldVal
-        var unifyCb = this.vm.$unifyCb
+        var watchall = this.vm.$watchall
         var newVal = this.value = this.get()
 
         // 多维数组的情况下判断数组操作是否为源数组所发出的
@@ -1635,16 +1635,18 @@
         }
 
         var callback = this.callback
+        var fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0
         if (callback && (oldVal !== newVal)) {
-            callback.call(this.context, newVal, oldVal, (this.deep && this.shallowIds.indexOf(depend.guid) < 0), args)
+            callback.call(this.context, newVal, oldVal, fromDeep, args)
+
             if (source) {
                 args.source = null
             }
         }
 
         // 通知统一监听回调
-        if (unifyCb) {
-            unifyCb({ action: args, path: depend.path }, newVal, oldVal)
+        if (watchall) {
+            watchall({ action: args, path: depend.path }, newVal, oldVal)
         }
     }
 
@@ -1966,7 +1968,7 @@
      * 支持 6 种事件修饰符
      * .self .stop .prevent .capture .keyCode .one
      * @param  {String}  type
-     * @param  {String}  modifier
+     * @param  {Object}  modifier
      */
     function getModifiers (type, modifier) {
         var modifiers = modifier.split('.')
@@ -2069,8 +2071,8 @@
 
     /**
      * 绑定删除($remove) vfor 选项事件
-     * @param  {String}  type   [事件类型]
-     * @param  {String}  dress  [事件修饰符]
+     * @param  {String}  type       [事件类型]
+     * @param  {Object}  modifiers  [事件修饰符]
      */
     von.bindRemoveEvent = function (type, modifiers) {
         var scope = this.scope
@@ -2147,7 +2149,7 @@
     vel.parse = function () {
         // 不能在 vfor 中使用
         if (!this.scope) {
-            this.vm.$regEles[this.desc.expression] = this.el
+            this.vm.$els[this.desc.expression] = this.el
         } else {
             warn('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.')
         }
@@ -2417,7 +2419,7 @@
 
     var vforAlias = '__vfor__'
     var vforGuid = '__vforid__'
-    var regForExp = /(.*) (?:in|of) (.*)/
+    var vforRE = /(.*) (?:in|of) (.*)/
     var partlyMethods = 'push|pop|shift|unshift|splice'.split('|')
 
     /**
@@ -2468,7 +2470,7 @@
         var desc = this.desc
         var parent = el.parentNode
         var expression = desc.expression
-        var match = expression.match(regForExp)
+        var match = expression.match(vforRE)
 
         if (!match) {
             return warn('The format of v-for must be like "item in/of items"!')
@@ -2844,7 +2846,7 @@
      * @param  {DOMElement}  element
      */
     function removeDOMRegister (vm, element) {
-        var registers = vm.$regEles
+        var registers = vm.$els
         var childNodes = element.childNodes
 
         for (var i = 0; i < childNodes.length; i++) {
@@ -3802,10 +3804,10 @@
         vcustom: VCustom
     }
 
-    var regNewline = /\n/g
-    var regText = /\{\{(.+?)\}\}/g
-    var regMustache = /(\{\{.*\}\})/
-    var noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook']
+    var newlineRE = /\n/g
+    var textRE = /\{\{(.+?)\}\}/g
+    var mustacheRE = /(\{\{.*\}\})/
+    var noParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook']
 
     /**
      * 是否是合法指令
@@ -3851,7 +3853,7 @@
                 }
             }
 
-        } else if (isTextNode(node) && regMustache.test(node.textContent)) {
+        } else if (isTextNode(node) && mustacheRE.test(node.textContent)) {
             return true
         }
     }
@@ -3920,7 +3922,11 @@
         var computed = option.computed
         var watchAll = option.watchAll
 
-        if (!isElement(element)) {
+        if (isString(element)) {
+            element = document.querySelector(element)
+        }
+
+        if (!element || !isElement(element)) {
             return warn('view must be a type of DOMElement: ', element)
         }
 
@@ -3935,14 +3941,15 @@
         // 缓存根节点
         this.$element = element
         // DOM 注册索引
-        this.$regEles = {}
+        this.$els = {}
         // 指令实例缓存
         this.$directives = []
         // 钩子和统一回调作用域
         this.$context = option.context || this
 
         // 监测数据模型
-        this.$ob = createObserver(this.$data)
+        createObserver(this.$data)
+
         // 设置计算属性
         if (computed) {
             setComputedProperty(this.$data, computed)
@@ -3955,7 +3962,7 @@
         // 自定义指令刷新函数
         this.$customs = option.customs || {}
         // 监听变更统一回调
-        this.$unifyCb = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null
+        this.$watchall = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null
 
         // 是否立刻编译根元素
         if (!option.lazy) {
@@ -4117,7 +4124,7 @@
         removeAttr(node, desc.attr)
 
         // 不需要实例化解析的指令
-        if (noNeedParsers.indexOf(dir) > -1) {
+        if (noParsers.indexOf(dir) > -1) {
             return
         }
 
@@ -4143,10 +4150,10 @@
     cp.parseText = function (node, scope) {
         var tokens = [], desc = {}
         var once = node.parentNode && node.parentNode.__vonce__
-        var text = node.textContent.trim().replace(regNewline, '')
+        var text = node.textContent.trim().replace(newlineRE, '')
 
-        var pieces = text.split(regText)
-        var matches = text.match(regText)
+        var pieces = text.split(textRE)
+        var matches = text.match(textRE)
 
         // 文本节点转化为常量和变量的组合表达式
         // 'a {{b}} c' => '"a " + b + " c"'
@@ -4200,6 +4207,8 @@
         if (this.$queue.length === 0 && !this.$done) {
             this.$done = true
             this.$element.appendChild(this.$fragment)
+
+            delete this.$fragment
 
             // 触发编译完成后的回调函数
             each(this.$afters, function (after) {
@@ -4260,7 +4269,7 @@
         // 数据模型对象
         this.$data = this.__vm__.$data
         // DOM 注册索引
-        this.$els = this.__vm__.$regEles
+        this.$els = this.__vm__.$els
 
         // 批量 watch
         each(option.watches, function (callback, expression) {
