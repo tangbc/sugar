@@ -4,7 +4,7 @@ import {
     isFunc
 } from '../util'
 
-const regSuper = /\b\.Super\b/
+const superRE = /\b\.Super\b/
 const _toString = Function.prototype.toString
 
 /**
@@ -16,7 +16,7 @@ const _toString = Function.prototype.toString
 function bindSuper (Super, method) {
     if (
         isFunc(method) &&
-        regSuper.test(_toString.call(method))
+        superRE.test(_toString.call(method))
     ) {
         return function () {
             this.Super = Super

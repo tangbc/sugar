@@ -5,7 +5,7 @@ import { warn, createFragment, each, def, isFunc } from '../../util'
 
 const vforAlias = '__vfor__'
 const vforGuid = '__vforid__'
-const regForExp = /(.*) (?:in|of) (.*)/
+const vforRE = /(.*) (?:in|of) (.*)/
 const partlyMethods = 'push|pop|shift|unshift|splice'.split('|')
 
 /**
@@ -56,7 +56,7 @@ vfor.parse = function () {
     let desc = this.desc
     let parent = el.parentNode
     let expression = desc.expression
-    let match = expression.match(regForExp)
+    let match = expression.match(vforRE)
 
     if (!match) {
         return warn('The format of v-for must be like "item in/of items"!')

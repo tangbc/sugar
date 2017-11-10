@@ -1,12 +1,12 @@
 import { DirectiveParsers } from './directives/index'
 import { createObserver, setComputedProperty } from './observe/index'
-import { def, each, warn, isObject, isFunc, nodeToFragment } from '../util'
+import { def, each, warn, isString, isObject, isFunc, nodeToFragment } from '../util'
 import { hasAttr, isElement, isTextNode, removeAttr, empty, getAttr } from '../dom'
 
-const regNewline = /\n/g
-const regText = /\{\{(.+?)\}\}/g
-const regMustache = /(\{\{.*\}\})/
-const noNeedParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook']
+const newlineRE = /\n/g
+const textRE = /\{\{(.+?)\}\}/g
+const mustacheRE = /(\{\{.*\}\})/
+const noParsers = ['velse', 'vpre', 'vcloak', 'vonce', 'vhook']
 
 /**
  * 是否是合法指令
@@ -52,7 +52,7 @@ function hasDirective (node) {
             }
         }
 
-    } else if (isTextNode(node) && regMustache.test(node.textContent)) {
+    } else if (isTextNode(node) && mustacheRE.test(node.textContent)) {
         return true
     }
 }
@@ -121,7 +121,11 @@ function Compiler (option) {
     let computed = option.computed
     let watchAll = option.watchAll
 
-    if (!isElement(element)) {
+    if (isString(element)) {
+        element = document.querySelector(element)
+    }
+
+    if (!element || !isElement(element)) {
         return warn('view must be a type of DOMElement: ', element)
     }
 
@@ -136,14 +140,15 @@ function Compiler (option) {
     // 缓存根节点
     this.$element = element
     // DOM 注册索引
-    this.$regEles = {}
+    this.$els = {}
     // 指令实例缓存
     this.$directives = []
     // 钩子和统一回调作用域
     this.$context = option.context || this
 
     // 监测数据模型
-    this.$ob = createObserver(this.$data)
+    createObserver(this.$data)
+
     // 设置计算属性
     if (computed) {
         setComputedProperty(this.$data, computed)
@@ -156,7 +161,7 @@ function Compiler (option) {
     // 自定义指令刷新函数
     this.$customs = option.customs || {}
     // 监听变更统一回调
-    this.$unifyCb = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null
+    this.$watchall = isFunc(watchAll) ? makeUnifyCallback(watchAll, this.$context) : null
 
     // 是否立刻编译根元素
     if (!option.lazy) {
@@ -316,7 +321,7 @@ cp.parse = function (node, attr, scope) {
     removeAttr(node, desc.attr)
 
     // 不需要实例化解析的指令
-    if (noNeedParsers.indexOf(dir) > -1) {
+    if (noParsers.indexOf(dir) > -1) {
         return
     }
 
@@ -342,10 +347,10 @@ cp.parse = function (node, attr, scope) {
 cp.parseText = function (node, scope) {
     let tokens = [], desc = {}
     let once = node.parentNode && node.parentNode.__vonce__
-    let text = node.textContent.trim().replace(regNewline, '')
+    let text = node.textContent.trim().replace(newlineRE, '')
 
-    let pieces = text.split(regText)
-    let matches = text.match(regText)
+    let pieces = text.split(textRE)
+    let matches = text.match(textRE)
 
     // 文本节点转化为常量和变量的组合表达式
     // 'a {{b}} c' => '"a " + b + " c"'
@@ -399,6 +404,8 @@ cp.completed = function () {
     if (this.$queue.length === 0 && !this.$done) {
         this.$done = true
         this.$element.appendChild(this.$fragment)
+
+        delete this.$fragment
 
         // 触发编译完成后的回调函数
         each(this.$afters, function (after) {

@@ -8,7 +8,7 @@ import { removeSpace, each, error, warn, noop } from '../../util'
  * 支持 6 种事件修饰符
  * .self .stop .prevent .capture .keyCode .one
  * @param  {String}  type
- * @param  {String}  modifier
+ * @param  {Object}  modifier
  */
 function getModifiers (type, modifier) {
     let modifiers = modifier.split('.')
@@ -109,8 +109,8 @@ von.parseEvent = function (event) {
 
 /**
  * 绑定删除($remove) vfor 选项事件
- * @param  {String}  type   [事件类型]
- * @param  {String}  dress  [事件修饰符]
+ * @param  {String}  type       [事件类型]
+ * @param  {Object}  modifiers  [事件修饰符]
  */
 von.bindRemoveEvent = function (type, modifiers) {
     let scope = this.scope

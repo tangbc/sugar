@@ -9,7 +9,7 @@ import { hasOwn, def, warn, isFunc } from '../../util'
  * @param  {DOMElement}  element
  */
 function removeDOMRegister (vm, element) {
-    let registers = vm.$regEles
+    let registers = vm.$els
     let childNodes = element.childNodes
 
     for (let i = 0; i < childNodes.length; i++) {

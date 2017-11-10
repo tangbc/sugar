@@ -18,7 +18,7 @@ let vel = linkParser(VEl)
 vel.parse = function () {
     // 不能在 vfor 中使用
     if (!this.scope) {
-        this.vm.$regEles[this.desc.expression] = this.el
+        this.vm.$els[this.desc.expression] = this.el
     } else {
         warn('v-el can not be used inside v-for! Consider use v-custom to handle v-for element.')
     }

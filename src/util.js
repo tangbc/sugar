@@ -332,9 +332,9 @@ export function nodeToFragment (element) {
  * @param   {String}  string
  * @return  {String}
  */
-const regSpaceAll = /\s/g
+const spaceRE = /\s/g
 export function removeSpace (string) {
-    return string.replace(regSpaceAll, '')
+    return string.replace(spaceRE, '')
 }
 
 /**

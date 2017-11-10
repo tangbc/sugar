@@ -187,7 +187,7 @@ wp.beforeUpdate = function () {
  */
 wp.update = function (args, depend) {
     let oldVal = this.oldVal
-    let unifyCb = this.vm.$unifyCb
+    let watchall = this.vm.$watchall
     let newVal = this.value = this.get()
 
     // 多维数组的情况下判断数组操作是否为源数组所发出的
@@ -197,16 +197,18 @@ wp.update = function (args, depend) {
     }
 
     let callback = this.callback
+    let fromDeep = this.deep && this.shallowIds.indexOf(depend.guid) < 0
     if (callback && (oldVal !== newVal)) {
-        callback.call(this.context, newVal, oldVal, (this.deep && this.shallowIds.indexOf(depend.guid) < 0), args)
+        callback.call(this.context, newVal, oldVal, fromDeep, args)
+
         if (source) {
             args.source = null
         }
     }
 
     // 通知统一监听回调
-    if (unifyCb) {
-        unifyCb({ action: args, path: depend.path }, newVal, oldVal)
+    if (watchall) {
+        watchall({ action: args, path: depend.path }, newVal, oldVal)
     }
 }
 
