@@ -12,7 +12,7 @@
         UNIT: 20,
 
         // per apple could achive scores
-        SCORE: 5,
+        SCORE: 2,
 
         // init snake length, except head
         LENGTH: 3,
