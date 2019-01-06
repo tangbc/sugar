@@ -6,9 +6,6 @@
         <li>Press <code>↑</code> <code>↓</code> <code>←</code> <code>→</code> or
             <code>W</code> <code>A</code> <code>S</code> <code>D</code> to control direct.
         </li>
-        <li>
-            Snake will die and finish when touch the edge or apple leftover !
-        </li>
     </ul>
 </div>
 <div class="screen" v-else>
@@ -38,7 +35,7 @@
     ></b>
 </div>
 <div class="grid" v-el="grid"></div>
-<div class="over" v-show="showResult">
+<div class="over fadeIn" v-show="showResult">
     <h2>Game Over ! You lose life !</h2>
     <p>Press <i>ESC</i> to restart a new game.</p>
 </div>

@@ -15,7 +15,7 @@
         SCORE: 2,
 
         // init snake length, except head
-        LENGTH: 3,
+        LENGTH: 1,
 
         // move speed
         SPEED: 178

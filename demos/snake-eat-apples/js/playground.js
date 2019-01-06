@@ -198,6 +198,7 @@
             for (var i = snakes.length - 1; i > 0; i--) {
                 snakes[i].row = snakes[i - 1].row
                 snakes[i].line = snakes[i - 1].line
+                // snakes[i].direct = snakes[i - 1].direct
             }
             return this
         },
@@ -265,10 +266,21 @@
             var data = this.vm.$data
             this.pause(true)
             this.over = true
-            _.each(data.snakes, function (snake) {
-                snake.life = TYPE.dead
+
+            var delayTime = 50
+            var lastDelayTime = 0
+            _.each(data.snakes, function (snake, index) {
+                lastDelayTime = delayTime * index
+
+                setTimeout(function () {
+                    snake.life = TYPE.dead
+                }, lastDelayTime)
             })
-            data.showResult = true
+
+            setTimeout(function () {
+                data.showResult = true
+            }, lastDelayTime + delayTime * 5)
+
             this.fire('gameOver')
         },
 

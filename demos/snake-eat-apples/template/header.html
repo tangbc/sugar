@@ -1,12 +1,12 @@
 <ul class="info">
     <li class="score">
-        Score: <b class="large">{{ score }}</b>
+        Score: <span class="large">{{ score }}</span>
     </li>
     <li class="record">
-        Record: <b class="best large">{{ best }}</b>
+        Best Record: <span class="best large">{{ best }}</span>
     </li>
     <li class="msg" v-show="broke">
-        <span class="text">You've broke the record !</span>
+        <span class="text">Congratulations on breaking the record!</span>
     </li>
 </ul>
 <div class="timekeeper">

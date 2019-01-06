@@ -6,6 +6,9 @@
         return Math.round(Math.random() * max + 1)
     }
 
+    // mark zones when bear
+    var bearZones = []
+
     // Fruit class
     function Fruit (rows, lines) {
         this.row = 0
@@ -22,11 +25,12 @@
         var line = random(this.lines)
         var identity = row + ',' + line
 
-        if (zone.indexOf(identity) > -1) {
+        if (zone.indexOf(identity) > -1 || bearZones.indexOf(identity) > -1) {
             return this.bear(zone)
         } else {
             this.row = row
             this.line = line
+            bearZones.push(identity)
             return { row: row, line: line, eaten: false }
         }
     }
