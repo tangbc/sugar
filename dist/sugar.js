@@ -1,7 +1,7 @@
 /*!
- * sugar.js v1.4.2 (c) 2017 TANG
+ * sugar.js v1.4.3 (c) 2019 TANG
  * Released under the MIT license
- * Fri Nov 10 2017 17:15:52 GMT+0800 (CST)
+ * Thu Feb 07 2019 16:57:26 GMT+0800 (CST)
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -571,14 +571,6 @@
     }
 
     /**
-     * 字符串首字母大写
-     * @param   {String}  string
-     */
-    function ucFirst (string) {
-        return string.charAt(0).toUpperCase() + string.substr(1)
-    }
-
-    /**
      * 根据组件名称获取组件实例
      * @param   {String}  name
      */
@@ -617,8 +609,6 @@
             name: name,
             // 消息参数
             param: param,
-            // 接收消息组件的调用方法 on + 首字母大写
-            method: 'on' + ucFirst(name),
             // 消息接收者的返回数据
             returns: null
         }
@@ -632,7 +622,7 @@
      */
     function triggerReceiver (receiver, msg) {
         // 接受者消息处理方法
-        var func = receiver[msg.method]
+        var func = receiver[msg.name]
 
         // 触发接收者的消息处理方法
         if (isFunc(func)) {
