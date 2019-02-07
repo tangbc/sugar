@@ -68,10 +68,10 @@ var KARMABASE = {
  * unit test config
  */
 var UNITCONIG = Object.assign({}, KARMABASE, {
-    // browsers: ['Chrome'],
+    browsers: ['Chrome'],
     // browsers: ['Firefox'],
     // browsers: ['Safari'],
-    browsers: ['Chrome', 'Firefox', 'Safari'],
+    // browsers: ['Chrome', 'Firefox', 'Safari'],
     webpack: webpackConfig,
     reporters: ['progress']
 })
