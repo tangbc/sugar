@@ -2,14 +2,6 @@ import cache from './cache'
 import { each, isFunc, isObject, isString, warn } from '../util'
 
 /**
- * 字符串首字母大写
- * @param   {String}  string
- */
-function ucFirst (string) {
-    return string.charAt(0).toUpperCase() + string.substr(1)
-}
-
-/**
  * 根据组件名称获取组件实例
  * @param   {String}  name
  */
