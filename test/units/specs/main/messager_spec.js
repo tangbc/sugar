@@ -28,7 +28,7 @@ describe('sugar message >', function () {
                 this.Super('init', config)
             },
             afterRender: function () {
-                this.fire('messageLevel3', 123)
+                this.fire('onMessageLevel3', 123)
             }
         })
 
@@ -42,11 +42,11 @@ describe('sugar message >', function () {
                     target: this.el
                 })
 
-                this.fire('messageLevel2', {'id': 123}, 'afterSent')
+                this.fire('onMessageLevel2', {'id': 123}, 'afterSent')
                 // fire another message at the same time
-                this.fire('messageLevel22', 2222)
+                this.fire('onMessageLevel22', 2222)
                 // fire again next
-                this.fire('messageLevel222', function (msg) {
+                this.fire('onMessageLevel222', function (msg) {
                     expect(msg.count).toBe(1) // return false by CompLevel1
                 })
             },
@@ -73,7 +73,7 @@ describe('sugar message >', function () {
                 })
 
                 // just a message, no content no sent back
-                this.fire('messageLevel1')
+                this.fire('onMessageLevel1')
             },
             onMessageLevel3: function (msg) {
                 expect(msg.param).toBe(123)
@@ -173,7 +173,7 @@ describe('sugar message >', function () {
                     target: this.el
                 })
 
-                this.broadcast('level_2_ok', this.afterSentLevel_2_ok)
+                this.broadcast('onLevel_2_ok', this.afterSentLevel_2_ok)
             },
             afterSentLevel_2_ok: function (msg) {
                 expect(msg.count).toBe(1)
@@ -203,7 +203,7 @@ describe('sugar message >', function () {
                     target: this.el
                 })
 
-                this.broadcast('level_1_ok', 12, 'afterSentLevel_1_ok')
+                this.broadcast('onLevel_1_ok', 12, 'afterSentLevel_1_ok')
             },
             afterSentLevel_1_ok: function (msg) {
                 expect(msg.count).toBe(1)
@@ -228,7 +228,7 @@ describe('sugar message >', function () {
                     target: this.el
                 })
 
-                this.broadcast('viewOk', [1, 2, 3], this.afterSent)
+                this.broadcast('onViewOk', [1, 2, 3], this.afterSent)
             },
             afterSent: function (msg) {
                 expect(msg.count).toBe(3)
@@ -309,17 +309,17 @@ describe('sugar message >', function () {
                 // notify by component instance
                 this.notify(sugar.core.get('view1'), 'msgSendToView1', 123)
                 // send another message
-                this.notify('view1', 'msgSendToView1ByName', 321)
+                this.notify('view1', 'onMsgSendToView1ByName', 321)
 
                 // notify by component name
-                this.notify('view1.comp1', 'msgSendToComp1', 456, 'afterNotifyComp1')
+                this.notify('view1.comp1', 'onMsgSendToComp1', 456, 'afterNotifyComp1')
 
-                this.notify('view1.comp1.comp2', 'msgSendToComp2', function (msg) {
+                this.notify('view1.comp1.comp2', 'onMsgSendToComp2', function (msg) {
                     expect(msg.returns).toBe('xxdk')
                 })
 
                 // notify to an unknown component
-                this.notify('unknown', 'canYouReceiveMe')
+                this.notify('unknown', 'onCanYouReceiveMe')
                 expect(util.warn).toHaveBeenCalledWith('Component: [unknown] is not exist!')
             },
             afterNotifyComp1: function (msg) {
@@ -385,7 +385,7 @@ describe('sugar message >', function () {
             },
             afterRender: function () {
                 // cast inside componet, but it's same to everywhere
-                sugar.core.globalCast('insideCast', this.afterSentInsideCast, this)
+                sugar.core.globalCast('onInsideCast', this.afterSentInsideCast, this)
             },
             afterSentInsideCast: function (msg) {
                 // just view2 and view1 have the message recevier `onInsideCast`
@@ -403,7 +403,7 @@ describe('sugar message >', function () {
         })
 
         // globalCast should be only send by sugar.core
-        sugar.core.globalCast('cast', 789, function (msg) {
+        sugar.core.globalCast('onCast', 789, function (msg) {
             expect(msg.count).toBe(4) // 4 component in this spec
             expect(sugar.core.getChilds(true).length).toBe(2)
         })

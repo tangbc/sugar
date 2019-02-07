@@ -48,8 +48,6 @@ function createMessage (type, sender, name, param) {
         name: name,
         // 消息参数
         param: param,
-        // 接收消息组件的调用方法 on + 首字母大写
-        method: 'on' + ucFirst(name),
         // 消息接收者的返回数据
         returns: null
     }
@@ -63,7 +61,7 @@ function createMessage (type, sender, name, param) {
  */
 function triggerReceiver (receiver, msg) {
     // 接受者消息处理方法
-    let func = receiver[msg.method]
+    let func = receiver[msg.name]
 
     // 触发接收者的消息处理方法
     if (isFunc(func)) {
