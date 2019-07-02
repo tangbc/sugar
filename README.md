@@ -94,7 +94,7 @@ There are several complete and amusing demos in **`demos/`** folder make you kno
 * [StarRating](https://tangbc.github.io/sugar/demos/starRating)
 * [DatePicker](https://tangbc.github.io/sugar/demos/datePicker)
 * [TodoMVC](https://tangbc.github.io/sugar/demos/todoMVC)
-* [Snake eat apple game](https://tangbc.github.io/snake-eat-apples/)
+* [Snake eat apple game](https://tangbc.github.io/snake-eat-bugs/)
 
 > *i. Sometimes Github-page link disconnected by `Enforce HTTPS`, please use `https` protocol instead.*
 
