@@ -24,7 +24,7 @@ Simple api and without any dependence. Consists of two independent libraries:
 <img src="https://tangbc.github.io/github-images/sugar-diagram-en.png" width="600">
 
 
-## HelloWord
+## HelloWorld
 
 ### mvvm.js
 ```html
